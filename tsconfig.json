@@ -1,0 +1,36 @@
+/* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+/* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "outDir": "./dist/out-tsc",
+        "strict": true,
+        "noImplicitOverride": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "skipLibCheck": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "bundler",
+        "importHelpers": true,
+        "target": "ES2022",
+        "module": "ES2022",
+        "baseUrl": "./",
+        "paths": {
+            "@/*": [
+                "src/app/*"
+            ],
+            "xl-auth": ["libs/xl-auth/src/index.ts"], // git@github.com:taurus366/xl-auth.git
+            "xl-util": ["libs/xl-util/src/index.ts"], // git@github.com:taurus366/xl-util.git
+            "xl-layout": ["libs/xl-layout/src/index.ts"] // git@github.com:taurus366/xl-layout.git
+        }
+    },
+    "angularCompilerOptions": {
+        "enableI18nLegacyMessageIdFormat": false,
+        "strictInjectionParameters": true,
+        "strictInputAccessModifiers": true,
+        "strictTemplates": true
+    }
+}
