@@ -7,5 +7,7 @@
   "Email": "Email",
   "Status": "Status",
   "Blocked": "Blocked",
-  "Active": "Active"
+  "Active": "Active",
+  "New": "New",
+  "Delete": "Delete"
 }

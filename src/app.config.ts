@@ -48,9 +48,9 @@ export const appConfig: ApplicationConfig = {
         {
             provide: XL_TOPBAR_CONFIG,
             useValue: {
-                name: 'SATENO',
-                logoUrl: 'assets/img/diagram.png',
-                logoStyle: {'width': '60px'}
+                name: '',
+                logoUrl: 'assets/img/sateno.png',
+                logoStyle: {'width': '100%', 'height': '110px'}
             }
         },
         provideTranslateService({
