@@ -1,13 +1,13 @@
 {
+    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "outDir": "./dist/out-tsc",
+        "isolatedModules": true,
         "strict": true,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
-        "isolatedModules": true,
-        "esModuleInterop": true
+        "module": "preserve"
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,
@@ -15,5 +15,11 @@
         "strictInputAccessModifiers": true,
         "strictTemplates": true
     },
-    "extends": "./tsconfig.base.json"
+    "files": [],
+    "include": [],
+    "references": [
+        {
+            "path": "./tsconfig.lib.json"
+        }
+    ]
 }

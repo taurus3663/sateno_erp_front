@@ -1,0 +1,10 @@
+{
+    "name": "customer",
+    "version": "0.0.1",
+    "peerDependencies": {
+        "@angular/common": "*",
+        "@angular/core": "*",
+        "xl-util":"*"
+    },
+    "sideEffects": false
+}

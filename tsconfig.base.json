@@ -1,0 +1,19 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "moduleResolution": "bundler",
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "target": "ES2022",
+        "module": "ES2022",
+        "skipLibCheck": true,
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["src/app/*"],
+            "xl-auth": ["libs/xl-auth/src/index.ts"],
+            "xl-util": ["libs/xl-util/src/index.ts"],
+            "xl-layout": ["libs/xl-layout/src/index.ts"],
+            "customer": ["libs/customer/src/index.ts"]
+        }
+    }
+}
