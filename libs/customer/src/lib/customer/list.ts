@@ -44,7 +44,7 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
                         <p-tableHeaderCheckbox />
                     </th>
                     <th>{{ 'Id' | translate }}</th>
-                    <th>{{'User' | translate}}</th>
+                    <th>{{'Customer' | translate}}</th>
                     <th>{{'Email' | translate}}</th>
                     <th>{{'Status' | translate}}</th>
                     <th style="width: 8rem"></th>
