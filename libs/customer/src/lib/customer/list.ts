@@ -8,6 +8,8 @@ import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
+import { CustomerDetailComponent } from './detail';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 
 @Component({
@@ -18,7 +20,7 @@ import { Toolbar } from 'primeng/toolbar';
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
-                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedUsers" />
+                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
             </ng-template>
         </p-toolbar>
 
@@ -32,7 +34,7 @@ import { Toolbar } from 'primeng/toolbar';
             [loading]="listService.loading()"
             [rowsPerPageOptions]="[10, 20, 50]"
             [tableStyle]="{ 'min-width': '50rem' }"
-            [(selection)]="selectedUsers"
+            [(selection)]="selectedItem"
             [rowHover]="true"
             dataKey="id"
         >
@@ -50,7 +52,7 @@ import { Toolbar } from 'primeng/toolbar';
             </ng-template>
 
             <ng-template pTemplate="body" let-user>
-                <tr (click)="onRowClick(user)" [ngClass]="{'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup'}">
+                <tr [ngClass]="{'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup'}">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="user"></p-tableCheckbox>
                     </td>
@@ -71,12 +73,15 @@ import { Toolbar } from 'primeng/toolbar';
             </ng-template>
         </p-table>
 
+        <customer-detail *ngIf="config?.data?.mode !== 'lookup'"></customer-detail>
     `
 })
 export class CustomerListComponent {
     public listService = inject(CustomerListService);
     public detailService = inject(DetailService);
     private tr = inject(TranslateService);
+    protected config = inject(DynamicDialogConfig, { optional: true });
+
 
     selectedItem!: ICustomer[] | null;
 

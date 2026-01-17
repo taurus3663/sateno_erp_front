@@ -4,12 +4,14 @@ import { appConfig } from './app.config';
 import {AppComponent} from 'xl-layout';
 // Професионален "Loader"
 const modules = [
-    () => import('xl-auth')
+    import('customer'),
+    import('xl-auth')
 ];
 
 // bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
 Promise.all(modules)
     .then(() => {
+        // console.log('App loaded');
         // Чак тук стартираме Angular, след като всички registerRoute са изпълнени
         return bootstrapApplication(AppComponent, appConfig);
     })
