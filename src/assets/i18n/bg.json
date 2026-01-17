@@ -10,5 +10,17 @@
   "Active": "Активен",
   "New": "Нов",
   "Delete": "Изтриване",
-  "Customer": "Kлиент"
+  "Customer": "Kлиент",
+  "Are_you_sure?": "Сигурни ли сте?",
+  "Name": "Име",
+  "Symbol": "Символ",
+  "DecimalPlaces": "Закръгляне до знак",
+  "Code": "Код",
+  "Edit": "Промяна",
+  "Currency": "Валута",
+  "Url": "Url",
+  "Consumer_key": "Ключ",
+  "Consumer_secret": "Секрет",
+  "No": "Не",
+  "Site": "Сайт"
 }

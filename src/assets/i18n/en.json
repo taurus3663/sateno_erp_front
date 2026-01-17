@@ -10,5 +10,17 @@
   "Active": "Active",
   "New": "New",
   "Delete": "Delete",
-  "Customer": "Customer"
+  "Customer": "Customer",
+  "Are_you_sure?": "Are you sure?",
+  "Name": "Name",
+  "Symbol": "Symbol",
+  "DecimalPlaces": "DecimalPlaces",
+  "Code": "Code",
+  "Edit": "Edit",
+  "Currency": "Currency",
+  "Url": "Url",
+  "Consumer_key": "Consumer_key",
+  "Consumer_secret": "Consumer_secret",
+  "No": "No",
+  "Site": "Site"
 }

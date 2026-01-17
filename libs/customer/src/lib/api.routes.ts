@@ -7,6 +7,23 @@ export class apiRoutes {
         save: `${apiRoutes.customerBase}/save`,
         delete: `${apiRoutes.customerBase}/delete`,
     };
+
+    private static readonly currencyBase = 'currency';
+    public readonly currency = {
+        list: `${apiRoutes.currencyBase}/list`,
+        get: `${apiRoutes.currencyBase}/detail`,
+        save: `${apiRoutes.currencyBase}/save`,
+        delete: `${apiRoutes.currencyBase}/delete`,
+    }
+
+    private static readonly siteBase = 'site';
+    public readonly site = {
+        list: `${apiRoutes.siteBase}/list`,
+        get: `${apiRoutes.siteBase}/detail`,
+        save: `${apiRoutes.siteBase}/save`,
+        delete: `${apiRoutes.siteBase}/delete`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

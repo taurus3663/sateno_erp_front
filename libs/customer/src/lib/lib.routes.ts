@@ -6,6 +6,14 @@ registerRoute([
     {
         path: 'customer/list',
         loadComponent: () => import('./customer/list').then(c => c.CustomerListComponent)
+    },
+    {
+        path: 'currency/list',
+        loadComponent: () => import('./currency/list').then(c => c.CurrencyListComponent)
+    },
+    {
+        path: 'site/list',
+        loadComponent: () => import('./site/list').then(c => c.SiteListComponent)
     }
 ]);
     registerMenu([
@@ -20,6 +28,27 @@ registerRoute([
                             label: 'Kлиенти',
                             icon: PrimeIcons.USERS,
                             routerLink: ['/customer/list']
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            label: '',
+            items: [
+                {
+                    label: 'Настройки',
+                    icon: PrimeIcons.SLIDERS_H,
+                    items: [
+                        {
+                            label: 'Валути',
+                            icon: PrimeIcons.MONEY_BILL,
+                            routerLink: ['/currency/list']
+                        },
+                        {
+                            label: 'Сайтове',
+                            icon: PrimeIcons.SITEMAP,
+                            routerLink: ['/site/list']
                         }
                     ]
                 }
