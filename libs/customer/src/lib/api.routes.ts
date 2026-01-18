@@ -24,6 +24,14 @@ export class apiRoutes {
         delete: `${apiRoutes.siteBase}/delete`,
     }
 
+    private static readonly languageBase = 'language';
+    public readonly language = {
+        list: `${apiRoutes.languageBase}/list`,
+        get: `${apiRoutes.languageBase}/detail`,
+        save: `${apiRoutes.languageBase}/save`,
+        delete: `${apiRoutes.languageBase}/delete`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

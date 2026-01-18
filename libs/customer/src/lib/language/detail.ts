@@ -5,15 +5,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SiteDetailService } from './detail.service';
+import { LanguageDetailService } from './detail.service';
 import { Checkbox } from 'primeng/checkbox';
 import { CurrencyListService } from '../currency/list.service';
 import { Select } from 'primeng/select';
-import { LanguageListService } from '../language/list.service';
 
 
 @Component({
-    selector: 'site-detail',
+    selector: 'language-detail',
     standalone: true,
     imports: [Dialog, Button, InputText, FormsModule, CommonModule, ButtonDirective, TranslatePipe, Checkbox, Select],
     template: `
@@ -25,7 +24,7 @@ import { LanguageListService } from '../language/list.service';
                 <div class="w-full text-center">
                     <span class="text-xl font-bold">
                         <!--                        {{ detailService.selectedItem()?.id ? 'Редакция на клиент #' + detailService.selectedItem()?.id : 'Нов клиент' }}-->
-                        {{ detailService.selectedItem()?.id ? ('Edit' | translate) + ' ' + ('Site' | translate) + ' #' + detailService.selectedItem()?.id : ('New' | translate) + ' ' + ('Site' | translate) }}
+                        {{ detailService.selectedItem()?.id ? ('Edit' | translate) + ' ' + ('Language' | translate) + ' #' + detailService.selectedItem()?.id : ('New' | translate) + ' ' + ('Language' | translate) }}
                     </span>
                 </div>
             </ng-template>
@@ -38,38 +37,9 @@ import { LanguageListService } from '../language/list.service';
                     </div>
 
                     <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Currency' | translate }}</label>
+                        <label class="block font-bold mb-2">{{ 'Code' | translate }}</label>
 
-                        <p-select [options]="currencyService.items()" [(ngModel)]="item.currency" optionLabel="name"
-                                  placeholder="Избери валута" dataKey="id" class="w-full" />
-                    </div>
-
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Language' | translate }}</label>
-
-                        <p-select [options]="languageService.items()" [(ngModel)]="item.language" optionLabel="name"
-                                  placeholder="Избери Език" dataKey="id" class="w-full" />
-                    </div>
-
-                    <div class="col-span-8">
-                        <label class="block font-bold mb-2">{{ 'Url' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.url" class="w-full" />
-                    </div>
-
-                    <div class="col-span-4">
-                        <label class="block font-bold mb-2">{{ 'Active' | translate }}</label>
-                        <!--                        <input pInputText [(ngModel)]="item.isActive" class="w-full" />-->
-                        <p-checkbox [(ngModel)]="item.active" [binary]="true"></p-checkbox>
-                    </div>
-
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Consumer_key' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.consumerKey" class="w-full" />
-                    </div>
-
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Consumer_secret' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.consumerSecret" class="w-full" />
+                        <input pInputText [(ngModel)]="item.code" class="w-full" />
                     </div>
 
                     <!--                    <button type="button" pButton icon="pi pi-search" (click)="openLookup()"></button>-->
@@ -84,18 +54,16 @@ import { LanguageListService } from '../language/list.service';
         </p-dialog>
     `
 })
-export class SiteDetailComponent {
+export class LanguageDetailComponent {
     activeTab: any = 0;
-    protected detailService = inject(SiteDetailService);
+    protected detailService = inject(LanguageDetailService);
     protected currencyService = inject(CurrencyListService);
-    protected languageService = inject(LanguageListService);
 
 
     constructor() {
         // Зареждаме всички валути (напр. първите 1000), за да ги има в падащото меню
         // Това се вика веднъж при създаване на компонента
         this.currencyService.loadList(0, 1000);
-        this.languageService.loadList(0, 1000);
     }
     // private tr = inject(TranslateService);
 }

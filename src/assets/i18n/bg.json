@@ -22,5 +22,7 @@
   "Consumer_key": "Ключ",
   "Consumer_secret": "Секрет",
   "No": "Не",
-  "Site": "Сайт"
+  "Site": "Сайт",
+  "Yes": "Да",
+  "Language": "Език"
 }

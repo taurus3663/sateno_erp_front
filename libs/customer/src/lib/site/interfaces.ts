@@ -5,5 +5,6 @@ export interface ISite {
     consumerKey: string;
     consumerSecret: string;
     currency: string;
-    isActive: boolean;
+    language: string;
+    active: boolean;
 }

@@ -1,28 +1,26 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SiteListService } from './list.service';
-import { SiteDetailService } from './detail.service';
-import { ISite } from './interfaces';
+import { LanguageListService } from './list.service';
+import { LanguageDetailService } from './detail.service';
+import { ILanguage } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
-import { SiteDetailComponent } from './detail';
+import { LanguageDetailComponent } from './detail';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 
 @Component({
-    selector: 'customer-list',
+    selector: 'language-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, SiteDetailComponent, TranslatePipe],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, TranslatePipe, LanguageDetailComponent],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
-                <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2"
-                          (onClick)="detailService.openCreateDialog()"></p-button>
-                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined
-                          [disabled]="!selectedItem" />
+                <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
+                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
             </ng-template>
         </p-toolbar>
 
@@ -47,59 +45,48 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
                     </th>
                     <th>{{ 'Id' | translate }}</th>
                     <th>{{ 'Name' | translate }}</th>
-                    <th>{{ 'Url' | translate }}</th>
-<!--                    <th>{{ 'Consumer_key' | translate }}</th>-->
-<!--                    <th>{{ 'Consumer_secret' | translate }}</th>-->
-                    <th>{{ 'Currency' | translate }}</th>
-                    <th>{{ 'Active' | translate }}</th>
+                    <th>{{ 'Code' | translate }}</th>
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-item>
-                <tr [ngClass]="{'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup'}">
+                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
 
                     <td>{{ item.id }}</td>
                     <td>{{ item.name }}</td>
-                    <td>{{ item.url }}</td>
-                    <td>
-                        {{ item.currency ? item.currency.name + ' (' + item.currency.symbol + ')' : '' }}
-                    </td>                    <td><p-tag [severity]="item.active ? 'success' : 'danger'"
-                               [value]=" item.active ? ('Yes' | translate ): 'No' | translate"></p-tag></td>
+                    <td><p-tag severity="success" [value]="item.code"></p-tag></td>
 
                     <td>
                         <div class="flex gap-2">
-                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary"
-                                      (onClick)="detailService.openEditDialog(item)"></p-button>
-                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
-                                      (onClick)="onDelete(item.id)"></p-button>
+                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
+                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(item.id)"></p-button>
                         </div>
                     </td>
                 </tr>
             </ng-template>
         </p-table>
 
-        <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
+        <language-detail *ngIf="config?.data?.mode !== 'lookup'"></language-detail>
     `
 })
-export class SiteListComponent {
-    public listService = inject(SiteListService);
-    public detailService = inject(SiteDetailService);
+export class LanguageListComponent {
+    public listService = inject(LanguageListService);
+    public detailService = inject(LanguageDetailService);
     private tr = inject(TranslateService);
     protected config = inject(DynamicDialogConfig, { optional: true });
 
-
-    selectedItem!: ISite[] | null;
+    selectedItem!: ILanguage[] | null;
 
     onLazyLoad(event: any) {
         this.listService.loadList(event.first, event.rows, event.filters);
     }
 
     onDelete(id: any) {
-        if(confirm(this.tr.instant('Are_you_sure?'))) {
+        if (confirm(this.tr.instant('Are_you_sure?'))) {
             this.listService.deleteItem(id);
         }
     }

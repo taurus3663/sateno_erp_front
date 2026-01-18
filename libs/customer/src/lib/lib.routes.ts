@@ -14,6 +14,10 @@ registerRoute([
     {
         path: 'site/list',
         loadComponent: () => import('./site/list').then(c => c.SiteListComponent)
+    },
+    {
+        path: 'language/list',
+        loadComponent: () => import('./language/list').then(c => c.LanguageListComponent)
     }
 ]);
     registerMenu([
@@ -49,6 +53,11 @@ registerRoute([
                             label: 'Сайтове',
                             icon: PrimeIcons.SITEMAP,
                             routerLink: ['/site/list']
+                        },
+                        {
+                            label: "Език-Сайт",
+                            icon: PrimeIcons.LANGUAGE,
+                            routerLink: ['/language/list']
                         }
                     ]
                 }

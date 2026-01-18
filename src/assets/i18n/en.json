@@ -22,5 +22,7 @@
   "Consumer_key": "Consumer_key",
   "Consumer_secret": "Consumer_secret",
   "No": "No",
-  "Site": "Site"
+  "Site": "Site",
+  "Yes": "Yes",
+  "Language": "Language"
 }
