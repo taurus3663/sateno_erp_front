@@ -32,6 +32,15 @@ export class apiRoutes {
         delete: `${apiRoutes.languageBase}/delete`,
     }
 
+    private static readonly wpCategoryBase = 'wp_category';
+    public readonly wp_category = {
+        list: `${apiRoutes.wpCategoryBase}/list`,
+        get: `${apiRoutes.wpCategoryBase}/detail`,
+        save: `${apiRoutes.wpCategoryBase}/save`,
+        delete: `${apiRoutes.wpCategoryBase}/delete`,
+        find: `${apiRoutes.wpCategoryBase}/find`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

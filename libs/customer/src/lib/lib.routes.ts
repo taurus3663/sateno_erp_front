@@ -1,6 +1,7 @@
 import { registerMenu, registerRoute, registerTopbarAction } from 'xl-util';
 import { PrimeIcons } from 'primeng/api';
 import {CustomerListComponent} from './customer/list';
+import { WpCategoryListComponent } from './wp_category/list';
 export const moduleActivator = true;
 registerRoute([
     {
@@ -18,6 +19,10 @@ registerRoute([
     {
         path: 'language/list',
         loadComponent: () => import('./language/list').then(c => c.LanguageListComponent)
+    },
+    {
+        path: 'wp_category/list',
+        loadComponent: () => import('./wp_category/list').then(c => c.WpCategoryListComponent)
     }
 ]);
     registerMenu([
@@ -62,7 +67,23 @@ registerRoute([
                     ]
                 }
             ]
-        }
+        },
+        {
+            label: '',
+            items: [
+                {
+                    label: 'Склад',
+                    icon: PrimeIcons.RECEIPT,
+                    items: [
+                        {
+                            label: 'Категория',
+                            icon: PrimeIcons.CHART_SCATTER,
+                            routerLink: ['/wp_category/list']
+                        }
+                    ]
+                }
+            ]
+        },
     ]);
 
 // registerTopbarAction(CustomerListComponent);

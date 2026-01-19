@@ -10,10 +10,11 @@ import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { SiteDetailComponent } from './detail';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { HttpClient } from '@angular/common/http';
 
 
 @Component({
-    selector: 'customer-list',
+    selector: 'site-list',
     standalone: true,
     imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, SiteDetailComponent, TranslatePipe],
     template: `
@@ -103,4 +104,26 @@ export class SiteListComponent {
             this.listService.deleteItem(id);
         }
     }
+
+    constructor() {
+        // this.syncCategories(1);
+    }
+
+    protected http = inject(HttpClient);
+    // В твоя компонент или сървис
+    syncCategories(id: number) {
+        const url = 'wpcategory/sync';
+        const params = { siteId: id.toString() }; // Подаваме параметъра siteId
+
+        this.http.post<any>(url, {}, { params }).subscribe({
+            next: (res) => {
+                console.log('Синхронизацията стартира успешно. Провери конзолата на бекенда!');
+            },
+            error: (err) => {
+                console.error('Грешка при синхронизация:', err);
+            }
+        });
+    }
+
+
 }
