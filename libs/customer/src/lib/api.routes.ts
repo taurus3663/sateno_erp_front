@@ -39,6 +39,9 @@ export class apiRoutes {
         save: `${apiRoutes.wpCategoryBase}/save`,
         delete: `${apiRoutes.wpCategoryBase}/delete`,
         find: `${apiRoutes.wpCategoryBase}/find`,
+        getTranslation: `${apiRoutes.wpCategoryBase}/get/translation`,
+        updateTranslation: `${apiRoutes.wpCategoryBase}/update/translation`,
+        updateParentNode: `${apiRoutes.wpCategoryBase}/update/parentnode`,
     }
 
 }

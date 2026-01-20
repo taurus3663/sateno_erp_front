@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { WpCategoryDetailComponent } from './detail';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { HttpClient } from '@angular/common/http';
 import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
@@ -52,19 +52,21 @@ import { TreeNode } from 'primeng/api';
             </ng-template>
 
             <ng-template #body let-rowNode let-rowData="rowData" let-columns="columns">
-                <tr [ttRow]="rowNode">
+                <tr [ttRow]="rowNode"
+                    (click)="onRowClick(rowData)"
+                    [class.cursor-pointer]="config?.data?.mode === 'lookup'">
+
                     <td *ngFor="let col of columns; let i = index">
-                        <p-treetable-toggler [rowNode]="rowNode" *ngIf="i === 0" />
+            <span (click)="$event.stopPropagation()" *ngIf="i === 0">
+                <p-treetable-toggler [rowNode]="rowNode" />
+            </span>
 
                         {{ rowData[col.field] }}
                     </td>
 
-                    <td>
+                    <td (click)="$event.stopPropagation()">
                         <div class="flex gap-2">
-<!--                            <p-button icon="pi pi-plus-circle" [rounded]="true" [text]="true" severity="success" (onClick)="detailService.openCreateDialog(rowData)"></p-button>-->
-
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(rowData)"></p-button>
-
                             <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(rowData.id)"></p-button>
                         </div>
                     </td>
@@ -85,8 +87,9 @@ export class WpCategoryListComponent {
         { field: 'id', header: 'Id' },
         { field: 'name', header: 'Name' },
         { field: 'slug', header: 'Slug' },
-        { field: 'count', header: 'Count' },
-        { field: 'displayType', header: 'Display_Type' }
+        { field: '', header: '' },
+        // { field: 'count', header: 'Count' },
+        // { field: 'displayType', header: 'Display_Type' }
     ];
 
     selectedItem!: TreeNode<IWpCategory> | null;
@@ -124,5 +127,20 @@ export class WpCategoryListComponent {
                 console.error('Грешка при синхронизация:', err);
             }
         });
+    }
+
+
+    // В WpCategoryListComponent
+    // protected config = inject(DynamicDialogConfig, { optional: true });
+    private ref = inject(DynamicDialogRef, { optional: true });
+
+    onRowClick(category: any) {
+        if (this.config?.data?.mode === 'lookup') {
+            // Затваряме диалога и връщаме избраната категория на предишния прозорец
+            console.log(category.toString());
+            if (this.ref) {
+                this.ref.close(category);
+            }
+        }
     }
 }

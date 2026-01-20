@@ -24,5 +24,7 @@
   "No": "No",
   "Site": "Site",
   "Yes": "Yes",
-  "Language": "Language"
+  "Language": "Language",
+  "Category": "Category",
+  "Slug": "Slug"
 }
