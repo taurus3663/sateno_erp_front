@@ -11,7 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 @Component({
     selector: 'currency-detail',
     standalone: true,
-    imports: [InputNumberModule, Dialog, Button, InputText, FormsModule, CommonModule, ButtonDirective, TranslatePipe, InputNumberModule],
+    imports: [InputNumberModule, Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, InputNumberModule],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '500px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"

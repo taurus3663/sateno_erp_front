@@ -11,7 +11,7 @@ import { DetailService } from './detail.service';
 @Component({
     selector: 'customer-detail',
     standalone: true,
-    imports: [Dialog, Button, InputText, FormsModule, CommonModule, ButtonDirective],
+    imports: [Dialog, Button, InputText, FormsModule, CommonModule],
     template: `
 
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '500px' }">

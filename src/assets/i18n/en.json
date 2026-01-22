@@ -19,12 +19,20 @@
   "Edit": "Edit",
   "Currency": "Currency",
   "Url": "Url",
-  "Consumer_key": "Consumer_key",
-  "Consumer_secret": "Consumer_secret",
+  "Consumer_key": "Consumer key",
+  "Consumer_secret": "Consumer secret",
   "No": "No",
   "Site": "Site",
   "Yes": "Yes",
   "Language": "Language",
   "Category": "Category",
-  "Slug": "Slug"
+  "Slug": "Slug",
+  "Addon": "Addon",
+  "No_translate": "No translate",
+  "Addon_values": "Addon values",
+  "Select_Language": "Select Language",
+  "Group_name": "Group name",
+  "New_value": "New value",
+  "addQuickValue": "add Quick Addon Value",
+  "Add_translate": "Add translate"
 }

@@ -26,5 +26,13 @@
   "Yes": "Да",
   "Language": "Език",
   "Category": "Категория",
-  "Slug": "СКУ"
+  "Slug": "СКУ",
+  "Addon": "Аддон",
+  "No_translate": "Няма превод",
+  "Addon_values": "Аддон стойностти",
+  "Select_Language": "Избери език",
+  "Group_name": "Име на група",
+  "New_value": "Нов стойност",
+  "addQuickValue": "Добавете бързо Аддон стойност",
+  "Add_translate": "Добави превод"
 }

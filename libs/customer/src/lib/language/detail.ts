@@ -14,7 +14,7 @@ import { Select } from 'primeng/select';
 @Component({
     selector: 'language-detail',
     standalone: true,
-    imports: [Dialog, Button, InputText, FormsModule, CommonModule, ButtonDirective, TranslatePipe, Checkbox, Select],
+    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe,],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true"
                   [style]="{ width: '500px' }">

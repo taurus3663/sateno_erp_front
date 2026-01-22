@@ -44,6 +44,19 @@ export class apiRoutes {
         updateParentNode: `${apiRoutes.wpCategoryBase}/update/parentnode`,
     }
 
+    private static readonly wpAddonBase = 'wp_addon';
+    public readonly wp_addon = {
+        list: `${apiRoutes.wpAddonBase}/list`,
+        get: `${apiRoutes.wpAddonBase}/detail`,
+        save: `${apiRoutes.wpAddonBase}/save`,
+        delete: `${apiRoutes.wpAddonBase}/delete`,
+        get_translation: `${apiRoutes.wpAddonBase}/get/translation`,
+        save_translation: `${apiRoutes.wpAddonBase}/save/translation`,
+        save_value: `${apiRoutes.wpAddonBase}/save/value`,
+        values_all: `${apiRoutes.wpAddonBase}/list/values`,
+        get_selected_values: `${apiRoutes.wpAddonBase}`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

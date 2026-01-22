@@ -23,6 +23,10 @@ registerRoute([
     {
         path: 'wp_category/list',
         loadComponent: () => import('./wp_category/list').then(c => c.WpCategoryListComponent)
+    },
+    {
+        path: 'wp_addon/list',
+        loadComponent: () => import('./wp_addon/list').then(c => c.WpAddonListComponent)
     }
 ]);
     registerMenu([
@@ -79,6 +83,11 @@ registerRoute([
                             label: 'Категория',
                             icon: PrimeIcons.CHART_SCATTER,
                             routerLink: ['/wp_category/list']
+                        },
+                        {
+                            label: 'Аддон',
+                            icon: PrimeIcons.LIST,
+                            routerLink: ['/wp_addon/list']
                         }
                     ]
                 }

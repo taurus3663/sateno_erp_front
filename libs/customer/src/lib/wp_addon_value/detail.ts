@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SiteDetailService } from './detail.service';
+import { WpAddonDetailService } from './detail.service';
 import { Checkbox } from 'primeng/checkbox';
 import { CurrencyListService } from '../currency/list.service';
 import { Select } from 'primeng/select';
@@ -15,7 +15,7 @@ import { LanguageListService } from '../language/list.service';
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select],
+    imports: [Dialog, Button, InputText, FormsModule, CommonModule, ButtonDirective, TranslatePipe, Checkbox, Select],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true"
                   [style]="{ width: '500px' }">
@@ -86,7 +86,7 @@ import { LanguageListService } from '../language/list.service';
 })
 export class SiteDetailComponent {
     activeTab: any = 0;
-    protected detailService = inject(SiteDetailService);
+    protected detailService = inject(WpAddonDetailService);
     protected currencyService = inject(CurrencyListService);
     protected languageService = inject(LanguageListService);
 
