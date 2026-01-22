@@ -59,7 +59,7 @@ import { HttpClient } from '@angular/common/http';
                     </td>
 
                     <td>{{ item.id }}</td>
-                    <td>{{ item.name }}</td>
+                    <td>{{ item.names }}</td>
 
                     <td>
                         <div class="flex gap-2">

@@ -13,6 +13,7 @@ export interface IWpAddon {
     slug: string;        // "color"
     translations: { [key: string]: IWpAddonTranslation };
     values: IWpAddonValue[]; // Тези ще се показват в PickList-а
+    names: string;
 }
 
 export interface IWpAddonDetailDto {
