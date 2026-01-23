@@ -16,7 +16,7 @@ export class WpCategoryDetailService extends BaseDetailCrud<IWpCategory> {
 
         effect(() => {
             const data = this.selectionService.selectedItem();
-            if(data && this.isVisible()) {
+            if (data && this.isVisible()) {
                 this.selected(data);
             }
         });
@@ -26,11 +26,10 @@ export class WpCategoryDetailService extends BaseDetailCrud<IWpCategory> {
         const current = this.selectedItem(); // Вземаме текущия сигнал
         if (current) {
             this.selectedItem.set({
-                ...current,
+                ...current
             });
         }
     }
-
 
     // 1. Метод за взимане на името на конкретен език
     getTranslation(categoryId: number, languageId: number): Observable<string> {
@@ -41,15 +40,16 @@ export class WpCategoryDetailService extends BaseDetailCrud<IWpCategory> {
     }
 
     // 2. Метод за запис/обновяване на превода
-    saveTranslation(categoryId: number, languageId: number, name: string): Observable<any> {
+    saveTranslation(categoryId: number, languageId: number, name: string, parentId: number | null): Observable<any> {
         this.isSaving.set(true);
         // Използваме обекта, който Java очаква (Upsert логика)
-        return this.http.post(ROUTES.wp_category.updateTranslation, {
-            categoryId,
-            languageId,
-            name
-        }).pipe(
-            tap(() => this.isSaving.set(false))
-        );
+        return this.http
+            .post(ROUTES.wp_category.updateTranslation, {
+                categoryId,
+                languageId,
+                name,
+                parentId
+            })
+            .pipe(tap(() => this.isSaving.set(false)));
     }
 }

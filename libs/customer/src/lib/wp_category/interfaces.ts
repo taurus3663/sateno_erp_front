@@ -6,4 +6,6 @@ export interface IWpCategory {
     count: number;
     menuOrder: number;
     displayType: string;
+    parentId: number;
+    parentName: string;
 }

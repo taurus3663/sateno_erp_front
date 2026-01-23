@@ -101,6 +101,12 @@ export class WpCategoryDetailComponent {
             const item = this.detailService.selectedItem();
 
             if (isVisible && item) {
+
+                if(item.parentId){
+                    this.selectedParentId.set(item.parentId);
+                    this.selectedParentName.set(item.parentName);
+                } else this.clearParent();
+
                 // Използваме setTimeout тук, за да гарантираме, че инициализацията
                 // се случва СЛЕД като диалогът е напълно зареден в DOM
                 setTimeout(() => {
@@ -135,7 +141,8 @@ export class WpCategoryDetailComponent {
             this.detailService.saveTranslation(
                 item.id,
                 this.selectedLanguage.id,
-                this.currentTranslationName() // Взимаме стринга от сигнала
+                this.currentTranslationName(), // Взимаме стринга от сигнала
+                this.selectedParentId()
             ).subscribe({
                 next: (savedItem) => {
                     // Опционално: затвори диалога или покажи съобщение

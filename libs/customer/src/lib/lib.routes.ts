@@ -34,6 +34,14 @@ registerRoute([
     }
 ]);
     registerMenu([
+        // {
+        //   label: 'ПОРЪЧКИ ОТ СИСТЕМИ ',
+        //   items: [
+        //       {
+        //           label: 'Поръчки'
+        //       }
+        //   ]
+        // },
         {
             label: '',
             items: [
