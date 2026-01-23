@@ -12,12 +12,15 @@ import { PickList } from 'primeng/picklist';
 import { PrimeTemplate } from 'primeng/api';
 import { IWpAddonValue } from '../wp_addon_value/interfaces';
 import { Tooltip } from 'primeng/tooltip';
+import { WpAddonValueDetailService } from '../wp_addon_value/detail.service';
+import { WpAddonValueDetailComponent } from '../wp_addon_value/detail';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 
 @Component({
     selector: 'wp_addon-detail',
     standalone: true,
-    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Select, PickList, PrimeTemplate, ButtonDirective, Tooltip],
+    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Select, PickList, PrimeTemplate, ButtonDirective, Tooltip, WpAddonValueDetailComponent],
     template: `
         <p-dialog [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '850px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -63,7 +66,6 @@ import { Tooltip } from 'primeng/tooltip';
                             sourceFilterPlaceholder="Търси в налични..."
                             [showSourceFilter]="true"
                             [showTargetFilter]="false"
-                            ]
                             [source]="availableValues"
                             [target]="selectedValues"
                             [responsive]="true"
@@ -74,9 +76,15 @@ import { Tooltip } from 'primeng/tooltip';
                         >
                             <ng-template let-val pTemplate="item">
                                 <div class="flex items-center justify-between w-full pr-2">
-                                <div>{{ val.translations[selectedLanguage?.code]?.label || ('No_translate' | translate) }}</div>
+                                    <div>{{ val.translations[selectedLanguage?.code]?.label || ('No_translate' | translate) }}</div>
 
-                                <button pButton icon="pi pi-language" class="p-button-rounded p-button-text p-button-sm p-0 h-8 w-8 min-w-[2rem]" (click)="$event.stopPropagation()" [pTooltip]="('Add_translate' | translate)"></button>
+                                    <button
+                                        pButton
+                                        icon="pi pi-language"
+                                        class="p-button-rounded p-button-text p-button-sm p-0 h-8 w-8 min-w-[2rem]"
+                                        (click)="$event.stopPropagation(); openEditDialog(val)"
+                                        [pTooltip]="'Add_translate' | translate"
+                                    ></button>
                                 </div>
                             </ng-template>
                         </p-pickList>
@@ -89,12 +97,16 @@ import { Tooltip } from 'primeng/tooltip';
                 <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="onSaveAll()" />
             </ng-template>
         </p-dialog>
+        <wp_addon_value-detail *ngIf="config?.data?.mode !== 'lookup'"></wp_addon_value-detail>
     `
 })
 export class WpAddonDetailComponent {
     activeTab: any = 0;
     protected detailService = inject(WpAddonDetailService);
     protected languageService = inject(LanguageListService);
+
+    protected addonValueDetailService = inject(WpAddonValueDetailService);
+    protected config = inject(DynamicDialogConfig, { optional: true });
 
     // Списъци за PickList
     availableValues: IWpAddonValue[] = [];
@@ -111,39 +123,40 @@ export class WpAddonDetailComponent {
             const item = this.detailService.selectedItem();
 
             if (isVisible && item) {
-                // 1. Инициализация на езика (остава както е)
+                // Обгръщаме всичко в един setTimeout
                 setTimeout(() => {
+                    // 1. Езикова инициализация
                     const languages = this.languageService.items();
                     if (languages.length > 0) {
                         this.selectedLanguage = languages[0];
                         this.onLanguageChange();
                     }
-                });
 
-                // 2. Логика за PickList стойностите
-                // if (item.id) {
-                // При РЕДАКЦИЯ: BaseDetailCrud вече е заредил обекта.
-                // Java трябва да ни върне availableValues и selectedValues в самия обект.
-                // this.availableValues = (item as any).availableValues || [];
-                this.selectedValues = (item as any).selectedValues || [];
-                // } else {
-                // При НОВ запис: BaseDetailCrud не прави GET заявка.
-                // Трябва ни ръчно извикване, за да вземем всички стойности от "склада".
-                if (item.id != undefined) {
-                    this.detailService.getAddonSelectedValues(item.id).subscribe((res) => {
-                        this.availableValues = res.availableValues ?? [];
-                        this.selectedValues = res.selectedValues ?? [];
-                    });
-                } else {
-                    this.detailService.getAllAvailableValues().subscribe((res) => {
-                        this.availableValues = res;
-                        // this.selectedValues = [];
-                    });
-                }
-
-                // }
+                    // 2. Зареждане на стойностите
+                    if (item.id != undefined) {
+                        this.detailService.getAddonSelectedValues(item.id).subscribe((res) => {
+                            // Пълним масивите тук
+                            this.availableValues = res.availableValues ?? [];
+                            this.selectedValues = res.selectedValues ?? [];
+                            this.cdr.detectChanges(); // Ръчно обновяване
+                        });
+                    } else {
+                        this.detailService.getAllAvailableValues().subscribe((res) => {
+                            this.availableValues = res;
+                            this.selectedValues = [];
+                            this.cdr.detectChanges();
+                        });
+                    }
+                }, 0); // 0ms е достатъчно
             }
         });
+    }
+
+    openEditDialog(val: any) {
+        setTimeout(() => {
+            this.addonValueDetailService.openEditDialog(val);
+            console.log(val);
+        }, 0);
     }
 
     loadValues(addonGroupId: number | null) {

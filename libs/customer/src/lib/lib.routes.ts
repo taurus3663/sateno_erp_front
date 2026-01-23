@@ -27,6 +27,10 @@ registerRoute([
     {
         path: 'wp_addon/list',
         loadComponent: () => import('./wp_addon/list').then(c => c.WpAddonListComponent)
+    },
+    {
+        path: 'wp_addon_value/list',
+        loadComponent: () => import('./wp_addon_value/list').then(c => c.WpAddonValueListComponent)
     }
 ]);
     registerMenu([
@@ -88,6 +92,11 @@ registerRoute([
                             label: 'Аддон',
                             icon: PrimeIcons.LIST,
                             routerLink: ['/wp_addon/list']
+                        },
+                        {
+                            label: 'Аддон стойност',
+                            icon: PrimeIcons.LIST_CHECK,
+                            routerLink: ['/wp_addon_value/list']
                         }
                     ]
                 }

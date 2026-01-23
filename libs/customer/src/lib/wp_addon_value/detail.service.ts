@@ -5,10 +5,10 @@ import { ROUTES } from '../api.routes';
 
 
 @Injectable({ providedIn: 'root' })
-export class WpAddonDetailService extends BaseDetailCrud<IWpAddonValue> {
-    override saveRoute: string = ROUTES.wp_addon.save;
-    override getRoute: string = ROUTES.wp_addon.get;
-    override deleteRoute: string = ROUTES.wp_addon.delete;
+export class WpAddonValueDetailService extends BaseDetailCrud<IWpAddonValue> {
+    override saveRoute: string = ROUTES.wp_addon_value.save;
+    override getRoute: string = ROUTES.wp_addon_value.get;
+    override deleteRoute: string = ROUTES.wp_addon_value.delete;
 
     constructor() {
         super();

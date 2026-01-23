@@ -57,6 +57,18 @@ export class apiRoutes {
         get_selected_values: `${apiRoutes.wpAddonBase}`,
     }
 
+    private static readonly wpAddonValueBase = 'wp_addon_value';
+    public readonly wp_addon_value = {
+        list: `${apiRoutes.wpAddonValueBase}/list`,
+        get: `${apiRoutes.wpAddonValueBase}/detail`,
+        save: `${apiRoutes.wpAddonValueBase}/save`,
+        delete: `${apiRoutes.wpAddonValueBase}/delete`,
+        get_translation: `${apiRoutes.wpAddonValueBase}/get/translation`,
+        save_translation: `${apiRoutes.wpAddonValueBase}/save/translation`,
+        save_value: `${apiRoutes.wpAddonValueBase}/save/value`,
+        values_all: `${apiRoutes.wpAddonValueBase}/list/values`,
+        get_selected_values: `${apiRoutes.wpAddonValueBase}`,
+    }
 }
 
 export const ROUTES = new apiRoutes();

@@ -17,6 +17,7 @@ export interface IWpAddonValue {
     id: number | null;
     slug: string;        // "green"
     translations: { [key: string]: IWpAddonValueTranslation }; // Map за лесен достъп по език
+    names: string
 }
 
 // // 4. Главната Група (Addon Group)

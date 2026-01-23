@@ -1,22 +1,22 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WpAddonListService } from './list.service';
-import { WpAddonDetailService } from './detail.service';
-import { ISite } from './interfaces';
+import { WpAddonValueListService } from './list.service';
+import { WpAddonValueDetailService } from './detail.service';
+import { IWpAddonValue } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
-import { SiteDetailComponent } from './detail';
+import { WpAddonValueDetailComponent } from './detail';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { HttpClient } from '@angular/common/http';
 
 
 @Component({
-    selector: 'site-list',
+    selector: 'wp_addon_value-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, SiteDetailComponent, TranslatePipe],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpAddonValueDetailComponent, TranslatePipe],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -48,11 +48,11 @@ import { HttpClient } from '@angular/common/http';
                     </th>
                     <th>{{ 'Id' | translate }}</th>
                     <th>{{ 'Name' | translate }}</th>
-                    <th>{{ 'Url' | translate }}</th>
+<!--                    <th>{{ 'Url' | translate }}</th>-->
 <!--                    <th>{{ 'Consumer_key' | translate }}</th>-->
 <!--                    <th>{{ 'Consumer_secret' | translate }}</th>-->
-                    <th>{{ 'Currency' | translate }}</th>
-                    <th>{{ 'Active' | translate }}</th>
+<!--                    <th>{{ 'Currency' | translate }}</th>-->
+<!--                    <th>{{ 'Active' | translate }}</th>-->
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
@@ -64,12 +64,12 @@ import { HttpClient } from '@angular/common/http';
                     </td>
 
                     <td>{{ item.id }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.url }}</td>
-                    <td>
-                        {{ item.currency ? item.currency.name + ' (' + item.currency.symbol + ')' : '' }}
-                    </td>                    <td><p-tag [severity]="item.active ? 'success' : 'danger'"
-                               [value]=" item.active ? ('Yes' | translate ): 'No' | translate"></p-tag></td>
+                    <td>{{ item.names }}</td>
+<!--                    <td>{{ item.url }}</td>-->
+<!--                    <td>-->
+<!--                        {{ item.currency ? item.currency.name + ' (' + item.currency.symbol + ')' : '' }}-->
+<!--                    </td>                    <td><p-tag [severity]="item.active ? 'success' : 'danger'"-->
+<!--                               [value]=" item.active ? ('Yes' | translate ): 'No' | translate"></p-tag></td>-->
 
                     <td>
                         <div class="flex gap-2">
@@ -83,17 +83,17 @@ import { HttpClient } from '@angular/common/http';
             </ng-template>
         </p-table>
 
-        <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
+        <wp_addon_value-detail *ngIf="config?.data?.mode !== 'lookup'"></wp_addon_value-detail>
     `
 })
-export class SiteListComponent {
-    public listService = inject(WpAddonListService);
-    public detailService = inject(WpAddonDetailService);
+export class WpAddonValueListComponent {
+    public listService = inject(WpAddonValueListService);
+    public detailService = inject(WpAddonValueDetailService);
     private tr = inject(TranslateService);
     protected config = inject(DynamicDialogConfig, { optional: true });
 
 
-    selectedItem!: ISite[] | null;
+    selectedItem!: IWpAddonValue[] | null;
 
     onLazyLoad(event: any) {
         this.listService.loadList(event.first, event.rows, event.filters);
@@ -106,23 +106,6 @@ export class SiteListComponent {
     }
 
     constructor() {
-        // this.syncCategories(1);
-    }
-
-    protected http = inject(HttpClient);
-    // В твоя компонент или сървис
-    syncCategories(id: number) {
-        const url = 'wpcategory/sync';
-        const params = { siteId: id.toString() }; // Подаваме параметъра siteId
-
-        this.http.post<any>(url, {}, { params }).subscribe({
-            next: (res) => {
-                console.log('Синхронизацията стартира успешно. Провери конзолата на бекенда!');
-            },
-            error: (err) => {
-                console.error('Грешка при синхронизация:', err);
-            }
-        });
     }
 
 
