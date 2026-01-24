@@ -34,5 +34,12 @@
   "Group_name": "Име на група",
   "New_value": "Нов стойност",
   "addQuickValue": "Добавете бързо Аддон стойност",
-  "Add_translate": "Добави превод"
+  "Add_translate": "Добави превод",
+  "Value_Label": "Стойност",
+  "Type": "Тип",
+  "Company": "Фирма",
+  "Person": "Лице",
+  "Phone": "Телефон",
+  "Address": "Адрес",
+  "EIK": "ЕИК"
 }

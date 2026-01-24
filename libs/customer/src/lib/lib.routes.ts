@@ -31,6 +31,10 @@ registerRoute([
     {
         path: 'wp_addon_value/list',
         loadComponent: () => import('./wp_addon_value/list').then(c => c.WpAddonValueListComponent)
+    },
+    {
+        path: 'wo_product/list',
+        loadComponent: () => import('./wp_product/list').then(c => c.WpProductListComponent)
     }
 ]);
     registerMenu([
@@ -91,6 +95,11 @@ registerRoute([
                     label: 'Склад',
                     icon: PrimeIcons.RECEIPT,
                     items: [
+                        {
+                          label: 'Продукти',
+                          icon: PrimeIcons.PALETTE,
+                          routerLink: ['/wo_product/list']
+                        },
                         {
                             label: 'Категория',
                             icon: PrimeIcons.CHART_SCATTER,

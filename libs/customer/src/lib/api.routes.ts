@@ -69,6 +69,14 @@ export class apiRoutes {
         values_all: `${apiRoutes.wpAddonValueBase}/list/values`,
         get_selected_values: `${apiRoutes.wpAddonValueBase}`,
     }
+
+    private static readonly wpProductBase = 'wp_product';
+    public readonly wp_product = {
+        list: `${apiRoutes.wpProductBase}/list`,
+        get: `${apiRoutes.wpProductBase}/detail`,
+        save: `${apiRoutes.wpProductBase}/save`,
+        delete: `${apiRoutes.wpProductBase}/delete`,
+    }
 }
 
 export const ROUTES = new apiRoutes();

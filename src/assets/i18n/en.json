@@ -34,5 +34,12 @@
   "Group_name": "Group name",
   "New_value": "New value",
   "addQuickValue": "add Quick Addon Value",
-  "Add_translate": "Add translate"
+  "Add_translate": "Add translate",
+  "Value_Label": "Value Label",
+  "Type": "Type",
+  "Company": "Company",
+  "Person": "Person",
+  "Phone": "Phone",
+  "Address": "Address",
+  "EIK": "EIK"
 }

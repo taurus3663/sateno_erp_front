@@ -45,8 +45,11 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
                     </th>
                     <th>{{ 'Id' | translate }}</th>
                     <th>{{'Customer' | translate}}</th>
+                    <th>{{'Phone' | translate}}</th>
+                    <th>{{'Address' | translate}}</th>
+                    <th>{{'EIK' | translate}}</th>
+                    <th>{{'Type' | translate}}</th>
                     <th>{{'Email' | translate}}</th>
-                    <th>{{'Status' | translate}}</th>
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
@@ -59,10 +62,16 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 
                     <td>{{ user.id }}</td>
                     <td>{{ user.firstName }} {{ user.middleName }} {{ user.lastName }}</td>
-                    <td>{{ user.email }}</td>
+                    <td>{{user.phone}}</td>
+                    <td>{{user.address}}</td>
+                    <td>{{ user.eik }}</td>
                     <td>
-                        <p-tag [severity]="user.active ? 'success' : 'danger'" [value]=" user.active ? 'Active' : 'Blocked' | translate"> </p-tag>
+                        <p-tag
+                            [severity]="user.eik ? 'warn' : 'info'"
+                            [value]="(user.eik ? 'Company' : 'Person') | translate">
+                        </p-tag>
                     </td>
+                    <td>{{ user.email }}</td>
                     <td>
                         <div class="flex gap-2">
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(user)"></p-button>
