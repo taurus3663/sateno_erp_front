@@ -41,5 +41,16 @@
   "Person": "Person",
   "Phone": "Phone",
   "Address": "Address",
-  "EIK": "EIK"
+  "EIK": "EIK",
+  "Synchronize": "Synchronize",
+  "Quantity": "Quantity",
+  "Prefered_to_use_when_db_is_empty": "Prefered to use when db is empty",
+  "Unit": "Unit",
+  "Product": "Product",
+  "UNIT": {
+        "PCS": "quantity.",
+        "KG": "kilograms",
+        "L": "liters",
+        "M": "meters"
+    }
 }

@@ -22,6 +22,7 @@ export class WpAddonDetailService extends BaseDetailCrud<IWpAddon> {
         });
     }
 
+
     private selected(data: any) {
         const current = this.selectedItem(); // Вземаме текущия сигнал
         if (current) {
