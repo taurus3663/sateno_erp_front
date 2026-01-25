@@ -77,6 +77,14 @@ export class apiRoutes {
         save: `${apiRoutes.wpProductBase}/save`,
         delete: `${apiRoutes.wpProductBase}/delete`,
     }
+
+    private static readonly wpBrandBase = 'wp_brand';
+    public readonly wp_brand = {
+        list: `${apiRoutes.wpBrandBase}/list`,
+        get: `${apiRoutes.wpBrandBase}/detail`,
+        save: `${apiRoutes.wpBrandBase}/save`,
+        delete: `${apiRoutes.wpBrandBase}/delete`,
+    }
 }
 
 export const ROUTES = new apiRoutes();

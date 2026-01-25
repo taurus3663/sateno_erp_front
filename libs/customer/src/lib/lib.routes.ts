@@ -33,8 +33,12 @@ registerRoute([
         loadComponent: () => import('./wp_addon_value/list').then(c => c.WpAddonValueListComponent)
     },
     {
-        path: 'wo_product/list',
+        path: 'wp_product/list',
         loadComponent: () => import('./wp_product/list').then(c => c.WpProductListComponent)
+    },
+    {
+        path: 'wp_brand/list',
+        loadComponent: () => import("./wp_brand/list").then(c => c.WpBrandListComponent)
     }
 ]);
     registerMenu([
@@ -98,7 +102,7 @@ registerRoute([
                         {
                           label: 'Продукти',
                           icon: PrimeIcons.PALETTE,
-                          routerLink: ['/wo_product/list']
+                          routerLink: ['/wp_product/list']
                         },
                         {
                             label: 'Категория',
@@ -114,6 +118,11 @@ registerRoute([
                             label: 'Аддон стойност',
                             icon: PrimeIcons.LIST_CHECK,
                             routerLink: ['/wp_addon_value/list']
+                        },
+                        {
+                            label: 'Марки',
+                            icon: PrimeIcons.BRIEFCASE,
+                            routerLink: ['/wp_brand/list']
                         }
                     ]
                 }

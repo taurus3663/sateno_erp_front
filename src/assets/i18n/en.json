@@ -48,9 +48,16 @@
   "Unit": "Unit",
   "Product": "Product",
   "UNIT": {
-        "PCS": "quantity.",
-        "KG": "kilograms",
-        "L": "liters",
-        "M": "meters"
-    }
+    "PCS": "quantity.",
+    "KG": "kilograms",
+    "L": "liters",
+    "M": "meters"
+  },
+  "Brand": "Brand",
+  "Description": "Description",
+  "Select_Site": "Select Site",
+  "Cancel": "Cancel",
+  "Confirm": "Confirm",
+  "Sync_From_Which_Site": "Sync From Which Site",
+  "Choose": "Choose"
 }
