@@ -9,21 +9,24 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { WpCategoryDetailComponent } from './detail';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { HttpClient } from '@angular/common/http';
 import { TreeTableModule } from 'primeng/treetable';
 import { TreeNode } from 'primeng/api';
+import { Tooltip } from 'primeng/tooltip';
+import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 
 
 @Component({
     selector: 'customer-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
+                <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
         </p-toolbar>
 
@@ -37,9 +40,11 @@ import { TreeNode } from 'primeng/api';
             [totalRecords]="listService.totalRecords()"
             [loading]="listService.loading()"
             (onNodeExpand)="onNodeExpand($event)"
+            [rowsPerPageOptions]="[10, 20, 50]"
             [scrollable]="true"
             [tableStyle]="{ 'min-width': '50rem' }"
             [(selection)]="selectedItem"
+            [rowHover]="true"
             dataKey="id"
         >
             <ng-template #header let-columns>
@@ -52,14 +57,11 @@ import { TreeNode } from 'primeng/api';
             </ng-template>
 
             <ng-template #body let-rowNode let-rowData="rowData" let-columns="columns">
-                <tr [ttRow]="rowNode"
-                    (click)="onRowClick(rowData)"
-                    [class.cursor-pointer]="config?.data?.mode === 'lookup'">
-
+                <tr [ttRow]="rowNode" (click)="onRowClick(rowData)" [class.cursor-pointer]="config?.data?.mode === 'lookup'">
                     <td *ngFor="let col of columns; let i = index">
-            <span (click)="$event.stopPropagation()" *ngIf="i === 0">
-                <p-treetable-toggler [rowNode]="rowNode" />
-            </span>
+                        <span (click)="$event.stopPropagation()" *ngIf="i === 0">
+                            <p-treetable-toggler [rowNode]="rowNode" />
+                        </span>
 
                         {{ rowData[col.field] }}
                     </td>
@@ -87,7 +89,7 @@ export class WpCategoryListComponent {
         { field: 'id', header: 'Id' },
         { field: 'name', header: 'Name' },
         { field: 'slug', header: 'Slug' },
-        { field: '', header: '' },
+        { field: '', header: '' }
         // { field: 'count', header: 'Count' },
         // { field: 'displayType', header: 'Display_Type' }
     ];
@@ -129,7 +131,6 @@ export class WpCategoryListComponent {
         });
     }
 
-
     // В WpCategoryListComponent
     // protected config = inject(DynamicDialogConfig, { optional: true });
     private ref = inject(DynamicDialogRef, { optional: true });
@@ -142,5 +143,20 @@ export class WpCategoryListComponent {
                 this.ref.close(category);
             }
         }
+    }
+
+    private dialogService = inject(DialogService);
+    openSyncDialog() {
+        const ref = this.dialogService.open(SiteSelectorComponent, {
+            header: this.tr.instant('Choose'),
+            width: '450px',
+            data: { label: 'Sync_From_Which_Site'}
+        });
+        ref?.onClose.subscribe((siteId: number) => {
+            if(siteId) {
+                // alert(siteId);
+                this.listService.syncCategories(siteId);
+            }
+        });
     }
 }

@@ -14,4 +14,18 @@ export class WpProductListService extends BaseListCrud<IWpProduct> {
     constructor() {
         super(inject(WpProductDetailService) as any);
     }
+
+    public syncBrands(siteId: any) {
+        console.log(siteId);
+        this.http.post(`${ROUTES.wp_product.sync}/${siteId}`, {})
+            .subscribe({
+                next: (res) => {
+                    this.loadList(0, 10);
+                    this.loading.set(false);
+                },
+                error: (err) => {
+                    this.loading.set(false);
+                }
+            });
+    }
 }

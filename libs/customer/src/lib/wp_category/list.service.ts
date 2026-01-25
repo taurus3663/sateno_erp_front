@@ -38,4 +38,19 @@ export class WpCategoryListService extends BaseListCrud<TreeNode<IWpCategory>> {
 //         this.items.update((arr) => arr.filter(i => i.data?.id !== id));
 //         this.totalRecords.update((n) => n - 1);
 //     }
+
+    public syncCategories(siteId: any) {
+        this.loading.set(true);
+
+        this.http.post(`${ROUTES.wp_category.sync}/${siteId}`, {})
+            .subscribe({
+                next: (res) => {
+                    this.loadList(0, 10);
+                    this.loading.set(false);
+                },
+                error: (err) => {
+                    this.loading.set(false);
+                }
+            });
+    }
 }

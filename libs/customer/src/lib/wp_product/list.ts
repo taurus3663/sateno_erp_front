@@ -9,9 +9,10 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { WpCategoryDetailComponent } from './detail';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TreeTableModule } from 'primeng/treetable';
 import { Tooltip } from 'primeng/tooltip';
+import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 
 
 @Component({
@@ -23,7 +24,7 @@ import { Tooltip } from 'primeng/tooltip';
             <ng-template #start>
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined />
-                <p-button [pTooltip]=" 'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
+                <p-button (onClick)="this.openSyncDialog()" [pTooltip]=" 'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
         </p-toolbar>
 
@@ -97,5 +98,20 @@ export class WpProductListComponent {
 
     constructor() {
         // this.syncCategories(1);
+    }
+
+    private dialogService = inject(DialogService);
+    openSyncDialog() {
+        const ref = this.dialogService.open(SiteSelectorComponent, {
+            header: this.tr.instant('Choose'),
+            width: '450px',
+            data: { label: 'Sync_From_Which_Site'}
+        });
+        ref?.onClose.subscribe((siteId: number) => {
+            if(siteId) {
+                // alert(siteId);
+                this.listService.syncBrands(siteId);
+            }
+        });
     }
 }

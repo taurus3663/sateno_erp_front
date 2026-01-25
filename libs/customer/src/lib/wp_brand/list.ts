@@ -109,7 +109,8 @@ export class WpBrandListComponent {
         });
         ref?.onClose.subscribe((siteId: number) => {
             if(siteId) {
-                alert(siteId);
+                // alert(siteId);
+                this.listService.syncBrands(siteId);
             }
         });
     }

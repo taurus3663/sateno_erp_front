@@ -42,6 +42,7 @@ export class apiRoutes {
         getTranslation: `${apiRoutes.wpCategoryBase}/get/translation`,
         updateTranslation: `${apiRoutes.wpCategoryBase}/update/translation`,
         updateParentNode: `${apiRoutes.wpCategoryBase}/update/parentnode`,
+        sync: `${apiRoutes.wpCategoryBase}/sync`,
     }
 
     private static readonly wpAddonBase = 'wp_addon';
@@ -76,6 +77,7 @@ export class apiRoutes {
         get: `${apiRoutes.wpProductBase}/detail`,
         save: `${apiRoutes.wpProductBase}/save`,
         delete: `${apiRoutes.wpProductBase}/delete`,
+        sync: `${apiRoutes.wpProductBase}/sync`,
     }
 
     private static readonly wpBrandBase = 'wp_brand';
@@ -84,6 +86,7 @@ export class apiRoutes {
         get: `${apiRoutes.wpBrandBase}/detail`,
         save: `${apiRoutes.wpBrandBase}/save`,
         delete: `${apiRoutes.wpBrandBase}/delete`,
+        sync: `${apiRoutes.wpBrandBase}/sync`,
     }
 }
 
