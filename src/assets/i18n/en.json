@@ -59,5 +59,11 @@
   "Cancel": "Cancel",
   "Confirm": "Confirm",
   "Sync_From_Which_Site": "Sync From Which Site",
-  "Choose": "Choose"
+  "Choose": "Choose",
+  "PRODUCT_STATUS": {
+    "DRAFT": "DRAFT",
+    "PUBLISH": "PUBLISH",
+    "PRIVATE": "PRIVATE"
+  },
+  "Image": "Image"
 }

@@ -59,5 +59,11 @@
   "Cancel": "Отказ",
   "Confirm": "Потвърди",
   "Sync_From_Which_Site": "Синхронизиране от кой сайт",
-  "Choose": "Избери"
+  "Choose": "Избери",
+  "PRODUCT_STATUS": {
+    "DRAFT": "ЧЕРНОВА",
+    "PUBLISH": "Публикуван",
+    "PRIVATE": "ЛИЧНО"
+  },
+  "Image": "Снимка"
 }

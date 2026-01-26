@@ -16,6 +16,7 @@ export class WpBrandListService extends BaseListCrud<IWpBrand> {
     }
 
     public syncBrands(siteId: any) {
+        this.loading.set(true);
         this.http.post(`${ROUTES.wp_brand.sync}/${siteId}`, {})
             .subscribe({
                 next: (res) => {

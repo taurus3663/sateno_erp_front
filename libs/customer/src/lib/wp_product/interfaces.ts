@@ -11,7 +11,8 @@ export interface IWpProduct {
     buyPrice: number;
     translations: IWpProductTranslation[];
     addonValuePrices: IWpProductAddonValuePrice[];
-    brand: IWpBrand
+    brand: IWpBrand,
+    status_p: string
 }
 
 export interface IWpProductTranslation {
@@ -25,7 +26,8 @@ export interface IWpProductTranslation {
     regularPrice: number;
     slug: string;
     language: ILanguage
-
+    status_p: ProductStatus
+    m_image: string;
 
 }
 
@@ -39,3 +41,14 @@ export enum ProductUnit {
     L = 2, // litre
     M = 3, // meters
 }
+export enum ProductStatus {
+    DRAFT = 'draft',
+    PUBLISHED = 'publish',
+    PRIVATE = 'private'
+}
+// Помощен обект за цветовете на PrimeNG Tag
+export const ProductStatusConfig = {
+    [ProductStatus.PUBLISHED]: { severity: 'success', label: 'Published' },
+    [ProductStatus.DRAFT]: { severity: 'warn', label: 'Draft' },
+    [ProductStatus.PRIVATE]: { severity: 'danger', label: 'Private' }
+};

@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WpProductListService } from './list.service';
 import { WpProductDetailService } from './detail.service';
-import { IWpProduct } from './interfaces';
+import { IWpProduct, ProductStatus } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -47,6 +47,7 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                     <th>
                         <p-tableHeaderCheckbox />
                     </th>
+                    <th style="width: 5rem">{{ 'Image' | translate }}</th>
                     <th>{{ 'Id' | translate }}</th>
                     <th>{{ 'Name' | translate }}</th>
                     <th>{{ 'Quantity' | translate }}</th>
@@ -62,14 +63,36 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
 
+                    <td>
+                        <div class="flex justify-content-center">
+                            <img
+                                *ngIf="item.m_image"
+                                [src]="'http://192.168.31.232:9494' + item.m_image"
+                                class="w-3rem h-3rem border-round shadow-1"
+                                style="width: 10em"
+                                (error)="item.m_image = null"
+                            />
+                        </div>
+                    </td>
+
                     <td>{{ item.id }}</td>
-                    <td>{{ item.names }}</td>
+                    <td>
+                        <span [pTooltip]="item.names" tooltipPosition="top" class="cursor-help">
+                            {{ item.names }}
+                        </span>
+                    </td>
                     <td>{{ item.stockQuantity }}</td>
                     <td>
-                        <p-tag severity="info" [value]="item.unit"></p-tag>
+                        <p-tag
+                            severity="info"
+                            [value]="('UNIT.' + (item.unit?.toUpperCase() || 'PCS')) | translate">
+                        </p-tag>
                     </td>
                     <td>
-                        <p-tag [severity]="item.status? 'success': 'warn'" [value]="item.status"></p-tag>
+                        <p-tag
+                            [severity]="getStatusSeverity(item.status_p)"
+                            [value]="('PRODUCT_STATUS.' + item.status_p?.toUpperCase()) | translate">
+                        </p-tag>
                     </td>
                     <td>
                         <div class="flex gap-2">
@@ -114,4 +137,22 @@ export class WpProductListComponent {
             }
         });
     }
+
+    getStatusSeverity(status: ProductStatus | string): any {
+        switch (status) {
+            case 'publish':
+            case ProductStatus.PUBLISHED:
+                return 'success';
+            case 'draft':
+            case ProductStatus.DRAFT:
+                return 'warn';
+            case 'private':
+            case ProductStatus.PRIVATE:
+                return 'danger';
+            default:
+                return 'info';
+        }
+    }
+
+
 }
