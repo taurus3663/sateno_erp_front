@@ -65,5 +65,16 @@
     "PUBLISH": "Публикуван",
     "PRIVATE": "ЛИЧНО"
   },
-  "Image": "Снимка"
+  "Image": "Снимка",
+  "SKU": "Ску",
+  "Weight": "Тегло",
+  "Main": "Начало",
+  "Translations": "Преводи",
+  "Addons_Prices": "Addons_Prices",
+  "Product_Name": "Име на продукт",
+  "Short_Description": "Кратко описание",
+  "Site_Specific_Prices": "Специфични цени за сайта",
+  "Please_select_a_language_to_view_or_add_a_translation.": "Моля, изберете език, за да видите",
+  "Prices": "Цени",
+  "Please_select_a_site_to_view": "Моля, изберете сайт, за да видите"
 }

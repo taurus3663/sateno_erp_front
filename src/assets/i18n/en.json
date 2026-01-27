@@ -65,5 +65,16 @@
     "PUBLISH": "PUBLISH",
     "PRIVATE": "PRIVATE"
   },
-  "Image": "Image"
+  "Image": "Image",
+  "SKU": "SKU",
+  "Weight": "Weight",
+  "Main": "Main",
+  "Translations": "Translations",
+  "Addons_Prices": "Addons Prices",
+  "Product_Name": "Product Name",
+  "Short_Description": "Short Description",
+  "Site_Specific_Prices": "Site Specific Prices",
+  "Please_select_a_language_to_view_or_add_a_translation.": "Please select a language to view",
+  "Prices": "Prices",
+  "Please_select_a_site_to_view": "Please select a site to view"
 }
