@@ -76,5 +76,8 @@
   "Site_Specific_Prices": "Site Specific Prices",
   "Please_select_a_language_to_view_or_add_a_translation.": "Please select a language to view",
   "Prices": "Prices",
-  "Please_select_a_site_to_view": "Please select a site to view"
+  "Please_select_a_site_to_view": "Please select a site to view",
+  "Categories": "Categories",
+  "Select_Categories": "Select categories",
+  "more": "more"
 }

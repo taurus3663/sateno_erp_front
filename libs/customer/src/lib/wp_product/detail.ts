@@ -13,11 +13,16 @@ import { InputNumber } from 'primeng/inputnumber';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Textarea } from 'primeng/textarea';
 import { SiteListService } from '../site/list.service';
+import { WpBrandListService } from '../wp_brand/list.service';
+import { Editor } from 'primeng/editor';
+import { MultiSelect } from 'primeng/multiselect';
+import { TreeSelect } from 'primeng/treeselect';
+import { PrimeTemplate } from 'primeng/api';
 
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Textarea],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Textarea, Editor, MultiSelect, TreeSelect, PrimeTemplate],
     template: `
         <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '90vh' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -55,9 +60,43 @@ import { SiteListService } from '../site/list.service';
                                         <label class="block font-bold mb-2">{{ 'Weight' | translate }}</label>
                                         <input pInputText [(ngModel)]="item.weight" class="w-full" />
                                     </div>
+
+                                    <div class="col-span-12 mt-3">
+                                        <label class="block font-bold mb-2">{{ 'Brand' | translate }}</label>
+                                        <p-select [options]="brandLService.items()" [(ngModel)]="item.brand" optionLabel="name" optionValue="id" class="w-full"></p-select>
+                                    </div>
+
+                                    <div class="col-span-12 mt-3">
+                                        <label class="block font-bold mb-2">{{ 'Categories' | translate }}</label>
+                                        <p-treeSelect
+                                            [(ngModel)]="detailService.selectedNodesArray"
+                                            [options]="detailService.categoryNodes()"
+                                            selectionMode="checkbox"
+                                            [propagateSelectionDown]="false"
+                                            [propagateSelectionUp]="false"
+
+                                            [metaKeySelection]="false"
+                                            (onNodeSelect)="updateCategorySelection()"
+                                            (onNodeUnselect)="updateCategorySelection()"
+                                            [style]="{ 'width': '100%', height: '35px' }"
+                                            placeholder="{{ 'Select_Categories' | translate }}">
+
+                                            <ng-template pTemplate="value" let-value>
+                                                <div class="flex items-center gap-1" *ngIf="value && value.length > 0">
+                                                    <ng-container *ngFor="let node of value | slice:0:2">
+                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm border border-blue-200">
+                    {{ $any(node).label }}
+                </span>
+                                                    </ng-container>
+                                                    <span *ngIf="value.length > 2" class="text-sm font-bold text-gray-500 ml-1">
+                + {{ value.length - 2 }} още
+            </span>
+                                                </div>
+                                            </ng-template>
+                                        </p-treeSelect>
+                                    </div>
                                 </div>
                             </p-tabpanel>
-
                             <p-tabpanel value="1">
                                 <div class="pt-4">
                                     <ng-container *ngFor="let lang of item.translations">
@@ -69,49 +108,30 @@ import { SiteListService } from '../site/list.service';
 
                                             <div class="col-span-12">
                                                 <label class="block font-bold mb-2">{{ 'Short_Description' | translate }}</label>
-                                                <textarea pInputTextarea rows="5" class="w-full" [(ngModel)]="lang.shortDescription"></textarea>
+                                                <p-editor [style]="{ height: '25vh' }" class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>
                                             </div>
 
                                             <div class="col-span-12">
                                                 <label class="block font-bold mb-2">{{ 'Description' | translate }}</label>
-                                                <textarea pInputTextarea rows="8" class="w-full" [(ngModel)]="lang.description"></textarea>
+                                                <p-editor [style]="{ height: '25vh' }" class="w-full" [(ngModel)]="lang.description"></p-editor>
                                             </div>
                                         </div>
                                     </ng-container>
                                 </div>
-                                <div *ngIf="!selectedLanguage"
-                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                <div *ngIf="!selectedLanguage" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
                                     <i class="pi pi-language text-4xl mb-3"></i>
-                                    <span class="text-xl font-medium">{{'Please_select_a_language_to_view_or_add_a_translation.' | translate}}</span>
+                                    <span class="text-xl font-medium">{{ 'Please_select_a_language_to_view_or_add_a_translation.' | translate }}</span>
                                 </div>
                             </p-tabpanel>
-
-
                             <p-tabpanel value="2">
                                 <div class="pt-4">
                                     <ng-container *ngFor="let lang of item.translations">
-                                        <div class="grid grid-cols-12 gap-4" *ngIf="lang.language.id === selectedLanguage?.id">
-                                            <div class="col-span-12">
-                                                <label class="block font-bold mb-2">{{ 'Product_Name' | translate }}</label>
-                                                <input pInputText class="w-full" [(ngModel)]="lang.name" />
-                                            </div>
-
-                                            <div class="col-span-12">
-                                                <label class="block font-bold mb-2">{{ 'Short_Description' | translate }}</label>
-                                                <textarea pInputTextarea rows="5" class="w-full" [(ngModel)]="lang.shortDescription"></textarea>
-                                            </div>
-
-                                            <div class="col-span-12">
-                                                <label class="block font-bold mb-2">{{ 'Description' | translate }}</label>
-                                                <textarea pInputTextarea rows="8" class="w-full" [(ngModel)]="lang.description"></textarea>
-                                            </div>
-                                        </div>
+                                        <div class="grid grid-cols-12 gap-4" *ngIf="lang.language.id === selectedLanguage?.id"></div>
                                     </ng-container>
                                 </div>
-                                <div *ngIf="!selectedSite"
-                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                <div *ngIf="!selectedSite" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
                                     <i class="pi pi-language text-4xl mb-3"></i>
-                                    <span class="text-xl font-medium">{{'Please_select_a_site_to_view' | translate}}</span>
+                                    <span class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
                                 </div>
                             </p-tabpanel>
                         </p-tabpanels>
@@ -121,41 +141,17 @@ import { SiteListService } from '../site/list.service';
 
             <ng-template #footer>
                 <div class="flex justify-content-between align-items-center w-full p-2 justify-between">
-
                     <div class="flex flex-col gap-5">
-                        <p-select
-                            [options]="languageService.items()"
-                            [(ngModel)]="selectedLanguage"
-                            (onChange)="onLanguageChange()"
-                            optionLabel="name"
-                            placeholder="Избери език"
-                            [style]="{ width: '220px' }">
-                        </p-select>
+                        <p-select [options]="languageLService.items()" [(ngModel)]="selectedLanguage" (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език" [style]="{ width: '220px' }"> </p-select>
 
-                        <p-select
-                            [options]="siteService.items()"
-                            [(ngModel)]="selectedSite"
-                            (onChange)="onSiteChange()"
-                            optionLabel="name"
-                            [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
-                            [style]="{ width: '220px' }">
-                        </p-select>
+                        <p-select [options]="siteLService.items()" [(ngModel)]="selectedSite" (onChange)="onSiteChange()" optionLabel="name" [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)" [style]="{ width: '220px' }"> </p-select>
                     </div>
 
                     <div class="flex gap-2 items-end">
-                        <p-button
-                            label="Отказ"
-                            severity="secondary"
-                            [text]="true"
-                            (onClick)="detailService.closeDetail()" />
+                        <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
 
-                        <p-button
-                            label="Запис"
-                            icon="pi pi-check"
-                            [loading]="detailService.isSaving()"
-                            (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
                     </div>
-
                 </div>
             </ng-template>
         </p-dialog>
@@ -163,8 +159,9 @@ import { SiteListService } from '../site/list.service';
 })
 export class WpCategoryDetailComponent {
     protected detailService = inject(WpProductDetailService);
-    protected languageService = inject(LanguageListService);
-    protected siteService = inject(SiteListService);
+    protected languageLService = inject(LanguageListService);
+    protected siteLService = inject(SiteListService);
+    protected brandLService = inject(WpBrandListService);
     protected tr = inject(TranslateService);
 
     selectedLanguage: any = null;
@@ -196,13 +193,14 @@ export class WpCategoryDetailComponent {
         //     value => value.id === this.selectedLanguage.id
         // ) || null;
     }
-    onSiteChange() {
-
-    }
+    onSiteChange() {}
 
     constructor() {
-        this.languageService.loadList(0, 1000);
-        this.siteService.loadList(0, 1000);
+        this.languageLService.loadList(0, 1000);
+        this.siteLService.loadList(0, 1000);
+        this.brandLService.loadList(0, 1000);
+        this.detailService.loadAllCategories();
+
         this.tr.onLangChange.subscribe((lang) => {
             this.generateUnitOptions();
         });
@@ -218,5 +216,10 @@ export class WpCategoryDetailComponent {
                 label: this.tr.instant(`UNIT.${key}`),
                 value: ProductUnit[key as keyof typeof ProductUnit]
             }));
+    }
+
+    // Метод, който се вика от HTML при промяна на избора в дървото
+    updateCategorySelection() {
+        this.detailService.prepareCategoriesForSave();
     }
 }

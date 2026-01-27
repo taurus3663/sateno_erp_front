@@ -43,6 +43,7 @@ export class apiRoutes {
         updateTranslation: `${apiRoutes.wpCategoryBase}/update/translation`,
         updateParentNode: `${apiRoutes.wpCategoryBase}/update/parentnode`,
         sync: `${apiRoutes.wpCategoryBase}/sync`,
+        all: `${apiRoutes.wpCategoryBase}/all`,
     }
 
     private static readonly wpAddonBase = 'wp_addon';

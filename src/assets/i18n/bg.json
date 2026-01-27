@@ -54,7 +54,7 @@
     "M": "м."
   },
   "Brand": "Марка",
-  "Description": "описание",
+  "Description": "Oписание",
   "Select_Site": "Избери Сайт",
   "Cancel": "Отказ",
   "Confirm": "Потвърди",
@@ -76,5 +76,8 @@
   "Site_Specific_Prices": "Специфични цени за сайта",
   "Please_select_a_language_to_view_or_add_a_translation.": "Моля, изберете език, за да видите",
   "Prices": "Цени",
-  "Please_select_a_site_to_view": "Моля, изберете сайт, за да видите"
+  "Please_select_a_site_to_view": "Моля, изберете сайт, за да видите",
+  "Categories": "Категорий",
+  "Select_Categories": "Избери категорий",
+  "more": "повече"
 }

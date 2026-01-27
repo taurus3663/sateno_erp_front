@@ -1,5 +1,6 @@
 import { ILanguage } from '../language/interfaces';
 import { IWpBrand } from '../wp_brand/interfaces';
+import { IWpCategory } from '../wp_category/interfaces';
 
 export interface IWpProduct {
     id: number;
@@ -12,7 +13,8 @@ export interface IWpProduct {
     translations: IWpProductTranslation[];
     addonValuePrices: IWpProductAddonValuePrice[];
     brand: IWpBrand,
-    status_p: string
+    status_p: string,
+    categories: IWpCategory[],
 }
 
 export interface IWpProductTranslation {
@@ -28,11 +30,24 @@ export interface IWpProductTranslation {
     language: ILanguage
     status_p: ProductStatus
     m_image: string;
-
 }
 
 export interface IWpProductAddonValuePrice {
     price: number;
+}
+
+export interface ICategoryNode {
+    data: ICategoryNodeData;
+    leaf: boolean;
+    expanded?: boolean; // опционално за PrimeNG
+}
+
+export interface ICategoryNodeData {
+    id: number;
+    name: string;
+    slug: string;
+    parentId: number | null;
+    parentName: string | null;
 }
 
 export enum ProductUnit {
