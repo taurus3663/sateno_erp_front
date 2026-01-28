@@ -79,6 +79,7 @@ export class apiRoutes {
         save: `${apiRoutes.wpProductBase}/save`,
         delete: `${apiRoutes.wpProductBase}/delete`,
         sync: `${apiRoutes.wpProductBase}/sync`,
+        upload_template: `${apiRoutes.wpProductBase}/upload_temp`,
     }
 
     private static readonly wpBrandBase = 'wp_brand';

@@ -2,6 +2,7 @@ import { effect, Injectable, signal } from '@angular/core';
 import { BaseDetailCrud } from 'xl-util';
 import { ICategoryNode, IWpProduct } from './interfaces';
 import { ROUTES } from '../api.routes';
+import { IWpCategory } from '../wp_category/interfaces';
 
 
 @Injectable({ providedIn: 'root' })
@@ -123,12 +124,15 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
     prepareCategoriesForSave() {
         const item = this.selectedItem();
         const selectedNodes = this.selectedNodesArray(); // Това вече е масив от обекти
-
         if (item && selectedNodes) {
-            // map-ваме обектите към формат, който Java бекендът разбира
-            item.categories = selectedNodes.map(node => ({
-                id: parseInt(node.key)
-            } as any));
+            item.categories = selectedNodes.map(node => {
+                // Тъй като това е TreeNode, данните са в property-то 'data'
+                const categoryData = node.data;
+
+                console.log('Found ID:', categoryData?.id); // Вече не трябва да е undefined
+
+                return categoryData;
+            }) as IWpCategory[];
         }
     }
 
@@ -143,6 +147,23 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
             }
         }
         return null;
+    }
+
+    override saveItem(item: IWpProduct) {
+        if (!item) return;
+
+        // 1. Подготовка на категориите (вече имаш метода)
+        this.prepareCategoriesForSave();
+
+        // 2. Филтриране на преводите (пращаме само попълнените)
+        if (item.translations) {
+            item.translations = item.translations.filter(t =>
+                t.name && t.name.trim() !== ''
+            );
+        }
+
+        // 3. Извикваме оригиналния запис на BaseDetailCrud с вече "чистия" обект
+        super.saveItem(item);
     }
 
 

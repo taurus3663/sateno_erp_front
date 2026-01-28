@@ -7,14 +7,15 @@ export interface IWpProduct {
     names: string;
     stockQuantity: number;
     unit: ProductUnit;
-    status: boolean;
     weight: string;
     buyPrice: number;
     translations: IWpProductTranslation[];
     addonValuePrices: IWpProductAddonValuePrice[];
-    brand: IWpBrand,
-    status_p: string,
-    categories: IWpCategory[],
+    brand: IWpBrand;
+    status_p: ProductStatus;
+    categories: IWpCategory[];
+    images: IWpImage[];
+    m_image: string;
 }
 
 export interface IWpProductTranslation {
@@ -28,8 +29,6 @@ export interface IWpProductTranslation {
     regularPrice: number;
     slug: string;
     language: ILanguage
-    status_p: ProductStatus
-    m_image: string;
 }
 
 export interface IWpProductAddonValuePrice {
@@ -67,3 +66,16 @@ export const ProductStatusConfig = {
     [ProductStatus.DRAFT]: { severity: 'warn', label: 'Draft' },
     [ProductStatus.PRIVATE]: { severity: 'danger', label: 'Private' }
 };
+
+export interface IWpImage {
+    id: number;
+    localSrc: string;
+    siteMappings: IWpImageSiteMapping[];
+    tempName: string;
+    isTemp: boolean;
+}
+export interface IWpImageSiteMapping {
+    id: number;
+    wpMediaId: number;
+    wpUrl: string;
+}
