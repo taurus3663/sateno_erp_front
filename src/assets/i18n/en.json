@@ -62,7 +62,7 @@
   "Choose": "Choose",
   "PRODUCT_STATUS": {
     "DRAFT": "DRAFT",
-    "PUBLISH": "PUBLISH",
+    "PUBLISHED": "PUBLISHED",
     "PRIVATE": "PRIVATE"
   },
   "Image": "Image",

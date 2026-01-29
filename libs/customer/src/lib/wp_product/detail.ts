@@ -52,6 +52,12 @@ import { ProgressBar } from 'primeng/progressbar';
                         <p-tabpanels>
                             <p-tabpanel value="0">
                                 <div class="grid grid-cols-12 gap-4 pt-4">
+
+                                    <div class="col-span-3">
+                                        <label class="block font-bold mb-2">{{ 'Status' | translate }}</label>
+                                        <p-select [options]="productStatus" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full"></p-select>
+                                    </div>
+
                                     <div class="col-span-12 mt-4">
                                         <label class="block font-bold mb-2 text-900"> <i class="pi pi-images mr-2 text-primary"></i>{{ 'Images' | translate }} </label>
 
@@ -93,6 +99,8 @@ import { ProgressBar } from 'primeng/progressbar';
                                         <label class="block font-bold mb-2">{{ 'Unit' | translate }}</label>
                                         <p-select [options]="productUnit" [(ngModel)]="item.unit" optionLabel="label" optionValue="value" class="w-full"></p-select>
                                     </div>
+
+
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Quantity' | translate }}</label>
                                         <p-inputNumber [(ngModel)]="item.stockQuantity" class="w-full" styleClass="w-full"></p-inputNumber>
@@ -239,9 +247,11 @@ export class WpCategoryDetailComponent {
         this.detailService.loadAllCategories();
 
         this.generateUnitOptions();
+        this.generateStatusOptions();
 
         this.tr.onLangChange.subscribe((lang) => {
             this.generateUnitOptions();
+            this.generateStatusOptions();
         });
         effect(() => {});
     }
@@ -254,6 +264,16 @@ export class WpCategoryDetailComponent {
                 // Вече instant() ще има достъп до преводите, защото се вика след смяна на езика
                 label: this.tr.instant(`UNIT.${key}`),
                 value: ProductUnit[key as keyof typeof ProductUnit]
+            }));
+    }
+
+    protected productStatus: any[] = [];
+    private generateStatusOptions() {
+        this.productStatus = Object.keys(ProductStatus)
+            .filter((key) => isNaN(Number(key)))
+            .map((key) => ({
+                label: this.tr.instant(`PRODUCT_STATUS.${key}`),
+                value: ProductStatus[key as keyof typeof ProductStatus]
             }));
     }
 

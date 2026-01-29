@@ -13,18 +13,20 @@ import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dy
 import { TreeTableModule } from 'primeng/treetable';
 import { Tooltip } from 'primeng/tooltip';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
+import { StatusLabelPipe } from './productStatus.pipe';
+import { UnitLabelPipe } from './productUnit.pipe';
 
 
 @Component({
     selector: 'wp_product-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, StatusLabelPipe, UnitLabelPipe],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined />
-                <p-button (onClick)="this.openSyncDialog()" [pTooltip]=" 'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
+                <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
         </p-toolbar>
 
@@ -65,13 +67,7 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 
                     <td>
                         <div class="flex justify-content-center">
-                            <img
-                                *ngIf="item.m_image"
-                                [src]="'http://192.168.31.232:9494' + item.m_image"
-                                class="w-3rem h-3rem border-round shadow-1"
-                                style="width: 10em"
-                                (error)="item.m_image = null"
-                            />
+                            <img *ngIf="item.m_image" [src]="'http://192.168.31.232:9494' + item.m_image" class="w-3rem h-3rem border-round shadow-1" style="width: 10em" (error)="item.m_image = null" />
                         </div>
                     </td>
 
@@ -83,16 +79,10 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                     </td>
                     <td>{{ item.stockQuantity }}</td>
                     <td>
-                        <p-tag
-                            severity="info"
-                            [value]="getUnitLabel(item.unit)">
-                        </p-tag>
+                        <p-tag severity="info" [value]="item.unit | unitLabel"> </p-tag>
                     </td>
                     <td>
-                        <p-tag
-                            [severity]="getStatusSeverity(item.status_p)"
-                            [value]="('PRODUCT_STATUS.' + item.status_p?.toUpperCase()) | translate">
-                        </p-tag>
+                        <p-tag [severity]="getStatusSeverity(item.status)" [value]="item.status | statusLabel"> </p-tag>
                     </td>
                     <td>
                         <div class="flex gap-2">
@@ -128,10 +118,10 @@ export class WpProductListComponent {
         const ref = this.dialogService.open(SiteSelectorComponent, {
             header: this.tr.instant('Choose'),
             width: '450px',
-            data: { label: 'Sync_From_Which_Site'}
+            data: { label: 'Sync_From_Which_Site' }
         });
         ref?.onClose.subscribe((siteId: number) => {
-            if(siteId) {
+            if (siteId) {
                 // alert(siteId);
                 this.listService.syncBrands(siteId);
             }
@@ -155,15 +145,21 @@ export class WpProductListComponent {
     }
 
     // В list.ts
-    getUnitLabel(unitValue: any): string {
-        if (unitValue === null || unitValue === undefined) return '';
+    // getUnitLabel(unitValue: any): string {
+    //     if (unitValue === null || unitValue === undefined) return '';
+    //
+    //     // Намираме името на ключа от Enum-а (напр. 0 -> 'PCS')
+    //     const unitKey = ProductUnit[unitValue];
+    //
+    //     // Връщаме превода чрез TranslateService
+    //     return unitKey ? this.tr.instant('UNIT.' + unitKey) : unitValue;
+    // }
 
-        // Намираме името на ключа от Enum-а (напр. 0 -> 'PCS')
-        const unitKey = ProductUnit[unitValue];
-
-        // Връщаме превода чрез TranslateService
-        return unitKey ? this.tr.instant('UNIT.' + unitKey) : unitValue;
-    }
-
-
+    // getStatusLabel(statusValue: any): string {
+    //     if (statusValue === null || statusValue === undefined) return '';
+    //
+    //     const statusKey = ProductStatus[statusValue];
+    //     console.log(statusKey);
+    //     return statusKey ? this.tr.instant('PRODUCT_STATUS.' + statusKey) : statusValue;
+    // }
 }

@@ -52,6 +52,23 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         });
     }
 
+    override openCreateDialog() {
+        // 1. Изчистваме обекта (базова логика)
+        this.selectedItem.set({
+            unit: 0,
+            translations: [],
+            categories: [],
+            images: [],
+            stockQuantity: 0
+        } as any);
+
+        // 2. КЛЮЧОВАТА ЧАСТ: Нулираме масива с избрани категории в дървото
+        this.selectedNodesArray.set([]);
+
+        // 3. Показваме диалога
+        this.isVisible.set(true);
+    }
+
 
     // В WpProductDetailService
     selectedNodeMap = signal<any>({});
@@ -167,4 +184,19 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
     }
 
 
+    // В detail.service.ts
+
+    clearSelection() {
+        this.selectedItem.set({
+            id: 0,
+            unit: 0,
+            translations: [],
+            categories: [],
+            images: [],
+            stockQuantity: 0
+        } as any);
+
+        // ТОВА Е КЛЮЧЪТ: Нулираме избраните категории в дървото
+        this.selectedNodesArray.set([]);
+    }
 }

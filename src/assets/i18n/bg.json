@@ -62,7 +62,7 @@
   "Choose": "Избери",
   "PRODUCT_STATUS": {
     "DRAFT": "ЧЕРНОВА",
-    "PUBLISH": "Публикуван",
+    "PUBLISHED": "Публикуван",
     "PRIVATE": "ЛИЧНО"
   },
   "Image": "Снимка",

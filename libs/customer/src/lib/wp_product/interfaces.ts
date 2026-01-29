@@ -12,10 +12,10 @@ export interface IWpProduct {
     translations: IWpProductTranslation[];
     addonValuePrices: IWpProductAddonValuePrice[];
     brand: IWpBrand;
-    status_p: ProductStatus;
     categories: IWpCategory[];
     images: IWpImage[];
     m_image: string;
+    status: ProductStatus
 }
 
 export interface IWpProductTranslation {
@@ -56,9 +56,12 @@ export enum ProductUnit {
     M = 3, // meters
 }
 export enum ProductStatus {
-    DRAFT = 'draft',
-    PUBLISHED = 'publish',
-    PRIVATE = 'private'
+    // DRAFT = 'draft',
+    // PUBLISHED = 'publish',
+    // PRIVATE = 'private'
+    DRAFT = 0,
+    PUBLISHED = 1,
+    PRIVATE = 2,
 }
 // Помощен обект за цветовете на PrimeNG Tag
 export const ProductStatusConfig = {
