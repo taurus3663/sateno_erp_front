@@ -199,4 +199,5 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         // ТОВА Е КЛЮЧЪТ: Нулираме избраните категории в дървото
         this.selectedNodesArray.set([]);
     }
+
 }

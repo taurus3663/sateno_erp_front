@@ -15,7 +15,8 @@ export interface IWpProduct {
     categories: IWpCategory[];
     images: IWpImage[];
     m_image: string;
-    status: ProductStatus
+    status: ProductStatus;
+    addonConfig: any[];
 }
 
 export interface IWpProductTranslation {
@@ -56,9 +57,6 @@ export enum ProductUnit {
     M = 3, // meters
 }
 export enum ProductStatus {
-    // DRAFT = 'draft',
-    // PUBLISHED = 'publish',
-    // PRIVATE = 'private'
     DRAFT = 0,
     PUBLISHED = 1,
     PRIVATE = 2,
