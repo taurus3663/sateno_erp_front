@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WpProductListService } from './list.service';
 import { WpProductDetailService } from './detail.service';
-import { IWpProduct, ProductStatus } from './interfaces';
+import { IWpProduct, ProductStatus, ProductUnit } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -85,7 +85,7 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                     <td>
                         <p-tag
                             severity="info"
-                            [value]="('UNIT.' + (item.unit?.toUpperCase() || 'PCS')) | translate">
+                            [value]="getUnitLabel(item.unit)">
                         </p-tag>
                     </td>
                     <td>
@@ -152,6 +152,17 @@ export class WpProductListComponent {
             default:
                 return 'info';
         }
+    }
+
+    // В list.ts
+    getUnitLabel(unitValue: any): string {
+        if (unitValue === null || unitValue === undefined) return '';
+
+        // Намираме името на ключа от Enum-а (напр. 0 -> 'PCS')
+        const unitKey = ProductUnit[unitValue];
+
+        // Връщаме превода чрез TranslateService
+        return unitKey ? this.tr.instant('UNIT.' + unitKey) : unitValue;
     }
 
 

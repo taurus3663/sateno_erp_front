@@ -26,7 +26,7 @@ import { ProgressBar } from 'primeng/progressbar';
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Editor, TreeSelect, PrimeTemplate, FileUpload, Tooltip, ProgressBar],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Editor, TreeSelect, PrimeTemplate, FileUpload, Tooltip],
     template: `
         <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '90vh', 'width': '1000px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -237,6 +237,8 @@ export class WpCategoryDetailComponent {
         this.siteLService.loadList(0, 1000);
         this.brandLService.loadList(0, 1000);
         this.detailService.loadAllCategories();
+
+        this.generateUnitOptions();
 
         this.tr.onLangChange.subscribe((lang) => {
             this.generateUnitOptions();
