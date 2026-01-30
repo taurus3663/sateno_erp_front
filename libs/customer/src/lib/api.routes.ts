@@ -80,6 +80,7 @@ export class apiRoutes {
         delete: `${apiRoutes.wpProductBase}/delete`,
         sync: `${apiRoutes.wpProductBase}/sync`,
         upload_template: `${apiRoutes.wpProductBase}/upload_temp`,
+        get_selected_addon_values: `${apiRoutes.wpProductBase}/get_addon_values`,
     }
 
     private static readonly wpBrandBase = 'wp_brand';

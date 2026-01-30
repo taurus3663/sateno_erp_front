@@ -22,13 +22,17 @@ import { FileUpload } from 'primeng/fileupload';
 import { ROUTES } from '../api.routes';
 import { Tooltip } from 'primeng/tooltip';
 import { ProgressBar } from 'primeng/progressbar';
+import { IWpAddonValue } from '../wp_addon_value/interfaces';
+import { TableModule } from 'primeng/table';
+import { Listbox } from 'primeng/listbox';
+import { WpAddonListService } from '../wp_addon/list.service';
 
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Editor, TreeSelect, PrimeTemplate, FileUpload, Tooltip],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Editor, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox],
     template: `
-        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '90vh', 'width': '1000px' }">
+        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '90vh', width: '1000px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -52,7 +56,6 @@ import { ProgressBar } from 'primeng/progressbar';
                         <p-tabpanels>
                             <p-tabpanel value="0">
                                 <div class="grid grid-cols-12 gap-4 pt-4">
-
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Status' | translate }}</label>
                                         <p-select [options]="productStatus" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full"></p-select>
@@ -81,9 +84,9 @@ import { ProgressBar } from 'primeng/progressbar';
                                             <div class="grid grid-cols-12 gap-3" *ngIf="item.images?.length">
                                                 <div *ngFor="let img of item.images; let i = index" class="col-span-4 md:col-span-2 relative group">
                                                     <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4" [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
-                                                        <img src="http://192.168.31.232:9494{{img.localSrc}}" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" alt="Product thumbnail" />
+                                                        <img src="http://192.168.31.232:9494{{ img.localSrc }}" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" alt="Product thumbnail" />
 
-                                                        <span *ngIf="img.isTemp" class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate}} </span>
+                                                        <span *ngIf="img.isTemp" class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>
 
                                                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                                             <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small" pTooltip="{{ 'Remove' | translate }}" (onClick)="removeImage(i)"> </p-button>
@@ -100,7 +103,6 @@ import { ProgressBar } from 'primeng/progressbar';
                                         <p-select [options]="productUnit" [(ngModel)]="item.unit" optionLabel="label" optionValue="value" class="w-full"></p-select>
                                     </div>
 
-
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Quantity' | translate }}</label>
                                         <p-inputNumber [(ngModel)]="item.stockQuantity" class="w-full" styleClass="w-full"></p-inputNumber>
@@ -112,7 +114,7 @@ import { ProgressBar } from 'primeng/progressbar';
 
                                     <div class="col-span-12 mt-3">
                                         <label class="block font-bold mb-2">{{ 'Brand' | translate }}</label>
-                                        <p-select [options]="brandLService.items()" [(ngModel)]="item.brand" optionLabel="name"  class="w-full"></p-select>
+                                        <p-select [options]="brandLService.items()" [(ngModel)]="item.brand" optionLabel="name" class="w-full"></p-select>
                                     </div>
 
                                     <div class="col-span-12 mt-3">
@@ -160,7 +162,7 @@ import { ProgressBar } from 'primeng/progressbar';
 
                                             <div class="col-span-12">
                                                 <label class="block font-bold mb-2">{{ 'Description' | translate }}</label>
-                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto'}" class="w-full" [(ngModel)]="lang.description"></p-editor>
+                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }" class="w-full" [(ngModel)]="lang.description"></p-editor>
                                             </div>
                                         </div>
                                     </ng-container>
@@ -171,14 +173,103 @@ import { ProgressBar } from 'primeng/progressbar';
                                 </div>
                             </p-tabpanel>
                             <p-tabpanel value="2">
-                                <div class="pt-4">
-                                    <ng-container *ngFor="let lang of item.translations">
-                                        <div class="grid grid-cols-12 gap-4" *ngIf="lang.language.id === selectedLanguage?.id"></div>
-                                    </ng-container>
-                                </div>
-                                <div *ngIf="!selectedSite" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
-                                    <i class="pi pi-language text-4xl mb-3"></i>
-                                    <span class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
+                                <div class="pt-4" *ngIf="selectedSite;">
+                                    <div class="grid grid-cols-12 gap-4">
+                                        <div class="col-span-4 border-r pr-4">
+                                            <label class="block font-bold mb-2">{{ 'Addon_Groups' | translate }}</label>
+                                            <p-listbox
+                                                [options]="addonService.items()"
+                                                [(ngModel)]="this.detailService.selectedAddonGroup"
+                                                (onChange)="this.detailService.onAddonGroupChange($event)"
+                                                optionLabel="slug"
+                                                [disabled]="this.detailService.isLoadingAddonValues()"
+                                                [style]="{ width: '100%' }"
+                                                [listStyle]="{ 'max-height': '200px' }">
+                                                <ng-template pTemplate="item" let-addon>
+                                                    <span [pTooltip]="addon.names" class="text-sm">{{ addon.names }}</span>
+                                                </ng-template>
+                                            </p-listbox>
+                                        </div>
+
+                                        <div class="col-span-8">
+                                            <label class="block font-bold mb-2">{{ 'Available_Values' | translate }}</label>
+                                            <div class="flex flex-wrap gap-2 p-3 border-round bg-surface-50 border-1 border-surface-200" style="min-height: 100px;">
+
+
+                                                <div *ngIf="this.detailService.isLoadingAddonValues()" class="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                                                    <i class="pi pi-spinner pi-spin text-primary" style="font-size: 2rem"></i>
+                                                </div>
+
+                                                <div *ngIf="!this.detailService.selectedAddonGroup" class="text-gray-400 italic text-sm">
+                                                    {{ 'Select_group_to_see_values' | translate }}
+                                                </div>
+
+                                                <p-button
+                                                    *ngFor="let val of this.detailService.selectedAddonValues"
+                                                    [label]="getValueLabel(val)"
+                                                    [pTooltip]="getValueLabel(val)"
+                                                    size="small"
+                                                    severity="secondary"
+                                                    icon="pi pi-plus"
+                                                    (onClick)="addValueToSite(val)">
+                                                </p-button>
+
+                                                <div *ngIf="this.detailService.selectedAddonGroup && this.detailService.selectedAddonValues.length === 0" class="text-gray-400 italic text-sm">
+                                                    {{ 'No_values_found_for_this_group' | translate }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-12 mt-4">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <span class="font-bold text-lg"><i class="pi pi-table mr-2"></i>{{ 'Active_Configuration_for' | translate }}: {{ selectedSite.name }}</span>
+                                            </div>
+
+                                            <p-table [value]="currentSiteConfigs" [scrollable]="true" scrollHeight="300px" styleClass="p-datatable-sm shadow-1 border-round overflow-hidden">
+                                                <ng-template pTemplate="header">
+                                                    <tr>
+                                                        <th>{{ 'Addon' | translate }}</th>
+                                                        <th class="text-center">{{ 'Price_Modifier' | translate }}</th>
+                                                        <th style="width: 3rem"></th>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="body" let-config let-i="rowIndex">
+                                                    <tr>
+                                                        <td>
+                                                            <div class="flex flex-col">
+                                                                <span class="font-bold">{{ getValueLabel(config.addonValue) }}</span>
+                                                                <small class="text-gray-500">{{ config.addonValue.slug }}</small>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <p-inputNumber
+                                                                [(ngModel)]="config.priceModifier"
+                                                                [showButtons]="true"
+                                                                buttonLayout="horizontal"
+                                                                spinnerMode="horizontal"
+                                                                incrementButtonIcon="pi pi-plus"
+                                                                decrementButtonIcon="pi pi-minus"
+                                                                [minFractionDigits]="2"
+                                                                suffix=" {{ selectedSite.currency?.symbol }}"
+                                                                styleClass="w-full"
+                                                            >
+                                                            </p-inputNumber>
+                                                        </td>
+                                                        <td>
+                                                            <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="removeConfig(i)"></p-button>
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                                <ng-template pTemplate="emptymessage">
+                                                    <tr>
+                                                        <td colspan="3" class="text-center p-4 text-gray-400">
+                                                            {{ 'No_addons_configured_for_this_site' | translate }}
+                                                        </td>
+                                                    </tr>
+                                                </ng-template>
+                                            </p-table>
+                                        </div>
+                                    </div>
                                 </div>
                             </p-tabpanel>
                         </p-tabpanels>
@@ -191,7 +282,16 @@ import { ProgressBar } from 'primeng/progressbar';
                     <div class="flex flex-col gap-5">
                         <p-select appendTo="body" [options]="languageLService.items()" [(ngModel)]="selectedLanguage" (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език" [style]="{ width: '220px' }"> </p-select>
 
-                        <p-select appendTo="body" [options]="siteLService.items()" [(ngModel)]="selectedSite" (onChange)="onSiteChange()" optionLabel="name" [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)" [style]="{ width: '220px' }"> </p-select>
+                        <p-select
+                            appendTo="body"
+                            [options]="siteLService.items()"
+                            [(ngModel)]="selectedSite"
+                            (onChange)="onSiteChange()"
+                            optionLabel="name"
+                            [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
+                            [style]="{ width: '220px' }"
+                        >
+                        </p-select>
                     </div>
 
                     <div class="flex gap-2 items-end">
@@ -209,10 +309,12 @@ export class WpCategoryDetailComponent {
     protected languageLService = inject(LanguageListService);
     protected siteLService = inject(SiteListService);
     protected brandLService = inject(WpBrandListService);
+    protected addonService = inject(WpAddonListService);
     protected tr = inject(TranslateService);
 
     selectedLanguage: any = null;
     selectedSite: any = null;
+
     // currentTranslation: IWpProductTranslation | null = null;
 
     onLanguageChange() {
@@ -245,6 +347,7 @@ export class WpCategoryDetailComponent {
         this.siteLService.loadList(0, 1000);
         this.brandLService.loadList(0, 1000);
         this.detailService.loadAllCategories();
+        this.addonService.loadList(0, 1000);
 
         this.generateUnitOptions();
         this.generateStatusOptions();
@@ -337,4 +440,93 @@ export class WpCategoryDetailComponent {
         event.currentFiles.forEach((f: any) => (total += f.size));
         this.totalSizePercent = (total / 5000000) * 100; // спрямо 5MB лимит
     }
+
+    // 1. Филтрирани конфигурации за долната таблица
+    get currentSiteConfigs() {
+        const product = this.detailService.selectedItem(); // Твоят JSON
+        if (!product || !this.selectedSite) return [];
+
+        // Показваме само аддоните, които са конфигурирани за ТЕКУЩИЯ сайт
+        return product.addonConfigs.filter((c) => c.site.id === this.selectedSite.id);
+    }
+
+    // 2. Метод за добавяне на нова стойност в долната таблица
+    addValueToSite(value: any) {
+        console.log(value);
+        const product = this.detailService.selectedItem();
+
+        // 1. Проверка дали има избран продукт и сайт
+        if (!product || !this.selectedSite) {
+            console.warn('Please select a site first!');
+            return;
+        }
+
+        // Инициализираме масива, ако бекендът е върнал null
+        if (!product.addonConfigs) {
+            product.addonConfigs = [];
+        }
+
+        // 2. Проверка за дублиране (сайт + стойност)
+        const exists = product.addonConfigs.some((c) =>
+            c.site.id === this.selectedSite.id &&
+            c.addonValue.id === value.id
+        );
+
+        if (!exists) {
+            // 3. Добавяме нов конфигурационен обект
+            product.addonConfigs.push({
+                // id: null, // Нов запис
+                id: value.id,
+                site: { ...this.selectedSite }, // Копираме избрания сайт
+                addonValue: { ...value },       // Копираме избраната стойност (с преводите)
+                priceModifier: 0                // Начална цена
+            });
+
+            // Опционално: съобщение за успех или лог
+            console.log('Added config:', value.slug);
+        } else {
+            console.warn('This value is already added for this site');
+        }
+    }
+
+    // Метод за извличане на етикет според избрания език
+    getValueLabel(addonValue: any): string {
+        if (!addonValue) return '';
+
+        const translations = addonValue.translations;
+        if (!translations) return addonValue.slug || '';
+
+        // ВАРИАНТ А: Ако е Map { "bg": { "label": "..." } }
+        if (this.selectedLanguage?.code && translations[this.selectedLanguage.code]) {
+            const trans = translations[this.selectedLanguage.code];
+            return trans.label || addonValue.slug;
+        }
+
+        // ВАРИАНТ Б: Ако е Масив [{ language: { code: 'bg' }, label: '...' }]
+        if (Array.isArray(translations)) {
+            const trans = translations.find((t: any) =>
+                t.language?.id === this.selectedLanguage?.id ||
+                t.language?.code === this.selectedLanguage?.code
+            );
+            return trans ? trans.label : addonValue.slug;
+        }
+
+        return addonValue.slug || '';
+    }
+
+// Метод за изтриване на конфигурация
+    removeConfig(index: number) {
+        const product = this.detailService.selectedItem();
+        if (!product) return;
+
+        // Тъй като таблицата е филтрирана, трябва да намерим обекта и да го премахнем от оригиналния масив
+        const configToDelete = this.currentSiteConfigs[index];
+        const globalIndex = product.addonConfigs.indexOf(configToDelete);
+
+        if (globalIndex > -1) {
+            product.addonConfigs.splice(globalIndex, 1);
+        }
+    }
+
+
 }

@@ -1,6 +1,8 @@
 import { ILanguage } from '../language/interfaces';
 import { IWpBrand } from '../wp_brand/interfaces';
 import { IWpCategory } from '../wp_category/interfaces';
+import { ISite } from '../site/interfaces';
+import { IWpAddonValue } from '../wp_addon_value/interfaces';
 
 export interface IWpProduct {
     id: number;
@@ -10,13 +12,21 @@ export interface IWpProduct {
     weight: string;
     buyPrice: number;
     translations: IWpProductTranslation[];
-    addonValuePrices: IWpProductAddonValuePrice[];
+    // addonValuePrices: IWpProductAddonValuePrice[];
     brand: IWpBrand;
     categories: IWpCategory[];
     images: IWpImage[];
     m_image: string;
     status: ProductStatus;
     addonConfig: any[];
+    addonConfigs: IWpProductAddonConfig[];
+}
+
+export interface IWpProductAddonConfig {
+    id?: number;
+    site: ISite;
+    priceModifier: number;
+    addonValue: IWpAddonValue;
 }
 
 export interface IWpProductTranslation {

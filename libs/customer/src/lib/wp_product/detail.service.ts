@@ -3,6 +3,8 @@ import { BaseDetailCrud } from 'xl-util';
 import { ICategoryNode, IWpProduct } from './interfaces';
 import { ROUTES } from '../api.routes';
 import { IWpCategory } from '../wp_category/interfaces';
+import { IWpAddon, IWpAddonDetailDto } from '../wp_addon/interfaces';
+import { IWpAddonValue } from '../wp_addon_value/interfaces';
 
 
 @Injectable({ providedIn: 'root' })
@@ -69,13 +71,12 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         this.isVisible.set(true);
     }
 
-
     // В WpProductDetailService
     selectedNodeMap = signal<any>({});
     categoryNodes = signal<any[]>([]); // Превръщаме и това в сигнал за по-добра реактивност
 
     loadAllCategories() {
-        this.http.get<ICategoryNode[]>(`${ROUTES.wp_category.all}`).subscribe(flatData => {
+        this.http.get<ICategoryNode[]>(`${ROUTES.wp_category.all}`).subscribe((flatData) => {
             const tree = this.buildTree(flatData);
             this.categoryNodes.set(tree); // Сетваме сигнала
             this.syncSelectedCategories();
@@ -87,7 +88,7 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         const roots: any[] = [];
 
         // 1. Първо създаваме всички възли в Map
-        flatNodes.forEach(node => {
+        flatNodes.forEach((node) => {
             const id = node.data.id;
             map.set(id, {
                 key: id.toString(),
@@ -99,7 +100,7 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         });
 
         // 2. Свързваме децата към родителите им
-        flatNodes.forEach(node => {
+        flatNodes.forEach((node) => {
             const treeNode = map.get(node.data.id);
             const parentId = node.data.parentId;
 
@@ -118,7 +119,7 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
     // 1. Промени типа на сигнала на масив
     selectedNodesArray = signal<any[]>([]);
 
-// 2. Обновеният метод за синхронизация (търсим реалните обекти в дървото)
+    // 2. Обновеният метод за синхронизация (търсим реалните обекти в дървото)
     syncSelectedCategories() {
         const item = this.selectedItem();
         const allNodes = this.categoryNodes();
@@ -137,12 +138,12 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         }
     }
 
-// 3. Метод за подготовка преди Save (вадим само ID-тата от избраните обекти)
+    // 3. Метод за подготовка преди Save (вадим само ID-тата от избраните обекти)
     prepareCategoriesForSave() {
         const item = this.selectedItem();
         const selectedNodes = this.selectedNodesArray(); // Това вече е масив от обекти
         if (item && selectedNodes) {
-            item.categories = selectedNodes.map(node => {
+            item.categories = selectedNodes.map((node) => {
                 // Тъй като това е TreeNode, данните са в property-то 'data'
                 const categoryData = node.data;
 
@@ -153,8 +154,7 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         }
     }
 
-
-// Помощна функция за намиране на възел в дървото:
+    // Помощна функция за намиране на възел в дървото:
     private findNodeRecursive(nodes: any[], key: string): any {
         for (const node of nodes) {
             if (node.key === key) return node;
@@ -174,15 +174,23 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
 
         // 2. Филтриране на преводите (пращаме само попълнените)
         if (item.translations) {
-            item.translations = item.translations.filter(t =>
-                t.name && t.name.trim() !== ''
-            );
+            item.translations = item.translations.filter((t) => t.name && t.name.trim() !== '');
+        }
+
+        // 3. ПРЕЧИСТВАНЕ НА АДОНИТЕ (Премахваме translations, за да не гърми Java-та)
+        if (item.addonConfigs) {
+            item.addonConfigs.forEach(config => {
+                if (config.addonValue) {
+                    // Изтриваме преводите - пращаме само ID-то, което е важно за връзката
+                    delete (config.addonValue as any).translations;
+                    delete (config.addonValue as any).names;
+                }
+            });
         }
 
         // 3. Извикваме оригиналния запис на BaseDetailCrud с вече "чистия" обект
         super.saveItem(item);
     }
-
 
     // В detail.service.ts
 
@@ -200,4 +208,30 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         this.selectedNodesArray.set([]);
     }
 
+    selectedAddonGroup: any;
+    selectedAddonValues: IWpAddonValue[] = [];
+    isLoadingAddonValues = signal<boolean>(false);
+    // В WpCategoryDetailComponent
+    onAddonGroupChange(event: any) {
+        const groupId = event.value?.id;
+        if (!groupId) {
+            this.selectedAddonValues = [];
+            return;
+        }
+
+        this.isLoadingAddonValues.set(true);
+        this.selectedAddonValues = []; // Чистим веднага, за да няма визуален "глич"
+
+        this.http.get<any>(`${ROUTES.wp_product.get_selected_addon_values}/${groupId}`).subscribe({
+            next: (res) => {
+                this.selectedAddonValues = (res as IWpAddonDetailDto).selectedValues ?? [];
+                this.isLoadingAddonValues.set(false);
+            },
+            error: (err) => {
+                console.error('Error loading addon values:', err);
+                this.isLoadingAddonValues.set(false); // Важно!
+                // Тук можеш да добавиш Toast съобщение за грешка
+            }
+        });
+    }
 }
