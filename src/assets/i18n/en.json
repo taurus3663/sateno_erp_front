@@ -83,5 +83,17 @@
   "Images": "Images",
   "NEW": "NEW",
   "Remove": "Remove",
-  "Upload": "Upload"
+  "Upload": "Upload",
+  "Addon_Groups": "Addon Groups",
+  "Available_Values": "Available Values",
+  "Select_group_to_see_values": "Select group to see values",
+  "No_values_found_for_this_group": "No values found for this group",
+  "Active_Configuration_for": "Active Configuration for",
+  "Price_Modifier": "Price Modifier",
+  "No_addons_configured_for_this_site": "No addons configured for this site",
+  "Main_Pricing_for": "Main_Pricing_for",
+  "Regular_Price": "Regular_Price",
+  "Sale_Price": "Sale_Price",
+  "Site_Specific_SKU": "Site_Specific_SKU",
+  "Order_create_key": "KEY- Create order"
 }

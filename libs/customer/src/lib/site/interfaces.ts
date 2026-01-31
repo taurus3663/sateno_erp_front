@@ -7,4 +7,5 @@ export interface ISite {
     currency: string;
     language: string;
     active: boolean;
+    orderCreateApiKey: string;
 }

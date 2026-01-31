@@ -83,5 +83,17 @@
   "Images": "Снимки",
   "NEW": "НОВ",
   "Remove": "Изтрий",
-  "Upload": "Прикачи"
+  "Upload": "Прикачи",
+  "Addon_Groups": "Група",
+  "Available_Values": "Налични стойностти",
+  "Select_group_to_see_values": "Изберете група",
+  "No_values_found_for_this_group": "Няма намерени стойностти за групата",
+  "Active_Configuration_for": "Конфигурация за",
+  "Price_Modifier": "Цена",
+  "No_addons_configured_for_this_site": "Няма избрани стойностти",
+  "Main_Pricing_for": "Цена за",
+  "Regular_Price": "Стара цена",
+  "Sale_Price": "Актуална цена",
+  "Site_Specific_SKU": "СКУ за сайт",
+  "Order_create_key": "КЛЮЧ- Създаване на поръчка"
 }

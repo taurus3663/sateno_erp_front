@@ -10,6 +10,8 @@ import { Checkbox } from 'primeng/checkbox';
 import { CurrencyListService } from '../currency/list.service';
 import { Select } from 'primeng/select';
 import { LanguageListService } from '../language/list.service';
+import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
 
 
 @Component({
@@ -17,8 +19,7 @@ import { LanguageListService } from '../language/list.service';
     standalone: true,
     imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select],
     template: `
-        <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true"
-                  [style]="{ width: '500px' }">
+        <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '500px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -40,15 +41,13 @@ import { LanguageListService } from '../language/list.service';
                     <div class="col-span-12">
                         <label class="block font-bold mb-2">{{ 'Currency' | translate }}</label>
 
-                        <p-select [options]="currencyService.items()" [(ngModel)]="item.currency" optionLabel="name"
-                                  placeholder="Избери валута" dataKey="id" class="w-full" />
+                        <p-select [options]="currencyService.items()" [(ngModel)]="item.currency" optionLabel="name" placeholder="Избери валута" dataKey="id" class="w-full" />
                     </div>
 
                     <div class="col-span-12">
                         <label class="block font-bold mb-2">{{ 'Language' | translate }}</label>
 
-                        <p-select [options]="languageService.items()" [(ngModel)]="item.language" optionLabel="name"
-                                  placeholder="Избери Език" dataKey="id" class="w-full" />
+                        <p-select [options]="languageService.items()" [(ngModel)]="item.language" optionLabel="name" placeholder="Избери Език" dataKey="id" class="w-full" />
                     </div>
 
                     <div class="col-span-8">
@@ -72,14 +71,19 @@ import { LanguageListService } from '../language/list.service';
                         <input pInputText [(ngModel)]="item.consumerSecret" class="w-full" />
                     </div>
 
+                    <div class="col-span-12">
+                        <label class="block font-bold mb-2">{{ 'Order_create_key' | translate }}</label>
+                        <input pInputText [(ngModel)]="item.orderCreateApiKey" class="w-full" />
+<!--                        <p-toast />-->
+                        <p-button (onClick)="copyKey()" label="COPY" />
+                    </div>
                     <!--                    <button type="button" pButton icon="pi pi-search" (click)="openLookup()"></button>-->
                 </div>
             </ng-template>
 
             <ng-template #footer>
                 <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
-                <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"
-                          (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
             </ng-template>
         </p-dialog>
     `
@@ -89,7 +93,8 @@ export class SiteDetailComponent {
     protected detailService = inject(SiteDetailService);
     protected currencyService = inject(CurrencyListService);
     protected languageService = inject(LanguageListService);
-
+    // private messageService = inject(MessageService);
+    // private tr = inject(TranslateService);
 
     constructor() {
         // Зареждаме всички валути (напр. първите 1000), за да ги има в падащото меню
@@ -97,5 +102,36 @@ export class SiteDetailComponent {
         this.currencyService.loadList(0, 1000);
         this.languageService.loadList(0, 1000);
     }
-    // private tr = inject(TranslateService);
+
+    // site-detail.component.ts
+
+    generateApiKey() {
+        // Генерира уникален низ от типа: "550e8400-e29b-41d4-a716-446655440000"
+        const newKey = crypto.randomUUID();
+
+        // Присвояваме го на обекта, който се редактира в момента
+        // Увери се, че selectedSite е обвързан с ngModel в шаблона
+        this.detailService.selectedItem.update((value) => {
+            if (!value) return value;
+            return {
+                ...value,
+                orderCreateApiKey: newKey
+            };
+        });
+    }
+
+    // Помощна функция за копиране
+    copyKey() {
+        let item = this.detailService.selectedItem();
+        if (item && item.orderCreateApiKey) {
+            navigator.clipboard.writeText(item.orderCreateApiKey);
+            // this.messageService.add({
+            //     severity: 'info',
+            //     summary: 'info',
+            //     detail: 'COPIED!'
+            // });
+            // Тук можеш да извикаш MessageService на PrimeNG за потвърждение
+            // this.messageService.add({severity:'info', summary:'Копирано', detail:'Ключът е в клипборда'});
+        }
+    }
 }

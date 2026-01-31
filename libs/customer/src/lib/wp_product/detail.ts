@@ -271,6 +271,55 @@ import { WpAddonListService } from '../wp_addon/list.service';
                                         </div>
                                     </div>
                                 </div>
+                                <div *ngIf="!selectedSite" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                    <i class="pi pi-language text-4xl mb-3"></i>
+                                    <span class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
+                                </div>
+
+
+
+                                <div class="pt-4" *ngIf="selectedSite && currentSitePricing">
+
+                                    <div class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
+                                        <div class="col-span-12">
+                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2">
+                                                <i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}: {{ selectedSite.name }}
+                                            </h3>
+                                        </div>
+
+                                        <div class="col-span-4">
+                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Regular_Price' | translate }}</label>
+                                            <p-inputNumber
+                                                [(ngModel)]="currentSitePricing.regularPrice"
+                                                mode="currency"
+                                                [currency]="selectedSite.currency?.code || 'BGN'"
+                                                class="w-full"
+                                                styleClass="w-full">
+                                            </p-inputNumber>
+                                        </div>
+
+                                        <div class="col-span-4">
+                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }}</label>
+                                            <p-inputNumber
+                                                [(ngModel)]="currentSitePricing.price"
+                                                mode="currency"
+                                                [currency]="selectedSite.currency?.code || 'BGN'"
+                                                class="w-full"
+                                                styleClass="w-full">
+                                            </p-inputNumber>
+                                        </div>
+
+                                        <div class="col-span-4">
+                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Site_Specific_SKU' | translate }}</label>
+                                            <input pInputText [(ngModel)]="currentSitePricing.sku" disabled class="w-full" />
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-12 gap-4">
+                                        <div class="col-span-4 border-r pr-4">
+                                        </div>
+                                    </div>
+                                </div>
                             </p-tabpanel>
                         </p-tabpanels>
                     </p-tabs>
@@ -526,6 +575,34 @@ export class WpCategoryDetailComponent {
         if (globalIndex > -1) {
             product.addonConfigs.splice(globalIndex, 1);
         }
+    }
+
+    // В WpCategoryDetailComponent
+    get currentSitePricing() {
+        const item = this.detailService.selectedItem();
+        if (!item || !this.selectedSite) return null;
+
+        if (!item.siteConfig) {
+            item.siteConfig = [];
+        }
+
+        // Търсим дали вече има конфигурация за този сайт
+        let config = item.siteConfig.find(c => c.site.id === this.selectedSite.id);
+
+        // Ако няма, създаваме нов обект
+        if (!config) {
+            config = {
+                id: -1,
+                site: { ...this.selectedSite },
+                price: 0,
+                regularPrice: 0,
+                sku: '', // можеш да пренасяш основното SKU като начално
+                slug: ''
+            };
+            item.siteConfig.push(config);
+        }
+
+        return config;
     }
 
 

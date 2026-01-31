@@ -20,6 +20,7 @@ export interface IWpProduct {
     status: ProductStatus;
     addonConfig: any[];
     addonConfigs: IWpProductAddonConfig[];
+    siteConfig: IWpProductSiteConfig[];
 }
 
 export interface IWpProductAddonConfig {
@@ -89,4 +90,13 @@ export interface IWpImageSiteMapping {
     id: number;
     wpMediaId: number;
     wpUrl: string;
+}
+
+export interface IWpProductSiteConfig {
+    id?: number;
+    price: number;
+    regularPrice: number;
+    sku?: string;
+    slug?: string;
+    site: ISite;
 }
