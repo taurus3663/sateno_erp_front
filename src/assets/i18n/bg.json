@@ -95,5 +95,8 @@
   "Regular_Price": "Стара цена",
   "Sale_Price": "Актуална цена",
   "Site_Specific_SKU": "СКУ за сайт",
-  "Order_create_key": "КЛЮЧ- Създаване на поръчка"
+  "Order_create_key": "КЛЮЧ- Създаване на поръчка",
+  "Generate_code": "Генерирай код",
+  "Generate": "Генерирай",
+  "Copy": "Copy"
 }

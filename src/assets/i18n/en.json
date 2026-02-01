@@ -95,5 +95,8 @@
   "Regular_Price": "Regular_Price",
   "Sale_Price": "Sale_Price",
   "Site_Specific_SKU": "Site_Specific_SKU",
-  "Order_create_key": "KEY- Create order"
+  "Order_create_key": "KEY- Create order",
+  "Generate_code": "Generate code",
+  "Generate": "Generate",
+  "Copy": "Copy"
 }

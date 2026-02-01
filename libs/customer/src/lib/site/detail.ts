@@ -12,12 +12,13 @@ import { Select } from 'primeng/select';
 import { LanguageListService } from '../language/list.service';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
+import { Tooltip } from 'primeng/tooltip';
 
 
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select],
+    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select, Tooltip],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '500px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -71,11 +72,16 @@ import { Toast } from 'primeng/toast';
                         <input pInputText [(ngModel)]="item.consumerSecret" class="w-full" />
                     </div>
 
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Order_create_key' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.orderCreateApiKey" class="w-full" />
-<!--                        <p-toast />-->
-                        <p-button (onClick)="copyKey()" label="COPY" />
+                    <div class="col-span-12 mt-4">
+                        <label class="block font-bold">{{ 'Order_create_key' | translate }}</label>
+
+                        <div class="p-inputgroup">
+                            <input pInputText [ngModel]="detailService.selectedItem()?.orderCreateApiKey" readonly placeholder="{{ 'Generate_code' | translate }}" class="w-[calc(100%-5rem)] font-mono" />
+
+                            <p-button icon="pi pi-refresh" severity="secondary" pTooltip="{{ 'Generate' | translate }}" (onClick)="generateApiKey()"> </p-button>
+
+                            <p-button icon="pi pi-copy" [disabled]="!detailService.selectedItem()?.orderCreateApiKey" pTooltip="{{ 'Copy' | translate }}" (onClick)="copyKey()"> </p-button>
+                        </div>
                     </div>
                     <!--                    <button type="button" pButton icon="pi pi-search" (click)="openLookup()"></button>-->
                 </div>
