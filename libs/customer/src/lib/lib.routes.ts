@@ -39,6 +39,10 @@ registerRoute([
     {
         path: 'wp_brand/list',
         loadComponent: () => import("./wp_brand/list").then(c => c.WpBrandListComponent)
+    },
+    {
+        path: 'wp_order/list',
+        loadComponent: () => import("./wp_order/list").then(c => c.OrderListComponent)
     }
 ]);
     registerMenu([
@@ -50,6 +54,16 @@ registerRoute([
         //       }
         //   ]
         // },
+        {
+            label: '',
+            items: [
+                {
+                    label: 'Поръчки',
+                    icon: PrimeIcons.EURO,
+                    routerLink: ['/wp_order/list']
+                }
+            ]
+        },
         {
             label: '',
             items: [

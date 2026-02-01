@@ -91,6 +91,15 @@ export class apiRoutes {
         delete: `${apiRoutes.wpBrandBase}/delete`,
         sync: `${apiRoutes.wpBrandBase}/sync`,
     }
+
+    private static readonly wpOrderBase = 'wp_order';
+    public readonly wp_order = {
+        list: `${apiRoutes.wpOrderBase}/list`,
+        get: `${apiRoutes.wpOrderBase}/detail`,
+        save: `${apiRoutes.wpOrderBase}/save`,
+        delete: `${apiRoutes.wpOrderBase}/delete`,
+        sync: `${apiRoutes.wpOrderBase}/sync`,
+    }
 }
 
 export const ROUTES = new apiRoutes();
