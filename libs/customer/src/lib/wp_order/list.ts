@@ -41,26 +41,53 @@ import { Tooltip } from 'primeng/tooltip';
             [(selection)]="selectedItem"
             [rowHover]="true"
             dataKey="id"
+            stripedRows
         >
             <ng-template pTemplate="header">
                 <tr>
                     <th>
                         <p-tableHeaderCheckbox />
                     </th>
+                    <th>{{'Created' | translate}}</th>
+                    <th>{{'Updated' | translate}}</th>
                     <th>{{ 'Id' | translate }}</th>
-                    <th>{{ 'Name' | translate }}</th>
+                    <th>{{ 'Wp_order_id' | translate }}</th>
+<!--                    <th>{{ 'Currency' | translate }}</th>-->
+<!--                    <th>{{ 'Currency_symbol' | translate }}</th>-->
+                    <th>{{ 'Customer' | translate }}</th>
+                    <th>{{ 'Customer_agent' | translate }}</th>
+                    <th>{{ 'Customer_ip' | translate }}</th>
+                    <th>{{ 'Payment_method' | translate }}</th>
+                    <th>{{ 'Status' | translate }}</th>
+                    <th>{{ 'Total_price' | translate }}</th>
+
+
+
+
+
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-item>
+            <ng-template pTemplate="body" let-item >
+                @let order = asCast(item);
                 <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
 
-                    <td>{{ item.id }}</td>
-                    <td>{{ item.wpOrderId }}</td>
+                    <th>{{order.createTime | date: 'dd.MM.yyyy HH:mm'}}</th>
+                    <th>{{order.updateTime | date: 'dd.MM.yyyy HH:mm'}}</th>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.wpOrderId }}</td>
+<!--                    <td>{{ order.currency }}</td>-->
+<!--                    <td>{{ order.currencySymbol }}</td>-->
+                    <td>{{order.customer.firstName}} {{order.customer.lastName}}</td>
+                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>
+                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>
+                    <td>{{ order.paymentMethod }}</td>
+                    <td>{{ order.status }}</td>
+                    <td>{{ order.totalPrice }} {{order.currency}}</td>
 
                     <td>
                         <div class="flex gap-2">
@@ -112,5 +139,9 @@ export class OrderListComponent {
                 this.listService.syncBrands(siteId);
             }
         });
+    }
+
+    protected asCast(item: any): IOrder {
+        return item as IOrder;
     }
 }
