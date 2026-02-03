@@ -28,12 +28,10 @@ export const appConfig: ApplicationConfig = {
     providers: [
         DialogService,
         provideAuth({
-            apiUrl: 'http://192.168.31.232:9494'
+            // apiUrl: 'http://192.168.31.232:9494'
+            apiUrl: 'http://62.138.14.35:9494'
         }),
-        provideHttpClient(
-            withFetch(),
-            withInterceptors([AuthInterceptor])
-        ),
+        provideHttpClient(withFetch(), withInterceptors([AuthInterceptor])),
         provideRouter(finalRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         // provideHttpClient(withFetch()),
         // provideHttpClient(
@@ -50,7 +48,7 @@ export const appConfig: ApplicationConfig = {
             useValue: {
                 name: '',
                 logoUrl: 'assets/img/sateno.png',
-                logoStyle: {'width': '100%', 'height': '110px'}
+                logoStyle: { width: '100%', height: '110px' }
             }
         },
         provideTranslateService({

@@ -15,6 +15,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { StatusLabelPipe } from './productStatus.pipe';
 import { UnitLabelPipe } from './productUnit.pipe';
+import {XL_AUTH_CONFIG} from 'xl-auth';
 
 
 @Component({
@@ -67,7 +68,7 @@ import { UnitLabelPipe } from './productUnit.pipe';
 
                     <td>
                         <div class="flex justify-content-center">
-                            <img *ngIf="item.m_image" [src]="'http://192.168.31.232:9494' + item.m_image" class="w-3rem h-3rem border-round shadow-1" style="width: 10em" (error)="item.m_image = null" />
+                            <img *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" class="w-3rem h-3rem border-round shadow-1" style="width: 10em" (error)="item.m_image = null" />
                         </div>
                     </td>
 
@@ -102,6 +103,8 @@ export class WpProductListComponent {
     public detailService = inject(WpProductDetailService);
     private tr = inject(TranslateService);
     protected config = inject(DynamicDialogConfig, { optional: true });
+    private authConfig = inject(XL_AUTH_CONFIG);
+    protected readonly baseUrl = this.authConfig.apiUrl;
 
     selectedItem!: IWpProduct[] | null;
 

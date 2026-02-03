@@ -6,6 +6,7 @@ import { WpProductDetailService } from './detail.service';
 import { map, Observable } from 'rxjs';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { sanitizeWrapperScript } from 'nx/src/command-line/init/implementation/dot-nx/add-nx-scripts';
+import { XL_AUTH_CONFIG } from 'xl-auth';
 
 
 @Injectable({
@@ -13,6 +14,9 @@ import { sanitizeWrapperScript } from 'nx/src/command-line/init/implementation/d
 })
 export class WpProductListService extends BaseListCrud<IWpProduct> {
     listRoute = ROUTES.wp_product.list;
+
+    private authConfig = inject(XL_AUTH_CONFIG);
+    protected readonly baseUrl = this.authConfig.apiUrl;
 
     constructor() {
         super(inject(WpProductDetailService) as any);
@@ -37,7 +41,7 @@ export class WpProductListService extends BaseListCrud<IWpProduct> {
     // В компонента или сервиза
     // Правилната функция за взимане на защитена снимка
     public getSafeImage(path: string): Observable<SafeUrl> {
-        const fullUrl = `192.168.31.232:9494/${path}`; // Пълният път до Spring
+        const fullUrl = `${this.baseUrl}/${path}`; // Пълният път до Spring
 
         return this.http.get(fullUrl, { responseType: 'blob' }).pipe(
             map((blob: Blob) => {
