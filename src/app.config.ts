@@ -29,7 +29,7 @@ export const appConfig: ApplicationConfig = {
         DialogService,
         provideAuth({
             // apiUrl: 'http://192.168.31.232:9494'
-            apiUrl: 'http://62.138.14.35:9494'
+            apiUrl: 'https://erp.sateno.bg'
         }),
         provideHttpClient(withFetch(), withInterceptors([AuthInterceptor])),
         provideRouter(finalRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),

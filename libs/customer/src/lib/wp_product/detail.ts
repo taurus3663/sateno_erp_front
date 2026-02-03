@@ -85,7 +85,7 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                             <div class="grid grid-cols-12 gap-3" *ngIf="item.images?.length">
                                                 <div *ngFor="let img of item.images; let i = index" class="col-span-4 md:col-span-2 relative group">
                                                     <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4" [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
-                                                        <img src="${this.baseUrl}{{ img.localSrc }}" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" alt="Product thumbnail" />
+                                                        <img [src]="baseUrl + img.localSrc" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" alt="Product thumbnail" />
 
                                                         <span *ngIf="img.isTemp" class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>
 

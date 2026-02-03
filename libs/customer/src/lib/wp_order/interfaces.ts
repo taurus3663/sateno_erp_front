@@ -78,21 +78,25 @@ export enum OrderStatus {
     PENDING = 'pending',
     PROCESSING = 'processing',
     ON_HOLD = 'on-hold',
-    COMPLETED = 'completed',
     CANCELLED = 'cancelled',
     REFUNDED = 'refunded',
     FAILED = 'failed',
     TRASH = 'trash',
-    UNKNOWN = 'unknown'
+    UNKNOWN = 'unknown',
+    SENT = 'sent',
+    ABANDONED = 'abandoned',
+    COMPLETED = 'completed',
 }
 export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.PENDING]: 'STATUS.PENDING',
     [OrderStatus.PROCESSING]: 'STATUS.PROCESSING',
     [OrderStatus.ON_HOLD]: 'STATUS.ON_HOLD',
-    [OrderStatus.COMPLETED]: 'STATUS.COMPLETED',
     [OrderStatus.CANCELLED]: 'STATUS.CANCELLED',
     [OrderStatus.REFUNDED]: 'STATUS.REFUNDED',
     [OrderStatus.FAILED]: 'STATUS.FAILED',
     [OrderStatus.TRASH]: 'STATUS.TRASH',
-    [OrderStatus.UNKNOWN]: 'STATUS.UNKNOWN'
+    [OrderStatus.UNKNOWN]: 'STATUS.UNKNOWN',
+    [OrderStatus.SENT]: 'STATUS.SENT',
+    [OrderStatus.ABANDONED]: 'STATUS.ABANDONED',
+    [OrderStatus.COMPLETED]: 'STATUS.COMPLETED',
 };

@@ -166,11 +166,15 @@ export class OrderListComponent {
     protected statusLabels = OrderStatusLabels;
     getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
         switch (status) {
-            case OrderStatus.COMPLETED: return 'success';
+            case OrderStatus.SENT:
+                return 'contrast';
+            case OrderStatus.COMPLETED:
+                return 'success';
             case OrderStatus.PROCESSING: return 'info';
             case OrderStatus.PENDING:
             case OrderStatus.ON_HOLD: return 'warn';
             case OrderStatus.CANCELLED:
+            case OrderStatus.ABANDONED:
             case OrderStatus.FAILED: return 'danger';
             case OrderStatus.REFUNDED: return 'secondary';
             default: return 'secondary';

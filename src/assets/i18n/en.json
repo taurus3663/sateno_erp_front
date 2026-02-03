@@ -120,12 +120,14 @@
     "PENDING": "Pending",
     "PROCESSING": "Processing",
     "ON_HOLD": "On hold",
-    "COMPLETED": "Completed",
+    "SENT": "SENT",
     "CANCELLED": "Cancelled",
     "REFUNDED": "Refunded",
     "FAILED": "Failed",
     "TRASH": "Trash",
-    "UNKNOWN": "Unknown"
+    "UNKNOWN": "Unknown",
+    "ABANDONED": "Abandoned",
+    "COMPLETED": "Завършен"
   },
   "Order": "Order",
   "Last_Updated": "Last_Updated",
