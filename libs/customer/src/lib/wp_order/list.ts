@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderListService } from './list.service';
 import { OrderDetailService } from './detail.service';
-import { IOrder } from './interfaces';
+import { IOrder, OrderStatus, OrderStatusLabels, PaymentMethod, PaymentMethodLabels } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -49,7 +49,7 @@ import { Tooltip } from 'primeng/tooltip';
                         <p-tableHeaderCheckbox />
                     </th>
                     <th>{{'Created' | translate}}</th>
-                    <th>{{'Updated' | translate}}</th>
+                    <th>{{'Last_Updated' | translate}}</th>
                     <th>{{ 'Id' | translate }}</th>
                     <th>{{ 'Wp_order_id' | translate }}</th>
 <!--                    <th>{{ 'Currency' | translate }}</th>-->
@@ -85,9 +85,19 @@ import { Tooltip } from 'primeng/tooltip';
                     <td>{{order.customer.firstName}} {{order.customer.lastName}}</td>
                     <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>
                     <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>
-                    <td>{{ order.paymentMethod }}</td>
-                    <td>{{ order.status }}</td>
-                    <td>{{ order.totalPrice }} {{order.currency}}</td>
+                    <td>
+                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>
+                        {{ getPaymentLabel(order.paymentMethod) | translate}}
+                    </td>
+                    <td>
+                        <p-tag [severity]="getStatusSeverity(order.status)"
+                               [value]="getStatusLabel(order.status) | translate"
+                               [rounded]="true">
+                        </p-tag>
+                    </td>
+                    <td>
+                        <p-tag severity="success" value="{{ order.totalPrice }} {{order.currency}}" />
+                    </td>
 
                     <td>
                         <div class="flex gap-2">
@@ -144,4 +154,32 @@ export class OrderListComponent {
     protected asCast(item: any): IOrder {
         return item as IOrder;
     }
+
+    protected paymentLabels = PaymentMethodLabels;
+    public getPaymentLabel(method: any): string {
+        // Кастваме към PaymentMethod, за да спрем грешката
+        const key = method as PaymentMethod;
+        return PaymentMethodLabels[key] || 'Неизвестен метод';
+    }
+
+    // В list.component.ts
+    protected statusLabels = OrderStatusLabels;
+    getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
+        switch (status) {
+            case OrderStatus.COMPLETED: return 'success';
+            case OrderStatus.PROCESSING: return 'info';
+            case OrderStatus.PENDING:
+            case OrderStatus.ON_HOLD: return 'warn';
+            case OrderStatus.CANCELLED:
+            case OrderStatus.FAILED: return 'danger';
+            case OrderStatus.REFUNDED: return 'secondary';
+            default: return 'secondary';
+        }
+    }
+    public getStatusLabel(status: any): string {
+        // Проверяваме дали статусът съществува в нашия Enum
+        const key = status as OrderStatus;
+        return this.statusLabels[key] || 'STATUS.UNKNOWN';
+    }
+
 }

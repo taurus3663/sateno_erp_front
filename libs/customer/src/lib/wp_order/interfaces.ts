@@ -10,7 +10,7 @@ export interface IOrder {
     customerAgent: string;
     customerIp: string;
     orderLine: IOrderLineItem[];
-    paymentMethod: string;
+    paymentMethod: PaymentMethod;
     shipping: IShippingAndBilling;
     billing: IShippingAndBilling;
     site: ISite;
@@ -56,3 +56,43 @@ export interface IShippingAndBilling {
     postcode: string;
     state: string;
 }
+export enum PaymentMethod {
+    BACS = 'bacs',
+    CHEQUE = 'cheque',
+    PAYPAL = 'paypal',
+    STRIPE = 'stripe',
+    CARD = 'card',
+    COD = 'cod',
+    UNKNOWN = 'unknown'
+}
+export const PaymentMethodLabels: Record<PaymentMethod, string> = {
+    [PaymentMethod.BACS]: 'PAYMENT.BACS',
+    [PaymentMethod.CHEQUE]: 'PAYMENT.CHEQUE',
+    [PaymentMethod.PAYPAL]: 'PAYMENT.PAYPAL',
+    [PaymentMethod.STRIPE]: 'PAYMENT.STRIPE',
+    [PaymentMethod.CARD]: 'PAYMENT.CARD',
+    [PaymentMethod.COD]: 'PAYMENT.COD',
+    [PaymentMethod.UNKNOWN]: 'PAYMENT.UNKNOWN'
+};
+export enum OrderStatus {
+    PENDING = 'pending',
+    PROCESSING = 'processing',
+    ON_HOLD = 'on-hold',
+    COMPLETED = 'completed',
+    CANCELLED = 'cancelled',
+    REFUNDED = 'refunded',
+    FAILED = 'failed',
+    TRASH = 'trash',
+    UNKNOWN = 'unknown'
+}
+export const OrderStatusLabels: Record<OrderStatus, string> = {
+    [OrderStatus.PENDING]: 'STATUS.PENDING',
+    [OrderStatus.PROCESSING]: 'STATUS.PROCESSING',
+    [OrderStatus.ON_HOLD]: 'STATUS.ON_HOLD',
+    [OrderStatus.COMPLETED]: 'STATUS.COMPLETED',
+    [OrderStatus.CANCELLED]: 'STATUS.CANCELLED',
+    [OrderStatus.REFUNDED]: 'STATUS.REFUNDED',
+    [OrderStatus.FAILED]: 'STATUS.FAILED',
+    [OrderStatus.TRASH]: 'STATUS.TRASH',
+    [OrderStatus.UNKNOWN]: 'STATUS.UNKNOWN'
+};
