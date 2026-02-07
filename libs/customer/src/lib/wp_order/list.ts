@@ -89,13 +89,13 @@ import { SelectButton } from 'primeng/selectbutton';
                                 <i class="pi pi-calendar text-primary-600 font-bold"></i>
                                 <span class="text-primary-800 font-bold uppercase tracking-wider">
                                     <span class="text-primary-900 font-bold uppercase tracking-wider">
-                                        {{ 'DAYS.' + (order.createTime | date: 'EEEE') | translate }},
+                                        {{ 'DAYS.' + (order.wpOrderTime | date: 'EEEE') | translate }},
 
-                                        {{ order.createTime | date: 'dd' }}
+                                        {{ order.wpOrderTime | date: 'dd' }}
 
-                                        {{ 'MONTHS.' + (order.createTime | date: 'MMMM') | translate }}
+                                        {{ 'MONTHS.' + (order.wpOrderTime | date: 'MMMM') | translate }}
 
-                                        {{ order.createTime | date: 'yyyy' }}
+                                        {{ order.wpOrderTime | date: 'yyyy' }}
                                     </span>
                                 </span>
                             </div>
@@ -108,7 +108,7 @@ import { SelectButton } from 'primeng/selectbutton';
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
 
-                    <th>{{ order.createTime | date: 'dd.MM.yyyy HH:mm' }}</th>
+                    <th>{{ order.wpOrderTime | date: 'dd.MM.yyyy HH:mm' }}</th>
                     <!--                    <th>{{order.updateTime | date: 'dd.MM.yyyy HH:mm'}}</th>-->
                     <!--                    <td>{{ order.id }}</td>-->
                     <td>{{ order.wpOrderId }}</td>
@@ -116,8 +116,11 @@ import { SelectButton } from 'primeng/selectbutton';
                     <!--                    <td>{{ order.currencySymbol }}</td>-->
 
                     <th>
-                        <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status) | translate" [rounded]="true"> </p-tag>
-                    </th>
+                        <p-tag
+                            [value]="getStatusLabel(order.status) | translate"
+                            [rounded]="true"
+                            [style]="{ 'background': getStatusColor(order.status), 'color': '#ffffff' }">
+                        </p-tag>                    </th>
 
                     <td>
                         <div class="font-bold text-900">{{ order.billing.first_name }} {{ order.billing.last_name }}</div>
@@ -204,23 +207,15 @@ export class OrderListComponent {
     protected statusLabels = OrderStatusLabels;
     getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
         switch (status) {
-            case OrderStatus.SENT:
-                return 'contrast';
             case OrderStatus.COMPLETED:
-                return 'success';
-            case OrderStatus.PROCESSING:
-                return 'info';
-            // case OrderStatus.PENDING:
-            // case OrderStatus.ON_HOLD:
-            //     return 'warn';
-            case OrderStatus.CANCELLED:
-            case OrderStatus.ABANDONED:
-            // case OrderStatus.FAILED:
-                return 'danger';
-            // case OrderStatus.REFUNDED:
-            //     return 'secondary';
-            default:
-                return 'secondary';
+            case OrderStatus.APPROVED:
+                return 'success';   // Зелено
+            // case OrderStatus.PENDING:   return 'secondary'; // Сиво
+            case OrderStatus.ABANDONED: return 'info';      // Синьо-сиво
+            case OrderStatus.SENT:      return 'warn';      // Оранжево
+            // case OrderStatus.REFUNDED:  return 'danger';    // Червено
+            case OrderStatus.CANCELLED: return 'contrast';  // Черно
+            default:                    return 'secondary';
         }
     }
     public getStatusLabel(status: any): string {
@@ -269,13 +264,13 @@ export class OrderListComponent {
         const previous = this.asCast(items[index - 1]);
 
         // 3. ЗАЩИТА: Проверка дали самото поле createTime съществува
-        if (!current.createTime || !previous.createTime) {
+        if (!current.wpOrderTime || !previous.wpOrderTime) {
             return false;
         }
 
         // Сравнение на датите
-        const d1 = new Date(current.createTime).toDateString();
-        const d2 = new Date(previous.createTime).toDateString();
+        const d1 = new Date(current.wpOrderTime).toDateString();
+        const d2 = new Date(previous.wpOrderTime).toDateString();
 
         return d1 !== d2;
     }
@@ -291,14 +286,25 @@ export class OrderListComponent {
     }
 
     getStatusColor(status: string): string {
-        const severity = this.getStatusSeverity(status);
-        switch (severity) {
-            case 'success': return '#22C55E';
-            case 'info': return '#3B82F6';
-            case 'warn': return '#F59E0B';
-            case 'danger': return '#EF4444';
-            case 'contrast': return '#334155';
-            default: return '#94A3B8';
-        }
+        // const severity = this.getStatusSeverity(status);
+        return this.statusColorMap[status] || '#94A3B8';
+        // switch (severity) {
+        //     case 'success': return '#22C55E';
+        //     case 'info': return '#3B82F6';
+        //     case 'warn': return '#F59E0B';
+        //     case 'danger': return '#EF4444';
+        //     case 'contrast': return '#334155';
+        //     default: return '#94A3B8';
+        // }
     }
+
+    private readonly statusColorMap: Record<string, string> = {
+        [OrderStatus.PROCESSING]: '#808080',    // Чакаща - Сиво
+        [OrderStatus.ABANDONED]: '#94a3b8',  // Изоставена - Синьо-сиво
+        [OrderStatus.SENT]: '#e67e22',       // Изпратена - Оранжево
+        [OrderStatus.COMPLETED]: '#3a9d00',  // Завършена - Зелено
+        [OrderStatus.APPROVED]: '#3a9d00',  // Завършена - Зелено
+        // [OrderStatus.REFUNDED]: '#d90000',   // Върната - Червено
+        [OrderStatus.CANCELLED]: '#000000',  // Отказана - Черно
+    };
 }

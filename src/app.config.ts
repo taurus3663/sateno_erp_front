@@ -49,7 +49,8 @@ export const appConfig: ApplicationConfig = {
             useValue: {
                 name: '',
                 logoUrl: 'assets/img/sateno.png',
-                logoStyle: { width: '100%', height: '110px' }
+                logoStyle: { width: '100%', height: '110px' },
+                clickUrl: 'wp_order/list'
             }
         },
         provideTranslateService({

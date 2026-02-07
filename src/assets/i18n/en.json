@@ -114,7 +114,9 @@
     "STRIPE": "Stripe",
     "CARD": "Card",
     "COD": "Pay on delivery",
-    "UNKNOWN": "unknown"
+    "UNKNOWN": "unknown",
+    "STRIPE_CC": "Card (Stripe)",
+    "STRIPE_APPLEPAY": "Card Apple Pay"
   },
   "STATUS": {
     "PENDING": "Pending",

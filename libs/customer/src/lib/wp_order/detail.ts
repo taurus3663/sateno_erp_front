@@ -146,14 +146,22 @@ import { InputText } from 'primeng/inputtext';
                             <label class="block font-bold mb-2">{{ 'Status' | translate }} ({{'Order' | translate}})</label>
                             <p-select [options]="orderStatus" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full mt-1 custom-status-select" appendTo="body">
                                 <ng-template #selectedItem let-selectedOption>
-                                    <div class="flex align-items-center">
-                                        <p-tag [severity]="getStatusSeverity(selectedOption.value)" [value]="selectedOption.label" [rounded]="true"> </p-tag>
+                                    <div class="flex align-items-center" *ngIf="selectedOption">
+                                        <p-tag
+                                            [value]="selectedOption.label"
+                                            [rounded]="true"
+                                            [style]="{ 'background': getStatusColor(selectedOption.value), 'color': '#ffffff' }">
+                                        </p-tag>
                                     </div>
                                 </ng-template>
 
                                 <ng-template #item let-option>
                                     <div class="flex align-items-center">
-                                        <p-tag [severity]="getStatusSeverity(option.value)" [value]="option.label" [rounded]="true"> </p-tag>
+                                        <p-tag
+                                            [value]="option.label"
+                                            [rounded]="true"
+                                            [style]="{ 'background': getStatusColor(option.value), 'color': '#ffffff' }">
+                                        </p-tag>
                                     </div>
                                 </ng-template>
                             </p-select>
@@ -293,18 +301,28 @@ export class OrderDetailComponent {
                 return 'success';
             case OrderStatus.PROCESSING:
                 return 'info';
-            // case OrderStatus.PENDING:
-            // case OrderStatus.ON_HOLD:
-            //     return 'warn';
             case OrderStatus.CANCELLED:
-            // case OrderStatus.FAILED:
             case OrderStatus.ABANDONED:
                 return 'danger';
-            // case OrderStatus.REFUNDED:
-            //     return 'secondary';
             default:
                 return 'secondary';
         }
+    }
+
+    // В класа OrderDetailComponent
+    private readonly statusColorMap: Record<string, string> = {
+        [OrderStatus.PROCESSING]: '#808080', // Чакаща
+        [OrderStatus.ABANDONED]: '#94a3b8',  // Изоставена
+        [OrderStatus.SENT]: '#e67e22',       // Изпратена
+        [OrderStatus.COMPLETED]: '#3a9d00',  // Завършена
+        [OrderStatus.CANCELLED]: '#000000',  // Отказана
+        [OrderStatus.APPROVED]: '#3a9d00',
+        // [OrderStatus.FAILED]: '#ef4444',     // Неуспешна
+        // [OrderStatus.REFUNDED]: '#d90000'    // Върната
+    };
+
+    public getStatusColor(status: string): string {
+        return this.statusColorMap[status] || '#94A3B8';
     }
 
     protected orderStatus: any[] = [];

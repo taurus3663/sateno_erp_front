@@ -114,7 +114,9 @@
     "STRIPE": "Stripe",
     "CARD": "Карта",
     "COD": "Наложен платеж",
-    "UNKNOWN": "Неизвестен метод"
+    "UNKNOWN": "Неизвестен метод",
+    "STRIPE_CC": "Карта (Stripe)",
+    "STRIPE_APPLEPAY": "Карта Ейпъл пей"
   },
   "STATUS": {
     "PENDING": "В изчакване",

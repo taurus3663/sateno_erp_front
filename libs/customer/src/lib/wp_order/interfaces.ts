@@ -19,6 +19,7 @@ export interface IOrder {
     transactionId: string;
     createTime: string;
     updateTime: string;
+    wpOrderTime: string;
 }
 
 export interface IOrderLineItem {
@@ -63,6 +64,8 @@ export enum PaymentMethod {
     STRIPE = 'stripe',
     CARD = 'card',
     COD = 'cod',
+    STRIPE_CC= 'stripe_cc',
+    STRIPE_APPLEPAY= 'stripe_applepay',
     UNKNOWN = 'unknown'
 }
 export const PaymentMethodLabels: Record<PaymentMethod, string> = {
@@ -72,32 +75,22 @@ export const PaymentMethodLabels: Record<PaymentMethod, string> = {
     [PaymentMethod.STRIPE]: 'PAYMENT.STRIPE',
     [PaymentMethod.CARD]: 'PAYMENT.CARD',
     [PaymentMethod.COD]: 'PAYMENT.COD',
-    [PaymentMethod.UNKNOWN]: 'PAYMENT.UNKNOWN'
+    [PaymentMethod.UNKNOWN]: 'PAYMENT.UNKNOWN',
+    [PaymentMethod.STRIPE_CC]: 'PAYMENT.STRIPE_CC',
+    [PaymentMethod.STRIPE_APPLEPAY]: 'PAYMENT.STRIPE_APPLEPAY'
 };
 export enum OrderStatus {
-    // PENDING = 'pending',
     PROCESSING = 'processing',
-    // ON_HOLD = 'on-hold',
-    CANCELLED = 'cancelled',
-    // REFUNDED = 'refunded',
-    // FAILED = 'failed',
-    // TRASH = 'trash',
-    // UNKNOWN = 'unknown',
     SENT = 'sent',
+    CANCELLED = 'cancelled',
     ABANDONED = 'abandoned',
     COMPLETED = 'completed',
     APPROVED = 'approved',
 }
 export const OrderStatusLabels: Record<OrderStatus, string> = {
-    // [OrderStatus.PENDING]: 'STATUS.PENDING',
     [OrderStatus.PROCESSING]: 'STATUS.PROCESSING',
-    // [OrderStatus.ON_HOLD]: 'STATUS.ON_HOLD',
-    [OrderStatus.CANCELLED]: 'STATUS.CANCELLED',
-    // [OrderStatus.REFUNDED]: 'STATUS.REFUNDED',
-    // [OrderStatus.FAILED]: 'STATUS.FAILED',
-    // [OrderStatus.TRASH]: 'STATUS.TRASH',
-    // [OrderStatus.UNKNOWN]: 'STATUS.UNKNOWN',
     [OrderStatus.SENT]: 'STATUS.SENT',
+    [OrderStatus.CANCELLED]: 'STATUS.CANCELLED',
     [OrderStatus.ABANDONED]: 'STATUS.ABANDONED',
     [OrderStatus.COMPLETED]: 'STATUS.COMPLETED',
     [OrderStatus.APPROVED]: 'STATUS.APPROVED',
