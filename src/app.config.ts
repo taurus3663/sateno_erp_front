@@ -11,6 +11,7 @@ import {appRoutes} from 'xl-layout';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import { DialogService } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
 
 const finalRoutes: Routes = [
     ...appRoutes,
@@ -58,6 +59,7 @@ export const appConfig: ApplicationConfig = {
             }),
             fallbackLang: 'en',
             lang: 'bg'
-        })
+        }),
+        MessageService
     ]
 };

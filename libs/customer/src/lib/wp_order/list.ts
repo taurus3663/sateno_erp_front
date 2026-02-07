@@ -13,12 +13,15 @@ import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { HttpClient } from '@angular/common/http';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { Tooltip } from 'primeng/tooltip';
+import { Select } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
+import { SelectButton } from 'primeng/selectbutton';
 
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, Select, FormsModule, SelectButton],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -28,15 +31,28 @@ import { Tooltip } from 'primeng/tooltip';
             </ng-template>
         </p-toolbar>
 
+        <div class="flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white border-round shadow-1">
+            <span class="font-bold text-secondary mr-2"> <i class="pi pi-filter mr-1"></i> {{ 'Status' | translate }}: </span>
+
+            <p-selectButton [options]="statusFilterOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusFilterChange($event.value)" optionLabel="label" optionValue="value">
+                <ng-template #item let-item>
+                    <div class="flex align-items-center gap-2 px-1">
+                        <i *ngIf="item.value" class="pi pi-circle-fill text-xs" [style.color]="getStatusColor(item.value)"></i>
+                        <span class="font-medium text-sm">{{ item.label | translate }}</span>
+                    </div>
+                </ng-template>
+            </p-selectButton>
+        </div>
+
         <p-table
             [value]="listService.items()"
             [lazy]="true"
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
-            [rows]="10"
+            [rows]="100"
             [totalRecords]="listService.totalRecords()"
             [loading]="listService.loading()"
-            [rowsPerPageOptions]="[10, 20, 50]"
+            [rowsPerPageOptions]="[10, 20, 50, 100, 200, 500]"
             [tableStyle]="{ 'min-width': '50rem' }"
             [(selection)]="selectedItem"
             [rowHover]="true"
@@ -48,55 +64,76 @@ import { Tooltip } from 'primeng/tooltip';
                     <th>
                         <p-tableHeaderCheckbox />
                     </th>
-                    <th>{{'Created' | translate}}</th>
-                    <th>{{'Last_Updated' | translate}}</th>
-                    <th>{{ 'Id' | translate }}</th>
+                    <th>{{ 'Created' | translate }}</th>
+                    <!--                    <th>{{'Last_Updated' | translate}}</th>-->
+                    <!--                    <th>{{ 'Id' | translate }}</th>-->
                     <th>{{ 'Wp_order_id' | translate }}</th>
-<!--                    <th>{{ 'Currency' | translate }}</th>-->
-<!--                    <th>{{ 'Currency_symbol' | translate }}</th>-->
-                    <th>{{ 'Customer' | translate }}</th>
-                    <th>{{ 'Customer_agent' | translate }}</th>
-                    <th>{{ 'Customer_ip' | translate }}</th>
-                    <th>{{ 'Payment_method' | translate }}</th>
                     <th>{{ 'Status' | translate }}</th>
-                    <th>{{ 'Total_price' | translate }}</th>
-
-
-
-
+                    <th>{{ 'Customer' | translate }}</th>
+                    <!--                    <th>{{ 'Customer_agent' | translate }}</th>-->
+                    <!--                    <th>{{ 'Customer_ip' | translate }}</th>-->
+                    <th>{{ 'Payment_method' | translate }}</th>
+                    <th>{{ 'Price' | translate }}</th>
 
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-item >
+            <ng-template pTemplate="body" let-item let-i="rowIndex">
                 @let order = asCast(item);
+
+                @if (isNewDay(order, i)) {
+                    <tr class="bg-gray-100">
+                        <td colspan="8" class="py-2 px-4 border-bottom-2 border-primary-500">
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-calendar text-primary-600 font-bold"></i>
+                                <span class="text-primary-800 font-bold uppercase tracking-wider">
+                                    <span class="text-primary-900 font-bold uppercase tracking-wider">
+                                        {{ 'DAYS.' + (order.createTime | date: 'EEEE') | translate }},
+
+                                        {{ order.createTime | date: 'dd' }}
+
+                                        {{ 'MONTHS.' + (order.createTime | date: 'MMMM') | translate }}
+
+                                        {{ order.createTime | date: 'yyyy' }}
+                                    </span>
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
                 <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
 
-                    <th>{{order.createTime | date: 'dd.MM.yyyy HH:mm'}}</th>
-                    <th>{{order.updateTime | date: 'dd.MM.yyyy HH:mm'}}</th>
-                    <td>{{ order.id }}</td>
+                    <th>{{ order.createTime | date: 'dd.MM.yyyy HH:mm' }}</th>
+                    <!--                    <th>{{order.updateTime | date: 'dd.MM.yyyy HH:mm'}}</th>-->
+                    <!--                    <td>{{ order.id }}</td>-->
                     <td>{{ order.wpOrderId }}</td>
-<!--                    <td>{{ order.currency }}</td>-->
-<!--                    <td>{{ order.currencySymbol }}</td>-->
-                    <td>{{order.customer.firstName}} {{order.customer.lastName}}</td>
-                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>
-                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>
+                    <!--                    <td>{{ order.currency }}</td>-->
+                    <!--                    <td>{{ order.currencySymbol }}</td>-->
+
+                    <th>
+                        <p-tag [severity]="getStatusSeverity(order.status)" [value]="getStatusLabel(order.status) | translate" [rounded]="true"> </p-tag>
+                    </th>
+
+                    <td>
+                        <div class="font-bold text-900">{{ order.billing.first_name }} {{ order.billing.last_name }}</div>
+                        <div class="text-secondary text-sm flex align-items-center gap-1 mt-1">
+                            <i class="pi pi-phone text-xs"></i>
+                            {{ order.billing.phone }}
+                        </div>
+                    </td>
+                    <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
+                    <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td>
                         <i class="pi pi-credit-card mr-2 text-color-secondary"></i>
-                        {{ getPaymentLabel(order.paymentMethod) | translate}}
+                        {{ getPaymentLabel(order.paymentMethod) | translate }}
                     </td>
                     <td>
-                        <p-tag [severity]="getStatusSeverity(order.status)"
-                               [value]="getStatusLabel(order.status) | translate"
-                               [rounded]="true">
-                        </p-tag>
-                    </td>
-                    <td>
-                        <p-tag severity="success" value="{{ order.totalPrice }} {{order.currency}}" />
+                        <p-tag severity="success" value="{{ order.totalPrice }} {{ order.currency }}" />
                     </td>
 
                     <td>
@@ -132,6 +169,7 @@ export class OrderListComponent {
 
     constructor() {
         // this.syncCategories(1);
+        this.generateStatusOptions();
     }
 
     protected http = inject(HttpClient);
@@ -170,14 +208,19 @@ export class OrderListComponent {
                 return 'contrast';
             case OrderStatus.COMPLETED:
                 return 'success';
-            case OrderStatus.PROCESSING: return 'info';
-            case OrderStatus.PENDING:
-            case OrderStatus.ON_HOLD: return 'warn';
+            case OrderStatus.PROCESSING:
+                return 'info';
+            // case OrderStatus.PENDING:
+            // case OrderStatus.ON_HOLD:
+            //     return 'warn';
             case OrderStatus.CANCELLED:
             case OrderStatus.ABANDONED:
-            case OrderStatus.FAILED: return 'danger';
-            case OrderStatus.REFUNDED: return 'secondary';
-            default: return 'secondary';
+            // case OrderStatus.FAILED:
+                return 'danger';
+            // case OrderStatus.REFUNDED:
+            //     return 'secondary';
+            default:
+                return 'secondary';
         }
     }
     public getStatusLabel(status: any): string {
@@ -186,4 +229,76 @@ export class OrderListComponent {
         return this.statusLabels[key] || 'STATUS.UNKNOWN';
     }
 
+    protected statusOptions: any[] = [];
+    // private generateStatusOptions() {
+    //     // Взимаме статусите от твоя Enum и ги правим на обекти за избор
+    //     this.statusOptions = Object.keys(OrderStatus)
+    //         .filter(key => isNaN(Number(key)))
+    //         .map(key => ({
+    //             label: this.statusLabels[OrderStatus[key as keyof typeof OrderStatus] as OrderStatus],
+    //             value: OrderStatus[key as keyof typeof OrderStatus]
+    //         }));
+    // }
+    private generateStatusOptions() {
+        const allOption = { label: 'All', value: null }; // Опция за изчистване на филтъра
+
+        const options = Object.keys(OrderStatus)
+            .filter((key) => isNaN(Number(key)))
+            .map((key) => ({
+                label: this.statusLabels[OrderStatus[key as keyof typeof OrderStatus] as OrderStatus],
+                value: OrderStatus[key as keyof typeof OrderStatus]
+            }));
+
+        this.statusOptions = options; // За dropdown-а в таблицата
+        this.statusFilterOptions = [allOption, ...options]; // За бутоните отгоре
+    }
+
+    // Увери се, че параметрите имат точните типове
+    isNewDay(currentOrder: IOrder, index: number): boolean {
+        // 1. Проверка дали текущият ред е първи
+        if (index === 0) return true;
+
+        const items = this.listService.items();
+
+        // 2. ЗАЩИТА: Проверка дали списъкът съществува и дали елементите са дефинирани
+        if (!items || !items[index] || !items[index - 1]) {
+            return false;
+        }
+
+        const current = this.asCast(items[index]);
+        const previous = this.asCast(items[index - 1]);
+
+        // 3. ЗАЩИТА: Проверка дали самото поле createTime съществува
+        if (!current.createTime || !previous.createTime) {
+            return false;
+        }
+
+        // Сравнение на датите
+        const d1 = new Date(current.createTime).toDateString();
+        const d2 = new Date(previous.createTime).toDateString();
+
+        return d1 !== d2;
+    }
+
+    protected selectedStatus: string | null = null; // Държи текущия филтър
+    protected statusFilterOptions: any[] = [];
+
+    onStatusFilterChange(value: any) {
+        // Ръчно задействаме loadList с новия филтър
+        this.listService.loadList(0, 100, {
+            status: { value: value, matchMode: 'equals' }
+        });
+    }
+
+    getStatusColor(status: string): string {
+        const severity = this.getStatusSeverity(status);
+        switch (severity) {
+            case 'success': return '#22C55E';
+            case 'info': return '#3B82F6';
+            case 'warn': return '#F59E0B';
+            case 'danger': return '#EF4444';
+            case 'contrast': return '#334155';
+            default: return '#94A3B8';
+        }
+    }
 }

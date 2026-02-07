@@ -118,7 +118,7 @@
   },
   "STATUS": {
     "PENDING": "В изчакване",
-    "PROCESSING": "Обработва се",
+    "PROCESSING": "Чакаща",
     "ON_HOLD": "Задържана",
     "SENT": "Изпратен",
     "CANCELLED": "Отказана",
@@ -127,7 +127,8 @@
     "TRASH": "Кошче",
     "UNKNOWN": "Неизвестен статус",
     "ABANDONED": "Изоставен",
-    "COMPLETED": "Завършен"
+    "COMPLETED": "Доставена",
+    "APPROVED": "Потвърден"
   },
   "Order": "Поръчка",
   "Last_Updated": "Последно променен",
@@ -142,5 +143,29 @@
   "Subtotal": "Междинна сума",
   "Total": "Общо",
   "New_order": "Нова поръчка",
-  "Database": "База от данни"
+  "Database": "База от данни",
+  "DAYS": {
+        "Monday": "Понеделник",
+        "Tuesday": "Вторник",
+        "Wednesday": "Сряда",
+        "Thursday": "Четвъртък",
+        "Friday": "Петък",
+        "Saturday": "Събота",
+        "Sunday": "Неделя"
+    },
+  "MONTHS": {
+        "January": "Януари",
+        "February": "Февруари",
+        "March": "Март",
+        "April": "Април",
+        "May": "Май",
+        "June": "Юни",
+        "July": "Юли",
+        "August": "Август",
+        "September": "Септември",
+        "October": "Октомври",
+        "November": "Ноември",
+        "December": "Декември"
+    },
+    "All": "Всички"
 }
