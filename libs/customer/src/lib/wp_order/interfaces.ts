@@ -20,6 +20,10 @@ export interface IOrder {
     createTime: string;
     updateTime: string;
     wpOrderTime: string;
+
+    showDuplicateWarning: boolean;
+    orderLineOtherOrders: IOrderLineItem[];
+    ordersToMerge?: number[];
 }
 
 export interface IOrderLineItem {
@@ -30,6 +34,13 @@ export interface IOrderLineItem {
     sku: string;
     totalPrice: number;
     paoIdValue: IPaoIdValue[];
+    image: IOrderLineItemImage;
+    orderId: number;
+    wpOrderId: number;
+}
+export interface IOrderLineItemImage {
+    id: number;
+    src: string;
 }
 export interface IPaoIdValue {
     id: number;
@@ -86,6 +97,7 @@ export enum OrderStatus {
     ABANDONED = 'abandoned',
     COMPLETED = 'completed',
     APPROVED = 'approved',
+    JOINT = 'joint'
 }
 export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.PROCESSING]: 'STATUS.PROCESSING',
@@ -94,4 +106,5 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.ABANDONED]: 'STATUS.ABANDONED',
     [OrderStatus.COMPLETED]: 'STATUS.COMPLETED',
     [OrderStatus.APPROVED]: 'STATUS.APPROVED',
+    [OrderStatus.JOINT]: 'STATUS.JOINT'
 };

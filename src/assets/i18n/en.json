@@ -130,7 +130,8 @@
     "UNKNOWN": "Unknown",
     "ABANDONED": "Abandoned",
     "COMPLETED": "Delivered",
-      "APPROVED": "APPROVED"
+    "APPROVED": "APPROVED",
+    "JOINT": "JOINT"
   },
   "Order": "Order",
   "Last_Updated": "Last_Updated",
@@ -146,28 +147,30 @@
   "Total": "Total",
   "New_order": "New_order",
   "Database": "Database",
-    "DAYS": {
-        "Monday": "Monday",
-        "Tuesday": "Tuesday",
-        "Wednesday": "Wednesday",
-        "Thursday": "Thursday",
-        "Friday": "Friday",
-        "Saturday": "Saturday",
-        "Sunday": "Sunday"
-    },
-    "MONTHS": {
-        "January": "January",
-        "February": "February",
-        "March": "March",
-        "April": "April",
-        "May": "May",
-        "June": "June",
-        "July": "July",
-        "August": "August",
-        "September": "September",
-        "October": "October",
-        "November": "November",
-        "December": "December"
-    },
-    "All": "All"
+  "DAYS": {
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday",
+    "Saturday": "Saturday",
+    "Sunday": "Sunday"
+  },
+  "MONTHS": {
+    "January": "January",
+    "February": "February",
+    "March": "March",
+    "April": "April",
+    "May": "May",
+    "June": "June",
+    "July": "July",
+    "August": "August",
+    "September": "September",
+    "October": "October",
+    "November": "November",
+    "December": "December"
+  },
+  "All": "All",
+  "Detected_duplicate_orders_for_this_customer": "Detected duplicate orders for this customer",
+  "Pending_Duplicates": "Pending Duplicates"
 }

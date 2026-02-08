@@ -130,7 +130,8 @@
     "UNKNOWN": "Неизвестен статус",
     "ABANDONED": "Изоставен",
     "COMPLETED": "Доставена",
-    "APPROVED": "Потвърден"
+    "APPROVED": "Потвърден",
+    "JOINT": "Обединен"
   },
   "Order": "Поръчка",
   "Last_Updated": "Последно променен",
@@ -147,27 +148,29 @@
   "New_order": "Нова поръчка",
   "Database": "База от данни",
   "DAYS": {
-        "Monday": "Понеделник",
-        "Tuesday": "Вторник",
-        "Wednesday": "Сряда",
-        "Thursday": "Четвъртък",
-        "Friday": "Петък",
-        "Saturday": "Събота",
-        "Sunday": "Неделя"
-    },
+    "Monday": "Понеделник",
+    "Tuesday": "Вторник",
+    "Wednesday": "Сряда",
+    "Thursday": "Четвъртък",
+    "Friday": "Петък",
+    "Saturday": "Събота",
+    "Sunday": "Неделя"
+  },
   "MONTHS": {
-        "January": "Януари",
-        "February": "Февруари",
-        "March": "Март",
-        "April": "Април",
-        "May": "Май",
-        "June": "Юни",
-        "July": "Юли",
-        "August": "Август",
-        "September": "Септември",
-        "October": "Октомври",
-        "November": "Ноември",
-        "December": "Декември"
-    },
-    "All": "Всички"
+    "January": "Януари",
+    "February": "Февруари",
+    "March": "Март",
+    "April": "Април",
+    "May": "Май",
+    "June": "Юни",
+    "July": "Юли",
+    "August": "Август",
+    "September": "Септември",
+    "October": "Октомври",
+    "November": "Ноември",
+    "December": "Декември"
+  },
+  "All": "Всички",
+  "Detected_duplicate_orders_for_this_customer": "Открити дублирани поръчки за този клиент",
+  "Pending_Duplicates": "Чакащи дубликати"
 }

@@ -108,7 +108,17 @@ import { SelectButton } from 'primeng/selectbutton';
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
 
-                    <th>{{ order.wpOrderTime | date: 'dd.MM.yyyy HH:mm' }}</th>
+                    <th>
+                        <div class="flex align-items-center gap-2">
+                            <i *ngIf="order.showDuplicateWarning"
+                               class="pi pi-exclamation-triangle text-yellow-500 text-xl shadow-animate"
+                               [pTooltip]="'Detected_duplicate_orders_for_this_customer' | translate"
+                               tooltipPosition="top">
+                            </i>
+
+                            <span>{{ order.wpOrderTime | date: 'dd.MM.yyyy HH:mm' }}</span>
+                        </div>
+                    </th>
                     <!--                    <th>{{order.updateTime | date: 'dd.MM.yyyy HH:mm'}}</th>-->
                     <!--                    <td>{{ order.id }}</td>-->
                     <td>{{ order.wpOrderId }}</td>
@@ -306,5 +316,6 @@ export class OrderListComponent {
         [OrderStatus.APPROVED]: '#3a9d00',  // Завършена - Зелено
         // [OrderStatus.REFUNDED]: '#d90000',   // Върната - Червено
         [OrderStatus.CANCELLED]: '#000000',  // Отказана - Черно
+        [OrderStatus.JOINT]: '#e6ef61'
     };
 }
