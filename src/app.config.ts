@@ -12,6 +12,7 @@ import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import { DialogService } from 'primeng/dynamicdialog';
 import { MessageService } from 'primeng/api';
+import { XL_API_URL } from '../libs/xl-util/src/lib/ws/WsToken';
 
 const finalRoutes: Routes = [
     ...appRoutes,
@@ -24,14 +25,17 @@ const finalRoutes: Routes = [
         loadComponent: () => import('./app/pages/notfound/notfound').then(value => value.Notfound)
     }
 ];
-
+// const API_URL = 'http://192.168.31.232:9494';
+const API_URL = 'https://erp.sateno.bg';
 export const appConfig: ApplicationConfig = {
     providers: [
         DialogService,
         provideAuth({
-            apiUrl: 'http://192.168.31.232:9494'
+            // apiUrl: 'http://192.168.31.232:9494'
             // apiUrl: 'https://erp.sateno.bg'
+            apiUrl: API_URL,
         }),
+        { provide: XL_API_URL, useValue: API_URL },
         provideHttpClient(withFetch(), withInterceptors([AuthInterceptor])),
         provideRouter(finalRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         // provideHttpClient(withFetch()),

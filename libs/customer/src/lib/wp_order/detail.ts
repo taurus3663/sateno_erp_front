@@ -424,6 +424,7 @@ export class OrderDetailComponent {
     private generateStatusOptions() {
         this.orderStatus = Object.keys(OrderStatus)
             .filter((key) => isNaN(Number(key)))
+            .filter((key) => key !== 'JOINT')
             .map((key) => ({
                 label: this.tr.instant(`STATUS.${key}`),
                 value: OrderStatus[key as keyof typeof OrderStatus]

@@ -11,6 +11,7 @@ import {OrderDetailService} from './detail.service';
 export class OrderListService extends BaseListCrud<IOrder> {
     listRoute = ROUTES.wp_order.list;
 
+
     constructor() {
         super(inject(OrderDetailService));
     }

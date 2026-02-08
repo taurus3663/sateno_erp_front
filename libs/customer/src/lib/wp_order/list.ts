@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderListService } from './list.service';
 import { OrderDetailService } from './detail.service';
@@ -16,6 +16,8 @@ import { Tooltip } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { SelectButton } from 'primeng/selectbutton';
+import { WebSocketService } from 'xl-util';
+import { Subject, takeUntil } from 'rxjs';
 
 
 @Component({
@@ -110,11 +112,7 @@ import { SelectButton } from 'primeng/selectbutton';
 
                     <th>
                         <div class="flex align-items-center gap-2">
-                            <i *ngIf="order.showDuplicateWarning"
-                               class="pi pi-exclamation-triangle text-yellow-500 text-xl shadow-animate"
-                               [pTooltip]="'Detected_duplicate_orders_for_this_customer' | translate"
-                               tooltipPosition="top">
-                            </i>
+                            <i *ngIf="order.showDuplicateWarning" class="pi pi-exclamation-triangle text-yellow-500 text-xl shadow-animate" [pTooltip]="'Detected_duplicate_orders_for_this_customer' | translate" tooltipPosition="top"> </i>
 
                             <span>{{ order.wpOrderTime | date: 'dd.MM.yyyy HH:mm' }}</span>
                         </div>
@@ -126,11 +124,23 @@ import { SelectButton } from 'primeng/selectbutton';
                     <!--                    <td>{{ order.currencySymbol }}</td>-->
 
                     <th>
+<!--                        <p-tag [value]="getStatusLabel(order.status) | translate" [rounded]="false" [style]="{ background: getStatusColor(order.status), color: '#ffffff' }"> </p-tag>-->
                         <p-tag
                             [value]="getStatusLabel(order.status) | translate"
-                            [rounded]="true"
-                            [style]="{ 'background': getStatusColor(order.status), 'color': '#ffffff' }">
-                        </p-tag>                    </th>
+                            [style]="{
+        'background': getStatusColor(order.status),
+        'color': '#ffffff',
+        'width': '90px',
+        'height': '26px',
+                        'line-height': '26px',
+                        'padding': '0',
+                        'justify-content': 'center',
+                        'border-radius': '3px',
+                        'font-size': '13px',
+                        'font-weight': '600'
+                        }">
+                        </p-tag>
+                    </th>
 
                     <td>
                         <div class="font-bold text-900">{{ order.billing.first_name }} {{ order.billing.last_name }}</div>
@@ -162,16 +172,18 @@ import { SelectButton } from 'primeng/selectbutton';
         <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
     `
 })
-export class OrderListComponent {
+export class OrderListComponent implements OnInit, OnDestroy {
     public listService = inject(OrderListService);
     public detailService = inject(OrderDetailService);
     private tr = inject(TranslateService);
     protected config = inject(DynamicDialogConfig, { optional: true });
 
     selectedItem!: IOrder[] | null;
+    private lastParams: any = { first: 0, rows: 100, filters: {} };
 
     onLazyLoad(event: any) {
         this.listService.loadList(event.first, event.rows, event.filters);
+        this.lastParams = { first: event.first, rows: event.rows, filters: event.filters };
     }
 
     onDelete(id: any) {
@@ -183,6 +195,35 @@ export class OrderListComponent {
     constructor() {
         // this.syncCategories(1);
         this.generateStatusOptions();
+    }
+
+    private wsService = inject(WebSocketService);
+    private destroy$ = new Subject<void>();
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+    ngOnInit(): void {
+        this.wsService.listen('orders')
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((msg) => {
+                console.log('WebSocket signal received:', msg);
+
+                // Тук извикваме рефреш на списъка
+                // Твоят reload() трябва да ползва текущите филтри/страница
+                this.reload();
+
+                // По-късно тук ще добавим известие (Toast), ако msg.action === 'CREATED'
+            });
+    }
+
+    public reload() {
+        console.log('🔄 Автоматично обновяване на списъка...');
+        this.listService.loadList(
+            this.lastParams.first,
+            this.lastParams.rows,
+            this.lastParams.filters
+        );
     }
 
     protected http = inject(HttpClient);
@@ -219,13 +260,17 @@ export class OrderListComponent {
         switch (status) {
             case OrderStatus.COMPLETED:
             case OrderStatus.APPROVED:
-                return 'success';   // Зелено
+                return 'success'; // Зелено
             // case OrderStatus.PENDING:   return 'secondary'; // Сиво
-            case OrderStatus.ABANDONED: return 'info';      // Синьо-сиво
-            case OrderStatus.SENT:      return 'warn';      // Оранжево
+            case OrderStatus.ABANDONED:
+                return 'info'; // Синьо-сиво
+            case OrderStatus.SENT:
+                return 'warn'; // Оранжево
             // case OrderStatus.REFUNDED:  return 'danger';    // Червено
-            case OrderStatus.CANCELLED: return 'contrast';  // Черно
-            default:                    return 'secondary';
+            case OrderStatus.CANCELLED:
+                return 'contrast'; // Черно
+            default:
+                return 'secondary';
         }
     }
     public getStatusLabel(status: any): string {
@@ -309,13 +354,13 @@ export class OrderListComponent {
     }
 
     private readonly statusColorMap: Record<string, string> = {
-        [OrderStatus.PROCESSING]: '#808080',    // Чакаща - Сиво
-        [OrderStatus.ABANDONED]: '#94a3b8',  // Изоставена - Синьо-сиво
-        [OrderStatus.SENT]: '#e67e22',       // Изпратена - Оранжево
-        [OrderStatus.COMPLETED]: '#3a9d00',  // Завършена - Зелено
-        [OrderStatus.APPROVED]: '#3a9d00',  // Завършена - Зелено
+        [OrderStatus.PROCESSING]: '#808080', // Чакаща - Сиво
+        [OrderStatus.ABANDONED]: '#94a3b8', // Изоставена - Синьо-сиво
+        [OrderStatus.SENT]: '#e67e22', // Изпратена - Оранжево
+        [OrderStatus.COMPLETED]: '#3a9d00', // Завършена - Зелено
+        [OrderStatus.APPROVED]: '#3a9d00', // Завършена - Зелено
         // [OrderStatus.REFUNDED]: '#d90000',   // Върната - Червено
-        [OrderStatus.CANCELLED]: '#000000',  // Отказана - Черно
+        [OrderStatus.CANCELLED]: '#000000', // Отказана - Черно
         [OrderStatus.JOINT]: '#e6ef61'
     };
 }
