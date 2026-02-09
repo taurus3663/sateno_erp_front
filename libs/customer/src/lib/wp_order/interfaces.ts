@@ -24,6 +24,7 @@ export interface IOrder {
     showDuplicateWarning: boolean;
     orderLineOtherOrders: IOrderLineItem[];
     ordersToMerge?: number[];
+    customerOrderCount: number;
 }
 
 export interface IOrderLineItem {

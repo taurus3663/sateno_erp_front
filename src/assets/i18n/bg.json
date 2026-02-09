@@ -172,5 +172,7 @@
   },
   "All": "Всички",
   "Detected_duplicate_orders_for_this_customer": "Открити дублирани поръчки за този клиент",
-  "Pending_Duplicates": "Чакащи дубликати"
+  "Pending_Duplicates": "Чакащи дубликати",
+  "Count": "Брой",
+  "Show_all_orders_for_this_customer": "Покажи всички поръчка на клиента"
 }
