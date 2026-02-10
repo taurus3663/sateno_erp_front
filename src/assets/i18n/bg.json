@@ -174,5 +174,7 @@
   "Detected_duplicate_orders_for_this_customer": "Открити дублирани поръчки за този клиент",
   "Pending_Duplicates": "Чакащи дубликати",
   "Count": "Брой",
-  "Show_all_orders_for_this_customer": "Покажи всички поръчка на клиента"
+  "Show_all_orders_for_this_customer": "Покажи всички поръчка на клиента",
+  "Search...": "Търсене...",
+  "Search_by_name_or_phone...": "Търсене по име/тел..."
 }

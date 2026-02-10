@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { OrderDetailComponent } from './detail';
-import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { HttpClient } from '@angular/common/http';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { Tooltip } from 'primeng/tooltip';
@@ -27,15 +27,30 @@ import { InputText } from 'primeng/inputtext';
     standalone: true,
     imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText],
     template: `
-        <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
-            <ng-template #start>
+        <p-toolbar class="mb-6">
+            <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
                 <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
+
+            <ng-template #end>
+                <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">
+                    <p-inputicon styleClass="pi pi-search" />
+                    <input
+                        pInputText
+                        type="text"
+                        [(ngModel)]="searchValue"
+                        (input)="onSearch($event)"
+                        [placeholder]="'Search_by_name_or_phone...' | translate"
+                        class="p-inputtext-sm w-full md:w-20rem"
+                    />
+                    <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
+                </p-iconfield>
+            </ng-template>
         </p-toolbar>
 
-        <div class="flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white border-round shadow-1">
+        <div *ngIf="config?.data?.mode !== 'lookup'" class="flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white border-round shadow-1">
             <span class="font-bold text-secondary mr-2"> <i class="pi pi-filter mr-1"></i> {{ 'Status' | translate }}: </span>
 
             <p-selectButton [options]="statusFilterOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusFilterChange($event.value)" optionLabel="label" optionValue="value">
@@ -104,28 +119,6 @@ import { InputText } from 'primeng/inputtext';
                     <th>{{ 'Price' | translate }}</th>
 
                     <th style="width: 8rem"></th>
-                </tr>
-
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th class="py-2">
-                        <p-columnFilter type="text" field="name" [showMenu]="false" matchMode="contains" [placeholder]="'Search name or phone' | translate">
-                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                <p-iconfield iconPosition="left">
-                                    <p-inputicon styleClass="pi pi-search" />
-                                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search...' | translate" class="p-inputtext-sm w-full" />
-                                    <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
-                                </p-iconfield>
-                            </ng-template>
-                        </p-columnFilter>
-                    </th>
-
-                    <th></th>
-                    <th></th>
-                    <th></th>
                 </tr>
             </ng-template>
 
@@ -233,7 +226,8 @@ import { InputText } from 'primeng/inputtext';
         </p-table>
 
         <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
-    `
+    `,
+    providers: [OrderListService]
 })
 export class OrderListComponent implements OnInit, OnDestroy {
     public listService = inject(OrderListService);
@@ -244,9 +238,28 @@ export class OrderListComponent implements OnInit, OnDestroy {
     selectedItem!: IOrder[] | null;
     private lastParams: any = { first: 0, rows: 100, filters: {} };
 
+    // onLazyLoad(event: any) {
+    //     const filters = { ...event.filters };
+    //
+    //     this.listService.loadList(event.first, event.rows, filters);
+    //     this.lastParams = { first: event.first, rows: event.rows, filters: filters };
+    // }
+
     onLazyLoad(event: any) {
-        this.listService.loadList(event.first, event.rows, event.filters);
-        this.lastParams = { first: event.first, rows: event.rows, filters: event.filters };
+        // 1. Вземаме филтрите от събитието на таблицата
+        const filters = { ...event.filters };
+
+        // 2. ПРОВЕРКА: Ако този конкретен компонент е отворен в диалог с телефон
+        if (this.config?.data?.filterPhone) {
+            // Налагаме филтъра по телефон, за да не го изгубим при смяна на страница
+            filters['phone'] = { value: this.config.data.filterPhone, matchMode: 'equals' };
+        }
+
+        // 3. Извикваме ЛОКАЛНАТА инстанция на сървиса
+        this.listService.loadList(event.first, event.rows, filters);
+
+        // 4. Запазваме параметрите ЛОКАЛНО за този компонент
+        this.lastParams = { first: event.first, rows: event.rows, filters: filters };
     }
 
     onDelete(id: any) {
@@ -436,11 +449,16 @@ export class OrderListComponent implements OnInit, OnDestroy {
     });
 
     filterByCustomer(phone: string) {
-        // Тук ще извикаме listService с филтър за телефон
-        // console.log('Филтриране за клиент с телефон:', phone);
-
-        this.listService.loadList(0, 100, {
-            phone: { value: phone, matchMode: 'equals' }
+         this.dialogService.open(OrderListComponent, {
+            header: this.tr.instant('Customer') + ': ' + phone,
+            width: '90%',
+            height: '80%',
+            closable: true,
+            dismissableMask: true,
+            data: {
+                mode: 'lookup',
+                filterPhone: phone
+            }
         });
     }
 

@@ -174,5 +174,7 @@
   "Detected_duplicate_orders_for_this_customer": "Detected duplicate orders for this customer",
   "Pending_Duplicates": "Pending Duplicates",
   "Count": "Count",
-  "Show_all_orders_for_this_customer": "Show all orders for this customer"
+  "Show_all_orders_for_this_customer": "Show all orders for this customer",
+  "Search...": "Search...",
+  "Search_by_name_or_phone...": "Search by name or phone..."
 }
