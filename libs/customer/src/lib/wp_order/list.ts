@@ -18,11 +18,14 @@ import { SelectButton } from 'primeng/selectbutton';
 import { WebSocketService } from 'xl-util';
 import { Subject, takeUntil } from 'rxjs';
 import { Badge } from 'primeng/badge';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -102,6 +105,28 @@ import { Badge } from 'primeng/badge';
 
                     <th style="width: 8rem"></th>
                 </tr>
+
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th class="py-2">
+                        <p-columnFilter type="text" field="name" [showMenu]="false" matchMode="contains" [placeholder]="'Search name or phone' | translate">
+                            <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                <p-iconfield iconPosition="left">
+                                    <p-inputicon styleClass="pi pi-search" />
+                                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search...' | translate" class="p-inputtext-sm w-full" />
+                                    <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
+                                </p-iconfield>
+                            </ng-template>
+                        </p-columnFilter>
+                    </th>
+
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-item let-i="rowIndex">
@@ -174,13 +199,12 @@ import { Badge } from 'primeng/badge';
                                 styleClass="cursor-pointer hover:shadow-2"
                                 [pTooltip]="'Show_all_orders_for_this_customer' | translate"
                                 tooltipPosition="top"
-                                (click)="filterByCustomer(order.billing.phone)">
+                                (click)="filterByCustomer(order.billing.phone)"
+                            >
                             </p-badge>
 
                             <div class="flex flex-col gap-1">
-                                <div class="font-bold text-900 line-height-1">
-                                    {{ order.billing.first_name }} {{ order.billing.last_name }}
-                                </div>
+                                <div class="font-bold text-900 line-height-1">{{ order.billing.first_name }} {{ order.billing.last_name }}</div>
                                 <div class="text-secondary text-sm flex align-items-center gap-1">
                                     <i class="pi pi-phone text-xs"></i>
                                     {{ order.billing.phone }}
@@ -416,7 +440,66 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // console.log('Филтриране за клиент с телефон:', phone);
 
         this.listService.loadList(0, 100, {
-            'phone': { value: phone, matchMode: 'equals' }
+            phone: { value: phone, matchMode: 'equals' }
         });
+    }
+
+    // Променлива за свързване с търсачката в HTML
+    protected searchValue: string = '';
+    private searchTimeout: any;
+
+    /**
+     * Основен метод за търсене (вика се от input в HTML)
+     */
+    onSearch(event: any) {
+        // Взимаме стойността независимо дали е събитие или директен низ
+        const value = event?.target?.value !== undefined ? event.target.value : event;
+        this.executeSearch(value);
+    }
+
+    /**
+     * Изчистване на търсенето (вика се от иконата "X")
+     */
+    clearSearch() {
+        this.searchValue = '';
+        this.executeSearch('');
+    }
+
+    /**
+     * Логика за изпълнение на търсенето със закъснение (Debounce)
+     * Предотвратява флуд към базата данни при всяко натискане на клавиш.
+     */
+    private executeSearch(value: string) {
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+
+        this.searchTimeout = setTimeout(() => {
+            // Копираме текущите филтри, за да не загубим избрания статус
+            const filters = { ...this.lastParams.filters };
+
+            if (value && value.trim() !== '') {
+                // 'customer' е името на параметъра, който Java-та ще очаква
+                filters['customer'] = { value: value.trim(), matchMode: 'contains' };
+            } else {
+                // Ако няма текст, премахваме глобалния филтър
+                delete filters['customer'];
+            }
+
+            // Винаги връщаме на страница 0 (първа), когато правим ново търсене
+            this.listService.loadList(0, this.lastParams.rows, filters);
+
+            // Обновяваме локалното състояние
+            this.lastParams.filters = filters;
+            this.lastParams.first = 0;
+        }, 400); // 400ms е златната среда за изчакване
+    }
+
+    /**
+     * Помощен метод за заглавието на сумарния ред
+     * Показва се само ако има активен филтър
+     */
+    shouldShowStats(): boolean {
+        return this.selectedStatus !== null || (this.searchValue !== null && this.searchValue !== '');
     }
 }
