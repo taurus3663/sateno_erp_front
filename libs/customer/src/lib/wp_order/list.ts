@@ -208,8 +208,15 @@ import { InputText } from 'primeng/inputtext';
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td>
-                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>
-                        {{ getPaymentLabel(order.paymentMethod) | translate }}
+<!--                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>-->
+<!--                        {{ getPaymentLabel(order.paymentMethod) | translate }}-->
+                        <img
+                            *ngIf="paymentIcons[order.paymentMethod]"
+                            [src]="paymentIcons[order.paymentMethod]"
+                            [alt]="order.paymentMethod"
+                            style="width: 5rem; height: auto; object-fit: contain;"
+                            class="shadow-1 border-round-sm"
+                        />
                     </td>
                     <td>
                         <p-tag severity="success" value="{{ order.totalPrice }} {{ order.currency }}" />
@@ -513,11 +520,13 @@ export class OrderListComponent implements OnInit, OnDestroy {
         }, 400); // 400ms е златната среда за изчакване
     }
 
-    /**
-     * Помощен метод за заглавието на сумарния ред
-     * Показва се само ако има активен филтър
-     */
-    shouldShowStats(): boolean {
-        return this.selectedStatus !== null || (this.searchValue !== null && this.searchValue !== '');
-    }
+    // В OrderListComponent
+    protected paymentIcons: Record<string, string> = {
+        [PaymentMethod.COD]: 'assets/payment/cod_bg.png', // Пример за Наложен платеж
+        [PaymentMethod.STRIPE]: 'https://p1.hiclipart.com/preview/110/429/95/visa-mastercard-logo-credit-card-payment-card-number-atm-card-automated-teller-machine-mousepad-computer-accessory-circle-png-clipart.jpg', // Stripe
+        [PaymentMethod.PAYPAL]: 'https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg',
+        [PaymentMethod.STRIPE_CC]: 'https://image.similarpng.com/file/similarpng/very-thumbnail/2020/06/Logo-google-pay-vector-PNG.png',
+        [PaymentMethod.STRIPE_APPLEPAY]: 'https://toppng.com/uploads/preview/apple-pay-logo-png-11536003336zy6omnlwgf.png',
+        // Добави останалите си методи тук
+    };
 }

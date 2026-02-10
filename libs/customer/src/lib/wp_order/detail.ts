@@ -47,18 +47,18 @@ import { Image } from 'primeng/image';
                                     <p-avatar icon="pi pi-user" size="large" shape="circle" class="bg-primary-reverse text-primary"></p-avatar>
                                     <div class="flex flex-column">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Name' | translate }}</span>
-                                        <span class="text-xl font-bold text-900">{{ item.billing?.first_name }} {{ item.billing?.last_name }}</span>
+                                        <span class="text-xl font-bold text-900">{{ item?.billing?.first_name?? '' }} {{ item?.billing?.last_name?? '' }}</span>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-2">
                                     <div class="p-3 border-round surface-100 flex flex-column gap-1">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Phone' | translate }}</span>
-                                        <a [href]="'tel:' + item.billing?.phone" class="no-underline text-blue-600 font-bold"> <i class="pi pi-phone text-xs mr-1"></i> {{ item.customer?.phone }} </a>
+                                        <a [href]="'tel:' + item?.billing?.phone" class="no-underline text-blue-600 font-bold"> <i class="pi pi-phone text-xs mr-1"></i> {{ item?.customer?.phone?? '' }} </a>
                                     </div>
                                     <div class="p-3 border-round surface-100 flex flex-column gap-1">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Email' | translate }}</span>
-                                        <span class="text-900 font-medium truncate text-xl" [pTooltip]="item.billing?.email"> <i class="pi pi-envelope text-xs mr-1"></i> {{ item.customer?.email }} </span>
+                                        <span class="text-900 font-medium truncate text-xl" [pTooltip]="item?.billing?.email?? ''"> <i class="pi pi-envelope text-xs mr-1"></i> {{ item?.customer?.email?? '' }} </span>
                                     </div>
                                 </div>
 
@@ -68,18 +68,18 @@ import { Image } from 'primeng/image';
                                         <span class="text-orange-700 font-bold">{{ 'Shipping_Address' | translate }}</span>
                                     </div>
                                     <div class="text-900 line-height-3 font-medium bg-white-alpha-50 p-2 border-round">
-                                        {{ item.customer?.address || item.billing?.address_1 }}
+                                        {{ item?.customer?.address || item?.billing?.address_1 }}
                                     </div>
                                 </div>
 
                                 <div class="flex gap-2">
                                     <div class="surface-100 p-2 px-3 border-round text-sm">
                                         <span class="text-secondary mr-2">{{ 'City' | translate }}:</span>
-                                        <span class="font-bold">{{ item.billing?.city }}</span>
+                                        <span class="font-bold">{{ item?.billing?.city }}</span>
                                     </div>
                                     <div class="surface-100 p-2 px-3 border-round text-sm">
                                         <span class="text-secondary mr-2">{{ 'Postcode' | translate }}:</span>
-                                        <span class="font-bold">{{ item.billing?.postcode }}</span>
+                                        <span class="font-bold">{{ item?.billing?.postcode }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -201,14 +201,14 @@ import { Image } from 'primeng/image';
                                                     <div class="flex-shrink-0">
                                                         <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 90px; height: auto;">
 
-                                                            <a *ngIf="line.image?.src" [href]="line.image.src" target="_blank">
+                                                            <a *ngIf="line?.image?.src" [href]="line.image.src" target="_blank">
                                                                 <img [src]="line.image.src"
                                                                      [alt]="line.productName"
                                                                      class="w-full h-full object-cover cursor-zoom-in"
                                                                 />
                                                             </a>
 
-                                                            <i *ngIf="!line.image?.src" class="pi pi-image text-400 text-2xl"></i>
+                                                            <i *ngIf="!line?.image?.src" class="pi pi-image text-400 text-2xl"></i>
                                                         </div>
                                                     </div>
 
@@ -254,7 +254,7 @@ import { Image } from 'primeng/image';
                             </div>
 
 
-                            <div class="col-span-12 mt-5" *ngIf="item.orderLineOtherOrders?.length">
+                            <div class="col-span-12 mt-5" *ngIf="item?.orderLineOtherOrders?.length">
                                 <h5 class="text-orange-600 font-bold mb-4 flex align-items-center gap-2 border-bottom-1 pb-2">
                                     <i class="pi pi-clone"></i>
                                     {{ 'Pending_Duplicates' | translate }}
