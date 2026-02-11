@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CourierDetailService } from './detail.service';
 import { Button } from 'primeng/button';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -62,7 +62,7 @@ import { CourierType, ICourier } from './interfaces';
                     <ng-container *ngIf="item.courierType === CourierType.BOX_NOW">
                         <div class="col-span-6">
                             <label class="block font-bold mb-2">API Key</label>
-                            <input pInputText [(ngModel)]="item.apikey" class="w-full" />
+                            <input pInputText [(ngModel)]="item.apiKey" class="w-full" />
                         </div>
                         <div class="col-span-6">
                             <label class="block font-bold mb-2">API Secret</label>
@@ -108,21 +108,29 @@ export class CourierDetailComponent {
     testMessage = '';
     testStatus: 'none' | 'success' | 'error' = 'none';
 
+    constructor(private cdr: ChangeDetectorRef) {}
+
     testConnection(item: ICourier) {
         this.isTesting = true;
-        this.testMessage = '';
+        this.testStatus = 'none'; // Нулираме цвета
+        this.testMessage = '';     // Изчистваме стария текст
 
-        // Викаш метод в твоя detailService, който прави POST към /test-connection
+        // Принудително обновяване (само за тест)
+        console.log('Testing connection for:', item.courierType);
+
         this.detailService.testCourier(item).subscribe({
             next: (res: any) => {
+                console.log('Response from server:', res);
                 this.isTesting = false;
                 this.testStatus = res.success ? 'success' : 'error';
-                this.testMessage = res.message;
+                this.testMessage = res.message; // Тук трябва да се появи текста
+                this.cdr.detectChanges();
             },
             error: (err) => {
                 this.isTesting = false;
                 this.testStatus = 'error';
-                this.testMessage = 'Сървърна грешка при теста.';
+                this.testMessage = 'Грешка при комуникация със сървъра.';
+                this.cdr.detectChanges();
             }
         });
     }

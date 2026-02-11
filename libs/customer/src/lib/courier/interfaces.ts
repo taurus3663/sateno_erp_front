@@ -6,7 +6,7 @@ export interface ICourier {
     name?: string;
     username?: string;
     password?: string;
-    apikey?: string;
+    apiKey?: string;
     apiSecret?: string;
     site?: ISite;
     active:boolean;
