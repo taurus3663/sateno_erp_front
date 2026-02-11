@@ -107,6 +107,7 @@ export class apiRoutes {
         get: `${apiRoutes.courierBase}/detail`,
         save: `${apiRoutes.courierBase}/save`,
         delete: `${apiRoutes.courierBase}/delete`,
+        test_connection: `${apiRoutes.courierBase}/test-connection`,
     }
 }
 
