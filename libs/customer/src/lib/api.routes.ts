@@ -100,6 +100,14 @@ export class apiRoutes {
         delete: `${apiRoutes.wpOrderBase}/delete`,
         sync: `${apiRoutes.wpOrderBase}/sync`,
     }
+
+    private static readonly courierBase = 'courier';
+    public readonly courier = {
+        list: `${apiRoutes.courierBase}/list`,
+        get: `${apiRoutes.courierBase}/detail`,
+        save: `${apiRoutes.courierBase}/save`,
+        delete: `${apiRoutes.courierBase}/delete`,
+    }
 }
 
 export const ROUTES = new apiRoutes();

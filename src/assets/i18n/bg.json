@@ -176,5 +176,8 @@
   "Count": "Брой",
   "Show_all_orders_for_this_customer": "Покажи всички поръчка на клиента",
   "Search...": "Търсене...",
-  "Search_by_name_or_phone...": "Търсене по име/тел..."
+  "Search_by_name_or_phone...": "Търсене по име/тел...",
+  "Offline": "Офлайн",
+  "Stopped": "Спрян",
+  "Courier": "Куриер"
 }

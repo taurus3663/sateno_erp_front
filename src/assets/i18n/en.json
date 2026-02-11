@@ -176,5 +176,8 @@
   "Count": "Count",
   "Show_all_orders_for_this_customer": "Show all orders for this customer",
   "Search...": "Search...",
-  "Search_by_name_or_phone...": "Search by name or phone..."
+  "Search_by_name_or_phone...": "Search by name or phone...",
+  "Offline": "Offline",
+  "Stopped": "Stopped",
+  "Courier": "Courier"
 }

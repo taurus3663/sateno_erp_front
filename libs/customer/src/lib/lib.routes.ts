@@ -43,6 +43,10 @@ registerRoute([
     {
         path: 'wp_order/list',
         loadComponent: () => import("./wp_order/list").then(c => c.OrderListComponent)
+    },
+    {
+        path: 'courier/list',
+        loadComponent: () => import('./courier/list').then(c => c.CourierListComponent)
     }
 ]);
     registerMenu([
@@ -101,6 +105,11 @@ registerRoute([
                             label: "Език-Сайт",
                             icon: PrimeIcons.LANGUAGE,
                             routerLink: ['/language/list']
+                        },
+                        {
+                            label: "КУРИЕР",
+                            icon: PrimeIcons.PALETTE,
+                            routerLink: ['/courier/list']
                         }
                     ]
                 }

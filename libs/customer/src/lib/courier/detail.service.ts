@@ -1,0 +1,15 @@
+import { Injectable } from '@angular/core';
+import { BaseDetailCrud } from 'xl-util';
+import { ICourier } from './interfaces';
+import { ROUTES } from '../api.routes';
+
+@Injectable({ providedIn: 'root' })
+export class CourierDetailService extends BaseDetailCrud<ICourier> {
+    override saveRoute: string = ROUTES.courier.save;
+    override getRoute: string = ROUTES.courier.get;
+    override deleteRoute: string = ROUTES.courier.delete;
+
+    constructor() {
+        super();
+    }
+}

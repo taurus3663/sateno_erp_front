@@ -85,55 +85,6 @@ import { Image } from 'primeng/image';
                             </div>
                         </div>
 
-                        <!--                        RIGHT-->
-                        <!--                        <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">-->
-                        <!--                            <h5 class="text-900 font-bold mb-4 flex align-items-center gap-2">-->
-                        <!--                                <i class="pi pi-user text-primary"></i>-->
-                        <!--                                {{ 'Customer_Details' | translate }} | {{ 'Database' | translate }}-->
-                        <!--                            </h5>-->
-
-                        <!--                            <div class="grid grid-cols-1 gap-3">-->
-                        <!--                                <div class="p-3 border-round surface-100 flex align-items-center gap-3">-->
-                        <!--                                    <p-avatar icon="pi pi-user" size="large" shape="circle" class="bg-primary-reverse text-primary"></p-avatar>-->
-                        <!--                                    <div class="flex flex-column">-->
-                        <!--                                        <span class="text-secondary text-xs font-bold uppercase">{{ 'Name' | translate }}</span>-->
-                        <!--                                        <span class="text-xl font-bold text-900">{{ item.customer?.firstName }} {{ item.customer?.lastName }}</span>-->
-                        <!--                                    </div>-->
-                        <!--                                </div>-->
-
-                        <!--                                <div class="grid grid-cols-2 gap-2">-->
-                        <!--                                    <div class="p-3 border-round surface-100 flex flex-column gap-1">-->
-                        <!--                                        <span class="text-secondary text-xs font-bold uppercase">{{ 'Phone' | translate }}</span>-->
-                        <!--                                        <a [href]="'tel:' + item.customer?.phone" class="no-underline text-blue-600 font-bold"> <i class="pi pi-phone text-xs mr-1"></i> {{ item.customer?.phone }} </a>-->
-                        <!--                                    </div>-->
-                        <!--                                    <div class="p-3 border-round surface-100 flex flex-column gap-1">-->
-                        <!--                                        <span class="text-secondary text-xs font-bold uppercase">{{ 'Email' | translate }}</span>-->
-                        <!--                                        <span class="text-900 font-medium text-sm truncate" [pTooltip]="item.customer?.email"> <i class="pi pi-envelope text-xs mr-1"></i> {{ item.customer?.email }} </span>-->
-                        <!--                                    </div>-->
-                        <!--                                </div>-->
-
-                        <!--                                <div class="p-3 border-round bg-orange-50 border-left-3 border-orange-500 flex flex-column gap-2">-->
-                        <!--                                    <div class="flex align-items-center gap-2">-->
-                        <!--                                        <i class="pi pi-map-marker text-orange-600 font-bold"></i>-->
-                        <!--                                        <span class="text-orange-700 font-bold">{{ 'Shipping_Address' | translate }}</span>-->
-                        <!--                                    </div>-->
-                        <!--                                    <div class="text-900 line-height-3 font-medium bg-white-alpha-50 p-2 border-round">-->
-                        <!--                                        {{ item.customer?.address || item.billing?.address_1 }}-->
-                        <!--                                    </div>-->
-                        <!--                                </div>-->
-
-                        <!--                                <div class="flex gap-2">-->
-                        <!--                                    <div class="surface-100 p-2 px-3 border-round text-sm">-->
-                        <!--                                        <span class="text-secondary mr-2">{{ 'City' | translate }}:</span>-->
-                        <!--                                        <span class="font-bold">{{ item.billing?.city }}</span>-->
-                        <!--                                    </div>-->
-                        <!--                                    <div class="surface-100 p-2 px-3 border-round text-sm">-->
-                        <!--                                        <span class="text-secondary mr-2">{{ 'Postcode' | translate }}:</span>-->
-                        <!--                                        <span class="font-bold">{{ item.billing?.postcode }}</span>-->
-                        <!--                                    </div>-->
-                        <!--                                </div>-->
-                        <!--                            </div>-->
-                        <!--                        </div>-->
 
                         <div class="flex flex-column col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
                             <span class="text-secondary text-xs font-bold uppercase">{{ 'Payment_method' | translate }}</span>

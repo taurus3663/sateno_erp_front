@@ -146,23 +146,4 @@ export class WpProductListComponent {
                 return 'info';
         }
     }
-
-    // В list.ts
-    // getUnitLabel(unitValue: any): string {
-    //     if (unitValue === null || unitValue === undefined) return '';
-    //
-    //     // Намираме името на ключа от Enum-а (напр. 0 -> 'PCS')
-    //     const unitKey = ProductUnit[unitValue];
-    //
-    //     // Връщаме превода чрез TranslateService
-    //     return unitKey ? this.tr.instant('UNIT.' + unitKey) : unitValue;
-    // }
-
-    // getStatusLabel(statusValue: any): string {
-    //     if (statusValue === null || statusValue === undefined) return '';
-    //
-    //     const statusKey = ProductStatus[statusValue];
-    //     console.log(statusKey);
-    //     return statusKey ? this.tr.instant('PRODUCT_STATUS.' + statusKey) : statusValue;
-    // }
 }
