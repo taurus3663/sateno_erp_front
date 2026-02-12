@@ -179,5 +179,7 @@
   "Search_by_name_or_phone...": "Търсене по име/тел...",
   "Offline": "Офлайн",
   "Stopped": "Спрян",
-  "Courier": "Куриер"
+  "Courier": "Куриер",
+  "Generate_Waybill": "Генериране на товарителница",
+  "Delivery_To": "Доставка до"
 }

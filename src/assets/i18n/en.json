@@ -179,5 +179,7 @@
   "Search_by_name_or_phone...": "Search by name or phone...",
   "Offline": "Offline",
   "Stopped": "Stopped",
-  "Courier": "Courier"
+  "Courier": "Courier",
+  "Generate_Waybill": "Generate Waybill",
+  "Delivery_To": "Delivery to"
 }

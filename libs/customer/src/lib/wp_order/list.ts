@@ -21,11 +21,15 @@ import { Badge } from 'primeng/badge';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
+import { ShipmentDetailComponent } from './shipment.detail';
+import { CourierDetailComponent } from '../courier/detail';
+import { Footer } from 'primeng/api';
+import { ShipmentService } from './shipment.service';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, CourierDetailComponent, ShipmentDetailComponent],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
@@ -37,14 +41,7 @@ import { InputText } from 'primeng/inputtext';
             <ng-template #end>
                 <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">
                     <p-inputicon styleClass="pi pi-search" />
-                    <input
-                        pInputText
-                        type="text"
-                        [(ngModel)]="searchValue"
-                        (input)="onSearch($event)"
-                        [placeholder]="'Search_by_name_or_phone...' | translate"
-                        class="p-inputtext-sm w-full md:w-20rem"
-                    />
+                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search_by_name_or_phone...' | translate" class="p-inputtext-sm w-full md:w-20rem" />
                     <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
                 </p-iconfield>
             </ng-template>
@@ -208,15 +205,9 @@ import { InputText } from 'primeng/inputtext';
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td>
-<!--                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>-->
-<!--                        {{ getPaymentLabel(order.paymentMethod) | translate }}-->
-                        <img
-                            *ngIf="paymentIcons[order.paymentMethod]"
-                            [src]="paymentIcons[order.paymentMethod]"
-                            [alt]="order.paymentMethod"
-                            style="width: 5rem; height: auto; object-fit: contain;"
-                            class="shadow-1 border-round-sm"
-                        />
+                        <!--                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>-->
+                        <!--                        {{ getPaymentLabel(order.paymentMethod) | translate }}-->
+                        <img *ngIf="paymentIcons[order.paymentMethod]" [src]="paymentIcons[order.paymentMethod]" [alt]="order.paymentMethod" style="width: 5rem; height: auto; object-fit: contain;" class="shadow-1 border-round-sm" />
                     </td>
                     <td>
                         <p-tag severity="success" value="{{ order.totalPrice }} {{ order.currency }}" />
@@ -224,6 +215,8 @@ import { InputText } from 'primeng/inputtext';
 
                     <td>
                         <div class="flex gap-2">
+                            <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info" [pTooltip]="'Generate_Waybill' | translate" (onClick)="openShipmentDialog(order)"> </p-button>
+
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
                             <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(item.id)"></p-button>
                         </div>
@@ -233,6 +226,8 @@ import { InputText } from 'primeng/inputtext';
         </p-table>
 
         <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
+<!--        <shipment-detail></shipment-detail>-->
+        <shipment-detail *ngIf="config?.data?.mode !== 'lookup'"></shipment-detail>
     `,
     providers: [OrderListService]
 })
@@ -456,7 +451,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
     });
 
     filterByCustomer(phone: string) {
-         this.dialogService.open(OrderListComponent, {
+        this.dialogService.open(OrderListComponent, {
             header: this.tr.instant('Customer') + ': ' + phone,
             width: '90%',
             height: '80%',
@@ -526,7 +521,12 @@ export class OrderListComponent implements OnInit, OnDestroy {
         [PaymentMethod.STRIPE]: 'https://p1.hiclipart.com/preview/110/429/95/visa-mastercard-logo-credit-card-payment-card-number-atm-card-automated-teller-machine-mousepad-computer-accessory-circle-png-clipart.jpg', // Stripe
         [PaymentMethod.PAYPAL]: 'https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg',
         [PaymentMethod.STRIPE_CC]: 'https://image.similarpng.com/file/similarpng/very-thumbnail/2020/06/Logo-google-pay-vector-PNG.png',
-        [PaymentMethod.STRIPE_APPLEPAY]: 'https://toppng.com/uploads/preview/apple-pay-logo-png-11536003336zy6omnlwgf.png',
+        [PaymentMethod.STRIPE_APPLEPAY]: 'https://toppng.com/uploads/preview/apple-pay-logo-png-11536003336zy6omnlwgf.png'
         // Добави останалите си методи тук
     };
+
+    private shipmentService = inject(ShipmentService);
+    openShipmentDialog(order: IOrder) {
+        this.shipmentService.open(order); // Използваме новия метод
+    }
 }

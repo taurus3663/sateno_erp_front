@@ -109,3 +109,7 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.APPROVED]: 'STATUS.APPROVED',
     [OrderStatus.JOINT]: 'STATUS.JOINT'
 };
+
+export interface IShipment {
+
+}
