@@ -30,7 +30,7 @@ import { SelectButton } from 'primeng/selectbutton';
             <div class="p-fluid grid mt-3">
                 <div class="col-1 field">
                     <label for="courier" class="font-bold block mb-2">{{ 'Choose' | translate }}</label>
-                    <p-select id="courier" [options]="courierListService.items()" [(ngModel)]="selectedCourier" optionLabel="name" placeholder="{{ 'Courier' | translate }}" [showClear]="true" class="w-full">
+                    <p-select id="courier" [options]="courierListService.items()" [(ngModel)]="this.detailService.selectedCourier" (onChange)="detailService.onCourierChange()" optionLabel="name" placeholder="{{ 'Courier' | translate }}" [showClear]="true" class="w-full">
                         <ng-template pTemplate="item" let-item>
                             <div class="flex align-items-center gap-2">
                                 <i class="pi pi-delivery-truck text-primary"></i>
@@ -41,10 +41,55 @@ import { SelectButton } from 'primeng/selectbutton';
                 </div>
             </div>
 
-            <div class="col-12 field mb-4 mt-4" *ngIf="selectedCourier">
+            <div class="col-12 field mb-4 mt-4" *ngIf="this.detailService.selectedCourier">
                 <label class="font-bold block mb-2">{{ 'Delivery_To' | translate }}</label>
                 <p-selectButton [options]="deliveryOptions" [(ngModel)]="deliveryType" optionLabel="label" optionValue="value" class="w-full"></p-selectButton>
             </div>
+
+
+            <div class="field" *ngIf="detailService.selectedCourier && deliveryType === 'OFFICE'">
+                <label class="font-bold block mb-2">{{ 'City' | translate }}</label>
+                <p-select
+                    [options]="detailService.cities"
+                    [(ngModel)]="detailService.selectedCity"
+                    (onChange)="detailService.onCityChange()"
+                    (onFilter)="onCitySearch($event)"
+                    [filter]="true"
+                    [lazy]="true"
+                    optionLabel="name"
+                    placeholder="{{ 'Type_City_Name' | translate }}"
+                    class="w-full">
+
+                    <ng-template pTemplate="item" let-city>
+                        <div class="flex justify-content-between">
+                            <span>{{ city.name }}</span>
+                            <small class="text-secondary">{{ city.postCode }}</small>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <div class="field mt-4" *ngIf="detailService.selectedCity && deliveryType === 'OFFICE'">
+                <label class="font-bold block mb-2">{{ 'Office' | translate }}</label>
+                <p-select
+                    [options]="detailService.offices"
+                    [(ngModel)]="detailService.selectedOffice"
+                    (onFilter)="onOfficeSearch($event)"
+                    optionLabel="name"
+                    [filter]="true"
+                    [lazy]="true"
+                    placeholder="{{ 'Choose_Office' | translate }}"
+                    class="w-full">
+
+                    <ng-template pTemplate="item" let-office>
+                        <div class="flex flex-column">
+                            <span class="font-bold text-sm">{{ office.name }}</span>
+                            <small class="text-secondary">{{ office.address }}</small>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
 
             <ng-template #footer>
                 <div class="flex gap-2 w-full pt-2 justify-end">
@@ -61,7 +106,7 @@ export class ShipmentDetailComponent implements OnInit {
     detailService = inject(ShipmentService);
     courierListService = inject(CourierListService);
     // order?: IOrder = this.detailService.selectedOrder; // Тук идва поръчката от родителския компонент
-    selectedCourier: any = null;
+
 
     get order() {
         return this.detailService.selectedOrder;
@@ -83,4 +128,23 @@ export class ShipmentDetailComponent implements OnInit {
         { label: 'До Офис', value: 'OFFICE', icon: 'pi pi-building' },
         { label: 'До Адрес', value: 'ADDRESS', icon: 'pi pi-home' }
     ];
+
+    // В ShipmentDetailComponent
+    onCitySearch(event: any) {
+        const query = event.filter; // Това са буквите, които потребителят е написал
+        if (query && query.length >= 2) { // Започваме да търсим след втория символ
+            this.detailService.loadCities(query);
+        }
+    }
+
+    // В ShipmentDetailComponent
+    onOfficeSearch(event: any) {
+        const query = event.filter;
+        // Обикновено офисите се филтрират локално, ако вече са заредени,
+        // но ако бекендът изисква търсене, викаме сървиса:
+        if (query && query.length >= 1) {
+            this.detailService.loadOffices(query);
+        }
+    }
+
 }
