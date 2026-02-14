@@ -181,5 +181,17 @@
   "Stopped": "Спрян",
   "Courier": "Куриер",
   "Generate_Waybill": "Генериране на товарителница",
-  "Delivery_To": "Доставка до"
+  "Delivery_To": "Доставка до",
+  "Type_City_Name": "Град име",
+  "Office": "Офис",
+  "Choose_Office": "Избери офис",
+  "Shipment_type": "Тип доставка",
+  "LOCKER": "АВТОМАТ",
+  "ADDRESS": "АДРЕС",
+  "OFFICE": "ОФИС",
+  "SPEEDY": "СПИДИ",
+  "ECONT": "ЕКОНТ",
+  "BOX_NOW": "БОКС НАУ",
+  "Select_site": "Избери сайт",
+  "Empty": "Празен"
 }

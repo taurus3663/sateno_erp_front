@@ -1,26 +1,27 @@
 import { Component, inject } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
-import { Button, ButtonDirective } from 'primeng/button';
+import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { SiteDetailService } from './detail.service';
 import { Checkbox } from 'primeng/checkbox';
 import { CurrencyListService } from '../currency/list.service';
 import { Select } from 'primeng/select';
 import { LanguageListService } from '../language/list.service';
-import { MessageService } from 'primeng/api';
-import { Toast } from 'primeng/toast';
 import { Tooltip } from 'primeng/tooltip';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
+import { InputNumber } from 'primeng/inputnumber';
+import { CourierType } from '../courier/interfaces';
 
 
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select, Tooltip],
+    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select, Tooltip, Tabs, TabList, Tab, TabPanels, TabPanel, InputNumber],
     template: `
-        <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '500px' }">
+        <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '1000px', 'min-width': '1000px', 'min-height': '800px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -33,57 +34,123 @@ import { Tooltip } from 'primeng/tooltip';
             </ng-template>
 
             <ng-template #content>
-                <div class="grid grid-cols-12 gap-4 pt-2" *ngIf="detailService.selectedItem() as item">
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Name' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.name" class="w-full" />
-                    </div>
+                <div *ngIf="detailService.selectedItem() as item">
+                    <p-tabs [value]="0">
+                        <p-tablist>
+                            <p-tab [value]="0">{{ 'Main' | translate }}</p-tab>
+                            <p-tab [value]="1">{{ 'Courier' | translate }}</p-tab>
+                        </p-tablist>
 
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Currency' | translate }}</label>
+                        <p-tabpanels>
+                            <p-tabpanel [value]="0">
+                                <div class="grid grid-cols-12 gap-4 pt-4">
+                                    <div class="col-span-12">
+                                        <label class="block font-bold mb-2">{{ 'Name' | translate }}</label>
+                                        <input pInputText [(ngModel)]="item.name" class="w-full" />
+                                    </div>
 
-                        <p-select [options]="currencyService.items()" [(ngModel)]="item.currency" optionLabel="name" placeholder="Избери валута" dataKey="id" class="w-full" />
-                    </div>
+                                    <div class="col-span-12">
+                                        <label class="block font-bold mb-2">{{ 'Currency' | translate }}</label>
 
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Language' | translate }}</label>
+                                        <p-select [options]="currencyService.items()" [(ngModel)]="item.currency" optionLabel="name" placeholder="Избери валута" dataKey="id" class="w-full" />
+                                    </div>
 
-                        <p-select [options]="languageService.items()" [(ngModel)]="item.language" optionLabel="name" placeholder="Избери Език" dataKey="id" class="w-full" />
-                    </div>
+                                    <div class="col-span-12">
+                                        <label class="block font-bold mb-2">{{ 'Language' | translate }}</label>
 
-                    <div class="col-span-8">
-                        <label class="block font-bold mb-2">{{ 'Url' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.url" class="w-full" />
-                    </div>
+                                        <p-select [options]="languageService.items()" [(ngModel)]="item.language" optionLabel="name" placeholder="Избери Език" dataKey="id" class="w-full" />
+                                    </div>
 
-                    <div class="col-span-4">
-                        <label class="block font-bold mb-2">{{ 'Active' | translate }}</label>
-                        <!--                        <input pInputText [(ngModel)]="item.isActive" class="w-full" />-->
-                        <p-checkbox [(ngModel)]="item.active" [binary]="true"></p-checkbox>
-                    </div>
+                                    <div class="col-span-8">
+                                        <label class="block font-bold mb-2">{{ 'Url' | translate }}</label>
+                                        <input pInputText [(ngModel)]="item.url" class="w-full" />
+                                    </div>
 
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Consumer_key' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.consumerKey" class="w-full" />
-                    </div>
+                                    <div class="col-span-4">
+                                        <label class="block font-bold mb-2">{{ 'Active' | translate }}</label>
+                                        <!--                        <input pInputText [(ngModel)]="item.isActive" class="w-full" />-->
+                                        <p-checkbox [(ngModel)]="item.active" [binary]="true"></p-checkbox>
+                                    </div>
 
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Consumer_secret' | translate }}</label>
-                        <input pInputText [(ngModel)]="item.consumerSecret" class="w-full" />
-                    </div>
+                                    <div class="col-span-12">
+                                        <label class="block font-bold mb-2">{{ 'Consumer_key' | translate }}</label>
+                                        <input pInputText [(ngModel)]="item.consumerKey" class="w-full" />
+                                    </div>
 
-                    <div class="col-span-12 mt-4">
-                        <label class="block font-bold">{{ 'Order_create_key' | translate }}</label>
+                                    <div class="col-span-12">
+                                        <label class="block font-bold mb-2">{{ 'Consumer_secret' | translate }}</label>
+                                        <input pInputText [(ngModel)]="item.consumerSecret" class="w-full" />
+                                    </div>
 
-                        <div class="p-inputgroup">
-                            <input pInputText [ngModel]="detailService.selectedItem()?.orderCreateApiKey" readonly placeholder="{{ 'Generate_code' | translate }}" class="w-[calc(100%-5rem)] font-mono" />
+                                    <div class="col-span-12 mt-4">
+                                        <label class="block font-bold">{{ 'Order_create_key' | translate }}</label>
 
-                            <p-button icon="pi pi-refresh" severity="secondary" pTooltip="{{ 'Generate' | translate }}" (onClick)="generateApiKey()"> </p-button>
+                                        <div class="p-inputgroup">
+                                            <input pInputText [ngModel]="detailService.selectedItem()?.orderCreateApiKey" readonly placeholder="{{ 'Generate_code' | translate }}" class="w-[calc(100%-5rem)] font-mono" />
 
-                            <p-button icon="pi pi-copy" [disabled]="!detailService.selectedItem()?.orderCreateApiKey" pTooltip="{{ 'Copy' | translate }}" (onClick)="copyKey()"> </p-button>
-                        </div>
-                    </div>
-                    <!--                    <button type="button" pButton icon="pi pi-search" (click)="openLookup()"></button>-->
+                                            <p-button icon="pi pi-refresh" severity="secondary" pTooltip="{{ 'Generate' | translate }}" (onClick)="generateApiKey()"> </p-button>
+
+                                            <p-button icon="pi pi-copy" [disabled]="!detailService.selectedItem()?.orderCreateApiKey" pTooltip="{{ 'Copy' | translate }}" (onClick)="copyKey()"> </p-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-tabpanel>
+                            <p-tabpanel [value]="1">
+                                <div class="pt-4" *ngIf="detailService.selectedItem() as item">
+                                    <div class="flex flex-col gap-3">
+                                        <div *ngFor="let courier of item.couriers; let i = index" class="mb-3 p-4 border border-gray-100 rounded-xl bg-gray-50/50 hover:bg-white hover:border-blue-200 hover:shadow-md transition-all duration-200">
+                                            <div class="grid grid-cols-12 gap-6 items-center">
+                                                <div class="col-span-4 flex items-center gap-4">
+                                                            <img [src]="getCourierLogo(courier.courierType)"
+                                                                 [alt]="courier.name"
+                                                                 class="max-w-full max-h-full object-contain"
+                                                            >
+
+                                                    <div class="flex flex-col">
+                                                        <span class="font-bold text-gray-800 leading-tight">{{ courier.name }}</span>
+                                                        <span class="font-bold text-gray-800 leading-tight">
+                                                            {{ courier.courierShipmentType }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-span-3">
+                                                    <div class="p-inputgroup h-9">
+                                                        <span class="p-inputgroup-addon bg-white border-r-0"><i class="pi pi-tag text-xs"></i></span>
+                                                        <p-inputNumber [(ngModel)]="courier.fixedShippingPrice" [placeholder]="'Фикс. цена' | translate" mode="decimal" [minFractionDigits]="2" class="w-full h-full text-sm"></p-inputNumber>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-span-2">
+                                                    <div class="p-inputgroup h-9">
+                                                        <span class="p-inputgroup-addon bg-white border-r-0 text-xs font-bold text-gray-400">#</span>
+                                                        <input pInputText type="number" [(ngModel)]="courier.sortOrder" pTooltip="Ред на показване" placeholder="Ред" class="p-inputtext-sm w-full h-full font-bold text-center" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-span-2 flex items-center justify-center gap-4 border-l border-gray-200 pl-4">
+                                                    <div class="flex flex-col items-center">
+                                                        <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">Auto</span>
+                                                        <p-checkbox [(ngModel)]="courier.autoShippingPrice" [binary]="true" pTooltip="Автоматична цена"></p-checkbox>
+                                                    </div>
+                                                    <div class="flex flex-col items-center">
+                                                        <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">Active</span>
+                                                        <p-checkbox [(ngModel)]="courier.active" [binary]="true" pTooltip="Активен за сайта"></p-checkbox>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div *ngIf="!item.couriers?.length" class="text-center py-10 text-gray-400">
+                                        <i class="pi pi-truck text-3xl mb-2"></i>
+                                        <p>Няма конфигурирани куриери за този сайт.</p>
+                                    </div>
+                                </div>
+                            </p-tabpanel>
+                        </p-tabpanels>
+                    </p-tabs>
                 </div>
             </ng-template>
 
@@ -140,4 +207,19 @@ export class SiteDetailComponent {
             // this.messageService.add({severity:'info', summary:'Копирано', detail:'Ключът е в клипборда'});
         }
     }
+
+    getCourierLogo(type: CourierType) {
+        const g = 'assets/img/';
+        switch (type) {
+            case CourierType.BOX_NOW:
+                return `${g}boxnow-logo.png`;
+                case CourierType.SPEEDY:
+                    return `${g}speedy-logo.png`;
+            case CourierType.ECONT:
+                return `${g}econt-logo.png`;
+                default:
+                    return `${g}boxnow1-logo.png`;
+        }
+    }
+
 }

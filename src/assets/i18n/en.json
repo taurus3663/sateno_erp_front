@@ -181,5 +181,17 @@
   "Stopped": "Stopped",
   "Courier": "Courier",
   "Generate_Waybill": "Generate Waybill",
-  "Delivery_To": "Delivery to"
+  "Delivery_To": "Delivery to",
+  "Type_City_Name": "Type City Name",
+  "Office": "Office",
+  "Choose_Office": "Choose Office",
+  "Shipment_type": "Shipment type",
+  "LOCKER": "LOCKER",
+  "ADDRESS": "ADDRESS",
+  "OFFICE": "OFFICE",
+  "SPEEDY": "SPEEDY",
+  "ECONT": "ECONT",
+  "BOX_NOW": "BOX NOW",
+  "Select_site": "Select site",
+  "Empty": "Empty"
 }

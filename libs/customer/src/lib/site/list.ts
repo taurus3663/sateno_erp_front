@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { SiteDetailComponent } from './detail';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { HttpClient } from '@angular/common/http';
 
 
@@ -57,8 +57,8 @@ import { HttpClient } from '@angular/common/http';
                 </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-item>
-                <tr [ngClass]="{'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup'}">
+            <ng-template pTemplate="body"  let-item>
+                <tr (click)="onRowClick(item)" [ngClass]="{'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup'}">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
@@ -91,7 +91,7 @@ export class SiteListComponent {
     public detailService = inject(SiteDetailService);
     private tr = inject(TranslateService);
     protected config = inject(DynamicDialogConfig, { optional: true });
-
+    private ref = inject(DynamicDialogRef, { optional: true });
 
     selectedItem!: ISite[] | null;
 
@@ -123,6 +123,16 @@ export class SiteListComponent {
                 console.error('Грешка при синхронизация:', err);
             }
         });
+    }
+
+    onRowClick(category: any) {
+        if (this.config?.data?.mode === 'lookup') {
+            // Затваряме диалога и връщаме избраната категория на предишния прозорец
+            console.log(category.toString());
+            if (this.ref) {
+                this.ref.close(category);
+            }
+        }
     }
 
 

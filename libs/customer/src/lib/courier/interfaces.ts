@@ -11,10 +11,21 @@ export interface ICourier {
     site?: ISite;
     active:boolean;
     courierType: CourierType;
+    courierShipmentType: CourierShipmentType;
+    sortOrder?: number;
+    freeShippingPriceMax?: number;
+    autoShippingPrice?: boolean;
+    fixedShippingPrice?: number;
 }
 
 export enum CourierType {
     SPEEDY = 'SPEEDY',
     ECONT = 'ECONT',
     BOX_NOW = 'BOX_NOW',
+}
+
+export enum CourierShipmentType {
+    OFFICE = 'OFFICE',
+    ADDRESS = 'ADDRESS',
+    LOCKER = 'LOCKER',
 }

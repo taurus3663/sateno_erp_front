@@ -47,6 +47,7 @@ import { Tag } from 'primeng/tag';
                     <th>{{ 'Id' | translate }}</th>
                     <th>{{ 'Name' | translate }}</th>
                     <th>{{ 'Type' | translate }}</th>
+                    <th>{{ 'Shipment_type' | translate }}</th>
                     <th>{{ 'Status' | translate }}</th>
 
                     <th style="width: 8rem"></th>
@@ -60,7 +61,8 @@ import { Tag } from 'primeng/tag';
                 </td>
                 <td>{{ item.id }}</td>
                 <td>{{ item.name }}</td>
-                <td>{{ item.courierType }}</td>
+                <td>{{ item.courierType | translate }}</td>
+                <td>{{ item.courierShipmentType | translate}}</td>
 
                 <td>
                     <p-tag [severity]="item.active ? 'success' : 'danger'" [value]="item.active ? 'Active' : ('Stopped' | translate)"> </p-tag>

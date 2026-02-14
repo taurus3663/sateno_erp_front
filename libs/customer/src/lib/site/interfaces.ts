@@ -1,3 +1,5 @@
+import { ICourier } from '../courier/interfaces';
+
 export interface ISite {
     id: number;
     name: string;
@@ -8,4 +10,5 @@ export interface ISite {
     language: string;
     active: boolean;
     orderCreateApiKey: string;
+    couriers: ICourier[];
 }

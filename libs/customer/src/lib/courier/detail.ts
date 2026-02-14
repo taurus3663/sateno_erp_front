@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { CourierDetailService } from './detail.service';
-import { Button } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
@@ -8,14 +8,16 @@ import { FormsModule } from '@angular/forms';
 import { NgClass, NgIf } from '@angular/common';
 import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
-import { CourierType, ICourier } from './interfaces';
+import { CourierShipmentType, CourierType, ICourier } from './interfaces';
 
 @Component({
     selector: `courier-detail`,
     standalone: true,
-    imports: [Button, TranslatePipe, Dialog, InputText, FormsModule, NgIf, Checkbox, Select, NgClass],
+    imports: [Button, TranslatePipe, Dialog, InputText, FormsModule, NgIf, Checkbox, Select, NgClass, ButtonDirective],
     template: `
-        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '90vh', width: '1000px' }">
+        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()"
+                  (visibleChange)="detailService.closeDetail()" [modal]="true"
+                  [style]="{ 'min-width': '1000px', 'min-height': '90vh', width: '1000px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -43,12 +45,47 @@ import { CourierType, ICourier } from './interfaces';
                         <p-checkbox [(ngModel)]="item.active" [binary]="true"></p-checkbox>
                     </div>
 
-                    <div class="col-span-12">
+                    <div class="col-span-4">
                         <label class="block font-bold mb-2">{{ 'Courier' | translate }}</label>
-                        <p-select [options]="courierOptions" [(ngModel)]="item.courierType" optionLabel="label" optionValue="value" class="w-full"> </p-select>
+                        <p-select [options]="courierOptions" [(ngModel)]="item.courierType" optionValue="value"
+                                  class="w-full">
+                            <ng-template #selectedItem let-selectedOption>
+                                {{ selectedOption.label | translate }}
+                            </ng-template>
+                            <ng-template #item let-option>
+                                {{ option.label | translate }}
+                            </ng-template>
+                        </p-select>
                     </div>
 
-                    <ng-container *ngIf="item.courierType === CourierType.SPEEDY || item.courierType === CourierType.ECONT">
+                    <div class="col-span-4">
+                        <label class="block font-bold mb-2">{{ 'Shipment_type' | translate }}</label>
+                        <p-select [options]="courierShipmentOptions" [(ngModel)]="item.courierShipmentType"
+                                  optionValue="value" class="w-full">
+                            <ng-template #selectedItem let-selectedOption>
+                                {{ selectedOption.label | translate }}
+                            </ng-template>
+                            <ng-template #item let-option>
+                                {{ option.label | translate }}
+                            </ng-template>
+                        </p-select>
+                    </div>
+
+                    <div class="col-span-12">
+                        <label class="block font-bold mb-2">{{ 'Select_site' | translate }}</label>
+                        <div class="p-inputgroup max-w-md">
+                            <input pInputText [readonly]="true" [placeholder]="item.site?.name || ('Empty' | translate)"
+                                   class="w-90" />
+                            <button type="button" pButton icon="pi pi-search" (click)="openParentLookup(item)"
+                                    severity="secondary"></button>
+
+                            <button *ngIf="item.site" type="button" pButton icon="pi pi-times" (click)="clearParent(item)"
+                                    severity="danger"></button>
+                        </div>
+                    </div>
+
+                    <ng-container
+                        *ngIf="item.courierType === CourierType.SPEEDY || item.courierType === CourierType.ECONT">
                         <div class="col-span-6">
                             <label class="block font-bold mb-2">Username</label>
                             <input pInputText [(ngModel)]="item.username" class="w-full" />
@@ -70,24 +107,26 @@ import { CourierType, ICourier } from './interfaces';
                         </div>
                     </ng-container>
 
-
                     <div class="col-span-12 flex justify-center mt-2">
-                        <p-button label="Тест на връзката" icon="pi pi-bolt" [severity]="testStatus === 'success' ? 'success' : testStatus === 'error' ? 'danger' : 'info'" [loading]="isTesting" (onClick)="testConnection(item)"> </p-button>
+                        <p-button label="Тест на връзката" icon="pi pi-bolt"
+                                  [severity]="testStatus === 'success' ? 'success' : testStatus === 'error' ? 'danger' : 'info'"
+                                  [loading]="isTesting" (onClick)="testConnection(item)"></p-button>
                     </div>
-                    <div *ngIf="testMessage" class="col-span-12 text-center mt-1 text-sm font-bold" [ngClass]="{ 'text-green-500': testStatus === 'success', 'text-red-500': testStatus === 'error' }">
+                    <div *ngIf="testMessage" class="col-span-12 text-center mt-1 text-sm font-bold"
+                         [ngClass]="{ 'text-green-500': testStatus === 'success', 'text-red-500': testStatus === 'error' }">
                         {{ testMessage }}
                     </div>
                 </div>
-
-
             </ng-template>
 
             <ng-template #footer>
                 <!--                <div class="flex justify-content-between align-items-center w-full p-2 justify-between">-->
                 <div class="flex gap-2 items-end">
-                    <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
+                    <p-button label="Отказ" severity="secondary" [text]="true"
+                              (onClick)="detailService.closeDetail()" />
 
-                    <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                    <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"
+                              (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
                 </div>
                 <!--                </div>-->
             </ng-template>
@@ -98,11 +137,18 @@ export class CourierDetailComponent {
     protected detailService = inject(CourierDetailService);
 
     courierOptions = [
-        { label: 'Speedy', value: CourierType.SPEEDY },
-        { label: 'Econt', value: CourierType.ECONT },
-        { label: 'Box Now', value: CourierType.BOX_NOW }
+        { label: 'SPEEDY', value: CourierType.SPEEDY },
+        { label: 'ECONT', value: CourierType.ECONT },
+        { label: 'BOX_NOW', value: CourierType.BOX_NOW }
     ];
     protected readonly CourierType = CourierType;
+
+    courierShipmentOptions = [
+        { label: 'OFFICE', value: CourierShipmentType.OFFICE },
+        { label: 'ADDRESS', value: CourierShipmentType.ADDRESS },
+        { label: 'LOCKER', value: CourierShipmentType.LOCKER }
+    ];
+    protected readonly CourierShipmentType = CourierShipmentType;
 
     isTesting = false;
     testMessage = '';
@@ -113,10 +159,7 @@ export class CourierDetailComponent {
     testConnection(item: ICourier) {
         this.isTesting = true;
         this.testStatus = 'none'; // Нулираме цвета
-        this.testMessage = '';     // Изчистваме стария текст
-
-        // Принудително обновяване (само за тест)
-        console.log('Testing connection for:', item.courierType);
+        this.testMessage = ''; // Изчистваме стария текст
 
         this.detailService.testCourier(item).subscribe({
             next: (res: any) => {
@@ -133,5 +176,19 @@ export class CourierDetailComponent {
                 this.cdr.detectChanges();
             }
         });
+    }
+
+    async openParentLookup(item: ICourier) {
+        // Отваряме същия списък с категории, но в режим 'lookup'
+        const result = await this.detailService.openLookup('site/list', 'Избери родител');
+
+        if (result) {
+            item.site = result;
+            this.cdr.detectChanges();
+        }
+    }
+
+    clearParent(item: ICourier) {
+        item.site = undefined;
     }
 }
