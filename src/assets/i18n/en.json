@@ -193,5 +193,9 @@
   "ECONT": "ECONT",
   "BOX_NOW": "BOX NOW",
   "Select_site": "Select site",
-  "Empty": "Empty"
+  "Empty": "Empty",
+  "Auto": "Auto",
+  "There_are_no_configured_couriers_for_this_site.": "There are no configured couriers for this site.",
+  "Row": "Row",
+  "Fixed_shipping_price": "Fixed shipping price"
 }

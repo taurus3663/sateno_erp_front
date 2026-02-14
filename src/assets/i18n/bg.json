@@ -193,5 +193,9 @@
   "ECONT": "ЕКОНТ",
   "BOX_NOW": "БОКС НАУ",
   "Select_site": "Избери сайт",
-  "Empty": "Празен"
+  "Empty": "Празен",
+  "Auto": "Авто",
+  "There_are_no_configured_couriers_for_this_site.": "Няма конфигурирани куриери за този сайт.",
+  "Row": "Ред",
+  "Fixed_shipping_price": "Фиксирана цена за доставка"
 }

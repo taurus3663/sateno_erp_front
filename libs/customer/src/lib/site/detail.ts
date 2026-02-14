@@ -15,7 +15,6 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { InputNumber } from 'primeng/inputnumber';
 import { CourierType } from '../courier/interfaces';
 
-
 @Component({
     selector: 'site-detail',
     standalone: true,
@@ -101,51 +100,50 @@ import { CourierType } from '../courier/interfaces';
                                         <div *ngFor="let courier of item.couriers; let i = index" class="mb-3 p-4 border border-gray-100 rounded-xl bg-gray-50/50 hover:bg-white hover:border-blue-200 hover:shadow-md transition-all duration-200">
                                             <div class="grid grid-cols-12 gap-6 items-center">
                                                 <div class="col-span-4 flex items-center gap-4">
-                                                            <img [src]="getCourierLogo(courier.courierType)"
-                                                                 [alt]="courier.name"
-                                                                 class="max-w-full max-h-full object-contain"
-                                                            >
+                                                    <img [src]="getCourierLogo(courier.courierType)" [alt]="courier.name" class="max-w-full max-h-full object-contain" />
 
                                                     <div class="flex flex-col">
                                                         <span class="font-bold text-gray-800 leading-tight">{{ courier.name }}</span>
                                                         <span class="font-bold text-gray-800 leading-tight">
-                                                            {{ courier.courierShipmentType }}
+                                                            {{ (courier.courierShipmentType | translate) || ('Empty' | translate) }}
                                                         </span>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-span-3">
-                                                    <div class="p-inputgroup h-9">
-                                                        <span class="p-inputgroup-addon bg-white border-r-0"><i class="pi pi-tag text-xs"></i></span>
-                                                        <p-inputNumber [(ngModel)]="courier.fixedShippingPrice" [placeholder]="'Фикс. цена' | translate" mode="decimal" [minFractionDigits]="2" class="w-full h-full text-sm"></p-inputNumber>
+                                                    <div class="p-inputgroup h-9" [pTooltip]="'Fixed_shipping_price' | translate" tooltipPosition="top">
+                                                        <span class="p-inputgroup-addon bg-white border-r-0">
+                                                            <i class="pi pi-tag text-xs"></i>
+                                                        </span>
+                                                        <p-inputNumber [disabled]="courier.autoShippingPrice == true" [(ngModel)]="courier.fixedShippingPrice" [placeholder]="'Fixed_shipping_price' | translate" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" class="w-full h-full text-sm">
+                                                        </p-inputNumber>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-span-2">
                                                     <div class="p-inputgroup h-9">
                                                         <span class="p-inputgroup-addon bg-white border-r-0 text-xs font-bold text-gray-400">#</span>
-                                                        <input pInputText type="number" [(ngModel)]="courier.sortOrder" pTooltip="Ред на показване" placeholder="Ред" class="p-inputtext-sm w-full h-full font-bold text-center" />
+                                                        <p-select [(ngModel)]="courier.sortOrder" [options]="sortOptions" optionLabel="label" optionValue="value" [placeholder]="'Row' | translate" class="w-full h-full "> </p-select>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-span-2 flex items-center justify-center gap-4 border-l border-gray-200 pl-4">
                                                     <div class="flex flex-col items-center">
-                                                        <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">Auto</span>
+                                                        <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">{{ 'Auto' | translate }}</span>
                                                         <p-checkbox [(ngModel)]="courier.autoShippingPrice" [binary]="true" pTooltip="Автоматична цена"></p-checkbox>
                                                     </div>
                                                     <div class="flex flex-col items-center">
-                                                        <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">Active</span>
+                                                        <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">{{ 'Active' | translate }}</span>
                                                         <p-checkbox [(ngModel)]="courier.active" [binary]="true" pTooltip="Активен за сайта"></p-checkbox>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
 
                                     <div *ngIf="!item.couriers?.length" class="text-center py-10 text-gray-400">
                                         <i class="pi pi-truck text-3xl mb-2"></i>
-                                        <p>Няма конфигурирани куриери за този сайт.</p>
+                                        <p>{{ 'There_are_no_configured_couriers_for_this_site.' | translate }}</p>
                                     </div>
                                 </div>
                             </p-tabpanel>
@@ -213,13 +211,14 @@ export class SiteDetailComponent {
         switch (type) {
             case CourierType.BOX_NOW:
                 return `${g}boxnow-logo.png`;
-                case CourierType.SPEEDY:
-                    return `${g}speedy-logo.png`;
+            case CourierType.SPEEDY:
+                return `${g}speedy-logo.png`;
             case CourierType.ECONT:
                 return `${g}econt-logo.png`;
-                default:
-                    return `${g}boxnow1-logo.png`;
+            default:
+                return `${g}boxnow1-logo.png`;
         }
     }
 
+    sortOptions = Array.from({ length: 10 }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }));
 }
