@@ -93,6 +93,8 @@ export class ShipmentService{
                                     String(o.code) === String(officeId) || String(o.id) === String(officeId)
                                 );
 
+                                // console.log('officeId:', officeId);
+                                // this.offices.forEach(o => console.log('o.code', o.code, 'o.id', o.id));
                                 // 3. Опресняваме последно, за да се види селектираното име
                                 this.cdr?.detectChanges();
                             }, 100);

@@ -67,7 +67,7 @@ import { InputText } from 'primeng/inputtext';
                                         <span class="text-orange-700 font-bold">{{ 'Shipping_Address' | translate }}</span>
                                     </div>
                                     <div class="text-900 line-height-3 font-medium bg-white-alpha-50 p-2 border-round">
-                                        {{ item?.customer?.address || item?.billing?.address_1 }}
+                                        {{ item?.billing?.address_1 }}
                                     </div>
                                 </div>
 

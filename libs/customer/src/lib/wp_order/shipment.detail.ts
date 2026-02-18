@@ -92,9 +92,10 @@ import { Tooltip } from 'primeng/tooltip';
                     class="w-full"
                     [showClear]="true"
                 >
+
                     <ng-template pTemplate="selectedItem" let-selectedOption>
                         <div class="flex flex-column truncate-text" [pTooltip]="selectedOption?.address" tooltipPosition="top">
-                            <span class="font-bold text-sm">{{ selectedOption.name }}</span>
+                            <span class="font-bold text-sm">{{ selectedOption.address }}</span>
                         </div>
                     </ng-template>
 
