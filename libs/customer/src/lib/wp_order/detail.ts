@@ -13,7 +13,6 @@ import { OrderStatus, OrderStatusLabels, PaymentMethod, PaymentMethodLabels } fr
 import { Select } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { InputText } from 'primeng/inputtext';
-import { Image } from 'primeng/image';
 
 @Component({
     selector: 'site-detail',
@@ -47,18 +46,18 @@ import { Image } from 'primeng/image';
                                     <p-avatar icon="pi pi-user" size="large" shape="circle" class="bg-primary-reverse text-primary"></p-avatar>
                                     <div class="flex flex-column">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Name' | translate }}</span>
-                                        <span class="text-xl font-bold text-900">{{ item?.billing?.first_name?? '' }} {{ item?.billing?.last_name?? '' }}</span>
+                                        <span class="text-xl font-bold text-900">{{ item?.billing?.first_name ?? '' }} {{ item?.billing?.last_name ?? '' }}</span>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-2">
                                     <div class="p-3 border-round surface-100 flex flex-column gap-1">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Phone' | translate }}</span>
-                                        <a [href]="'tel:' + item?.billing?.phone" class="no-underline text-blue-600 font-bold"> <i class="pi pi-phone text-xs mr-1"></i> {{ item?.customer?.phone?? '' }} </a>
+                                        <a [href]="'tel:' + item?.billing?.phone" class="no-underline text-blue-600 font-bold"> <i class="pi pi-phone text-xs mr-1"></i> {{ item?.customer?.phone ?? '' }} </a>
                                     </div>
                                     <div class="p-3 border-round surface-100 flex flex-column gap-1">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Email' | translate }}</span>
-                                        <span class="text-900 font-medium truncate text-xl" [pTooltip]="item?.billing?.email?? ''"> <i class="pi pi-envelope text-xs mr-1"></i> {{ item?.customer?.email?? '' }} </span>
+                                        <span class="text-900 font-medium truncate text-xl" [pTooltip]="item?.billing?.email ?? ''"> <i class="pi pi-envelope text-xs mr-1"></i> {{ item?.customer?.email ?? '' }} </span>
                                     </div>
                                 </div>
 
@@ -84,7 +83,6 @@ import { Image } from 'primeng/image';
                                 </div>
                             </div>
                         </div>
-
 
                         <div class="flex flex-column col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
                             <span class="text-secondary text-xs font-bold uppercase">{{ 'Payment_method' | translate }}</span>
@@ -151,12 +149,8 @@ import { Image } from 'primeng/image';
                                                 <div class="flex align-items-start gap-3">
                                                     <div class="flex-shrink-0">
                                                         <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 90px; height: auto;">
-
                                                             <a *ngIf="line?.image?.src" [href]="line.image.src" target="_blank">
-                                                                <img [src]="line.image.src"
-                                                                     [alt]="line.productName"
-                                                                     class="w-full h-full object-cover cursor-zoom-in"
-                                                                />
+                                                                <img [src]="line.image.src" [alt]="line.productName" class="w-full h-full object-cover cursor-zoom-in" />
                                                             </a>
 
                                                             <i *ngIf="!line?.image?.src" class="pi pi-image text-400 text-2xl"></i>
@@ -192,10 +186,10 @@ import { Image } from 'primeng/image';
                                     </tbody>
 
                                     <tfoot class="bg-gray-50">
-<!--                                        <tr>-->
-<!--                                            <td colspan="2" class="p-3 text-right font-medium text-secondary">{{ 'Subtotal' | translate }}:</td>-->
-<!--                                            <td class="p-3 text-right text-900 font-medium">{{ item.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>-->
-<!--                                        </tr>-->
+                                        <!--                                        <tr>-->
+                                        <!--                                            <td colspan="2" class="p-3 text-right font-medium text-secondary">{{ 'Subtotal' | translate }}:</td>-->
+                                        <!--                                            <td class="p-3 text-right text-900 font-medium">{{ item.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>-->
+                                        <!--                                        </tr>-->
                                         <tr class="border-top-1 surface-border">
                                             <td colspan="2" class="p-3 text-right font-bold text-xl text-900">{{ 'Total' | translate }}:</td>
                                             <td class="p-3 text-right font-bold text-xl text-primary">{{ item.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>
@@ -204,7 +198,6 @@ import { Image } from 'primeng/image';
                                 </table>
                             </div>
 
-
                             <div class="col-span-12 mt-5" *ngIf="item?.orderLineOtherOrders?.length">
                                 <h5 class="text-orange-600 font-bold mb-4 flex align-items-center gap-2 border-bottom-1 pb-2">
                                     <i class="pi pi-clone"></i>
@@ -212,18 +205,17 @@ import { Image } from 'primeng/image';
                                 </h5>
 
                                 <div *ngFor="let group of getGroupedOtherOrders(item.orderLineOtherOrders)" class="mb-6">
-
                                     <div class="flex justify-content-between align-items-center mb-2 px-2">
-             <span class="text-900 font-bold">
-                 <i class="pi pi-shopping-cart text-orange-500 mr-2"></i>
-                 {{ 'Order' | translate }} #{{ group.wpOrderId }}
-             </span>
+                                        <span class="text-900 font-bold">
+                                            <i class="pi pi-shopping-cart text-orange-500 mr-2"></i>
+                                            {{ 'Order' | translate }} #{{ group.wpOrderId }}
+                                        </span>
                                         <button
                                             type="button"
                                             class="p-button p-button-success p-button-sm p-component p-button-raised flex align-items-center gap-2 ml-10"
                                             style="padding: 0.5rem 1rem; width: auto;"
-                                            (click)="mergeOrderIntoCurrent(group.orderId); $event.stopPropagation()">
-
+                                            (click)="mergeOrderIntoCurrent(group.orderId); $event.stopPropagation()"
+                                        >
                                             <i class="pi pi-plus text-sm"></i>
                                             <span class="font-bold text-sm">Добави към текущата</span>
                                         </button>
@@ -232,50 +224,46 @@ import { Image } from 'primeng/image';
                                     <div class="border-round border-1 border-orange-200 overflow-hidden">
                                         <table class="w-full text-left border-collapse">
                                             <thead class="bg-orange-50">
-                                            <tr>
-                                                <th class="p-3 text-sm font-bold">{{ 'Product' | translate }}</th>
-                                                <th class="p-3 text-sm font-bold text-center">{{ 'Qty' | translate }}</th>
-                                                <th class="p-3 text-sm font-bold text-right">{{ 'Price' | translate }}</th>
-                                            </tr>
+                                                <tr>
+                                                    <th class="p-3 text-sm font-bold">{{ 'Product' | translate }}</th>
+                                                    <th class="p-3 text-sm font-bold text-center">{{ 'Qty' | translate }}</th>
+                                                    <th class="p-3 text-sm font-bold text-right">{{ 'Price' | translate }}</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
-                                            <tr *ngFor="let line of group.items" class="border-top-1 border-orange-100">
-                                                <td class="p-3">
-                                                    <div class="flex align-items-start gap-3">
-                                                        <div class="flex-shrink-0">
-                                                            <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 90px; height: auto;">
-                                                                <a *ngIf="line.image?.src" [href]="line.image.src" target="_blank">
-                                                                    <img [src]="line.image.src" class="w-full h-full object-cover" />
-                                                                </a>
-                                                                <i *ngIf="!line.image?.src" class="pi pi-image text-400 text-2xl"></i>
+                                                <tr *ngFor="let line of group.items" class="border-top-1 border-orange-100">
+                                                    <td class="p-3">
+                                                        <div class="flex align-items-start gap-3">
+                                                            <div class="flex-shrink-0">
+                                                                <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 90px; height: auto;">
+                                                                    <a *ngIf="line.image?.src" [href]="line.image.src" target="_blank">
+                                                                        <img [src]="line.image.src" class="w-full h-full object-cover" />
+                                                                    </a>
+                                                                    <i *ngIf="!line.image?.src" class="pi pi-image text-400 text-2xl"></i>
+                                                                </div>
                                                             </div>
-                                                        </div>
 
-                                                        <div class="flex-grow-1">
-                                                            <div class="font-bold text-900 line-height-3">{{ line.productName }}</div>
-                                                            <div class="text-xs text-secondary mt-1 uppercase">SKU: {{ line.sku }}</div>
+                                                            <div class="flex-grow-1">
+                                                                <div class="font-bold text-900 line-height-3">{{ line.productName }}</div>
+                                                                <div class="text-xs text-secondary mt-1 uppercase">SKU: {{ line.sku }}</div>
 
-                                                            <div *ngFor="let meta of line.paoIdValue" class="mt-2">
-                                                                <div *ngFor="let v of meta.value" class="text-xs italic text-orange-600">
-                                                                    • {{ v.key }}: <span class="font-bold text-orange-900">{{ v.value }}</span>
+                                                                <div *ngFor="let meta of line.paoIdValue" class="mt-2">
+                                                                    <div *ngFor="let v of meta.value" class="text-xs italic text-orange-600">
+                                                                        • {{ v.key }}: <span class="font-bold text-orange-900">{{ v.value }}</span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td class="p-3 text-center align-top">{{ line.quantity }}</td>
-                                                <td class="p-3 text-right font-medium text-900 align-top">
-                                                    {{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                    <td class="p-3 text-center align-top">{{ line.quantity }}</td>
+                                                    <td class="p-3 text-right font-medium text-900 align-top">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>
+                                                </tr>
                                             </tbody>
                                             <tfoot class="bg-orange-50/50">
-                                            <tr>
-                                                <td colspan="2" class="p-2 text-right font-bold text-sm text-secondary">{{ 'Total' | translate }}:</td>
-                                                <td class="p-2 text-right font-bold text-orange-700">
-                                                    {{ getSubtotal(group.items) | number: '1.2-2' }} {{ item.currency }}
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td colspan="2" class="p-2 text-right font-bold text-sm text-secondary">{{ 'Total' | translate }}:</td>
+                                                    <td class="p-2 text-right font-bold text-orange-700">{{ getSubtotal(group.items) | number: '1.2-2' }} {{ item.currency }}</td>
+                                                </tr>
                                             </tfoot>
                                         </table>
                                     </div>
@@ -287,9 +275,7 @@ import { Image } from 'primeng/image';
             </ng-template>
 
             <ng-template #footer>
-                <span *ngIf="detailService.selectedItem()?.ordersToMerge?.length" class="mr-3 text-green-600 font-bold">
-        <i class="pi pi-info-circle"></i> Ще бъдат обединени {{ detailService.selectedItem()?.ordersToMerge?.length }} поръчки
-    </span>
+                <span *ngIf="detailService.selectedItem()?.ordersToMerge?.length" class="mr-3 text-green-600 font-bold"> <i class="pi pi-info-circle"></i> Ще бъдат обединени {{ detailService.selectedItem()?.ordersToMerge?.length }} поръчки </span>
                 <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
                 <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
             </ng-template>
@@ -387,20 +373,23 @@ export class OrderDetailComponent {
         if (!lines || lines.length === 0) return [];
 
         // 1. Групираме по вътрешното ни orderId
-        const groups = lines.reduce((acc, obj) => {
-            const key = obj.orderId;
-            if (!acc[key]) acc[key] = [];
-            acc[key].push(obj);
-            return acc;
-        }, {} as Record<string, any[]>);
+        const groups = lines.reduce(
+            (acc, obj) => {
+                const key = obj.orderId;
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(obj);
+                return acc;
+            },
+            {} as Record<string, any[]>
+        );
 
         // 2. Преобразуваме в масив и извличаме wpOrderId от първия продукт в групата
-        return Object.keys(groups).map(id => {
+        return Object.keys(groups).map((id) => {
             const items = groups[id];
             return {
-                orderId: id,                      // Вътрешно ID
-                wpOrderId: items[0]?.wpOrderId,   // WooCommerce ID (от първия елемент)
-                items: items                      // Списък с продукти
+                orderId: id, // Вътрешно ID
+                wpOrderId: items[0]?.wpOrderId, // WooCommerce ID (от първия елемент)
+                items: items // Списък с продукти
             };
         });
     }
@@ -410,7 +399,7 @@ export class OrderDetailComponent {
     }
 
     public mergeOrderIntoCurrent(sourceOrderId: any) {
-        let parseInt = Number.isInteger(sourceOrderId)? sourceOrderId: Number.parseInt(sourceOrderId);
+        let parseInt = Number.isInteger(sourceOrderId) ? sourceOrderId : Number.parseInt(sourceOrderId);
         const currentOrder = this.detailService.selectedItem();
         if (!currentOrder) return;
 
@@ -425,9 +414,7 @@ export class OrderDetailComponent {
         }
 
         // Визуално премахваме таблицата от екрана, за да знае операторът, че е "маркирана"
-        currentOrder.orderLineOtherOrders = currentOrder.orderLineOtherOrders.filter(
-            line => line.orderId !== parseInt
-        );
+        currentOrder.orderLineOtherOrders = currentOrder.orderLineOtherOrders.filter((line) => line.orderId !== parseInt);
         console.log(currentOrder.orderLineOtherOrders);
         // Можеш да добавиш малък Toast или съобщение "Поръчката е маркирана за обединяване"
     }

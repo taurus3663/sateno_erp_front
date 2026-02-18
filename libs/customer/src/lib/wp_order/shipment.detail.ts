@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Input } from 'postcss';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
@@ -14,11 +14,12 @@ import { CommonModule } from '@angular/common';
 import { SelectItem, SelectModule } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { SelectButton } from 'primeng/selectbutton';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
     selector: 'shipment-detail',
     standalone: true,
-    imports: [ReactiveFormsModule, Button, Drawer, TranslatePipe, CommonModule, SelectModule, FormsModule, SelectButton],
+    imports: [ReactiveFormsModule, Button, Drawer, TranslatePipe, CommonModule, SelectModule, FormsModule, SelectButton, Tooltip],
     template: `
         <p-drawer [(visible)]="detailService.visible" position="left" [style]="{ width: '30rem' }">
             <ng-template #header>
@@ -30,7 +31,16 @@ import { SelectButton } from 'primeng/selectbutton';
             <div class="p-fluid grid mt-3">
                 <div class="col-1 field">
                     <label for="courier" class="font-bold block mb-2">{{ 'Choose' | translate }}</label>
-                    <p-select id="courier" [options]="courierListService.items()" [(ngModel)]="this.detailService.selectedCourier" (onChange)="detailService.onCourierChange()" optionLabel="name" placeholder="{{ 'Courier' | translate }}" [showClear]="true" class="w-full">
+                    <p-select
+                        id="courier"
+                        [options]="courierListService.items()"
+                        [(ngModel)]="this.detailService.selectedCourier"
+                        (onChange)="detailService.onCourierChange()"
+                        optionLabel="name"
+                        placeholder="{{ 'Courier' | translate }}"
+                        [showClear]="true"
+                        class="w-full"
+                    >
                         <ng-template pTemplate="item" let-item>
                             <div class="flex align-items-center gap-2">
                                 <i class="pi pi-delivery-truck text-primary"></i>
@@ -43,11 +53,11 @@ import { SelectButton } from 'primeng/selectbutton';
 
             <div class="col-12 field mb-4 mt-4" *ngIf="this.detailService.selectedCourier">
                 <label class="font-bold block mb-2">{{ 'Delivery_To' | translate }}</label>
-                <p-selectButton [options]="deliveryOptions" [(ngModel)]="deliveryType" optionLabel="label" optionValue="value" class="w-full"></p-selectButton>
+                <!--                <p-selectButton [options]="deliveryOptions" [(ngModel)]="deliveryType" optionLabel="label" optionValue="value" class="w-full"></p-selectButton>-->
+                <p-selectButton [options]="deliveryOptions" [(ngModel)]="detailService.deliveryType" optionLabel="label" optionValue="value" class="w-full"> </p-selectButton>
             </div>
 
-
-            <div class="field" *ngIf="detailService.selectedCourier && deliveryType === 'OFFICE'">
+            <div class="field" *ngIf="detailService.selectedCourier && detailService.deliveryType === 'OFFICE'">
                 <label class="font-bold block mb-2">{{ 'City' | translate }}</label>
                 <p-select
                     [options]="detailService.cities"
@@ -58,8 +68,8 @@ import { SelectButton } from 'primeng/selectbutton';
                     [lazy]="true"
                     optionLabel="name"
                     placeholder="{{ 'Type_City_Name' | translate }}"
-                    class="w-full">
-
+                    class="w-full"
+                >
                     <ng-template pTemplate="item" let-city>
                         <div class="flex justify-content-between">
                             <span>{{ city.name }}</span>
@@ -69,7 +79,7 @@ import { SelectButton } from 'primeng/selectbutton';
                 </p-select>
             </div>
 
-            <div class="field mt-4" *ngIf="detailService.selectedCity && deliveryType === 'OFFICE'">
+            <div class="field mt-4" *ngIf="detailService.selectedCity && detailService.deliveryType === 'OFFICE'">
                 <label class="font-bold block mb-2">{{ 'Office' | translate }}</label>
                 <p-select
                     [options]="detailService.offices"
@@ -79,17 +89,24 @@ import { SelectButton } from 'primeng/selectbutton';
                     [filter]="true"
                     [lazy]="true"
                     placeholder="{{ 'Choose_Office' | translate }}"
-                    class="w-full">
+                    class="w-full"
+                    [showClear]="true"
+                >
+                    <ng-template pTemplate="selectedItem" let-selectedOption>
+                        <div class="flex flex-column truncate-text" [pTooltip]="selectedOption?.address" tooltipPosition="top">
+                            <span class="font-bold text-sm">{{ selectedOption.name }}</span>
+                        </div>
+                    </ng-template>
 
                     <ng-template pTemplate="item" let-office>
-                        <div class="flex flex-column">
+                        <div class="flex flex-column" style="max-width: 25rem;" [pTooltip]="office.address" tooltipPosition="top">
                             <span class="font-bold text-sm">{{ office.name }}</span>
-                            <small class="text-secondary">{{ office.address }}</small>
+                            <small class="text-secondary overflow-ellipsis">{{ office.address }}</small>
                         </div>
                     </ng-template>
                 </p-select>
-            </div>
 
+            </div>
 
             <ng-template #footer>
                 <div class="flex gap-2 w-full pt-2 justify-end">
@@ -105,14 +122,15 @@ export class ShipmentDetailComponent implements OnInit {
     // private config = inject(DynamicDialogConfig);
     detailService = inject(ShipmentService);
     courierListService = inject(CourierListService);
+    private cdr = inject(ChangeDetectorRef);
     // order?: IOrder = this.detailService.selectedOrder; // Тук идва поръчката от родителския компонент
-
 
     get order() {
         return this.detailService.selectedOrder;
     }
 
     ngOnInit(): void {
+        this.detailService.setDetector(this.cdr);
         this.courierListService.loadList(0, 100);
     }
 
@@ -122,7 +140,7 @@ export class ShipmentDetailComponent implements OnInit {
         // }
     }
 
-    deliveryType: string = 'OFFICE';
+    // deliveryType: string = 'OFFICE';
     // Опции за SelectButton
     deliveryOptions = [
         { label: 'До Офис', value: 'OFFICE', icon: 'pi pi-building' },
@@ -132,7 +150,8 @@ export class ShipmentDetailComponent implements OnInit {
     // В ShipmentDetailComponent
     onCitySearch(event: any) {
         const query = event.filter; // Това са буквите, които потребителят е написал
-        if (query && query.length >= 2) { // Започваме да търсим след втория символ
+        if (query && query.length >= 2) {
+            // Започваме да търсим след втория символ
             this.detailService.loadCities(query);
         }
     }
@@ -146,5 +165,4 @@ export class ShipmentDetailComponent implements OnInit {
             this.detailService.loadOffices(query);
         }
     }
-
 }

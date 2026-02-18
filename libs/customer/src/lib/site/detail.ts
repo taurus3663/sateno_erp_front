@@ -98,7 +98,7 @@ import { CourierType } from '../courier/interfaces';
                                 <div class="pt-4" *ngIf="detailService.selectedItem() as item">
                                     <div class="flex flex-col gap-3">
                                         <div *ngFor="let courier of item.couriers; let i = index" class="mb-3 p-4 border border-gray-100 rounded-xl bg-gray-50/50 hover:bg-white hover:border-blue-200 hover:shadow-md transition-all duration-200">
-                                            <div class="grid grid-cols-12 gap-6 items-center">
+                                            <div class="grid grid-cols-15 gap-6 items-center">
                                                 <div class="col-span-4 flex items-center gap-4">
                                                     <img [src]="getCourierLogo(courier.courierType)" [alt]="courier.name" class="max-w-full max-h-full object-contain" />
 
@@ -107,6 +107,16 @@ import { CourierType } from '../courier/interfaces';
                                                         <span class="font-bold text-gray-800 leading-tight">
                                                             {{ (courier.courierShipmentType | translate) || ('Empty' | translate) }}
                                                         </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-span-3">
+                                                    <div class="p-inputgroup h-9" [pTooltip]="'Free_shipping_over' | translate" tooltipPosition="top">
+                                                        <span class="p-inputgroup-addon bg-white border-r-0">
+                                                            <i class="pi pi-tag text-xs"></i>
+                                                        </span>
+                                                        <p-inputNumber [disabled]="courier.freeShippingPriceMaxBol == false" [(ngModel)]="courier.freeShippingPriceMax" [placeholder]="'Free_shipping_over' | translate" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" class="w-full h-full text-sm">
+                                                        </p-inputNumber>
                                                     </div>
                                                 </div>
 
@@ -121,7 +131,7 @@ import { CourierType } from '../courier/interfaces';
                                                 </div>
 
                                                 <div class="col-span-2">
-                                                    <div class="p-inputgroup h-9">
+                                                    <div class="p-inputgroup h-9" [pTooltip]="'Row' | translate" tooltipPosition="top">
                                                         <span class="p-inputgroup-addon bg-white border-r-0 text-xs font-bold text-gray-400">#</span>
                                                         <p-select [(ngModel)]="courier.sortOrder" [options]="sortOptions" optionLabel="label" optionValue="value" [placeholder]="'Row' | translate" class="w-full h-full "> </p-select>
                                                     </div>
@@ -135,6 +145,10 @@ import { CourierType } from '../courier/interfaces';
                                                     <div class="flex flex-col items-center">
                                                         <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">{{ 'Active' | translate }}</span>
                                                         <p-checkbox [(ngModel)]="courier.active" [binary]="true" pTooltip="Активен за сайта"></p-checkbox>
+                                                    </div>
+                                                    <div class="flex flex-col items-center">
+                                                        <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">{{ 'Active' | translate }}</span>
+                                                        <p-checkbox [(ngModel)]="courier.freeShippingPriceMaxBol" [binary]="true" [pTooltip]="'Free_shipping_over' | translate "></p-checkbox>
                                                     </div>
                                                 </div>
                                             </div>

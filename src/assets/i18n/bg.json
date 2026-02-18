@@ -197,5 +197,6 @@
   "Auto": "Авто",
   "There_are_no_configured_couriers_for_this_site.": "Няма конфигурирани куриери за този сайт.",
   "Row": "Ред",
-  "Fixed_shipping_price": "Фиксирана цена за доставка"
+  "Fixed_shipping_price": "Фиксирана цена за доставка",
+  "Free_shipping_over": "Безплатна доставка над"
 }

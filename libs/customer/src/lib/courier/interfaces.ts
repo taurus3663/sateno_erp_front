@@ -14,6 +14,7 @@ export interface ICourier {
     courierShipmentType: CourierShipmentType;
     sortOrder?: number;
     freeShippingPriceMax?: number;
+    freeShippingPriceMaxBol?: boolean;
     autoShippingPrice?: boolean;
     fixedShippingPrice?: number;
 }
