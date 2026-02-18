@@ -24,6 +24,16 @@ export class ShipmentService{
     loadingCities = false;
     loadingOffices = false;
 
+    addressStreet: string = '';
+    addressNumber: string = '';
+    addressOther: string = '';
+
+    weight: number = 1;
+    length: number = 10;
+    width: number = 10;
+    height: number = 10;
+    packCount: number = 1;
+
 
 // Методът, който ще извикаме от компонента
     setDetector(cdr: any) {
@@ -53,6 +63,7 @@ export class ShipmentService{
 
         if (match) {
             const mode = match[1].toUpperCase();     // OFFICE, LOCKER или ADDRESS
+            const rawText = match[2].trim();
             const officeId = match[3];              // ID-то в средните скоби
             const courierName = match[4].toUpperCase(); // SPEEDY, ECONT или BOXNOW
 
@@ -68,10 +79,42 @@ export class ShipmentService{
 
 
             if (this.selectedCourier) {
+
+                // 4. Ако е ADDRESS, попълваме полетата за улица и номер
+                if (this.deliveryType === 'ADDRESS') {
+                    this.parseAddressDetails(rawText);
+                }
+
                 // 4. Зареждаме Градовете и се опитваме да мапнем Офиса
                 this.autoSelectFlow(order.billing.city, officeId);
             }
         }
+    }
+
+    /**
+     * Помощен метод за разделяне на текст като "седемнадесет номер 9"
+     * на Улица: "седемнадесет" и Номер: "9"
+     */
+    private parseAddressDetails(rawText: string) {
+        const lowerText = rawText.toLowerCase();
+
+        // Търсим ключови думи за разделяне
+        if (lowerText.includes('номер')) {
+            const parts = rawText.split(/номер/i);
+            this.addressStreet = parts[0].trim();
+            this.addressNumber = parts[1].trim();
+        } else if (lowerText.includes('№')) {
+            const parts = rawText.split(/№/);
+            this.addressStreet = parts[0].trim();
+            this.addressNumber = parts[1].trim();
+        } else {
+            // Ако няма ключова дума, слагаме всичко в Street
+            this.addressStreet = rawText;
+            this.addressNumber = '';
+        }
+
+        // Ако има адрес 2 (бл, вх, ап), го вземаме от поръчката
+        this.addressOther = this.selectedOrder?.billing.address_2 || '';
     }
 
     private autoSelectFlow(cityName: string, officeId: string) {

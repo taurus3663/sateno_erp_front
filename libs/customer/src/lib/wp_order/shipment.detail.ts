@@ -15,11 +15,12 @@ import { SelectItem, SelectModule } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { SelectButton } from 'primeng/selectbutton';
 import { Tooltip } from 'primeng/tooltip';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
     selector: 'shipment-detail',
     standalone: true,
-    imports: [ReactiveFormsModule, Button, Drawer, TranslatePipe, CommonModule, SelectModule, FormsModule, SelectButton, Tooltip],
+    imports: [ReactiveFormsModule, Button, Drawer, TranslatePipe, CommonModule, SelectModule, FormsModule, SelectButton, Tooltip, InputText, InputNumber],
     template: `
         <p-drawer [(visible)]="detailService.visible" position="left" [style]="{ width: '30rem' }">
             <ng-template #header>
@@ -80,6 +81,7 @@ import { Tooltip } from 'primeng/tooltip';
                 </p-select>
             </div>
 
+            <!--            OFFICE-->
             <div class="field mt-4" *ngIf="detailService.selectedCity && detailService.deliveryType === 'OFFICE'">
                 <label class="font-bold block mb-2">{{ 'Office' | translate }}</label>
                 <p-select
@@ -94,7 +96,6 @@ import { Tooltip } from 'primeng/tooltip';
                     [showClear]="true"
                     [loading]="detailService.loadingOffices"
                 >
-
                     <ng-template pTemplate="selectedItem" let-selectedOption>
                         <div class="flex flex-column truncate-text" [pTooltip]="selectedOption?.address" tooltipPosition="top">
                             <span class="font-bold text-sm">{{ selectedOption.address }}</span>
@@ -108,8 +109,129 @@ import { Tooltip } from 'primeng/tooltip';
                         </div>
                     </ng-template>
                 </p-select>
-
             </div>
+            <!-- ADDRESS-->
+            <div *ngIf="detailService.selectedCity && detailService.deliveryType === 'ADDRESS'" class="fadein">
+                <label class="font-bold block mb-2">{{ 'City' | translate }}</label>
+                <p-select
+                    [options]="detailService.cities"
+                    [(ngModel)]="detailService.selectedCity"
+                    (onChange)="detailService.onCityChange()"
+                    (onFilter)="onCitySearch($event)"
+                    [filter]="true"
+                    [lazy]="true"
+                    optionLabel="name"
+                    [loading]="detailService.loadingCities"
+                    placeholder="{{ 'Type_City_Name' | translate }}"
+                    class="w-full"
+                >
+                    <ng-template pTemplate="item" let-city>
+                        <div class="flex justify-content-between">
+                            <span>{{ city.name }}</span>
+                            <small class="text-secondary">{{ city.postCode }}</small>
+                        </div>
+                    </ng-template>
+                </p-select>
+
+                <div style="width: 90px;">
+                    <label class="font-bold block mb-2">{{ 'Post_Code' | translate }}</label>
+                    <input pInputText [(ngModel)]="detailService.selectedCity.postCode" class="w-full text-center font-bold" />
+                </div>
+
+                <div class="field mt-4">
+                    <label class="font-bold block mb-2">{{ 'Street' | translate }}</label>
+                    <div class="p-inputgroup">
+                        <span class="p-inputgroup-addon"><i class="pi pi-map"></i></span>
+                        <input type="text" pInputText [(ngModel)]="detailService.addressStreet" placeholder="{{ 'Street_Name' | translate }}" class="w-full p-inputtext-sm" />
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-4">
+                    <div class="field flex-1">
+                        <label class="font-bold block mb-2">{{ 'Number' | translate }}</label>
+                        <input type="text" pInputText [(ngModel)]="detailService.addressNumber" placeholder="№" class="w-full p-inputtext-sm" />
+                    </div>
+                    <!--                    <div class="field flex-1">-->
+                    <!--                        <label class="font-bold block mb-2">{{ 'Other_Info' | translate }}</label>-->
+                    <!--                        <input type="text" pInputText [(ngModel)]="detailService.addressOther" placeholder="бл, вх, ап..." class="w-full p-inputtext-sm" />-->
+                    <!--                    </div>-->
+                </div>
+            </div>
+
+            <div>
+                <label class="font-bold block mb-3">{{ 'Package_count' | translate }}</label>
+                <p-inputNumber
+                    class="w-full"
+                    [(ngModel)]="detailService.packCount"
+                    [showButtons]="true"
+                    buttonLayout="vertical"
+                    spinnerMode="horizontal"
+                    [min]="1"
+                    inputStyleClass="text-center font-bold border-round-lg"
+                    decrementButtonClass="p-button-secondary p-button-outlined"
+                    incrementButtonClass="p-button-secondary p-button-outlined"
+                    incrementButtonIcon="pi pi-plus"
+                    decrementButtonIcon="pi pi-minus">
+                </p-inputNumber>
+            </div>
+
+            <div class="col-12 mt-4" *ngIf="detailService.selectedCourier">
+                <label class="font-bold block mb-3">{{ 'Shipment_Size' | translate }}</label>
+                <div class="grid gap-3 p-0">
+                    <!-- Weight -->
+                    <div class="col-6 md:col-3 field">
+                        <label class="text-xs mb-1">{{ 'Weight_kg' | translate }}</label>
+                        <p-inputNumber
+                            [(ngModel)]="detailService.weight"
+                            mode="decimal"
+                            [minFractionDigits]="1"
+                            [min]="0"
+                            [showButtons]="true"
+                            buttonLayout="vertical"
+                            decrementButtonClass="p-button-secondary"
+                            incrementButtonClass="p-button-secondary"
+                            incrementButtonIcon="pi pi-plus"
+                            decrementButtonIcon="pi pi-minus"
+                            suffix=" кг"
+                            class="w-full"
+                        ></p-inputNumber>
+                    </div>
+
+                    <!-- Length -->
+                    <div class="col-6 md:col-3 field">
+                        <label class="text-xs mb-1">{{ 'Length_cm' | translate }}</label>
+                        <p-inputNumber
+                            [(ngModel)]="detailService.length"
+                            suffix=" см"
+                            [min]="1"
+                            class="w-full"
+                        ></p-inputNumber>
+                    </div>
+
+                    <!-- Width -->
+                    <div class="col-6 md:col-3 field">
+                        <label class="text-xs mb-1">{{ 'Width_cm' | translate }}</label>
+                        <p-inputNumber
+                            [(ngModel)]="detailService.width"
+                            suffix=" см"
+                            [min]="1"
+                            class="w-full"
+                        ></p-inputNumber>
+                    </div>
+
+                    <!-- Height -->
+                    <div class="col-6 md:col-3 field">
+                        <label class="text-xs mb-1">{{ 'Height_cm' | translate }}</label>
+                        <p-inputNumber
+                            [(ngModel)]="detailService.height"
+                            suffix=" см"
+                            [min]="1"
+                            class="w-full"
+                        ></p-inputNumber>
+                    </div>
+                </div>
+            </div>
+
 
             <ng-template #footer>
                 <div class="flex gap-2 w-full pt-2 justify-end">

@@ -198,5 +198,16 @@
   "There_are_no_configured_couriers_for_this_site.": "Няма конфигурирани куриери за този сайт.",
   "Row": "Ред",
   "Fixed_shipping_price": "Фиксирана цена за доставка",
-  "Free_shipping_over": "Безплатна доставка над"
+  "Free_shipping_over": "Безплатна доставка над",
+  "Post_Code": "Пощенски код",
+  "Street": "Улица",
+  "Street_Name": "Име улица",
+  "Number": "Номер",
+  "Other_Info": "Др инфо",
+  "Shipment_Size": "Размер",
+  "Weight_kg": "Тегло в кг",
+  "Length_cm": "Дължина в см",
+  "Width_cm": "Ширина в см",
+  "Height_cm": "Височина в см",
+  "Package_count": "Брой пакети"
 }

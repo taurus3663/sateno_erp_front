@@ -198,5 +198,16 @@
   "There_are_no_configured_couriers_for_this_site.": "There are no configured couriers for this site.",
   "Row": "Row",
   "Fixed_shipping_price": "Fixed shipping price",
-  "Free_shipping_over": "Free shipping over"
+  "Free_shipping_over": "Free shipping over",
+  "Post_Code": "Post Code",
+  "Street": "Street",
+  "Street_Name": "Street Name",
+  "Number": "Number",
+  "Other_Info": "Other Info",
+  "Shipment_Size": "Shipment Size",
+  "Weight_kg": "Weight kg",
+  "Length_cm": "Length cm",
+  "Width_cm": "Width cm",
+  "Height_cm": "Height cm",
+  "Package_count": "Package count"
 }
