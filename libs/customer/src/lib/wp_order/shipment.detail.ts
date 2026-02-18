@@ -67,6 +67,7 @@ import { Tooltip } from 'primeng/tooltip';
                     [filter]="true"
                     [lazy]="true"
                     optionLabel="name"
+                    [loading]="detailService.loadingCities"
                     placeholder="{{ 'Type_City_Name' | translate }}"
                     class="w-full"
                 >
@@ -91,6 +92,7 @@ import { Tooltip } from 'primeng/tooltip';
                     placeholder="{{ 'Choose_Office' | translate }}"
                     class="w-full"
                     [showClear]="true"
+                    [loading]="detailService.loadingOffices"
                 >
 
                     <ng-template pTemplate="selectedItem" let-selectedOption>

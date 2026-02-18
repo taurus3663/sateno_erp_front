@@ -21,6 +21,10 @@ export class ShipmentService{
     deliveryType: string = 'OFFICE';
     private cdr?: any; // Тук ще пазим референцията към детектора
 
+    loadingCities = false;
+    loadingOffices = false;
+
+
 // Методът, който ще извикаме от компонента
     setDetector(cdr: any) {
         this.cdr = cdr;
@@ -126,16 +130,42 @@ export class ShipmentService{
 
     loadCities(query: string = '') {
         if (this.selectedCourier) {
+            this.loadingCities = true;
             this.http.get<any[]>(`shipment/cities/${this.selectedCourier.id}?query=${query}`)
-                .subscribe(res => this.cities = res);
+                .subscribe({
+                    next: res => {
+                        this.cities = res;
+                        this.cdr?.detectChanges();
+                    },
+                    error: () => {
+                        this.cities = [];
+                    },
+                    complete: () => {
+                        this.loadingCities = false; // скриваме spinner
+                        this.cdr?.detectChanges();
+                    }
+                });
         }
     }
 
     loadOffices(query: string = '') {
         if (this.selectedCity && this.selectedCourier) {
+            this.loadingOffices = true;
             // Добавяме ?query към пътя, за да може Java да филтрира
             this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}?query=${query}`)
-                .subscribe(res => this.offices = res);
+                .subscribe({
+                    next: res => {
+                        this.offices = res;
+                        this.cdr?.detectChanges();
+                    },
+                    error: () => {
+                        this.offices = [];
+                    },
+                    complete: () => {
+                        this.loadingOffices = false;
+                        this.cdr?.detectChanges();
+                    }
+                });
         }
     }
 
