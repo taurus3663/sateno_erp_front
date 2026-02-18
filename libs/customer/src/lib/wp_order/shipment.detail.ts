@@ -1,9 +1,5 @@
 import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
-import { Input } from 'postcss';
-import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Dialog } from 'primeng/dialog';
-import { IOrder } from './interfaces';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { InputNumber } from 'primeng/inputnumber';
 import { Drawer } from 'primeng/drawer';
@@ -11,8 +7,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ShipmentService } from './shipment.service';
 import { CourierListService } from '../courier/list.service';
 import { CommonModule } from '@angular/common';
-import { SelectItem, SelectModule } from 'primeng/select';
-import { Tag } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
 import { SelectButton } from 'primeng/selectbutton';
 import { Tooltip } from 'primeng/tooltip';
 import { InputText } from 'primeng/inputtext';
@@ -58,7 +53,7 @@ import { InputText } from 'primeng/inputtext';
                 <p-selectButton [options]="deliveryOptions" [(ngModel)]="detailService.deliveryType" optionLabel="label" optionValue="value" class="w-full"> </p-selectButton>
             </div>
 
-            <div class="field" *ngIf="detailService.selectedCourier && detailService.deliveryType === 'OFFICE'">
+            <div class="field" *ngIf="detailService.selectedCourier && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER')">
                 <label class="font-bold block mb-2">{{ 'City' | translate }}</label>
                 <p-select
                     [options]="detailService.cities"
@@ -82,7 +77,7 @@ import { InputText } from 'primeng/inputtext';
             </div>
 
             <!--            OFFICE-->
-            <div class="field mt-4" *ngIf="detailService.selectedCity && detailService.deliveryType === 'OFFICE'">
+            <div class="field mt-4" *ngIf="detailService.selectedCity && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER')">
                 <label class="font-bold block mb-2">{{ 'Office' | translate }}</label>
                 <p-select
                     [options]="detailService.offices"
@@ -157,81 +152,94 @@ import { InputText } from 'primeng/inputtext';
                     <!--                    </div>-->
                 </div>
             </div>
+            <!--    LOCKER        -->
+            <div *ngIf="detailService.selectedCity && detailService.deliveryType === 'LOCKER'" class="animate-fadein">
+                <div class="p-fluid mt-5" *ngIf="detailService.selectedCourier?.courierType === 'BOX_NOW'">
+                    <label class="text-xs font-bold block mb-2 ml-1 text-600">Размер на клетката (BoxNow)</label>
+                    <p-select
+                        [options]="detailService.boxNowSizes"
+                        [(ngModel)]="detailService.selectedBoxNowSize"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Изберете размер"
+                        class="w-full shadow-sm"
+                        appendTo="body">
+                        <ng-template pTemplate="selectedItem" let-selectedOption>
+                            <div class="flex align-items-center">
+                                <span class="font-bold text-sm">{{ selectedOption.label }}</span>
+                            </div>
+                        </ng-template>
+                    </p-select>
 
-            <div>
-                <label class="font-bold block mb-3">{{ 'Package_count' | translate }}</label>
-                <p-inputNumber
-                    class="w-full"
-                    [(ngModel)]="detailService.packCount"
-                    [showButtons]="true"
-                    buttonLayout="vertical"
-                    spinnerMode="horizontal"
-                    [min]="1"
-                    inputStyleClass="text-center font-bold border-round-lg"
-                    decrementButtonClass="p-button-secondary p-button-outlined"
-                    incrementButtonClass="p-button-secondary p-button-outlined"
-                    incrementButtonIcon="pi pi-plus"
-                    decrementButtonIcon="pi pi-minus">
-                </p-inputNumber>
-            </div>
-
-            <div class="col-12 mt-4" *ngIf="detailService.selectedCourier">
-                <label class="font-bold block mb-3">{{ 'Shipment_Size' | translate }}</label>
-                <div class="grid gap-3 p-0">
-                    <!-- Weight -->
-                    <div class="col-6 md:col-3 field">
-                        <label class="text-xs mb-1">{{ 'Weight_kg' | translate }}</label>
-                        <p-inputNumber
-                            [(ngModel)]="detailService.weight"
-                            mode="decimal"
-                            [minFractionDigits]="1"
-                            [min]="0"
-                            [showButtons]="true"
-                            buttonLayout="vertical"
-                            decrementButtonClass="p-button-secondary"
-                            incrementButtonClass="p-button-secondary"
-                            incrementButtonIcon="pi pi-plus"
-                            decrementButtonIcon="pi pi-minus"
-                            suffix=" кг"
-                            class="w-full"
-                        ></p-inputNumber>
-                    </div>
-
-                    <!-- Length -->
-                    <div class="col-6 md:col-3 field">
-                        <label class="text-xs mb-1">{{ 'Length_cm' | translate }}</label>
-                        <p-inputNumber
-                            [(ngModel)]="detailService.length"
-                            suffix=" см"
-                            [min]="1"
-                            class="w-full"
-                        ></p-inputNumber>
-                    </div>
-
-                    <!-- Width -->
-                    <div class="col-6 md:col-3 field">
-                        <label class="text-xs mb-1">{{ 'Width_cm' | translate }}</label>
-                        <p-inputNumber
-                            [(ngModel)]="detailService.width"
-                            suffix=" см"
-                            [min]="1"
-                            class="w-full"
-                        ></p-inputNumber>
-                    </div>
-
-                    <!-- Height -->
-                    <div class="col-6 md:col-3 field">
-                        <label class="text-xs mb-1">{{ 'Height_cm' | translate }}</label>
-                        <p-inputNumber
-                            [(ngModel)]="detailService.height"
-                            suffix=" см"
-                            [min]="1"
-                            class="w-full"
-                        ></p-inputNumber>
+                    <div class="mt-2 p-2 bg-blue-50 border-round text-xs text-blue-700">
+                        <i class="pi pi-info-circle mr-1"></i>
+                        Максималното тегло за BoxNow е 20кг.
                     </div>
                 </div>
             </div>
 
+            <!-- ONLY !==LOCKER-->
+            <div *ngIf="detailService.selectedCity && detailService.deliveryType !== 'LOCKER'">
+                <div>
+                    <label class="font-bold block mb-3 mt-3">{{ 'Package_count' | translate }}</label>
+                    <p-inputNumber
+                        class="w-full"
+                        [(ngModel)]="detailService.packCount"
+                        [showButtons]="true"
+                        buttonLayout="vertical"
+                        spinnerMode="horizontal"
+                        [min]="1"
+                        inputStyleClass="text-center font-bold border-round-lg"
+                        decrementButtonClass="p-button-secondary p-button-outlined"
+                        incrementButtonClass="p-button-secondary p-button-outlined"
+                        incrementButtonIcon="pi pi-plus"
+                        decrementButtonIcon="pi pi-minus"
+                    >
+                    </p-inputNumber>
+                </div>
+
+                <div class="col-12 mt-4" *ngIf="detailService.selectedCourier">
+                    <label class="font-bold block mb-3">{{ 'Shipment_Size' | translate }}</label>
+                    <div class=" gap-3 p-0">
+                        <!-- Weight -->
+                        <div class="col-3 md:col-3 field">
+                            <label class="text-xs mb-1">{{ 'Weight_kg' | translate }}</label>
+                            <p-inputNumber
+                                [(ngModel)]="detailService.weight"
+                                mode="decimal"
+                                [minFractionDigits]="1"
+                                [min]="0"
+                                [showButtons]="true"
+                                buttonLayout="vertical"
+                                decrementButtonClass="p-button-secondary"
+                                incrementButtonClass="p-button-secondary"
+                                incrementButtonIcon="pi pi-plus"
+                                decrementButtonIcon="pi pi-minus"
+                                suffix=" кг"
+                                class="w-full"
+                            ></p-inputNumber>
+                        </div>
+
+                        <!-- Length -->
+                        <div class="col-6 md:col-3 field">
+                            <label class="text-xs mb-1">{{ 'Length_cm' | translate }}</label>
+                            <p-inputNumber [(ngModel)]="detailService.length" suffix=" см" [min]="1" class="w-full"></p-inputNumber>
+                        </div>
+
+                        <!-- Width -->
+                        <div class="col-6 md:col-3 field">
+                            <label class="text-xs mb-1">{{ 'Width_cm' | translate }}</label>
+                            <p-inputNumber [(ngModel)]="detailService.width" suffix=" см" [min]="1" class="w-full"></p-inputNumber>
+                        </div>
+
+                        <!-- Height -->
+                        <div class="col-6 md:col-3 field">
+                            <label class="text-xs mb-1">{{ 'Height_cm' | translate }}</label>
+                            <p-inputNumber [(ngModel)]="detailService.height" suffix=" см" [min]="1" class="w-full"></p-inputNumber>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <ng-template #footer>
                 <div class="flex gap-2 w-full pt-2 justify-end">
@@ -269,7 +277,8 @@ export class ShipmentDetailComponent implements OnInit {
     // Опции за SelectButton
     deliveryOptions = [
         { label: 'До Офис', value: 'OFFICE', icon: 'pi pi-building' },
-        { label: 'До Адрес', value: 'ADDRESS', icon: 'pi pi-home' }
+        { label: 'До Адрес', value: 'ADDRESS', icon: 'pi pi-home' },
+        { label: 'Автомат', value: 'LOCKER', icon: 'pi pi-home' }
     ];
 
     // В ShipmentDetailComponent

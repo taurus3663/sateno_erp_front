@@ -29,9 +29,9 @@ export class ShipmentService{
     addressOther: string = '';
 
     weight: number = 1;
-    length: number = 10;
-    width: number = 10;
-    height: number = 10;
+    length: number = 30;
+    width: number = 5;
+    height: number = 20;
     packCount: number = 1;
 
 
@@ -68,7 +68,7 @@ export class ShipmentService{
             const courierName = match[4].toUpperCase(); // SPEEDY, ECONT или BOXNOW
 
             // 2. Определяме типа доставка
-            this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : 'OFFICE';
+            this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : (mode === 'LOCKER') ? 'LOCKER' : 'OFFICE';
 
             // 3. Намираме и селектираме Куриера
             const couriers = this.courierListService.items();
@@ -76,7 +76,6 @@ export class ShipmentService{
                 c.courierType.toUpperCase() === courierName ||
                 c.name?.toUpperCase().includes(courierName)
             );
-
 
             if (this.selectedCourier) {
 
@@ -126,7 +125,7 @@ export class ShipmentService{
                 // 1. Първо опресняваме за града
                 this.cdr?.detectChanges();
 
-                if (this.selectedCity && this.deliveryType === 'OFFICE') {
+                if (this.selectedCity && (this.deliveryType === 'OFFICE' || this.deliveryType === 'LOCKER')) {
                     this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}`)
                         .subscribe(offices => {
                             // ТУК Е ПРОБЛЕМЪТ: Пълним масива и Angular веднага "гърми"
@@ -174,6 +173,7 @@ export class ShipmentService{
     loadCities(query: string = '') {
         if (this.selectedCourier) {
             this.loadingCities = true;
+            this.cdr?.detectChanges();
             this.http.get<any[]>(`shipment/cities/${this.selectedCourier.id}?query=${query}`)
                 .subscribe({
                     next: res => {
@@ -182,6 +182,7 @@ export class ShipmentService{
                     },
                     error: () => {
                         this.cities = [];
+                        this.cdr?.detectChanges();
                     },
                     complete: () => {
                         this.loadingCities = false; // скриваме spinner
@@ -222,5 +223,14 @@ export class ShipmentService{
                 .subscribe(res => this.offices = res);
         }
     }
+
+    // В ShipmentService
+    boxNowSizes = [
+        { label: 'Автоматично', value: '' },
+        { label: 'Малка (В: 8см, Ш: 45см, Д: 60см) до 5кг', value: '1' },
+        { label: 'Средна (В: 17см, Ш: 45см, Д: 60см) до 8кг', value: '2' },
+        { label: 'Голяма (В: 36см, Ш: 45см, Д: 60см) до 20кг', value: '3' }
+    ];
+    selectedBoxNowSize: string = '';
 
 }
