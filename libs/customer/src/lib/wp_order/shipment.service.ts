@@ -1,18 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import { BaseDetailCrud } from 'xl-util';
-import { IOrder } from './interfaces';
+import { BoxnowPacketSize, ICreateLabel, IOrder } from './interfaces';
 import { HttpClient } from '@angular/common/http';
 import { CourierListService } from '../courier/list.service';
 import { ROUTES } from '../api.routes';
+import { CourierShipmentType, CourierType, ICourier } from '../courier/interfaces';
 
-
-@Injectable({providedIn: 'root'})
-export class ShipmentService{
+@Injectable({ providedIn: 'root' })
+export class ShipmentService {
     private http = inject(HttpClient);
 
     visible = false;
     selectedOrder?: IOrder;
-    selectedCourier: any = null;
+    selectedCourier?: ICourier;
 
     // Липсващите променливи
     selectedCity: any = null;
@@ -26,7 +25,7 @@ export class ShipmentService{
     loadingOffices = false;
 
     addressStreet: string = '';
-    addressNumber: string = '';
+    // addressNumber: string = '';
     addressOther: string = '';
 
     weight: number = 1;
@@ -35,8 +34,7 @@ export class ShipmentService{
     height: number = 20;
     packCount: number = 1;
 
-
-// Методът, който ще извикаме от компонента
+    // Методът, който ще извикаме от компонента
     setDetector(cdr: any) {
         this.cdr = cdr;
     }
@@ -175,8 +173,9 @@ export class ShipmentService{
                 rawText = match[2].trim();
                 officeId = match[3];
                 courierName = match[4].toUpperCase();
-            } else { // Regex2
-                const typeMap: any = { 'офис': 'OFFICE', 'адрес': 'ADDRESS', 'автомат': 'LOCKER' };
+            } else {
+                // Regex2
+                const typeMap: any = { офис: 'OFFICE', адрес: 'ADDRESS', автомат: 'LOCKER' };
                 mode = typeMap[match[1].toLowerCase()] || 'OFFICE';
                 courierName = match[2].toUpperCase();
                 officeId = match[3];
@@ -193,8 +192,8 @@ export class ShipmentService{
                 else if (title.includes('boxnow')) courierName = 'BOXNOW';
 
                 // Търсим Тип
-                if (title.includes('адрес') || title.includes("aдрес")) mode = 'ADDRESS';
-                else if (title.includes('автомат') || title.includes("aвтомат") || title.includes('locker')) mode = 'LOCKER';
+                if (title.includes('адрес') || title.includes('aдрес')) mode = 'ADDRESS';
+                else if (title.includes('автомат') || title.includes('aвтомат') || title.includes('locker')) mode = 'LOCKER';
                 else mode = 'OFFICE';
 
                 // При чист адрес вземаме целия текст от address_1
@@ -208,19 +207,15 @@ export class ShipmentService{
             if (courierName === 'BOXNOW' || courierName === 'BOX_NOW') {
                 this.deliveryType = 'LOCKER';
             } else {
-                this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : (mode === 'LOCKER') ? 'LOCKER' : 'OFFICE';
+                this.deliveryType = mode === 'ADDRESS' ? 'ADDRESS' : mode === 'LOCKER' ? 'LOCKER' : 'OFFICE';
             }
 
             // 3. Селектираме Куриера от списъка в сервиза
-            const couriers = this.courierListService.items();
+            const couriers: ICourier[] = this.courierListService.items();
             //   (c.courierType.toUpperCase() === courierName ||
             //                 c.courierType.toUpperCase() === courierName?.replace('_', '') ||
             //                 c.name?.toUpperCase().includes(courierName!))
-            this.selectedCourier = couriers.find(c =>
-              c.courierType === courierName && order.site.id == c.site?.id &&
-                c.courierShipmentType === this.deliveryType
-            );
-
+            this.selectedCourier = couriers.find((c) => c.courierType === courierName && order.site.id == c.site?.id && c.courierShipmentType === this.deliveryType);
             if (this.selectedCourier) {
                 // Ако е адрес, разглобяваме го на Улица и Номер
                 if (this.deliveryType === 'ADDRESS' && rawText) {
@@ -239,62 +234,58 @@ export class ShipmentService{
      * на Улица: "седемнадесет" и Номер: "9"
      */
     private parseAddressDetails(rawText: string) {
-        const lowerText = rawText.toLowerCase();
-
+        // const lowerText = rawText.toLowerCase();
+        this.addressStreet = rawText;
         // Търсим ключови думи за разделяне
-        if (lowerText.includes('номер')) {
-            const parts = rawText.split(/номер/i);
-            this.addressStreet = parts[0].trim();
-            this.addressNumber = parts[1].trim();
-        } else if (lowerText.includes('№')) {
-            const parts = rawText.split(/№/);
-            this.addressStreet = parts[0].trim();
-            this.addressNumber = parts[1].trim();
-        } else {
-            // Ако няма ключова дума, слагаме всичко в Street
-            this.addressStreet = rawText;
-            this.addressNumber = '';
-        }
+        // if (lowerText.includes('номер')) {
+        //     const parts = rawText.split(/номер/i);
+        //     this.addressStreet = parts[0].trim();
+        //     this.addressNumber = parts[1].trim();
+        // } else if (lowerText.includes('№')) {
+        //     const parts = rawText.split(/№/);
+        //     this.addressStreet = parts[0].trim();
+        //     this.addressNumber = parts[1].trim();
+        // } else {
+        //     // Ако няма ключова дума, слагаме всичко в Street
+        //     this.addressStreet = rawText;
+        //     this.addressNumber = '';
+        // }
 
         // Ако има адрес 2 (бл, вх, ап), го вземаме от поръчката
         this.addressOther = this.selectedOrder?.billing.address_2 || '';
     }
 
     private autoSelectFlow(cityName: string, officeId: string) {
-        this.http.get<any[]>(`shipment/cities/${this.selectedCourier.id}?query=${cityName}`)
-            .subscribe(res => {
-                this.cities = [...res];
-                this.selectedCity = this.cities.find(c => c.name.toUpperCase() === cityName.toUpperCase());
+        this.http.get<any[]>(`shipment/cities/${this.selectedCourier!.id}?query=${cityName}`).subscribe((res) => {
+            this.cities = [...res];
+            this.selectedCity = this.cities.find((c) => c.name.toUpperCase() === cityName.toUpperCase());
 
-                // 1. Първо опресняваме за града
-                this.cdr?.detectChanges();
+            // 1. Първо опресняваме за града
+            this.cdr?.detectChanges();
 
-                if (this.selectedCity && (this.deliveryType === 'OFFICE' || this.deliveryType === 'LOCKER')) {
-                    this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}`)
-                        .subscribe(offices => {
-                            // ТУК Е ПРОБЛЕМЪТ: Пълним масива и Angular веднага "гърми"
-                            this.offices = [...offices];
+            if (this.selectedCity && (this.deliveryType === 'OFFICE' || this.deliveryType === 'LOCKER')) {
+                this.http.get<any[]>(`shipment/offices/${this.selectedCourier!.id}/${this.selectedCity.id}`).subscribe((offices) => {
+                    // ТУК Е ПРОБЛЕМЪТ: Пълним масива и Angular веднага "гърми"
+                    this.offices = [...offices];
 
-                            // 2. ВЕДНАГА КАЗВАМЕ НА ANGULAR, ЧЕ МАСИВЪТ ВЕЧЕ НЕ Е ПРАЗЕН
-                            this.cdr?.detectChanges();
+                    // 2. ВЕДНАГА КАЗВАМЕ НА ANGULAR, ЧЕ МАСИВЪТ ВЕЧЕ НЕ Е ПРАЗЕН
+                    this.cdr?.detectChanges();
 
-                            setTimeout(() => {
-                                this.selectedOffice = this.offices.find(o =>
-                                    String(o.code) === String(officeId) || String(o.id) === String(officeId)
-                                );
+                    setTimeout(() => {
+                        this.selectedOffice = this.offices.find((o) => String(o.code) === String(officeId) || String(o.id) === String(officeId));
 
-                                // console.log('officeId:', officeId);
-                                // this.offices.forEach(o => console.log('o.code', o.code, 'o.id', o.id));
-                                // 3. Опресняваме последно, за да се види селектираното име
-                                this.cdr?.detectChanges();
-                            }, 100);
-                        });
-                }
-            });
+                        // console.log('officeId:', officeId);
+                        // this.offices.forEach(o => console.log('o.code', o.code, 'o.id', o.id));
+                        // 3. Опресняваме последно, за да се види селектираното име
+                        this.cdr?.detectChanges();
+                    }, 100);
+                });
+            }
+        });
     }
 
     private reset() {
-        this.selectedCourier = null;
+        this.selectedCourier = undefined;
         this.selectedCity = null;
         this.selectedOffice = null;
         this.cities = [];
@@ -320,23 +311,22 @@ export class ShipmentService{
                 this.loadingCities = true;
                 this.cdr?.detectChanges();
             });
-            this.http.get<any[]>(`shipment/cities/${this.selectedCourier.id}?query=${query}`)
-                .subscribe({
-                    next: res => {
-                        this.cities = res;
+            this.http.get<any[]>(`shipment/cities/${this.selectedCourier.id}?query=${query}`).subscribe({
+                next: (res) => {
+                    this.cities = res;
+                    this.cdr?.detectChanges();
+                },
+                error: () => {
+                    this.cities = [];
+                    this.cdr?.detectChanges();
+                },
+                complete: () => {
+                    setTimeout(() => {
+                        this.loadingCities = false; // скриваме spinner
                         this.cdr?.detectChanges();
-                    },
-                    error: () => {
-                        this.cities = [];
-                        this.cdr?.detectChanges();
-                    },
-                    complete: () => {
-                      setTimeout(() => {
-                          this.loadingCities = false; // скриваме spinner
-                          this.cdr?.detectChanges();
-                      })
-                    }
-                });
+                    });
+                }
+            });
         }
     }
 
@@ -347,22 +337,21 @@ export class ShipmentService{
                 this.cdr?.detectChanges();
             });
             // Добавяме ?query към пътя, за да може Java да филтрира
-            this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}?query=${query}`)
-                .subscribe({
-                    next: res => {
-                        this.offices = res;
+            this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}?query=${query}`).subscribe({
+                next: (res) => {
+                    this.offices = res;
+                    this.cdr?.detectChanges();
+                },
+                error: () => {
+                    this.offices = [];
+                },
+                complete: () => {
+                    setTimeout(() => {
+                        this.loadingOffices = false;
                         this.cdr?.detectChanges();
-                    },
-                    error: () => {
-                        this.offices = [];
-                    },
-                    complete: () => {
-                        setTimeout(() => {
-                            this.loadingOffices = false;
-                            this.cdr?.detectChanges();
-                        })
-                    }
-                });
+                    });
+                }
+            });
         }
     }
 
@@ -372,32 +361,41 @@ export class ShipmentService{
 
         if (this.selectedCity && this.selectedCourier) {
             // Пътят от Java: /api/shipment/offices/{courierId}/{cityId}
-            this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}`)
-                .subscribe(res => this.offices = res);
+            this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}`).subscribe((res) => (this.offices = res));
         }
     }
 
     // В ShipmentService
     boxNowSizes = [
-        { label: 'Автоматично', value: '' },
-        { label: 'Малка (В: 8см, Ш: 45см, Д: 60см) до 5кг', value: '1' },
-        { label: 'Средна (В: 17см, Ш: 45см, Д: 60см) до 8кг', value: '2' },
-        { label: 'Голяма (В: 36см, Ш: 45см, Д: 60см) до 20кг', value: '3' }
+        // { label: 'Автоматично', value: '' },
+        { label: 'Малка (В: 8см, Ш: 45см, Д: 60см) до 5кг', value: '0' },
+        { label: 'Средна (В: 17см, Ш: 45см, Д: 60см) до 8кг', value: '1' },
+        { label: 'Голяма (В: 36см, Ш: 45см, Д: 60см) до 20кг', value: '2' }
     ];
     selectedBoxNowSize: string = '';
 
-
     public createWayBill() {
+        const rs: ICreateLabel = {
+            id: this.selectedOrder?.id,
+            wpOrderId: this.selectedOrder?.wpOrderId,
+            packCount: this.packCount,
+            weight: this.weight,
+            length: this.length,
+            width: this.width,
+            height: this.height,
+            courierType: this.selectedCourier!.courierType,
+            courierShipmentType: this.selectedCourier!.courierShipmentType,
+            courierId: this.selectedCourier!.id,
+            office: this.selectedOffice,
+            city: this.selectedCity,
+            street: this.addressStreet,
+            boxNowPacketSize: Number.parseInt(this.selectedBoxNowSize)
+        };
 
-        this.http.post(ROUTES.wp_order.createWayBill, {
-
-        })
-            .subscribe({
-                next: res => {},
-                error: () => {},
-                complete: () => {}
-            });
-
+        this.http.post(ROUTES.wp_order.createWayBill, rs).subscribe({
+            next: (res) => {},
+            error: () => {},
+            complete: () => {}
+        });
     }
-
 }

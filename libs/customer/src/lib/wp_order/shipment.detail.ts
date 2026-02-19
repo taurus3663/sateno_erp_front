@@ -137,20 +137,20 @@ import { InputText } from 'primeng/inputtext';
                     <label class="font-bold block mb-2">{{ 'Street' | translate }}</label>
                     <div class="p-inputgroup">
                         <span class="p-inputgroup-addon"><i class="pi pi-map"></i></span>
-                        <input type="text" pInputText [(ngModel)]="detailService.addressStreet" placeholder="{{ 'Street_Name' | translate }}" class="w-full p-inputtext-sm" />
+                        <input type="text" pInputText [(ngModel)]="detailService.addressStreet" placeholder="{{ 'Street_Name' | translate }} {{'Number' | translate}}" class="w-full p-inputtext-sm" />
                     </div>
                 </div>
 
-                <div class="flex gap-3 mt-4">
-                    <div class="field flex-1">
-                        <label class="font-bold block mb-2">{{ 'Number' | translate }}</label>
-                        <input type="text" pInputText [(ngModel)]="detailService.addressNumber" placeholder="№" class="w-full p-inputtext-sm" />
-                    </div>
-                    <!--                    <div class="field flex-1">-->
-                    <!--                        <label class="font-bold block mb-2">{{ 'Other_Info' | translate }}</label>-->
-                    <!--                        <input type="text" pInputText [(ngModel)]="detailService.addressOther" placeholder="бл, вх, ап..." class="w-full p-inputtext-sm" />-->
-                    <!--                    </div>-->
-                </div>
+<!--                <div class="flex gap-3 mt-4">-->
+<!--                    <div class="field flex-1">-->
+<!--                        <label class="font-bold block mb-2">{{ 'Number' | translate }}</label>-->
+<!--                        <input type="text" pInputText [(ngModel)]="detailService.addressNumber" placeholder="№" class="w-full p-inputtext-sm" />-->
+<!--                    </div>-->
+<!--                    &lt;!&ndash;                    <div class="field flex-1">&ndash;&gt;-->
+<!--                    &lt;!&ndash;                        <label class="font-bold block mb-2">{{ 'Other_Info' | translate }}</label>&ndash;&gt;-->
+<!--                    &lt;!&ndash;                        <input type="text" pInputText [(ngModel)]="detailService.addressOther" placeholder="бл, вх, ап..." class="w-full p-inputtext-sm" />&ndash;&gt;-->
+<!--                    &lt;!&ndash;                    </div>&ndash;&gt;-->
+<!--                </div>-->
             </div>
             <!--    LOCKER        -->
             <div *ngIf="detailService.selectedCity && detailService.deliveryType === 'LOCKER'" class="animate-fadein">
@@ -245,7 +245,7 @@ import { InputText } from 'primeng/inputtext';
                 <div class="flex gap-2 w-full pt-2 justify-end">
                     <p-button [label]="'Cancel' | translate" severity="warn" [text]="true" (onClick)="detailService.visible = false" />
 
-                    <p-button [label]="'Generate' | translate" icon="pi pi-check" severity="primary" (onClick)="onSave()" />
+                    <p-button [label]="'Generate' | translate" icon="pi pi-check" severity="primary" (onClick)="detailService.createWayBill()" />
                 </div>
             </ng-template>
         </p-drawer>
@@ -265,12 +265,6 @@ export class ShipmentDetailComponent implements OnInit {
     ngOnInit(): void {
         this.detailService.setDetector(this.cdr);
         this.courierListService.loadList(0, 100);
-    }
-
-    onSave() {
-        // if (this.shipmentForm.valid) {
-        //     // this.ref.close(this.shipmentForm.value);
-        // }
     }
 
     // deliveryType: string = 'OFFICE';

@@ -1,11 +1,27 @@
 import { ICustomer } from '../customer/interfaces';
 import { ISite } from '../site/interfaces';
+import { CourierShipmentType, CourierType } from '../courier/interfaces';
 
 export interface ICreateLabel {
-    id: number;
-    wpOrderId: number;
-
-
+    id?: number;
+    wpOrderId?: number;
+    packCount: number;
+    weight: number;
+    length: number;
+    width: number;
+    height: number;
+    courierType: CourierType;
+    courierShipmentType: CourierShipmentType;
+    courierId: number;
+    office: Object;
+    city: Object;
+    street: string;
+    boxNowPacketSize: BoxnowPacketSize;
+}
+export enum BoxnowPacketSize {
+    SMALL,
+    MEDIUM,
+    LARGE
 }
 
 export interface IOrder {
