@@ -50,46 +50,102 @@ export class ShipmentService{
     //     }
     // }
     private courierListService = inject(CourierListService);
+    // open(order: IOrder) {
+    //     this.selectedOrder = order;
+    //     this.reset();
+    //     this.visible = true;
+    //
+    //
+    //     // 1. ПАРСВАНЕ НА АДРЕСА: [TYPE] Текст [ID] [COURIER]
+    //     const addr = order.billing.address_1 || '';
+    //     const regex = /^\[(OFFICE|LOCKER|ADDRESS)\]\s*(.*)\s*\[(.*?)\]\s*\[(SPEEDY|ECONT|BOXNOW)\]$/i;
+    //     const match = addr.match(regex);
+    //
+    //     if (match) {
+    //         const mode = match[1].toUpperCase();     // OFFICE, LOCKER или ADDRESS
+    //         const rawText = match[2].trim();
+    //         const officeId = match[3];              // ID-то в средните скоби
+    //         const courierName = match[4].toUpperCase(); // SPEEDY, ECONT или BOXNOW
+    //
+    //         // 2. Определяме типа доставка
+    //         this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : (mode === 'LOCKER') ? 'LOCKER' : 'OFFICE';
+    //
+    //         // 3. Намираме и селектираме Куриера
+    //         const couriers = this.courierListService.items();
+    //         this.selectedCourier = couriers.find(c =>
+    //             c.courierType.toUpperCase() === courierName ||
+    //             c.name?.toUpperCase().includes(courierName)
+    //         );
+    //
+    //         if (this.selectedCourier) {
+    //
+    //             // 4. Ако е ADDRESS, попълваме полетата за улица и номер
+    //             if (this.deliveryType === 'ADDRESS') {
+    //                 this.parseAddressDetails(rawText);
+    //             }
+    //
+    //             // 4. Зареждаме Градовете и се опитваме да мапнем Офиса
+    //             this.autoSelectFlow(order.billing.city, officeId);
+    //         }
+    //     }
+    // }
     open(order: IOrder) {
         this.selectedOrder = order;
         this.reset();
         this.visible = true;
 
-
-        // 1. ПАРСВАНЕ НА АДРЕСА: [TYPE] Текст [ID] [COURIER]
         const addr = order.billing.address_1 || '';
-        const regex = /^\[(OFFICE|LOCKER|ADDRESS)\]\s*(.*)\s*\[(.*?)\]\s*\[(SPEEDY|ECONT|BOXNOW)\]$/i;
-        const match = addr.match(regex);
+
+        // Първи формат: [TYPE] Текст [ID] [COURIER]
+        const regex1 = /^\[(OFFICE|LOCKER|ADDRESS)\]\s*(.*)\s*\[(.*?)\]\s*\[(SPEEDY|ECONT|BOXNOW)\]$/i;
+
+        // Втори формат: До офис courier[ID]: Текст
+        const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)\[(.*?)\]:\s*(.*)/i;
+
+        let match = addr.match(regex1);
+        let mode, rawText, officeId, courierName: string;
 
         if (match) {
-            const mode = match[1].toUpperCase();     // OFFICE, LOCKER или ADDRESS
-            const rawText = match[2].trim();
-            const officeId = match[3];              // ID-то в средните скоби
-            const courierName = match[4].toUpperCase(); // SPEEDY, ECONT или BOXNOW
+            mode = match[1].toUpperCase();
+            rawText = match[2].trim();
+            officeId = match[3];
+            courierName = match[4].toUpperCase();
+        } else {
+            match = addr.match(regex2);
+            if (match) {
+                const typeMap: any = { 'офис': 'OFFICE', 'адрес': 'ADDRESS', 'автомат': 'LOCKER' };
+                mode = typeMap[match[1].toLowerCase()] || 'OFFICE';
+                courierName = match[2].toUpperCase();
+                officeId = match[3];
+                rawText = match[4].trim();
+            }
+        }
 
-            // 2. Определяме типа доставка
-            this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : (mode === 'LOCKER') ? 'LOCKER' : 'OFFICE';
+        if (match) {
+            // 2. Определяме типа доставка (BoxNow винаги е LOCKER)
+            if (courierName! === 'BOXNOW' || courierName! === 'BOX_NOW') {
+                this.deliveryType = 'LOCKER';
+            } else {
+                this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : (mode === 'LOCKER') ? 'LOCKER' : 'OFFICE';
+            }
 
-            // 3. Намираме и селектираме Куриера
+            // 3. Намираме Куриера
             const couriers = this.courierListService.items();
             this.selectedCourier = couriers.find(c =>
                 c.courierType.toUpperCase() === courierName ||
+                c.courierType.toUpperCase() === courierName.replace('_', '') ||
                 c.name?.toUpperCase().includes(courierName)
             );
 
             if (this.selectedCourier) {
-
-                // 4. Ако е ADDRESS, попълваме полетата за улица и номер
                 if (this.deliveryType === 'ADDRESS') {
-                    this.parseAddressDetails(rawText);
+                    this.parseAddressDetails(rawText!);
                 }
-
-                // 4. Зареждаме Градовете и се опитваме да мапнем Офиса
-                this.autoSelectFlow(order.billing.city, officeId);
+                // 4. Зареждаме Градовете и мапваме офиса
+                this.autoSelectFlow(order.billing.city, officeId!);
             }
         }
     }
-
     /**
      * Помощен метод за разделяне на текст като "седемнадесет номер 9"
      * на Улица: "седемнадесет" и Номер: "9"
@@ -172,8 +228,10 @@ export class ShipmentService{
 
     loadCities(query: string = '') {
         if (this.selectedCourier) {
-            this.loadingCities = true;
-            this.cdr?.detectChanges();
+            setTimeout(() => {
+                this.loadingCities = true;
+                this.cdr?.detectChanges();
+            });
             this.http.get<any[]>(`shipment/cities/${this.selectedCourier.id}?query=${query}`)
                 .subscribe({
                     next: res => {
@@ -185,8 +243,10 @@ export class ShipmentService{
                         this.cdr?.detectChanges();
                     },
                     complete: () => {
-                        this.loadingCities = false; // скриваме spinner
-                        this.cdr?.detectChanges();
+                      setTimeout(() => {
+                          this.loadingCities = false; // скриваме spinner
+                          this.cdr?.detectChanges();
+                      })
                     }
                 });
         }
@@ -194,7 +254,10 @@ export class ShipmentService{
 
     loadOffices(query: string = '') {
         if (this.selectedCity && this.selectedCourier) {
-            this.loadingOffices = true;
+            setTimeout(() => {
+                this.loadingOffices = true;
+                this.cdr?.detectChanges();
+            });
             // Добавяме ?query към пътя, за да може Java да филтрира
             this.http.get<any[]>(`shipment/offices/${this.selectedCourier.id}/${this.selectedCity.id}?query=${query}`)
                 .subscribe({
@@ -206,8 +269,10 @@ export class ShipmentService{
                         this.offices = [];
                     },
                     complete: () => {
-                        this.loadingOffices = false;
-                        this.cdr?.detectChanges();
+                        setTimeout(() => {
+                            this.loadingOffices = false;
+                            this.cdr?.detectChanges();
+                        })
                     }
                 });
         }

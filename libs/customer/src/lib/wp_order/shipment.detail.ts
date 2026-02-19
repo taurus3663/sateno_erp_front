@@ -179,7 +179,7 @@ import { InputText } from 'primeng/inputtext';
             </div>
 
             <!-- ONLY !==LOCKER-->
-            <div *ngIf="detailService.selectedCity && detailService.deliveryType !== 'LOCKER'">
+            <div *ngIf="detailService.selectedCity && detailService.selectedCourier?.courierType !== 'BOX_NOW'">
                 <div>
                     <label class="font-bold block mb-3 mt-3">{{ 'Package_count' | translate }}</label>
                     <p-inputNumber

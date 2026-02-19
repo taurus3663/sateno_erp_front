@@ -155,7 +155,7 @@ import { CourierType } from '../courier/interfaces';
                                         </div>
                                     </div>
 
-                                    <div *ngIf="!item.couriers?.length" class="text-center py-10 text-gray-400">
+                                    <div *ngIf="!item.couriers!.length" class="text-center py-10 text-gray-400">
                                         <i class="pi pi-truck text-3xl mb-2"></i>
                                         <p>{{ 'There_are_no_configured_couriers_for_this_site.' | translate }}</p>
                                     </div>
