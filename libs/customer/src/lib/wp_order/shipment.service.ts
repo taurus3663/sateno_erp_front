@@ -89,6 +89,66 @@ export class ShipmentService{
     //         }
     //     }
     // }
+    // open(order: IOrder) {
+    //     this.selectedOrder = order;
+    //     this.reset();
+    //     this.visible = true;
+    //
+    //     const addr = order.billing.address_1 || '';
+    //
+    //     // Първи формат: [TYPE] Текст [ID] [COURIER]
+    //     const regex1 = /^\[(OFFICE|LOCKER|ADDRESS)\]\s*(.*)\s*\[(.*?)\]\s*\[(SPEEDY|ECONT|BOXNOW)\]$/i;
+    //
+    //     // Втори формат: До офис courier[ID]: Текст
+    //     const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)\[(.*?)\]:\s*(.*)/i;
+    //
+    //     let match = addr.match(regex1);
+    //     let mode, rawText, officeId, courierName: string;
+    //
+    //     if (match) {
+    //         mode = match[1].toUpperCase();
+    //         rawText = match[2].trim();
+    //         officeId = match[3];
+    //         courierName = match[4].toUpperCase();
+    //     } else {
+    //         match = addr.match(regex2);
+    //         if (match) {
+    //             const typeMap: any = { 'офис': 'OFFICE', 'адрес': 'ADDRESS', 'автомат': 'LOCKER' };
+    //             mode = typeMap[match[1].toLowerCase()] || 'OFFICE';
+    //             courierName = match[2].toUpperCase();
+    //             officeId = match[3];
+    //             rawText = match[4].trim();
+    //         }
+    //     }
+    //
+    //     if (match) {
+    //         // 2. Определяме типа доставка (BoxNow винаги е LOCKER)
+    //         if (courierName! === 'BOXNOW' || courierName! === 'BOX_NOW') {
+    //             this.deliveryType = 'LOCKER';
+    //         } else {
+    //             this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : (mode === 'LOCKER') ? 'LOCKER' : 'OFFICE';
+    //         }
+    //
+    //         // 3. Намираме Куриера
+    //         const couriers = this.courierListService.items();
+    //         this.selectedCourier = couriers.find(c =>
+    //             c.courierType.toUpperCase() === courierName ||
+    //             c.courierType.toUpperCase() === courierName.replace('_', '') ||
+    //             c.name?.toUpperCase().includes(courierName)
+    //         );
+    //
+    //         if (this.selectedCourier) {
+    //             if (this.deliveryType === 'ADDRESS') {
+    //                 this.parseAddressDetails(rawText!);
+    //             }
+    //             // 4. Зареждаме Градовете и мапваме офиса
+    //             this.autoSelectFlow(order.billing.city, officeId!);
+    //         }
+    //     }
+    //
+    //
+    //     this.packCount = order.orderLine.length?? 1;
+    // }
     open(order: IOrder) {
         this.selectedOrder = order;
         this.reset();
@@ -96,55 +156,80 @@ export class ShipmentService{
 
         const addr = order.billing.address_1 || '';
 
-        // Първи формат: [TYPE] Текст [ID] [COURIER]
+        // 1. Дефиниране на RegExp
         const regex1 = /^\[(OFFICE|LOCKER|ADDRESS)\]\s*(.*)\s*\[(.*?)\]\s*\[(SPEEDY|ECONT|BOXNOW)\]$/i;
-
-        // Втори формат: До офис courier[ID]: Текст
         const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)\[(.*?)\]:\s*(.*)/i;
+        // const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)\s*\[(.*?)\]:\s*(.*)/i;
 
-        let match = addr.match(regex1);
-        let mode, rawText, officeId, courierName: string;
+        let match = addr.match(regex1) || addr.match(regex2);
+        let mode: string | undefined;
+        let rawText: string | undefined;
+        let officeId: string | undefined;
+        let courierName: string | undefined;
 
         if (match) {
-            mode = match[1].toUpperCase();
-            rawText = match[2].trim();
-            officeId = match[3];
-            courierName = match[4].toUpperCase();
-        } else {
-            match = addr.match(regex2);
-            if (match) {
+            // Проверка кой Regex е съвпаднал (Regex1 започва с '[')
+            if (match[0].startsWith('[')) {
+                mode = match[1].toUpperCase();
+                rawText = match[2].trim();
+                officeId = match[3];
+                courierName = match[4].toUpperCase();
+            } else { // Regex2
                 const typeMap: any = { 'офис': 'OFFICE', 'адрес': 'ADDRESS', 'автомат': 'LOCKER' };
                 mode = typeMap[match[1].toLowerCase()] || 'OFFICE';
                 courierName = match[2].toUpperCase();
                 officeId = match[3];
                 rawText = match[4].trim();
             }
+        } else {
+            // --- 4 & 5: FALLBACK ЛОГИКА (Чист адрес + shipping_lines) ---
+            const shippingLine = order.shippingLines?.[0];
+            if (shippingLine) {
+                const title = shippingLine.method_title.toLowerCase();
+                // Търсим Куриер
+                if (title.includes('econt')) courierName = 'ECONT';
+                else if (title.includes('speedy')) courierName = 'SPEEDY';
+                else if (title.includes('boxnow')) courierName = 'BOXNOW';
+
+                // Търсим Тип
+                if (title.includes('адрес') || title.includes("aдрес")) mode = 'ADDRESS';
+                else if (title.includes('автомат') || title.includes("aвтомат") || title.includes('locker')) mode = 'LOCKER';
+                else mode = 'OFFICE';
+
+                // При чист адрес вземаме целия текст от address_1
+                rawText = addr;
+                officeId = '';
+            }
         }
 
-        if (match) {
-            // 2. Определяме типа доставка (BoxNow винаги е LOCKER)
-            if (courierName! === 'BOXNOW' || courierName! === 'BOX_NOW') {
+        if (courierName) {
+            // 2. Определяме крайния тип доставка
+            if (courierName === 'BOXNOW' || courierName === 'BOX_NOW') {
                 this.deliveryType = 'LOCKER';
             } else {
                 this.deliveryType = (mode === 'ADDRESS') ? 'ADDRESS' : (mode === 'LOCKER') ? 'LOCKER' : 'OFFICE';
             }
 
-            // 3. Намираме Куриера
+            // 3. Селектираме Куриера от списъка в сервиза
             const couriers = this.courierListService.items();
             this.selectedCourier = couriers.find(c =>
                 c.courierType.toUpperCase() === courierName ||
-                c.courierType.toUpperCase() === courierName.replace('_', '') ||
-                c.name?.toUpperCase().includes(courierName)
+                c.courierType.toUpperCase() === courierName?.replace('_', '') ||
+                c.name?.toUpperCase().includes(courierName!)
             );
 
             if (this.selectedCourier) {
-                if (this.deliveryType === 'ADDRESS') {
-                    this.parseAddressDetails(rawText!);
+                // Ако е адрес, разглобяваме го на Улица и Номер
+                if (this.deliveryType === 'ADDRESS' && rawText) {
+                    this.parseAddressDetails(rawText);
                 }
                 // 4. Зареждаме Градовете и мапваме офиса
-                this.autoSelectFlow(order.billing.city, officeId!);
+                this.autoSelectFlow(order.billing.city, officeId || '');
             }
         }
+
+        // Задаваме брой пакети спрямо броя продукти (или 1 по подразбиране)
+        this.packCount = order.orderLine?.length ?? 1;
     }
     /**
      * Помощен метод за разделяне на текст като "седемнадесет номер 9"

@@ -25,8 +25,17 @@ export interface IOrder {
     orderLineOtherOrders: IOrderLineItem[];
     ordersToMerge?: number[];
     customerOrderCount: number;
+    shippingLines: IShippingLines[];
 }
-
+export interface IShippingLines {
+    id: number;
+    instance_id: string;
+    method_id: string;
+    method_title: string;
+    tax_status: string;
+    total: string;
+    total_tax: string;
+}
 export interface IOrderLineItem {
     price: number;
     productId: number;
@@ -38,6 +47,13 @@ export interface IOrderLineItem {
     image: IOrderLineItemImage;
     orderId: number;
     wpOrderId: number;
+    weight: string
+    dimensions: IDimensions;
+}
+export interface IDimensions {
+    length: string;
+    width: string;
+    height: string;
 }
 export interface IOrderLineItemImage {
     id: number;
