@@ -1,6 +1,13 @@
 import { ICustomer } from '../customer/interfaces';
 import { ISite } from '../site/interfaces';
 
+export interface ICreateLabel {
+    id: number;
+    wpOrderId: number;
+
+
+}
+
 export interface IOrder {
     id: number;
     wpOrderId: number;
@@ -126,6 +133,3 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.JOINT]: 'STATUS.JOINT'
 };
 
-export interface IShipment {
-
-}

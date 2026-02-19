@@ -99,6 +99,8 @@ export class apiRoutes {
         save: `${apiRoutes.wpOrderBase}/save`,
         delete: `${apiRoutes.wpOrderBase}/delete`,
         sync: `${apiRoutes.wpOrderBase}/sync`,
+        createWayBill: `${apiRoutes.wpOrderBase}/create/waybill`,
+        deleteWayBill: `${apiRoutes.wpOrderBase}/delete/waybill`,
     }
 
     private static readonly courierBase = 'courier';

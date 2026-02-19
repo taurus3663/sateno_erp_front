@@ -3,6 +3,7 @@ import { BaseDetailCrud } from 'xl-util';
 import { IOrder } from './interfaces';
 import { HttpClient } from '@angular/common/http';
 import { CourierListService } from '../courier/list.service';
+import { ROUTES } from '../api.routes';
 
 
 @Injectable({providedIn: 'root'})
@@ -212,10 +213,12 @@ export class ShipmentService{
 
             // 3. Селектираме Куриера от списъка в сервиза
             const couriers = this.courierListService.items();
+            //   (c.courierType.toUpperCase() === courierName ||
+            //                 c.courierType.toUpperCase() === courierName?.replace('_', '') ||
+            //                 c.name?.toUpperCase().includes(courierName!))
             this.selectedCourier = couriers.find(c =>
-                c.courierType.toUpperCase() === courierName ||
-                c.courierType.toUpperCase() === courierName?.replace('_', '') ||
-                c.name?.toUpperCase().includes(courierName!)
+              c.courierType === courierName && order.site.id == c.site?.id &&
+                c.courierShipmentType === this.deliveryType
             );
 
             if (this.selectedCourier) {
@@ -382,5 +385,19 @@ export class ShipmentService{
         { label: 'Голяма (В: 36см, Ш: 45см, Д: 60см) до 20кг', value: '3' }
     ];
     selectedBoxNowSize: string = '';
+
+
+    public createWayBill() {
+
+        this.http.post(ROUTES.wp_order.createWayBill, {
+
+        })
+            .subscribe({
+                next: res => {},
+                error: () => {},
+                complete: () => {}
+            });
+
+    }
 
 }
