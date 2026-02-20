@@ -1,13 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import { BoxnowPacketSize, ICreateLabel, IOrder } from './interfaces';
+import { ICreateLabel, IOrder } from './interfaces';
 import { HttpClient } from '@angular/common/http';
 import { CourierListService } from '../courier/list.service';
 import { ROUTES } from '../api.routes';
-import { CourierShipmentType, CourierType, ICourier } from '../courier/interfaces';
+import { CourierShipmentType, ICourier } from '../courier/interfaces';
+import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({ providedIn: 'root' })
 export class ShipmentService {
     private http = inject(HttpClient);
+    private messageService = inject(MessageService);
+    private tr = inject(TranslateService);
 
     visible = false;
     selectedOrder?: IOrder;
@@ -384,7 +388,8 @@ export class ShipmentService {
             width: this.width,
             height: this.height,
             courierType: this.selectedCourier!.courierType,
-            courierShipmentType: this.selectedCourier!.courierShipmentType,
+            // courierShipmentType: this.selectedCourier!.courierShipmentType,
+            courierShipmentType: this.deliveryType === CourierShipmentType.LOCKER.toString() ? CourierShipmentType.LOCKER : this.deliveryType === CourierShipmentType.ADDRESS.toString() ? CourierShipmentType.ADDRESS : CourierShipmentType.OFFICE,
             courierId: this.selectedCourier!.id,
             office: this.selectedOffice,
             city: this.selectedCity,
@@ -394,7 +399,14 @@ export class ShipmentService {
 
         this.http.post(ROUTES.wp_order.createWayBill, rs).subscribe({
             next: (res) => {},
-            error: () => {},
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: this.tr.instant('Error'),
+                    detail: err.error,
+                    sticky: true // Съобщението стои, докато потребителят не го затвори
+                });
+            },
             complete: () => {}
         });
     }

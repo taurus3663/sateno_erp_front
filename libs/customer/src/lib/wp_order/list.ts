@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { OrderDetailComponent } from './detail';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { HttpClient } from '@angular/common/http';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { Tooltip } from 'primeng/tooltip';
@@ -22,14 +22,12 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { ShipmentDetailComponent } from './shipment.detail';
-import { CourierDetailComponent } from '../courier/detail';
-import { Footer } from 'primeng/api';
 import { ShipmentService } from './shipment.service';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, CourierDetailComponent, ShipmentDetailComponent],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
@@ -112,6 +110,7 @@ import { ShipmentService } from './shipment.service';
                     <th>{{ 'Customer' | translate }}</th>
                     <!--                    <th>{{ 'Customer_agent' | translate }}</th>-->
                     <!--                    <th>{{ 'Customer_ip' | translate }}</th>-->
+                    <th>{{ 'Bill_of_lading' | translate }}</th>
                     <th>{{ 'Payment_method' | translate }}</th>
                     <th>{{ 'Price' | translate }}</th>
 
@@ -204,6 +203,45 @@ import { ShipmentService } from './shipment.service';
                     </td>
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
+                    <td class="vertical-align-middle">
+                        <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 " style="min-height: 32px; align-items: center;">
+
+                            <a [href]="order.wayBillUrl" target="_blank" class="no-underline flex align-items-center">
+                                <p-tag
+                                    severity="info"
+                                    [pTooltip]="'Print_Waybill' | translate"
+                                    tooltipPosition="top"
+                                    styleClass="cursor-pointer hover:shadow-2 transition-all"
+                                    [style]="{
+                    'padding': '4px 10px',
+                    'border-radius': '6px',
+                    'font-family': 'monospace',
+                    'font-size': '14px',
+                    'display': 'flex',
+                    'align-items': 'center',
+                    'height': '28px'
+                }"
+                                >
+                                    <div class="flex align-items-center gap-2">
+                                        <i class="pi pi-ticket text-xs"></i>
+                                        <span>{{ order.wayBillShipmentNumber }}</span>
+                                    </div>
+                                </p-tag>
+                            </a>
+
+                            <p-button
+                                icon="pi pi-map"
+                                [rounded]="true"
+                                [text]="true"
+                                severity="secondary"
+                                [pTooltip]="'Track' | translate"
+                                styleClass="p-0 w-2rem h-2rem flex align-items-center justify-content-center"
+                                (onClick)="$event.stopPropagation(); trackInEcont(order.wayBillShipmentNumber.toString())">
+                            </p-button>
+
+                        </div>
+                        <span *ngIf="!order.wayBillShipmentNumber" class="text-400">-</span>
+                    </td>
                     <td>
                         <!--                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>-->
                         <!--                        {{ getPaymentLabel(order.paymentMethod) | translate }}-->
@@ -226,7 +264,7 @@ import { ShipmentService } from './shipment.service';
         </p-table>
 
         <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
-<!--        <shipment-detail></shipment-detail>-->
+        <!--        <shipment-detail></shipment-detail>-->
         <shipment-detail *ngIf="config?.data?.mode !== 'lookup'"></shipment-detail>
     `,
     providers: [OrderListService]
@@ -528,5 +566,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
     private shipmentService = inject(ShipmentService);
     openShipmentDialog(order: IOrder) {
         this.shipmentService.open(order); // Използваме новия метод
+    }
+
+    trackInEcont(num: string | undefined) {
+        if (!num) return;
+        const econtTrackUrl = `https://www.econt.com/services/track-shipment/${num}`;
+        window.open(econtTrackUrl, '_blank');
     }
 }

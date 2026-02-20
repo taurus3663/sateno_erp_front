@@ -43,6 +43,8 @@ export interface IOrder {
     createTime: string;
     updateTime: string;
     wpOrderTime: string;
+    wayBillUrl: string;
+    wayBillShipmentNumber: number;
 
     showDuplicateWarning: boolean;
     orderLineOtherOrders: IOrderLineItem[];

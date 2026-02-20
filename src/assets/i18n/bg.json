@@ -209,5 +209,9 @@
   "Length_cm": "Дължина в см",
   "Width_cm": "Ширина в см",
   "Height_cm": "Височина в см",
-  "Package_count": "Брой пакети"
+  "Package_count": "Брой пакети",
+  "Error": "Грешка",
+  "Bill_of_lading": "Товарителница",
+  "Print_Waybill": "Принт Товарителница",
+  "Track": "Проследяване"
 }

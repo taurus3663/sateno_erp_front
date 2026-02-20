@@ -209,5 +209,9 @@
   "Length_cm": "Length cm",
   "Width_cm": "Width cm",
   "Height_cm": "Height cm",
-  "Package_count": "Package count"
+  "Package_count": "Package count",
+  "Error": "Error",
+  "Bill_of_lading": "Bill of lading",
+  "Print_Waybill": "Print Waybill",
+  "Track": "Track"
 }

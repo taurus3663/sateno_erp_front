@@ -11,13 +11,16 @@ import { SelectModule } from 'primeng/select';
 import { SelectButton } from 'primeng/selectbutton';
 import { Tooltip } from 'primeng/tooltip';
 import { InputText } from 'primeng/inputtext';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'shipment-detail',
     standalone: true,
     imports: [ReactiveFormsModule, Button, Drawer, TranslatePipe, CommonModule, SelectModule, FormsModule, SelectButton, Tooltip, InputText, InputNumber],
     template: `
+
         <p-drawer [(visible)]="detailService.visible" position="left" [style]="{ width: '30rem' }">
+
             <ng-template #header>
                 <h4>{{ 'Generate_Waybill' | translate }}</h4>
 
@@ -246,6 +249,7 @@ import { InputText } from 'primeng/inputtext';
                     <p-button [label]="'Cancel' | translate" severity="warn" [text]="true" (onClick)="detailService.visible = false" />
 
                     <p-button [label]="'Generate' | translate" icon="pi pi-check" severity="primary" (onClick)="detailService.createWayBill()" />
+<!--                    <p-button [label]="'Generate' | translate" icon="pi pi-check" severity="primary" (onClick)="this.onSave()" />-->
                 </div>
             </ng-template>
         </p-drawer>
