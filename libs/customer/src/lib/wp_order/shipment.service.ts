@@ -219,7 +219,7 @@ export class ShipmentService {
             //   (c.courierType.toUpperCase() === courierName ||
             //                 c.courierType.toUpperCase() === courierName?.replace('_', '') ||
             //                 c.name?.toUpperCase().includes(courierName!))
-            this.selectedCourier = couriers.find((c) => c.courierType === courierName && order.site.id == c.site?.id && c.courierShipmentType === this.deliveryType);
+            this.selectedCourier = couriers.find((c) => c.courierType === courierName && order.site.id == c.site?.id && c.courierShipmentType === this.deliveryType && c.active == true);
             if (this.selectedCourier) {
                 // Ако е адрес, разглобяваме го на Улица и Номер
                 if (this.deliveryType === 'ADDRESS' && rawText) {
