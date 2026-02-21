@@ -255,18 +255,23 @@ import { CourierType } from '../courier/interfaces';
                                     <div *ngIf="listService.getCourierType(order).courierName?.toUpperCase() === 'SPEEDY'" class="flex gap-1">
                                         <button
                                             pButton
-                                            icon="pi pi-file"
-                                            class="p-button-rounded p-button-text p-button-sm w-1.5rem h-1.5rem"
+                                            class="p-button-rounded p-button-text p-button-sm font-bold w-auto"
+                                            style="height: 1.8rem; padding: 0 6px;"
                                             [pTooltip]="'Принтирай пакет ' + pid + ' (A4)'"
                                             (click)="$event.stopPropagation(); handlePrint(order, pid, 'A4')"
-                                        ></button>
-                                        <button
-                                            pButton
-                                            icon="pi pi-tag"
-                                            class="p-button-rounded p-button-text p-button-sm w-1.5rem h-1.5rem"
-                                            [pTooltip]="'Принтирай пакет ' + pid + ' (A6)'"
-                                            (click)="$event.stopPropagation(); handlePrint(order, pid, 'A6')"
-                                        ></button>
+                                        >
+                                            <div class="flex align-items-center gap-1">
+                                                <i class="pi pi-file-pdf" style="font-size: 0.8rem"></i>
+                                                <span style="font-size: 11px">A4</span>
+                                            </div>
+                                        </button>
+<!--                                        <button-->
+<!--                                            pButton-->
+<!--                                            icon="pi pi-tag"-->
+<!--                                            class="p-button-rounded p-button-text p-button-sm w-1.5rem h-1.5rem"-->
+<!--                                            [pTooltip]="'Принтирай пакет ' + pid + ' (A6)'"-->
+<!--                                            (click)="$event.stopPropagation(); handlePrint(order, pid, 'A6')"-->
+<!--                                        ></button>-->
                                     </div>
                                 </div>
                             </div>
