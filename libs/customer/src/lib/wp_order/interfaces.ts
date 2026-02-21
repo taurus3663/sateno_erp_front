@@ -46,13 +46,13 @@ export interface IOrder {
     wpOrderTime: string;
     wayBillUrl: string;
     wayBillShipmentNumber: number;
+    parcelIds: string[];
 
     showDuplicateWarning: boolean;
     orderLineOtherOrders: IOrderLineItem[];
     ordersToMerge?: number[];
     customerOrderCount: number;
     shippingLines: IShippingLines[];
-    parcelIds: string[];
 }
 export interface IShippingLines {
     id: number;

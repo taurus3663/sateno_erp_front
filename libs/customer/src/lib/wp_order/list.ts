@@ -23,6 +23,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { ShipmentDetailComponent } from './shipment.detail';
 import { ShipmentService } from './shipment.service';
+import { CourierType } from '../courier/interfaces';
 
 @Component({
     selector: 'site-list',
@@ -205,29 +206,29 @@ import { ShipmentService } from './shipment.service';
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td class="vertical-align-middle">
                         <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 " style="min-height: 32px; align-items: center;">
-
-                            <a [href]="order.wayBillUrl" target="_blank" class="no-underline flex align-items-center">
-                                <p-tag
-                                    severity="info"
-                                    [pTooltip]="'Print_Waybill' | translate"
-                                    tooltipPosition="top"
-                                    styleClass="cursor-pointer hover:shadow-2 transition-all"
-                                    [style]="{
-                    'padding': '4px 10px',
-                    'border-radius': '6px',
-                    'font-family': 'monospace',
-                    'font-size': '14px',
-                    'display': 'flex',
-                    'align-items': 'center',
-                    'height': '28px'
-                }"
-                                >
-                                    <div class="flex align-items-center gap-2">
-                                        <i class="pi pi-ticket text-xs"></i>
-                                        <span>{{ order.wayBillShipmentNumber }}</span>
-                                    </div>
-                                </p-tag>
-                            </a>
+                            <!--                            <a [href]="order.wayBillUrl" target="_blank" class="no-underline flex align-items-center">-->
+                            <p-tag
+                                severity="info"
+                                [pTooltip]="'Print_Waybill' | translate"
+                                tooltipPosition="top"
+                                styleClass="cursor-pointer hover:shadow-2 transition-all"
+                                (click)="$event.stopPropagation(); handlePrint(order)"
+                                [style]="{
+                                    padding: '4px 10px',
+                                    'border-radius': '6px',
+                                    'font-family': 'monospace',
+                                    'font-size': '14px',
+                                    display: 'flex',
+                                    'align-items': 'center',
+                                    height: '28px'
+                                }"
+                            >
+                                <div class="flex align-items-center gap-2">
+                                    <i class="pi pi-ticket text-xs"></i>
+                                    <span>{{ order.wayBillShipmentNumber }}</span>
+                                </div>
+                            </p-tag>
+                            <!--                            </a>-->
 
                             <p-button
                                 icon="pi pi-map"
@@ -236,8 +237,39 @@ import { ShipmentService } from './shipment.service';
                                 severity="secondary"
                                 [pTooltip]="'Track' | translate"
                                 styleClass="p-0 w-2rem h-2rem flex align-items-center justify-content-center"
-                                (onClick)="$event.stopPropagation(); trackInEcont(order.wayBillShipmentNumber.toString())">
+                                (onClick)="$event.stopPropagation(); handleTrack(order)"
+                            >
                             </p-button>
+
+                            <div *ngIf="order.parcelIds != null && order.parcelIds.length > 0" class="flex flex-column gap-1 pl-1" style="flex-direction: column;">
+                                <div *ngFor="let pid of order.parcelIds" class="flex align-items-center gap-2 hover:surface-200 border-round p-1 transition-all" style="align-items: center;">
+                                    <i class="pi pi-box text-400" style="font-size: 0.8rem"></i>
+
+                                    <span
+                                        class="text-xs font-monospace font-bold text-700 cursor-pointer p-1 border-round hover:bg-primary-reverse hover:text-primary transition-colors"
+                                        style="min-width: 45px; display: inline-block;"
+                                        (click)="$event.stopPropagation(); handleTrack(order, pid)"
+                                    >
+    ...{{ pid.slice(-4) }}
+</span>
+                                    <div *ngIf="listService.getCourierType(order).courierName?.toUpperCase() === 'SPEEDY'" class="flex gap-1">
+                                        <button
+                                            pButton
+                                            icon="pi pi-file"
+                                            class="p-button-rounded p-button-text p-button-sm w-1.5rem h-1.5rem"
+                                            [pTooltip]="'Принтирай пакет ' + pid + ' (A4)'"
+                                            (click)="$event.stopPropagation(); handlePrint(order, pid, 'A4')"
+                                        ></button>
+                                        <button
+                                            pButton
+                                            icon="pi pi-tag"
+                                            class="p-button-rounded p-button-text p-button-sm w-1.5rem h-1.5rem"
+                                            [pTooltip]="'Принтирай пакет ' + pid + ' (A6)'"
+                                            (click)="$event.stopPropagation(); handlePrint(order, pid, 'A6')"
+                                        ></button>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                         <span *ngIf="!order.wayBillShipmentNumber" class="text-400">-</span>
@@ -253,7 +285,7 @@ import { ShipmentService } from './shipment.service';
 
                     <td>
                         <div class="flex gap-2">
-                            <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info" [pTooltip]="'Generate_Waybill' | translate" (onClick)="openShipmentDialog(order)"> </p-button>
+                            <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info" [pTooltip]="'Generate_Waybill' | translate" (onClick)="openShipmentDialog(order)"></p-button>
 
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
                             <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(item.id)"></p-button>
@@ -568,9 +600,40 @@ export class OrderListComponent implements OnInit, OnDestroy {
         this.shipmentService.open(order); // Използваме новия метод
     }
 
-    trackInEcont(num: string | undefined) {
-        if (!num) return;
-        const econtTrackUrl = `https://www.econt.com/services/track-shipment/${num}`;
-        window.open(econtTrackUrl, '_blank');
+    handleTrack(order: IOrder, id?: string) {
+        let courierType = this.listService.getCourierType(order);
+
+        if (courierType.courierName === CourierType.ECONT) {
+            const econtTrackUrl = `https://www.econt.com/services/track-shipment/${order.wayBillShipmentNumber}`;
+            window.open(econtTrackUrl, '_blank');
+        } else if (courierType.courierName === CourierType.SPEEDY) {
+            const speedyTrackUrl = `https://www.speedy.bg/bg/track-shipment?shipmentNumber=${id?? order.wayBillShipmentNumber}`;
+            window.open(speedyTrackUrl, '_blank');
+        }
+    }
+
+    handlePrint(order: IOrder, waybillId?: string, format?: 'A4' | 'A6') {
+        let courierType = this.listService.getCourierType(order);
+        if (courierType.courierName === CourierType.ECONT) {
+            window.open(order.wayBillUrl, '_blank');
+        } else if (courierType.courierName === CourierType.SPEEDY) {
+            this.listService.printSpeedy(order, waybillId ?? order.wayBillShipmentNumber.toString(), format ?? 'A4');
+        }
+
+        // if (order.wayBillUrl) {
+        //     // Еконт: Отваряме директния линк
+        //     window.open(order.wayBillUrl, '_blank');
+        // } else {
+        //     // Speedy: По подразбиране пускаме A4 или отваряме меню
+        //     this.printSpeedy(order, 'A4');
+        // }
+    }
+
+    printSpeedy(order: any, format: 'A4' | 'A6') {
+        // Тук викаш твоя API ендпоинт, който връща PDF байтове
+        // this.shipmentService.downloadSpeedyPdf(order.id, format).subscribe((blob: Blob) => {
+        //     const url = window.URL.createObjectURL(blob);
+        //     window.open(url, '_blank');
+        // });
     }
 }

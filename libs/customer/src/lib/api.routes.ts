@@ -101,6 +101,8 @@ export class apiRoutes {
         sync: `${apiRoutes.wpOrderBase}/sync`,
         createWayBill: `${apiRoutes.wpOrderBase}/create/waybill`,
         deleteWayBill: `${apiRoutes.wpOrderBase}/delete/waybill`,
+        generateWayBillPrint: (orderId: number, waybillId: string, paperSize: string) =>
+            `${apiRoutes.wpOrderBase}/generate/waybill/${orderId}/${waybillId}/${paperSize}`,
     }
 
     private static readonly courierBase = 'courier';
