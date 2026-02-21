@@ -52,6 +52,7 @@ export interface IOrder {
     ordersToMerge?: number[];
     customerOrderCount: number;
     shippingLines: IShippingLines[];
+    parcelIds: string[];
 }
 export interface IShippingLines {
     id: number;
