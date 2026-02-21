@@ -213,5 +213,7 @@
   "Error": "Грешка",
   "Bill_of_lading": "Товарителница",
   "Print_Waybill": "Принт Товарителница",
-  "Track": "Проследяване"
+  "Track": "Проследяване",
+  "Generate_receipt_from_courier": "Издаване на касов бон от куриер",
+  "Courier_will_generate_receipt_by_you_while_shipping": "Куриерът ще издаде касов бон от ваше име при доставка"
 }

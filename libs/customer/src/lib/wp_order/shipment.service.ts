@@ -37,6 +37,7 @@ export class ShipmentService {
     width: number = 5;
     height: number = 20;
     packCount: number = 1;
+    fiscalReceipt: boolean = false;
 
     // Методът, който ще извикаме от компонента
     setDetector(cdr: any) {
@@ -394,7 +395,8 @@ export class ShipmentService {
             office: this.selectedOffice,
             city: this.selectedCity,
             street: this.addressStreet,
-            boxNowPacketSize: Number.parseInt(this.selectedBoxNowSize)
+            boxNowPacketSize: Number.parseInt(this.selectedBoxNowSize),
+            fiscalReceipt: this.fiscalReceipt,
         };
 
         this.http.post(ROUTES.wp_order.createWayBill, rs).subscribe({

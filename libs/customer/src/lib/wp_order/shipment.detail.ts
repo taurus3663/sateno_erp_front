@@ -12,6 +12,7 @@ import { SelectButton } from 'primeng/selectbutton';
 import { Tooltip } from 'primeng/tooltip';
 import { InputText } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
+import { CourierType } from '../courier/interfaces';
 
 @Component({
     selector: 'shipment-detail',
@@ -240,6 +241,21 @@ import { MessageService } from 'primeng/api';
                             <label class="text-xs mb-1">{{ 'Height_cm' | translate }}</label>
                             <p-inputNumber [(ngModel)]="detailService.height" suffix=" см" [min]="1" class="w-full"></p-inputNumber>
                         </div>
+
+                        <div class="col-12 field mt-4" *ngIf="detailService.selectedCourier.courierType === CourierType.SPEEDY">
+                            <div class="flex align-items-center gap-2 border-1 border-round p-3 surface-50">
+                                <input
+                                    type="checkbox"
+                                    id="fiscalReceipt"
+                                    [(ngModel)]="detailService.fiscalReceipt"
+                                    class="w-2rem h-2rem cursor-pointer" />
+                                <label for="fiscalReceipt" class="font-bold cursor-pointer">
+                                    {{ 'Generate_receipt_from_courier' |translate }}
+                                </label>
+                                <i class="pi pi-info-circle text-primary"
+                                   [pTooltip]="'Courier_will_generate_receipt_by_you_while_shipping' | translate"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -297,4 +313,6 @@ export class ShipmentDetailComponent implements OnInit {
             this.detailService.loadOffices(query);
         }
     }
+
+    protected readonly CourierType = CourierType;
 }
