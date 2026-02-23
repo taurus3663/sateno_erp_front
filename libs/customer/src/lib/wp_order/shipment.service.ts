@@ -37,7 +37,7 @@ export class ShipmentService {
     width: number = 5;
     height: number = 20;
     packCount: number = 1;
-    fiscalReceipt: boolean = false;
+    fiscalReceipt: boolean = true;
 
     // Методът, който ще извикаме от компонента
     setDetector(cdr: any) {
