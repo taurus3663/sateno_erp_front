@@ -9,126 +9,191 @@ import { NgClass, NgIf } from '@angular/common';
 import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
 import { CourierShipmentType, CourierType, ICourier } from './interfaces';
+import { InputNumber } from 'primeng/inputnumber';
+import { TabsModule } from 'primeng/tabs';
 
 @Component({
     selector: `courier-detail`,
     standalone: true,
-    imports: [Button, TranslatePipe, Dialog, InputText, FormsModule, NgIf, Checkbox, Select, NgClass, ButtonDirective],
+    imports: [
+        Button, TranslatePipe, Dialog, InputText, FormsModule,
+        NgIf, Checkbox, Select, NgClass, ButtonDirective, InputNumber, TabsModule
+    ],
     template: `
         <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()"
                   (visibleChange)="detailService.closeDetail()" [modal]="true"
-                  [style]="{ 'min-width': '1000px', 'min-height': '90vh', width: '1000px' }">
-            <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
--->
+                  [style]="{ width: '900px' }">
+
             <ng-template #header>
                 <div class="w-full text-center">
                     <span class="text-xl font-bold">
-                        <!--                        {{ detailService.selectedItem()?.id ? 'Редакция на клиент #' + detailService.selectedItem()?.id : 'Нов клиент' }}-->
+                        <i class="pi pi-truck mr-2 text-primary"></i>
                         {{ detailService.selectedItem()?.id ? ('Edit' | translate) + ' ' + ('Courier' | translate) + ' #' + detailService.selectedItem()?.id : ('New' | translate) + ' ' + ('Courier' | translate) }}
                     </span>
                 </div>
             </ng-template>
 
             <ng-template #content>
-                <div class="grid grid-cols-12 gap-4 pt-2" *ngIf="detailService.selectedItem() as item">
-                    <div class="col-span-8">
-                        <label class="block font-bold mb-2">{{ 'Name' | translate }}</label>
+                <div class="pt-2" *ngIf="detailService.selectedItem() as item">
 
-                        <input pInputText [(ngModel)]="item.name" class="w-full" />
-                    </div>
+                    <p-tabs value="0">
+                        <p-tablist>
+                            <p-tab value="0"><i class="pi pi-info-circle mr-2"></i>Общи данни</p-tab>
+                            <p-tab value="1"><i class="pi pi-cog mr-2"></i>Конфигурация и Цени</p-tab>
+                        </p-tablist>
 
-                    <div class="col-span-4">
-                        <label class="block font-bold mb-2">{{ 'Active' | translate }}</label>
+                        <p-tabpanels>
+                            <p-tabpanel value="0">
+                                <div class="grid grid-cols-12 gap-6 py-4">
+                                    <div class="col-span-12 md:col-span-8 grid grid-cols-12 gap-4">
+                                        <div class="col-span-12">
+                                            <label class="block font-bold mb-1 text-sm text-surface-600">{{ 'Name' | translate }}</label>
+                                            <input pInputText [(ngModel)]="item.name" class="w-full" placeholder="Напр. Еконт Официален" />
+                                        </div>
+                                        <div class="col-span-12">
+                                            <label class="block font-bold mb-1 text-sm text-surface-600">{{ 'Courier' | translate }}</label>
+                                            <p-select [options]="courierOptions" [(ngModel)]="item.courierType"
+                                                      [disabled]="!!item.id" optionValue="value" class="w-full">
+                                            </p-select>
+                                        </div>
+                                    </div>
 
-                        <!--                        <input pInputText [(ngModel)]="item.isActive" class="w-full" />-->
+                                    <div class="col-span-12 md:col-span-4 flex flex-col gap-4">
+                                        <div class="bg-surface-50 p-4 border-round-xl border border-surface-200">
+                                            <div class="flex items-center gap-2 mb-4">
+                                                <p-checkbox [(ngModel)]="item.active" [binary]="true" inputId="active"></p-checkbox>
+                                                <label for="active" class="font-bold">Статус: Активен</label>
+                                            </div>
+                                            <label class="block font-bold mb-2 text-sm">{{ 'Select_site' | translate }}</label>
+                                            <div class="p-inputgroup mb-2">
+                                                <input pInputText [readonly]="true" [placeholder]="item.site?.name || ('Empty' | translate)" />
+                                                <button type="button" pButton icon="pi pi-search" (click)="openParentLookup(item)" severity="secondary"></button>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                        <p-checkbox [(ngModel)]="item.active" [binary]="true"></p-checkbox>
-                    </div>
+                                    <div class="col-span-12 grid grid-cols-2 gap-4 bg-surface-50 p-4 border-round-xl">
+                                        <div class="col-span-2 text-sm font-bold uppercase text-surface-500 mb-2">Данни за достъп (API)</div>
+                                        <ng-container *ngIf="item.courierType === CourierType.SPEEDY || item.courierType === CourierType.ECONT">
+                                            <div class="col-span-1">
+                                                <label class="block font-bold mb-1 text-sm">Username</label>
+                                                <input pInputText [(ngModel)]="item.username" class="w-full" />
+                                            </div>
+                                            <div class="col-span-1">
+                                                <label class="block font-bold mb-1 text-sm">Password</label>
+                                                <input pInputText type="password" [(ngModel)]="item.password" class="w-full" />
+                                            </div>
+                                        </ng-container>
+                                        <ng-container *ngIf="item.courierType === CourierType.BOX_NOW">
+                                            <div class="col-span-1">
+                                                <label class="block font-bold mb-1 text-sm">API Key</label>
+                                                <input pInputText [(ngModel)]="item.apiKey" class="w-full" />
+                                            </div>
+                                            <div class="col-span-1">
+                                                <label class="block font-bold mb-1 text-sm">API Secret</label>
+                                                <input pInputText [(ngModel)]="item.apiSecret" class="w-full" />
+                                            </div>
+                                        </ng-container>
 
-                    <div class="col-span-4">
-                        <label class="block font-bold mb-2">{{ 'Courier' | translate }}</label>
-                        <p-select [options]="courierOptions" [(ngModel)]="item.courierType" optionValue="value"
-                                  class="w-full">
-                            <ng-template #selectedItem let-selectedOption>
-                                {{ selectedOption.label | translate }}
-                            </ng-template>
-                            <ng-template #item let-option>
-                                {{ option.label | translate }}
-                            </ng-template>
-                        </p-select>
-                    </div>
+                                        <div class="col-span-2 mt-2">
+                                            <p-button label="Тест на връзката" icon="pi pi-bolt"
+                                                      [severity]="testStatus === 'success' ? 'success' : testStatus === 'error' ? 'danger' : 'info'"
+                                                      [loading]="isTesting" (onClick)="testConnection(item)"></p-button>
+                                            <span *ngIf="testMessage" class="ml-4 text-sm font-bold"
+                                                  [ngClass]="{ 'text-green-600': testStatus === 'success', 'text-red-600': testStatus === 'error' }">
+                                                {{ testMessage }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-tabpanel>
 
-                    <div class="col-span-4">
-                        <label class="block font-bold mb-2">{{ 'Shipment_type' | translate }}</label>
-                        <p-select [options]="courierShipmentOptions" [(ngModel)]="item.courierShipmentType"
-                                  optionValue="value" class="w-full">
-                            <ng-template #selectedItem let-selectedOption>
-                                {{ selectedOption.label | translate }}
-                            </ng-template>
-                            <ng-template #item let-option>
-                                {{ option.label | translate }}
-                            </ng-template>
-                        </p-select>
-                    </div>
+                            <p-tabpanel value="1">
+                                <div class="flex flex-col gap-6 py-4">
 
-                    <div class="col-span-12">
-                        <label class="block font-bold mb-2">{{ 'Select_site' | translate }}</label>
-                        <div class="p-inputgroup max-w-md">
-                            <input pInputText [readonly]="true" [placeholder]="item.site?.name || ('Empty' | translate)"
-                                   class="w-90" />
-                            <button type="button" pButton icon="pi pi-search" (click)="openParentLookup(item)"
-                                    severity="secondary"></button>
+                                    <div class="section">
+                                        <div class="text-sm font-bold mb-4 uppercase text-primary border-b border-primary pb-1">
+                                            Активирани методи на доставка
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-4">
+                                            <div [ngClass]="{'border-primary bg-primary-50': item.office}" class="p-4 border-round border border-surface-200 transition-all cursor-pointer" (click)="item.office = !item.office">
+                                                <div class="flex items-center gap-3">
+                                                    <p-checkbox [(ngModel)]="item.office" [binary]="true" (click)="$event.stopPropagation()"></p-checkbox>
+                                                    <div class="flex flex-col">
+                                                        <span class="font-bold">До офис</span>
+                                                        <small class="text-surface-500">Еконт/Спиди офис</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div [ngClass]="{'border-primary bg-primary-50': item.address}" class="p-4 border-round border border-surface-200 transition-all cursor-pointer" (click)="item.address = !item.address">
+                                                <div class="flex items-center gap-3">
+                                                    <p-checkbox [(ngModel)]="item.address" [binary]="true" (click)="$event.stopPropagation()"></p-checkbox>
+                                                    <div class="flex flex-col">
+                                                        <span class="font-bold">До адрес</span>
+                                                        <small class="text-surface-500">Личен или служебен</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div [ngClass]="{'border-primary bg-primary-50': item.locker}" class="p-4 border-round border border-surface-200 transition-all cursor-pointer" (click)="item.locker = !item.locker">
+                                                <div class="flex items-center gap-3">
+                                                    <p-checkbox [(ngModel)]="item.locker" [binary]="true" (click)="$event.stopPropagation()"></p-checkbox>
+                                                    <div class="flex flex-col">
+                                                        <span class="font-bold">До автомат</span>
+                                                        <small class="text-surface-500">Locker / АПС</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                            <button *ngIf="item.site" type="button" pButton icon="pi pi-times" (click)="clearParent(item)"
-                                    severity="danger"></button>
-                        </div>
-                    </div>
+                                    <div class="section grid grid-cols-2 gap-8 bg-surface-50 p-4 border-round-xl border border-surface-200">
+                                        <div>
+                                            <div class="text-sm font-bold mb-3 uppercase text-surface-600">Ценообразуване</div>
+                                            <div class="flex flex-col gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <p-checkbox [(ngModel)]="item.autoShippingPrice" [binary]="true" inputId="autoPrice"></p-checkbox>
+                                                    <label for="autoPrice" class="font-bold">Автоматична цена (API)</label>
+                                                </div>
+                                                <div *ngIf="!item.autoShippingPrice" class="pl-6 animate-fadein">
+                                                    <label class="block text-sm mb-1">Фиксирана сума за доставка</label>
+                                                    <p-inputNumber [(ngModel)]="item.fixedShippingPrice" mode="currency" currency="BGN" locale="bg-BG" styleClass="w-full"></p-inputNumber>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                    <ng-container
-                        *ngIf="item.courierType === CourierType.SPEEDY || item.courierType === CourierType.ECONT">
-                        <div class="col-span-6">
-                            <label class="block font-bold mb-2">Username</label>
-                            <input pInputText [(ngModel)]="item.username" class="w-full" />
-                        </div>
-                        <div class="col-span-6">
-                            <label class="block font-bold mb-2">Password</label>
-                            <input pInputText type="password" [(ngModel)]="item.password" class="w-full" />
-                        </div>
-                    </ng-container>
+                                        <div>
+                                            <div class="text-sm font-bold mb-3 uppercase text-surface-600">Промоции</div>
+                                            <div class="flex flex-col gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <p-checkbox [(ngModel)]="item.freeShippingPriceMaxBol" [binary]="true" inputId="freeShipping"></p-checkbox>
+                                                    <label for="freeShipping" class="font-bold">Безплатна доставка над:</label>
+                                                </div>
+                                                <div *ngIf="item.freeShippingPriceMaxBol" class="pl-6 animate-fadein">
+                                                    <label class="block text-sm mb-1">Праг на безплатна доставка</label>
+                                                    <p-inputNumber [(ngModel)]="item.freeShippingPriceMax" mode="currency" currency="BGN" locale="bg-BG" styleClass="w-full"></p-inputNumber>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                    <ng-container *ngIf="item.courierType === CourierType.BOX_NOW">
-                        <div class="col-span-6">
-                            <label class="block font-bold mb-2">API Key</label>
-                            <input pInputText [(ngModel)]="item.apiKey" class="w-full" />
-                        </div>
-                        <div class="col-span-6">
-                            <label class="block font-bold mb-2">API Secret</label>
-                            <input pInputText [(ngModel)]="item.apiSecret" class="w-full" />
-                        </div>
-                    </ng-container>
-
-                    <div class="col-span-12 flex justify-center mt-2">
-                        <p-button label="Тест на връзката" icon="pi pi-bolt"
-                                  [severity]="testStatus === 'success' ? 'success' : testStatus === 'error' ? 'danger' : 'info'"
-                                  [loading]="isTesting" (onClick)="testConnection(item)"></p-button>
-                    </div>
-                    <div *ngIf="testMessage" class="col-span-12 text-center mt-1 text-sm font-bold"
-                         [ngClass]="{ 'text-green-500': testStatus === 'success', 'text-red-500': testStatus === 'error' }">
-                        {{ testMessage }}
-                    </div>
+                                    <div *ngIf="item.office || item.address || item.locker" class="p-4 border-dashed border-2 border-surface-200 border-round-xl">
+                                        <div class="text-center text-surface-400 italic">
+                                            <i class="pi pi-plus-circle mr-1"></i>
+                                            Тук ще се появяват специфични опции за {{ item.courierType }} (напр. начален офис, застраховка и др.)
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-tabpanel>
+                        </p-tabpanels>
+                    </p-tabs>
                 </div>
             </ng-template>
 
             <ng-template #footer>
-                <!--                <div class="flex justify-content-between align-items-center w-full p-2 justify-between">-->
-                <div class="flex gap-2 items-end">
-                    <p-button label="Отказ" severity="secondary" [text]="true"
-                              (onClick)="detailService.closeDetail()" />
-
-                    <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"
-                              (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                <div class="flex gap-2 justify-end border-t border-surface-200 pt-4">
+                    <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
+                    <p-button label="Запис на всички промени" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
                 </div>
-                <!--                </div>-->
             </ng-template>
         </p-dialog>
     `
@@ -142,13 +207,6 @@ export class CourierDetailComponent {
         { label: 'BOX_NOW', value: CourierType.BOX_NOW }
     ];
     protected readonly CourierType = CourierType;
-
-    courierShipmentOptions = [
-        { label: 'OFFICE', value: CourierShipmentType.OFFICE },
-        { label: 'ADDRESS', value: CourierShipmentType.ADDRESS },
-        { label: 'LOCKER', value: CourierShipmentType.LOCKER }
-    ];
-    protected readonly CourierShipmentType = CourierShipmentType;
 
     isTesting = false;
     testMessage = '';

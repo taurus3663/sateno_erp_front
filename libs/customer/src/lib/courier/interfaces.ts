@@ -17,6 +17,9 @@ export interface ICourier {
     freeShippingPriceMaxBol?: boolean;
     autoShippingPrice?: boolean;
     fixedShippingPrice?: number;
+    office: boolean;
+    address: boolean;
+    locker: boolean;
 }
 
 export enum CourierType {
