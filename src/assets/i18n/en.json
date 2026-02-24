@@ -215,5 +215,7 @@
   "Print_Waybill": "Print Waybill",
   "Track": "Track",
   "Generate_receipt_from_courier": "Generate receipt from courier",
-  "Courier_will_generate_receipt_by_you_while_shipping": "Courier will generate receipt by you while shipping"
+  "Courier_will_generate_receipt_by_you_while_shipping": "Courier will generate receipt by you while shipping",
+  "Default_courier": "Default courier",
+  "Default": "Default"
 }

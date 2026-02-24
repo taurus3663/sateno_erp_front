@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject } from '@angular/core';
 import { CourierDetailService } from './detail.service';
 import { Button, ButtonDirective } from 'primeng/button';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { NgClass, NgIf } from '@angular/common';
 import { Checkbox } from 'primeng/checkbox';
 import { Select } from 'primeng/select';
-import { CourierShipmentType, CourierType, ICourier } from './interfaces';
+import { CourierType, ICourier} from './interfaces';
 import { InputNumber } from 'primeng/inputnumber';
 import { TabsModule } from 'primeng/tabs';
 
@@ -53,7 +53,7 @@ import { TabsModule } from 'primeng/tabs';
                                         <div class="col-span-12">
                                             <label class="block font-bold mb-1 text-sm text-surface-600">{{ 'Courier' | translate }}</label>
                                             <p-select [options]="courierOptions" [(ngModel)]="item.courierType"
-                                                      [disabled]="!!item.id" optionValue="value" class="w-full">
+                                                      [disabled]="!!item.courierType" optionValue="value" class="w-full">
                                             </p-select>
                                         </div>
                                     </div>
@@ -64,6 +64,14 @@ import { TabsModule } from 'primeng/tabs';
                                                 <p-checkbox [(ngModel)]="item.active" [binary]="true" inputId="active"></p-checkbox>
                                                 <label for="active" class="font-bold">Статус: Активен</label>
                                             </div>
+
+                                            <div class="flex items-center gap-2 mb-4 p-2 bg-yellow-50 border-round border border-yellow-200 shadow-sm">
+                                                <p-checkbox [(ngModel)]="item.defaultCourier" [binary]="true" inputId="isDefault"></p-checkbox>
+                                                <label for="isDefault" class="font-bold text-yellow-800 cursor-pointer">
+                                                    <i class="pi pi-star-fill mr-1"></i> {{'Default' | translate}}
+                                                </label>
+                                            </div>
+
                                             <label class="block font-bold mb-2 text-sm">{{ 'Select_site' | translate }}</label>
                                             <div class="p-inputgroup mb-2">
                                                 <input pInputText [readonly]="true" [placeholder]="item.site?.name || ('Empty' | translate)" />
@@ -176,12 +184,71 @@ import { TabsModule } from 'primeng/tabs';
                                         </div>
                                     </div>
 
-                                    <div *ngIf="item.office || item.address || item.locker" class="p-4 border-dashed border-2 border-surface-200 border-round-xl">
-                                        <div class="text-center text-surface-400 italic">
-                                            <i class="pi pi-plus-circle mr-1"></i>
-                                            Тук ще се появяват специфични опции за {{ item.courierType }} (напр. начален офис, застраховка и др.)
+
+                                    <div *ngIf="item.courierType === CourierType.ECONT" class="grid grid-cols-12 gap-4 animate-fadein">
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">Име на агент който ще праща</label>
+                                            <input pInputText [(ngModel)]="item.config.agentName" class="w-full" />
+                                        </div>
+
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">тел номер</label>
+                                            <input pInputText [(ngModel)]="item.config.phoneNumber" class="w-full" />
+                                        </div>
+
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">Град/с.</label>
+                                            <input pInputText [(ngModel)]="item.config.city" class="w-full" />
+                                        </div>
+
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">Пощ код</label>
+                                            <input pInputText [(ngModel)]="item.config.postalCode" class="w-full" />
+                                        </div>
+
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">Адрес</label>
+                                            <input pInputText [(ngModel)]="item.config.address" class="w-full" />
                                         </div>
                                     </div>
+
+                                    <div *ngIf="item.courierType === CourierType.SPEEDY" class="grid grid-cols-12 gap-4 animate-fadein">
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">Име на агент който ще праща</label>
+                                            <input pInputText [(ngModel)]="item.config.agentName" class="w-full" />
+                                        </div>
+
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">тел номер</label>
+                                            <input pInputText [(ngModel)]="item.config.phoneNumber" class="w-full" />
+                                        </div>
+
+                                    </div>
+
+                                    <div *ngIf="item.courierType === CourierType.BOX_NOW" class="grid grid-cols-12 gap-4 animate-fadein">
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">Име на агент който ще праща</label>
+                                            <input pInputText [(ngModel)]="item.config.agentName" class="w-full" />
+                                        </div>
+
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">тел номер</label>
+                                            <input pInputText [(ngModel)]="item.config.phoneNumber" class="w-full" />
+                                        </div>
+
+                                        <div class="col-span-12 md:col-span-6" >
+                                            <label class="block text-sm font-bold mb-1">Имейл</label>
+                                            <input pInputText [(ngModel)]="item.config.mail" class="w-full" />
+                                        </div>
+
+                                    </div>
+
+<!--                                    <div *ngIf="item.office || item.address || item.locker" class="p-4 border-dashed border-2 border-surface-200 border-round-xl">-->
+<!--                                        <div class="text-center text-surface-400 italic">-->
+<!--                                            <i class="pi pi-plus-circle mr-1"></i>-->
+<!--                                            Тук ще се появяват специфични опции за {{ item.courierType }} (напр. начален офис, застраховка и др.)-->
+<!--                                        </div>-->
+<!--                                    </div>-->
                                 </div>
                             </p-tabpanel>
                         </p-tabpanels>
@@ -212,7 +279,24 @@ export class CourierDetailComponent {
     testMessage = '';
     testStatus: 'none' | 'success' | 'error' = 'none';
 
-    constructor(private cdr: ChangeDetectorRef) {}
+    constructor(private cdr: ChangeDetectorRef) {
+        effect(() => {
+            const item = this.detailService.selectedItem();
+            if (item) {
+                // 1. Гарантираме, че config съществува, без да затриваме стария
+                item.config = item.config || {};
+
+                // 2. Попълваме дефолтни стойности само за липсващите полета (Nullish Coalescing)
+                item.config.address = item.config.address ?? '';
+                item.config.agentName = item.config.agentName ?? '';
+                item.config.city = item.config.city ?? '';
+                item.config.companyName = item.config.companyName ?? '';
+                item.config.mail = item.config.mail ?? '';
+                item.config.phoneNumber = item.config.phoneNumber ?? '';
+                item.config.postalCode = item.config.postalCode ?? '';
+            }
+        });
+    }
 
     testConnection(item: ICourier) {
         this.isTesting = true;
@@ -249,4 +333,5 @@ export class CourierDetailComponent {
     clearParent(item: ICourier) {
         item.site = undefined;
     }
+
 }

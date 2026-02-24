@@ -46,8 +46,9 @@ import { Tag } from 'primeng/tag';
                     </th>
                     <th>{{ 'Id' | translate }}</th>
                     <th>{{ 'Name' | translate }}</th>
+                    <th>{{ 'Site' | translate }}</th>
                     <th>{{ 'Type' | translate }}</th>
-                    <th>{{ 'Shipment_type' | translate }}</th>
+                    <th>{{ 'Default' | translate }}</th>
                     <th>{{ 'Status' | translate }}</th>
 
                     <th style="width: 8rem"></th>
@@ -61,8 +62,17 @@ import { Tag } from 'primeng/tag';
                 </td>
                 <td>{{ item.id }}</td>
                 <td>{{ item.name }}</td>
+                <td>
+                    <p-tag [severity]="item.site?.name.length > 0 ? 'success' : null" [value]="item.site?.name"> </p-tag>
+                </td>
                 <td>{{ item.courierType | translate }}</td>
-                <td>{{ item.courierShipmentType | translate}}</td>
+                    <td class="text-center">
+                        <i *ngIf="item.defaultCourier"
+                           class="pi pi-star-fill text-yellow-500 text-xl"
+                           [title]="'Default_courier' | translate"></i>
+                        <i *ngIf="!item.defaultCourier"
+                           class="pi pi-star text-surface-300 text-xl"></i>
+                    </td>
 
                 <td>
                     <p-tag [severity]="item.active ? 'success' : 'danger'" [value]="item.active ? 'Active' : ('Stopped' | translate)"> </p-tag>

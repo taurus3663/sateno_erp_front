@@ -20,7 +20,20 @@ export interface ICourier {
     office: boolean;
     address: boolean;
     locker: boolean;
+    defaultCourier: boolean;
+    config: ICourierConfig;
 }
+
+ export interface ICourierConfig {
+    companyName: string;
+    agentName: string;
+    phoneNumber: string;
+    city: string;
+    postalCode: string;
+    address: string;
+    mail: string;
+ }
+
 
 export enum CourierType {
     SPEEDY = 'SPEEDY',
