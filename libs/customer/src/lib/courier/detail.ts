@@ -117,138 +117,174 @@ import { TabsModule } from 'primeng/tabs';
                             </p-tabpanel>
 
                             <p-tabpanel value="1">
-                                <div class="flex flex-col gap-6 py-4">
+                                <div class="flex flex-col gap-6 py-4" *ngIf="detailService.selectedItem() as item">
 
-                                    <div class="section">
-                                        <div class="text-sm font-bold mb-4 uppercase text-primary border-b border-primary pb-1">
-                                            Активирани методи на доставка
-                                        </div>
-                                        <div class="grid grid-cols-3 gap-4">
-                                            <div [ngClass]="{'border-primary bg-primary-50': item.office}" class="p-4 border-round border border-surface-200 transition-all cursor-pointer" (click)="item.office = !item.office">
+                                    <div class="text-sm font-bold uppercase text-primary border-b border-primary pb-1 flex justify-between items-center">
+                                        <span>Настройки по методи на доставка</span>
+                                        <i class="pi pi-cog animate-spin-slow"></i>
+                                    </div>
+
+                                    <div class="flex flex-col gap-5">
+
+                                        <div class="border border-surface-200 border-round-xl overflow-hidden shadow-sm transition-all" [ngClass]="{'border-primary shadow-md': item.office}">
+                                            <div class="flex items-center justify-between p-4 bg-surface-50 border-b border-surface-200">
                                                 <div class="flex items-center gap-3">
-                                                    <p-checkbox [(ngModel)]="item.office" [binary]="true" (click)="$event.stopPropagation()"></p-checkbox>
+                                                    <p-checkbox [(ngModel)]="item.office" [binary]="true"></p-checkbox>
                                                     <div class="flex flex-col">
-                                                        <span class="font-bold">До офис</span>
+                                                        <span class="font-bold text-lg" [ngClass]="{'text-primary': item.office}">До офис</span>
                                                         <small class="text-surface-500">Еконт/Спиди офис</small>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div [ngClass]="{'border-primary bg-primary-50': item.address}" class="p-4 border-round border border-surface-200 transition-all cursor-pointer" (click)="item.address = !item.address">
+
+                                            <div *ngIf="item.office" class="p-4 bg-white animate-fadein">
+                                                <div class="grid grid-cols-12 gap-4">
+                                                    <div class="col-span-12 md:col-span-6 flex items-center gap-2">
+                                                        <p-checkbox [(ngModel)]="item.officeAutoShippingPrice" [binary]="true" inputId="offAuto"></p-checkbox>
+                                                        <label for="offAuto" class="font-bold text-sm">Автоматична цена от API</label>
+                                                    </div>
+                                                    <div class="col-span-12 md:col-span-6 flex items-center gap-2">
+                                                        <p-checkbox [(ngModel)]="item.officeFreeShippingPriceMaxBol" [binary]="true" inputId="offFree"></p-checkbox>
+                                                        <label for="offFree" class="font-bold text-sm">Безплатна доставка над:</label>
+                                                    </div>
+
+                                                    <div class="col-span-12 md:col-span-6 animate-fadein">
+                                                        <label class="block text-xs mb-1 text-surface-500 uppercase">Фиксирана цена</label>
+                                                        <p-inputNumber [disabled]="!!item.officeAutoShippingPrice" [(ngModel)]="item.officeFixedShippingPrice" mode="currency" [currency]="$any(item.site?.currency)?.code || 'EUR'" locale="bg-BG" class="w-full"></p-inputNumber>
+                                                    </div>
+                                                    <div class="col-span-12 md:col-span-6 animate-fadein">
+                                                        <label class="block text-xs mb-1 text-surface-500 uppercase">Сума за безплатна</label>
+                                                        <p-inputNumber [disabled]="!item.officeFreeShippingPriceMaxBol" [(ngModel)]="item.officeFreeShippingPriceMax" mode="currency" [currency]="$any(item.site?.currency)?.code || 'EUR'" locale="bg-BG" class="w-full"></p-inputNumber>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border border-surface-200 border-round-xl overflow-hidden shadow-sm transition-all" [ngClass]="{'border-primary shadow-md': item.address}">
+                                            <div class="flex items-center justify-between p-4 bg-surface-50 border-b border-surface-200">
                                                 <div class="flex items-center gap-3">
-                                                    <p-checkbox [(ngModel)]="item.address" [binary]="true" (click)="$event.stopPropagation()"></p-checkbox>
+                                                    <p-checkbox [(ngModel)]="item.address" [binary]="true"></p-checkbox>
                                                     <div class="flex flex-col">
-                                                        <span class="font-bold">До адрес</span>
+                                                        <span class="font-bold text-lg" [ngClass]="{'text-primary': item.address}">До адрес</span>
                                                         <small class="text-surface-500">Личен или служебен</small>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div [ngClass]="{'border-primary bg-primary-50': item.locker}" class="p-4 border-round border border-surface-200 transition-all cursor-pointer" (click)="item.locker = !item.locker">
+
+                                            <div *ngIf="item.address" class="p-4 bg-white animate-fadein">
+                                                <div class="grid grid-cols-12 gap-4">
+                                                    <div class="col-span-12 md:col-span-6 flex items-center gap-2">
+                                                        <p-checkbox [(ngModel)]="item.addressAutoShippingPrice" [binary]="true" inputId="addrAuto"></p-checkbox>
+                                                        <label for="addrAuto" class="font-bold text-sm">Автоматична цена от API</label>
+                                                    </div>
+                                                    <div class="col-span-12 md:col-span-6 flex items-center gap-2">
+                                                        <p-checkbox [(ngModel)]="item.addressFreeShippingPriceMaxBol" [binary]="true" inputId="addrFree"></p-checkbox>
+                                                        <label for="addrFree" class="font-bold text-sm">Безплатна доставка над:</label>
+                                                    </div>
+
+                                                    <div class="col-span-12 md:col-span-6 animate-fadein">
+                                                        <label class="block text-xs mb-1 text-surface-500 uppercase">Фиксирана цена</label>
+                                                        <p-inputNumber [disabled]="!!item.addressAutoShippingPrice" [(ngModel)]="item.addressFixedShippingPrice" mode="currency" [currency]="$any(item.site?.currency)?.code || 'EUR'" locale="bg-BG" class="w-full"></p-inputNumber>
+                                                    </div>
+                                                    <div class="col-span-12 md:col-span-6 animate-fadein">
+                                                        <label class="block text-xs mb-1 text-surface-500 uppercase">Сума за безплатна</label>
+                                                        <p-inputNumber [disabled]="!item.addressFreeShippingPriceMaxBol" [(ngModel)]="item.addressFreeShippingPriceMax" mode="currency" [currency]="$any(item.site?.currency)?.code || 'EUR'" locale="bg-BG" class="w-full"></p-inputNumber>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="border border-surface-200 border-round-xl overflow-hidden shadow-sm transition-all" [ngClass]="{'border-primary shadow-md': item.locker}">
+                                            <div class="flex items-center justify-between p-4 bg-surface-50 border-b border-surface-200">
                                                 <div class="flex items-center gap-3">
-                                                    <p-checkbox [(ngModel)]="item.locker" [binary]="true" (click)="$event.stopPropagation()"></p-checkbox>
+                                                    <p-checkbox [(ngModel)]="item.locker" [binary]="true"></p-checkbox>
                                                     <div class="flex flex-col">
-                                                        <span class="font-bold">До автомат</span>
+                                                        <span class="font-bold text-lg" [ngClass]="{'text-primary': item.locker}">До автомат (Locker)</span>
                                                         <small class="text-surface-500">Locker / АПС</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div *ngIf="item.locker" class="p-4 bg-white animate-fadein">
+                                                <div class="grid grid-cols-12 gap-4">
+                                                    <div class="col-span-12 md:col-span-6 flex items-center gap-2">
+                                                        <p-checkbox [(ngModel)]="item.lockerAutoShippingPrice" [binary]="true" inputId="lockAuto"></p-checkbox>
+                                                        <label for="lockAuto" class="font-bold text-sm">Автоматична цена от API</label>
+                                                    </div>
+                                                    <div class="col-span-12 md:col-span-6 flex items-center gap-2">
+                                                        <p-checkbox [(ngModel)]="item.lockerFreeShippingPriceMaxBol" [binary]="true" inputId="lockFree"></p-checkbox>
+                                                        <label for="lockFree" class="font-bold text-sm">Безплатна доставка над:</label>
+                                                    </div>
+
+                                                    <div class="col-span-12 md:col-span-6 animate-fadein">
+                                                        <label class="block text-xs mb-1 text-surface-500 uppercase">Фиксирана цена</label>
+                                                        <p-inputNumber [disabled]="!!item.lockerAutoShippingPrice" [(ngModel)]="item.lockerFixedShippingPrice" mode="currency" [currency]="$any(item.site?.currency)?.code || 'EUR'" locale="bg-BG" class="w-full"></p-inputNumber>
+                                                    </div>
+                                                    <div class="col-span-12 md:col-span-6 animate-fadein">
+                                                        <label class="block text-xs mb-1 text-surface-500 uppercase">Сума за безплатна</label>
+                                                        <p-inputNumber [disabled]="!item.lockerFreeShippingPriceMaxBol" [(ngModel)]="item.lockerFreeShippingPriceMax" mode="currency" [currency]="$any(item.site?.currency)?.code || 'EUR'" locale="bg-BG" class="w-full"></p-inputNumber>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="section grid grid-cols-2 gap-8 bg-surface-50 p-4 border-round-xl border border-surface-200">
-                                        <div>
-                                            <div class="text-sm font-bold mb-3 uppercase text-surface-600">Ценообразуване</div>
-                                            <div class="flex flex-col gap-4">
-                                                <div class="flex items-center gap-2">
-                                                    <p-checkbox [(ngModel)]="item.autoShippingPrice" [binary]="true" inputId="autoPrice"></p-checkbox>
-                                                    <label for="autoPrice" class="font-bold">Автоматична цена (API)</label>
-                                                </div>
-                                                <div *ngIf="!item.autoShippingPrice" class="pl-6 animate-fadein">
-                                                    <label class="block text-sm mb-1">Фиксирана сума за доставка</label>
-                                                    <p-inputNumber [(ngModel)]="item.fixedShippingPrice" mode="currency" currency="BGN" locale="bg-BG" styleClass="w-full"></p-inputNumber>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <div class="text-sm font-bold mb-3 uppercase text-surface-600">Промоции</div>
-                                            <div class="flex flex-col gap-4">
-                                                <div class="flex items-center gap-2">
-                                                    <p-checkbox [(ngModel)]="item.freeShippingPriceMaxBol" [binary]="true" inputId="freeShipping"></p-checkbox>
-                                                    <label for="freeShipping" class="font-bold">Безплатна доставка над:</label>
-                                                </div>
-                                                <div *ngIf="item.freeShippingPriceMaxBol" class="pl-6 animate-fadein">
-                                                    <label class="block text-sm mb-1">Праг на безплатна доставка</label>
-                                                    <p-inputNumber [(ngModel)]="item.freeShippingPriceMax" mode="currency" currency="BGN" locale="bg-BG" styleClass="w-full"></p-inputNumber>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="text-sm font-bold mt-4 uppercase text-primary border-b border-primary pb-1 flex items-center gap-2">
+                                        <i class="pi pi-user-edit"></i>
+                                        Конфигурация на подателя ({{ item.courierType }})
                                     </div>
 
-
-                                    <div *ngIf="item.courierType === CourierType.ECONT" class="grid grid-cols-12 gap-4 animate-fadein">
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">Име на агент който ще праща</label>
+                                    <div *ngIf="item.courierType === CourierType.ECONT" class="grid grid-cols-12 gap-4 animate-fadein bg-surface-50 p-4 border-round-xl border border-surface-200">
+                                        <div class="col-span-12 md:col-span-6">
+                                            <label class="block text-sm font-bold mb-1">Име на агент/фирма</label>
                                             <input pInputText [(ngModel)]="item.config.agentName" class="w-full" />
                                         </div>
-
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">тел номер</label>
+                                        <div class="col-span-12 md:col-span-6">
+                                            <label class="block text-sm font-bold mb-1">Телефонен номер</label>
                                             <input pInputText [(ngModel)]="item.config.phoneNumber" class="w-full" />
                                         </div>
-
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">Град/с.</label>
+                                        <div class="col-span-12 md:col-span-4">
+                                            <label class="block text-sm font-bold mb-1">Град</label>
                                             <input pInputText [(ngModel)]="item.config.city" class="w-full" />
                                         </div>
-
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">Пощ код</label>
+                                        <div class="col-span-12 md:col-span-2">
+                                            <label class="block text-sm font-bold mb-1">Пощ. код</label>
                                             <input pInputText [(ngModel)]="item.config.postalCode" class="w-full" />
                                         </div>
-
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">Адрес</label>
+                                        <div class="col-span-12 md:col-span-6">
+                                            <label class="block text-sm font-bold mb-1">Адрес (улица/номер)</label>
                                             <input pInputText [(ngModel)]="item.config.address" class="w-full" />
                                         </div>
                                     </div>
 
-                                    <div *ngIf="item.courierType === CourierType.SPEEDY" class="grid grid-cols-12 gap-4 animate-fadein">
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">Име на агент който ще праща</label>
+                                    <div *ngIf="item.courierType === CourierType.SPEEDY" class="grid grid-cols-12 gap-4 animate-fadein bg-surface-50 p-4 border-round-xl border border-surface-200">
+                                        <div class="col-span-12 md:col-span-6">
+                                            <label class="block text-sm font-bold mb-1">Име на агент</label>
                                             <input pInputText [(ngModel)]="item.config.agentName" class="w-full" />
                                         </div>
-
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">тел номер</label>
+                                        <div class="col-span-12 md:col-span-6">
+                                            <label class="block text-sm font-bold mb-1">Телефон</label>
                                             <input pInputText [(ngModel)]="item.config.phoneNumber" class="w-full" />
                                         </div>
-
                                     </div>
 
-                                    <div *ngIf="item.courierType === CourierType.BOX_NOW" class="grid grid-cols-12 gap-4 animate-fadein">
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">Име на агент който ще праща</label>
+                                    <div *ngIf="item.courierType === CourierType.BOX_NOW" class="grid grid-cols-12 gap-4 animate-fadein bg-surface-50 p-4 border-round-xl border border-surface-200">
+                                        <div class="col-span-12 md:col-span-4">
+                                            <label class="block text-sm font-bold mb-1">Име на агент</label>
                                             <input pInputText [(ngModel)]="item.config.agentName" class="w-full" />
                                         </div>
-
-                                        <div class="col-span-12 md:col-span-6" >
-                                            <label class="block text-sm font-bold mb-1">тел номер</label>
+                                        <div class="col-span-12 md:col-span-4">
+                                            <label class="block text-sm font-bold mb-1">Телефон</label>
                                             <input pInputText [(ngModel)]="item.config.phoneNumber" class="w-full" />
                                         </div>
-
-                                        <div class="col-span-12 md:col-span-6" >
+                                        <div class="col-span-12 md:col-span-4">
                                             <label class="block text-sm font-bold mb-1">Имейл</label>
                                             <input pInputText [(ngModel)]="item.config.mail" class="w-full" />
                                         </div>
-
                                     </div>
 
-<!--                                    <div *ngIf="item.office || item.address || item.locker" class="p-4 border-dashed border-2 border-surface-200 border-round-xl">-->
-<!--                                        <div class="text-center text-surface-400 italic">-->
-<!--                                            <i class="pi pi-plus-circle mr-1"></i>-->
-<!--                                            Тук ще се появяват специфични опции за {{ item.courierType }} (напр. начален офис, застраховка и др.)-->
-<!--                                        </div>-->
-<!--                                    </div>-->
+
+
                                 </div>
                             </p-tabpanel>
                         </p-tabpanels>

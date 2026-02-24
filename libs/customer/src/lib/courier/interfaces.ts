@@ -13,15 +13,34 @@ export interface ICourier {
     courierType: CourierType;
     courierShipmentType: CourierShipmentType;
     sortOrder?: number;
+
     freeShippingPriceMax?: number;
     freeShippingPriceMaxBol?: boolean;
     autoShippingPrice?: boolean;
     fixedShippingPrice?: number;
-    office: boolean;
-    address: boolean;
-    locker: boolean;
+
+
+
     defaultCourier: boolean;
     config: ICourierConfig;
+
+    office: boolean;
+    officeFreeShippingPriceMax?: number;
+    officeFreeShippingPriceMaxBol?: boolean;
+    officeAutoShippingPrice?: boolean;
+    officeFixedShippingPrice?: number;
+
+    address: boolean;
+    addressFreeShippingPriceMax?: number;
+    addressFreeShippingPriceMaxBol?: boolean;
+    addressAutoShippingPrice?: boolean;
+    addressFixedShippingPrice?: number;
+
+    locker: boolean;
+    lockerFreeShippingPriceMax?: number;
+    lockerFreeShippingPriceMaxBol?: boolean;
+    lockerAutoShippingPrice?: boolean;
+    lockerFixedShippingPrice?: number;
 }
 
  export interface ICourierConfig {
