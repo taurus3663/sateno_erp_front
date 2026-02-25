@@ -157,7 +157,7 @@ export class ShipmentService {
         this.selectedOrder = order;
         this.reset();
         this.visible = true;
-
+        console.log(order)
         const addr = order.billing.address_1 || '';
 
         // 1. Дефиниране на RegExp
@@ -220,7 +220,14 @@ export class ShipmentService {
             //   (c.courierType.toUpperCase() === courierName ||
             //                 c.courierType.toUpperCase() === courierName?.replace('_', '') ||
             //                 c.name?.toUpperCase().includes(courierName!))
-            this.selectedCourier = couriers.find((c) => c.courierType === courierName && order.site.id == c.site?.id && c.courierShipmentType === this.deliveryType && c.active == true);
+            this.selectedCourier = couriers.find((c) => {
+                if(courierName === 'BOXNOW'){
+                    courierName = 'BOX_NOW';
+                }
+
+                return c.courierType === courierName && order.site.id == c.site?.id && c.active && c.defaultCourier;
+            });
+            console.log(this.selectedCourier)
             if (this.selectedCourier) {
                 // Ако е адрес, разглобяваме го на Улица и Номер
                 if (this.deliveryType === 'ADDRESS' && rawText) {
