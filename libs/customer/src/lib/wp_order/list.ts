@@ -109,6 +109,7 @@ import { CourierType } from '../courier/interfaces';
                     <th>{{ 'Wp_order_id' | translate }}</th>
                     <th>{{ 'Status' | translate }}</th>
                     <th>{{ 'Customer' | translate }}</th>
+                    <th>{{ 'Site' | translate }}</th>
                     <!--                    <th>{{ 'Customer_agent' | translate }}</th>-->
                     <!--                    <th>{{ 'Customer_ip' | translate }}</th>-->
                     <th>{{ 'Bill_of_lading' | translate }}</th>
@@ -202,6 +203,25 @@ import { CourierType } from '../courier/interfaces';
                             </div>
                         </div>
                     </td>
+
+                    <td>
+                        <span
+                            style="
+        display: inline-block;
+        padding: 2px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #4a5568;
+        background-color: #edf2f7;
+        border: 1px solid #cbd5e0;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    "
+                        >
+                            {{ order.site.name ?? order.site.url }}
+                        </span>
+                    </td>
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td class="vertical-align-middle">
@@ -263,8 +283,8 @@ import { CourierType } from '../courier/interfaces';
                                             style="min-width: 45px; display: inline-block;"
                                             (click)="$event.stopPropagation(); handleTrack(order, pid)"
                                         >
-                                        ...{{ pid.slice(-4) }}
-                                    </span>
+                                            ...{{ pid.slice(-4) }}
+                                        </span>
                                         <div *ngIf="listService.getCourierType(order).courierName?.toUpperCase() === 'SPEEDY'" class="flex gap-1">
                                             <!--                                        <button-->
                                             <!--                                            pButton-->
@@ -640,7 +660,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         if (courierType.courierName === CourierType.ECONT) {
             window.open(order.wayBillUrl, '_blank');
         } else if (courierType.courierName === CourierType.SPEEDY) {
-            this.listService.printSpeedy(order, waybillId ?? waybillIds?? order.wayBillShipmentNumber.toString(), format ?? 'A6');
+            this.listService.printSpeedy(order, waybillId ?? waybillIds ?? order.wayBillShipmentNumber.toString(), format ?? 'A6');
         }
 
         // if (order.wayBillUrl) {
