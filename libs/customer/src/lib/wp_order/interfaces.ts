@@ -53,6 +53,8 @@ export interface IOrder {
     ordersToMerge?: number[];
     customerOrderCount: number;
     shippingLines: IShippingLines[];
+    courierType: CourierType;
+    courierId: number;
 }
 export interface IShippingLines {
     id: number;

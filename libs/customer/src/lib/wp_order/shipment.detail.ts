@@ -54,10 +54,12 @@ import { CourierType } from '../courier/interfaces';
             <div class="col-12 field mb-4 mt-4" *ngIf="this.detailService.selectedCourier">
                 <label class="font-bold block mb-2">{{ 'Delivery_To' | translate }}</label>
                 <!--                <p-selectButton [options]="deliveryOptions" [(ngModel)]="deliveryType" optionLabel="label" optionValue="value" class="w-full"></p-selectButton>-->
-                <p-selectButton [options]="deliveryOptions" [(ngModel)]="detailService.deliveryType" optionLabel="label" optionValue="value" class="w-full"> </p-selectButton>
+                <p-selectButton [options]="deliveryOptions" [(ngModel)]="detailService.deliveryType" optionLabel="label"
+                                optionValue="value" class="w-full"></p-selectButton>
             </div>
 
-            <div class="field" *ngIf="detailService.selectedCourier && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER')">
+            <div class="field"
+                 *ngIf="detailService.selectedCourier && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER')">
                 <label class="font-bold block mb-2">{{ 'City' | translate }}</label>
                 <p-select
                     [options]="detailService.cities"
@@ -81,7 +83,8 @@ import { CourierType } from '../courier/interfaces';
             </div>
 
             <!--            OFFICE-->
-            <div class="field mt-4" *ngIf="detailService.selectedCity && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER')">
+            <div class="field mt-4"
+                 *ngIf="detailService.selectedCity && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER')">
                 <label class="font-bold block mb-2">{{ 'Office' | translate }}</label>
                 <p-select
                     [options]="detailService.offices"
@@ -96,13 +99,15 @@ import { CourierType } from '../courier/interfaces';
                     [loading]="detailService.loadingOffices"
                 >
                     <ng-template pTemplate="selectedItem" let-selectedOption>
-                        <div class="flex flex-column truncate-text" [pTooltip]="selectedOption?.address" tooltipPosition="top">
+                        <div class="flex flex-column truncate-text" [pTooltip]="selectedOption?.address"
+                             tooltipPosition="top">
                             <span class="font-bold text-sm">{{ selectedOption.address }}</span>
                         </div>
                     </ng-template>
 
                     <ng-template pTemplate="item" let-office>
-                        <div class="flex flex-column" style="max-width: 25rem;" [pTooltip]="office.address" tooltipPosition="top">
+                        <div class="flex flex-column" style="max-width: 25rem;" [pTooltip]="office.address"
+                             tooltipPosition="top">
                             <span class="font-bold text-sm">{{ office.name }}</span>
                             <small class="text-secondary overflow-ellipsis">{{ office.address }}</small>
                         </div>
@@ -134,27 +139,30 @@ import { CourierType } from '../courier/interfaces';
 
                 <div style="width: 90px;">
                     <label class="font-bold block mb-2">{{ 'Post_Code' | translate }}</label>
-                    <input pInputText [(ngModel)]="detailService.selectedCity.postCode" class="w-full text-center font-bold" />
+                    <input pInputText [(ngModel)]="detailService.selectedCity.postCode"
+                           class="w-full text-center font-bold" />
                 </div>
 
                 <div class="field mt-4">
                     <label class="font-bold block mb-2">{{ 'Street' | translate }}</label>
                     <div class="p-inputgroup">
                         <span class="p-inputgroup-addon"><i class="pi pi-map"></i></span>
-                        <input type="text" pInputText [(ngModel)]="detailService.addressStreet" placeholder="{{ 'Street_Name' | translate }} {{'Number' | translate}}" class="w-full p-inputtext-sm" />
+                        <input type="text" pInputText [(ngModel)]="detailService.addressStreet"
+                               placeholder="{{ 'Street_Name' | translate }} {{'Number' | translate}}"
+                               class="w-full p-inputtext-sm" />
                     </div>
                 </div>
 
-<!--                <div class="flex gap-3 mt-4">-->
-<!--                    <div class="field flex-1">-->
-<!--                        <label class="font-bold block mb-2">{{ 'Number' | translate }}</label>-->
-<!--                        <input type="text" pInputText [(ngModel)]="detailService.addressNumber" placeholder="№" class="w-full p-inputtext-sm" />-->
-<!--                    </div>-->
-<!--                    &lt;!&ndash;                    <div class="field flex-1">&ndash;&gt;-->
-<!--                    &lt;!&ndash;                        <label class="font-bold block mb-2">{{ 'Other_Info' | translate }}</label>&ndash;&gt;-->
-<!--                    &lt;!&ndash;                        <input type="text" pInputText [(ngModel)]="detailService.addressOther" placeholder="бл, вх, ап..." class="w-full p-inputtext-sm" />&ndash;&gt;-->
-<!--                    &lt;!&ndash;                    </div>&ndash;&gt;-->
-<!--                </div>-->
+                <!--                <div class="flex gap-3 mt-4">-->
+                <!--                    <div class="field flex-1">-->
+                <!--                        <label class="font-bold block mb-2">{{ 'Number' | translate }}</label>-->
+                <!--                        <input type="text" pInputText [(ngModel)]="detailService.addressNumber" placeholder="№" class="w-full p-inputtext-sm" />-->
+                <!--                    </div>-->
+                <!--                    &lt;!&ndash;                    <div class="field flex-1">&ndash;&gt;-->
+                <!--                    &lt;!&ndash;                        <label class="font-bold block mb-2">{{ 'Other_Info' | translate }}</label>&ndash;&gt;-->
+                <!--                    &lt;!&ndash;                        <input type="text" pInputText [(ngModel)]="detailService.addressOther" placeholder="бл, вх, ап..." class="w-full p-inputtext-sm" />&ndash;&gt;-->
+                <!--                    &lt;!&ndash;                    </div>&ndash;&gt;-->
+                <!--                </div>-->
             </div>
             <!--    LOCKER        -->
             <div *ngIf="detailService.selectedCity && detailService.deliveryType === 'LOCKER'" class="animate-fadein">
@@ -227,22 +235,26 @@ import { CourierType } from '../courier/interfaces';
                         <!-- Length -->
                         <div class="col-6 md:col-3 field">
                             <label class="text-xs mb-1">{{ 'Length_cm' | translate }}</label>
-                            <p-inputNumber [(ngModel)]="detailService.length" suffix=" см" [min]="1" class="w-full"></p-inputNumber>
+                            <p-inputNumber [(ngModel)]="detailService.length" suffix=" см" [min]="1"
+                                           class="w-full"></p-inputNumber>
                         </div>
 
                         <!-- Width -->
                         <div class="col-6 md:col-3 field">
                             <label class="text-xs mb-1">{{ 'Width_cm' | translate }}</label>
-                            <p-inputNumber [(ngModel)]="detailService.width" suffix=" см" [min]="1" class="w-full"></p-inputNumber>
+                            <p-inputNumber [(ngModel)]="detailService.width" suffix=" см" [min]="1"
+                                           class="w-full"></p-inputNumber>
                         </div>
 
                         <!-- Height -->
                         <div class="col-6 md:col-3 field">
                             <label class="text-xs mb-1">{{ 'Height_cm' | translate }}</label>
-                            <p-inputNumber [(ngModel)]="detailService.height" suffix=" см" [min]="1" class="w-full"></p-inputNumber>
+                            <p-inputNumber [(ngModel)]="detailService.height" suffix=" см" [min]="1"
+                                           class="w-full"></p-inputNumber>
                         </div>
 
-                        <div class="col-12 field mt-4" *ngIf="detailService.selectedCourier.courierType === CourierType.SPEEDY">
+                        <div class="col-12 field mt-4"
+                             *ngIf="detailService.selectedCourier.courierType === CourierType.SPEEDY">
                             <div class="flex align-items-center gap-2 border-1 border-round p-3 surface-50">
                                 <input
                                     type="checkbox"
@@ -262,10 +274,16 @@ import { CourierType } from '../courier/interfaces';
 
             <ng-template #footer>
                 <div class="flex gap-2 w-full pt-2 justify-end">
-                    <p-button [label]="'Cancel' | translate" severity="warn" [text]="true" (onClick)="detailService.visible = false" />
+                    <p-button [label]="'Cancel' | translate" severity="warn" [text]="true"
+                              (onClick)="detailService.visible = false" />
 
-                    <p-button [label]="'Generate' | translate" icon="pi pi-check" severity="primary" (onClick)="detailService.createWayBill()" />
-<!--                    <p-button [label]="'Generate' | translate" icon="pi pi-check" severity="primary" (onClick)="this.onSave()" />-->
+                    <p-button [disabled]="order?.courierId || order?.wayBillShipmentNumber" [label]="'Generate' | translate" icon="pi pi-check"
+                              severity="primary" (onClick)="detailService.createWayBill()"
+                              tooltipPosition="top"
+                              showDelay="200"
+                              [pTooltip]="(order?.wayBillShipmentNumber || order?.courierId) ? ('Shipment_already_generated' | translate) : ''"
+                    />
+                    <!--                    <p-button [label]="'Generate' | translate" icon="pi pi-check" severity="primary" (onClick)="this.onSave()" />-->
                 </div>
             </ng-template>
         </p-drawer>

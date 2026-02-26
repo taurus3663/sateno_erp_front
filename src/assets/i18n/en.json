@@ -217,5 +217,6 @@
   "Generate_receipt_from_courier": "Generate receipt from courier",
   "Courier_will_generate_receipt_by_you_while_shipping": "Courier will generate receipt by you while shipping",
   "Default_courier": "Default courier",
-  "Default": "Default"
+  "Default": "Default",
+  "Shipment_already_generated": "Shipment already generated"
 }

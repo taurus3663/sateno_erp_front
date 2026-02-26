@@ -74,7 +74,7 @@ export class OrderListService extends BaseListCrud<IOrder> {
     return {"mode": mode, "courierName": courierName};
     }
 
-    public printSpeedy(order: IOrder, waybillId: string | string[], format: 'A4' | 'A6') {
+    public printWayBill(order: IOrder, waybillId: string | string[], format: 'A4' | 'A6') {
         this.http.post(ROUTES.wp_order.generateWayBillPrint(order.id, waybillId, format), {}, {
             responseType: 'blob',
         })
