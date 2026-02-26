@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ICreateLabel, IOrder } from './interfaces';
+import { ICreateLabel, IOrder, IOrderLineItem } from './interfaces';
 import { HttpClient } from '@angular/common/http';
 import { CourierListService } from '../courier/list.service';
 import { ROUTES } from '../api.routes';
@@ -239,7 +239,27 @@ export class ShipmentService {
         }
 
         // Задаваме брой пакети спрямо броя продукти (или 1 по подразбиране)
-        this.packCount = order.orderLine?.length ?? 1;
+        let count = 0;
+        let weightT = 0;
+
+        for (const line of order.orderLine) {
+            // 1. Събираме общото количество артикули
+            const qty = line.quantity || 1;
+            count += qty;
+
+            // 2. Извличаме теглото сигурно (ако липсва, ползваме 0)
+            let singleWeight = Number.parseFloat(line.weight);
+            if (isNaN(singleWeight) || singleWeight <= 0) {
+                singleWeight = 0.5;
+            }
+
+            // 3. ВАЖНО: Умножаваме теглото по количеството за този ред
+            weightT += (singleWeight * qty);
+        }
+
+// 4. Ако общото тегло е 0, фиксираме на 0.5кг (защита за куриера)
+        this.weight = weightT;
+        this.packCount = count;
     }
     /**
      * Помощен метод за разделяне на текст като "седемнадесет номер 9"
