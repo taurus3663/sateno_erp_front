@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderListService } from './list.service';
 import { OrderDetailService } from './detail.service';
@@ -16,7 +16,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { SelectButton } from 'primeng/selectbutton';
 import { WebSocketService } from 'xl-util';
-import { Subject, takeUntil } from 'rxjs';
+import { delay, Subject, takeUntil, tap } from 'rxjs';
 import { Badge } from 'primeng/badge';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -26,11 +26,12 @@ import { ShipmentService } from './shipment.service';
 import { CourierType } from '../courier/interfaces';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
+import { BlockUI } from 'primeng/blockui';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, ConfirmDialog],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, ConfirmDialog, BlockUI],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
@@ -301,10 +302,15 @@ import { ConfirmationService } from 'primeng/api';
                 </tr>
             </ng-template>
         </p-table>
-
         <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
         <!--        <shipment-detail></shipment-detail>-->
         <shipment-detail *ngIf="config?.data?.mode !== 'lookup'"></shipment-detail>
+        <p-blockUI [blocked]="listService.blockUI">
+            <div class="flex flex-column align-items-center" style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%)">
+                <i class="pi pi-spin pi-spinner text-6xl text-white"></i>
+                <span class="text-white mt-2 font-bold">Синхронизиране...</span>
+            </div>
+        </p-blockUI>
     `,
     providers: [OrderListService]
 })
@@ -358,18 +364,30 @@ export class OrderListComponent implements OnInit, OnDestroy {
         this.destroy$.next();
         this.destroy$.complete();
     }
+    private cdr = inject(ChangeDetectorRef);
     ngOnInit(): void {
         this.wsService
             .listen('orders')
-            .pipe(takeUntil(this.destroy$))
+            .pipe(
+                takeUntil(this.destroy$)
+            )
             .subscribe((msg) => {
-                console.log('WebSocket signal received:', msg);
+                // 1. Използваме setTimeout, за да излезем от текущия цикъл на проверка
+                setTimeout(() => {
+                    // Проверяваме логиката - заключваме само ако прозорецът е отворен (според твоите изисквания)
+                    if (this.shipmentService.visible) {
+                        this.listService.blockUI = true;
+                        // 2. Насилствено караме Angular да отрази промяната веднага
+                        this.cdr.detectChanges();
+                    }
 
-                // Тук извикваме рефреш на списъка
-                // Твоят reload() трябва да ползва текущите филтри/страница
-                this.reload();
-
-                // По-късно тук ще добавим известие (Toast), ако msg.action === 'CREATED'
+                    // 3. Изчакваме 2 секунди и рефрешваме
+                    setTimeout(() => {
+                        this.reload();
+                        this.listService.blockUI = false;
+                        this.cdr.detectChanges();
+                    }, 2000);
+                });
             });
     }
 
@@ -627,7 +645,6 @@ export class OrderListComponent implements OnInit, OnDestroy {
             window.open(order.wayBillUrl, '_blank');
         } else this.listService.printWayBill(order, waybillId ?? waybillIds ?? order.wayBillShipmentNumber.toString(), format ?? 'A6');
     }
-
 
     private confirmationService = inject(ConfirmationService);
     onCancelShipment(event: Event, order: IOrder) {

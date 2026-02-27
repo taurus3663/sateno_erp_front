@@ -11,6 +11,7 @@ import { ShipmentService } from './shipment.service';
 })
 export class OrderListService extends BaseListCrud<IOrder> {
     listRoute = ROUTES.wp_order.list;
+    blockUI: boolean = false;
 
 
     constructor() {
@@ -109,12 +110,25 @@ export class OrderListService extends BaseListCrud<IOrder> {
     }
 
     public cancelShipment(order: IOrder) {
+        // 1. Заключваме веднага
+        this.blockUI = true;
+
         this.http.post(ROUTES.wp_order.cancelShipment(order.id), {}, {})
             .subscribe({
                 next: (response) => {
-                    console.log(response);
-                   // this.shipmentService.visible = false;
+                    console.log('Успешно анулиране:', response);
+
+                    // 2. Тук НЕ отключваме веднага, защото изчакваме
+                    // WebSocket сигнала или ръчния reload() да опресни данните.
+                    // Но ако нямаш автоматичен релоад тук, извикай го:
+                    // this.reload();
                 },
-            })
+                error: (err) => {
+                    console.error('Грешка при анулиране:', err);
+                    // 3. ВАЖНО: При грешка отключваме задължително,
+                    // за да може потребителят да оперира със системата.
+                    this.blockUI = false;
+                }
+            });
     }
 }
