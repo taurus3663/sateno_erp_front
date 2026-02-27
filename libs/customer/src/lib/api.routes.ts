@@ -103,6 +103,7 @@ export class apiRoutes {
         deleteWayBill: `${apiRoutes.wpOrderBase}/delete/waybill`,
         generateWayBillPrint: (orderId: number, waybillId: string | string[], paperSize: string) =>
             `${apiRoutes.wpOrderBase}/generate/waybill/${orderId}/${waybillId}/${paperSize}`,
+        cancelShipment: (orderId: number) => `${apiRoutes.wpOrderBase}/cancel-shipment/${orderId}`,
     }
 
     private static readonly courierBase = 'courier';

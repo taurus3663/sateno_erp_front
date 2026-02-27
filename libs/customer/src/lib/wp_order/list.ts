@@ -24,11 +24,13 @@ import { InputText } from 'primeng/inputtext';
 import { ShipmentDetailComponent } from './shipment.detail';
 import { ShipmentService } from './shipment.service';
 import { CourierType } from '../courier/interfaces';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, ConfirmDialog],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
@@ -239,27 +241,27 @@ import { CourierType } from '../courier/interfaces';
                                     <span style="font-size: 11px">A6</span>
                                 </div>
                             </button>
-<!--                            <p-tag-->
-<!--                                severity="info"-->
-<!--                                [pTooltip]="'Print_Waybill' | translate"-->
-<!--                                tooltipPosition="top"-->
-<!--                                styleClass="cursor-pointer hover:shadow-2 transition-all"-->
-<!--                                (click)="$event.stopPropagation(); handlePrint(order)"-->
-<!--                                [style]="{-->
-<!--                                    padding: '4px 10px',-->
-<!--                                    'border-radius': '6px',-->
-<!--                                    'font-family': 'monospace',-->
-<!--                                    'font-size': '14px',-->
-<!--                                    display: 'flex',-->
-<!--                                    'align-items': 'center',-->
-<!--                                    height: '28px'-->
-<!--                                }"-->
-<!--                            >-->
-<!--                                <div class="flex align-items-center gap-2">-->
-<!--                                    <i class="pi pi-ticket text-xs"></i>-->
-<!--                                    <span>{{ order.wayBillShipmentNumber }}</span>-->
-<!--                                </div>-->
-<!--                            </p-tag>-->
+                            <!--                            <p-tag-->
+                            <!--                                severity="info"-->
+                            <!--                                [pTooltip]="'Print_Waybill' | translate"-->
+                            <!--                                tooltipPosition="top"-->
+                            <!--                                styleClass="cursor-pointer hover:shadow-2 transition-all"-->
+                            <!--                                (click)="$event.stopPropagation(); handlePrint(order)"-->
+                            <!--                                [style]="{-->
+                            <!--                                    padding: '4px 10px',-->
+                            <!--                                    'border-radius': '6px',-->
+                            <!--                                    'font-family': 'monospace',-->
+                            <!--                                    'font-size': '14px',-->
+                            <!--                                    display: 'flex',-->
+                            <!--                                    'align-items': 'center',-->
+                            <!--                                    height: '28px'-->
+                            <!--                                }"-->
+                            <!--                            >-->
+                            <!--                                <div class="flex align-items-center gap-2">-->
+                            <!--                                    <i class="pi pi-ticket text-xs"></i>-->
+                            <!--                                    <span>{{ order.wayBillShipmentNumber }}</span>-->
+                            <!--                                </div>-->
+                            <!--                            </p-tag>-->
                             <!--                            </a>-->
 
                             <p-button
@@ -272,8 +274,6 @@ import { CourierType } from '../courier/interfaces';
                                 (onClick)="$event.stopPropagation(); handleTrack(order)"
                             >
                             </p-button>
-
-                            
                         </div>
                         <span *ngIf="!order.wayBillShipmentNumber" class="text-400">-</span>
                     </td>
@@ -289,6 +289,10 @@ import { CourierType } from '../courier/interfaces';
                     <td>
                         <div class="flex gap-2">
                             <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info" [pTooltip]="'Generate_Waybill' | translate" (onClick)="openShipmentDialog(order)"></p-button>
+                            <div class="relative" *ngIf="order.wayBillShipmentNumber">
+                                <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="danger" [pTooltip]="'Cancel_Waybill' | translate" (onClick)="onCancelShipment($event, order)"> </p-button>
+                                <i class="pi pi-times absolute text-xs font-bold text-red-700" style="top: 20%; right: 20%; pointer-events: none;"></i>
+                            </div>
 
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
                             <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(item.id)"></p-button>
@@ -600,7 +604,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
     private shipmentService = inject(ShipmentService);
     openShipmentDialog(order: IOrder) {
-        this.shipmentService.open(order); // Използваме новия метод
+        this.listService.openShipmentDialog(order);
     }
 
     handleTrack(order: IOrder, id?: string) {
@@ -612,7 +616,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         } else if (order.courierType === CourierType.SPEEDY) {
             const speedyTrackUrl = `https://www.speedy.bg/bg/track-shipment?shipmentNumber=${id ?? order.wayBillShipmentNumber}`;
             window.open(speedyTrackUrl, '_blank');
-        } else if(order.courierType.toString() === 'BOXNOW' || order.courierType === CourierType.BOX_NOW) {
+        } else if (order.courierType.toString() === 'BOXNOW' || order.courierType === CourierType.BOX_NOW) {
             const boxNowTrackUrl = `https://www.boxnow.bg/?track=${order.parcelIds[0]}`;
             window.open(boxNowTrackUrl, '_blank');
         }
@@ -621,7 +625,37 @@ export class OrderListComponent implements OnInit, OnDestroy {
     handlePrint(order: IOrder, waybillId?: string, format?: 'A4' | 'A6', waybillIds?: string[]) {
         if (order.courierType === CourierType.ECONT) {
             window.open(order.wayBillUrl, '_blank');
-        } else
-            this.listService.printWayBill(order, waybillId ?? waybillIds ?? order.wayBillShipmentNumber.toString(), format ?? 'A6');
+        } else this.listService.printWayBill(order, waybillId ?? waybillIds ?? order.wayBillShipmentNumber.toString(), format ?? 'A6');
+    }
+
+
+    private confirmationService = inject(ConfirmationService);
+    onCancelShipment(event: Event, order: IOrder) {
+        this.confirmationService.confirm({
+            target: event.target as EventTarget,
+            message: `${this.tr.instant('Сигурни ли сте, че искате да анулирате товарителница №')} ${order.wayBillShipmentNumber}?`,
+            header: this.tr.instant('Внимание'),
+            icon: 'pi pi-exclamation-triangle',
+            rejectLabel: this.tr.instant('Отказ'),
+            acceptLabel: this.tr.instant('Анулирай'),
+            acceptButtonProps: {
+                label: this.tr.instant('Анулирай'),
+                severity: 'danger'
+            },
+            accept: () => {
+                this.listService.cancelShipment(order);
+                // Викаме бекенда само при потвърждение
+                // this.http.post(`${window.location.origin.replace(':4200', ':9494')}/orders/cancel-shipment/${order.id}`, {})
+                //     .subscribe({
+                //         next: () => {
+                //             this.reload();
+                //             // Можеш да добавиш toast съобщение тук
+                //         },
+                //         error: (err) => {
+                //             alert("Грешка при анулиране: " + (err.error || err.message));
+                //         }
+                //     });
+            }
+        });
     }
 }

@@ -3,6 +3,7 @@ import { BaseListCrud} from 'xl-util';
 import { IOrder } from './interfaces';
 import {ROUTES} from '../api.routes';
 import {OrderDetailService} from './detail.service';
+import { ShipmentService } from './shipment.service';
 
 
 @Injectable({
@@ -99,5 +100,21 @@ export class OrderListService extends BaseListCrud<IOrder> {
                     // Тук можеш да добавиш toast съобщение за потребителя
                 }
             });
+    }
+
+    private shipmentService = inject(ShipmentService);
+
+    public openShipmentDialog(order: IOrder) {
+        this.shipmentService.open(order);
+    }
+
+    public cancelShipment(order: IOrder) {
+        this.http.post(ROUTES.wp_order.cancelShipment(order.id), {}, {})
+            .subscribe({
+                next: (response) => {
+                    console.log(response);
+                   // this.shipmentService.visible = false;
+                },
+            })
     }
 }
