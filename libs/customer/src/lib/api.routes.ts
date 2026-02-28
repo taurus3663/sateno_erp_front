@@ -1,5 +1,16 @@
 export class apiRoutes {
 
+    private crud(base: string) {
+        return {
+            list: `${base}/list`,
+            get: `${base}/detail`,
+            save: `${base}/save`,
+            delete: `${base}/delete`
+        };
+    }
+
+
+
     private static readonly customerBase = 'customer';
     public readonly customer = {
         list: `${apiRoutes.customerBase}/list`,
@@ -114,6 +125,15 @@ export class apiRoutes {
         delete: `${apiRoutes.courierBase}/delete`,
         test_connection: `${apiRoutes.courierBase}/test-connection`,
     }
+
+    private static readonly emailBase = 'email';
+    // public readonly email = this.crud(apiRoutes.emailBase);
+    public readonly email = {
+        ...this.crud(apiRoutes.emailBase),
+        test: `${apiRoutes.emailBase}/test`,
+
+    }
+
 }
 
 export const ROUTES = new apiRoutes();
