@@ -201,7 +201,7 @@ import { CourierType } from '../courier/interfaces';
                         buttonLayout="vertical"
                         spinnerMode="horizontal"
                         [min]="1"
-                        inputStyleClass="text-center font-bold border-round-lg"
+                        [max]="(detailService.selectedCourier?.courierType === 'SPEEDY' || detailService.selectedCourier?.courierType === CourierType.SPEEDY) ? 10 : 99"                        inputStyleClass="text-center font-bold border-round-lg"
                         decrementButtonClass="p-button-secondary p-button-outlined"
                         incrementButtonClass="p-button-secondary p-button-outlined"
                         incrementButtonIcon="pi pi-plus"
@@ -277,7 +277,8 @@ import { CourierType } from '../courier/interfaces';
                     <p-button [label]="'Cancel' | translate" severity="warn" [text]="true"
                               (onClick)="detailService.visible = false" />
 
-                    <p-button [disabled]="order?.courierId || order?.wayBillShipmentNumber" [label]="'Generate' | translate" icon="pi pi-check"
+                    <p-button [disabled]="order?.courierId || order?.wayBillShipmentNumber"
+                              [label]="'Generate' | translate" icon="pi pi-check"
                               severity="primary" (onClick)="detailService.createWayBill()"
                               tooltipPosition="top"
                               showDelay="200"

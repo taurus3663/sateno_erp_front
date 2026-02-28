@@ -55,6 +55,16 @@ export interface IOrder {
     shippingLines: IShippingLines[];
     courierType: CourierType;
     courierId: number;
+    signals: ISignalUser[];
+}
+
+export interface ISignalUser {
+    id: number;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    text: string;
+    createDate: string;
 }
 export interface IShippingLines {
     id: number;

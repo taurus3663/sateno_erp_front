@@ -218,5 +218,9 @@
   "Courier_will_generate_receipt_by_you_while_shipping": "Куриерът ще издаде касов бон от ваше име при доставка",
   "Default_courier": "Куриер по подразбиране",
   "Default": "Подразбиране",
-  "Shipment_already_generated": "Вече има генерирана товарителница!"
+  "Shipment_already_generated": "Вече има генерирана товарителница!",
+  "Detected_signals": "Открити сигнали",
+  "Signals_Click_To_View": "Кликни за да прочетеш съобщение/я",
+  "Uncorrect_signal": "Сигнал за некоректност",
+  "Cancel_Waybill": "Изтрий товарителница"
 }

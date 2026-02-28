@@ -27,11 +27,12 @@ import { CourierType } from '../courier/interfaces';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { BlockUI } from 'primeng/blockui';
+import { Popover } from 'primeng/popover';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, ConfirmDialog, BlockUI],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, BlockUI, Popover],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
@@ -203,6 +204,31 @@ import { BlockUI } from 'primeng/blockui';
                                     <i class="pi pi-phone text-xs"></i>
                                     {{ order.billing.phone }}
                                 </div>
+
+                                <i *ngIf="order.signals?.length"
+                                   class="pi pi-thumbs-down-fill text-red-600 cursor-pointer p-1"
+                                   [pTooltip]="('Detected_signals' | translate) + ' ' + order.signals.length + ' ' + ('Signals_Click_To_View' | translate)"
+                                   tooltipPosition="top"
+                                   (click)="$event.stopPropagation(); op.toggle($event)">
+                                </i>
+
+                                <p-popover #op>
+                                    <div class="p-3" style="width: 400px">
+                                        <div class="flex align-items-center gap-2 font-bold mb-3 border-bottom-1 pb-2 text-red-600">
+                                            <i class="pi pi-exclamation-triangle"></i>
+                                            <span>{{ 'Uncorrect_signal' | translate }}</span>
+                                        </div>
+                                        <div class="signals-scroll-container" style="max-height: 350px; overflow-y: auto;">
+                                            <div *ngFor="let s of order.signals" class="mb-3 p-2 bg-gray-100 border-round border-left-3 border-red-500">
+                                                <div class="flex justify-content-between align-items-center">
+                                                    <small class="text-1xl text-secondary font-bold">{{ s.createDate | date: 'dd.MM.yyyy' }}</small>
+<!--                                                    <small class="text-xs text-400">ID: {{ s.id }}</small>-->
+                                                </div>
+                                                <div class="text-1xl mt-1 italic line-height-3">"{{ s.text }}"</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p-popover>
                             </div>
                         </div>
                     </td>
@@ -222,7 +248,7 @@ import { BlockUI } from 'primeng/blockui';
         letter-spacing: 0.5px;
     "
                         >
-                            {{ order.site.name ?? order.site.url }}
+                            {{ order?.site?.name ?? order.site.url }}
                         </span>
                     </td>
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
@@ -368,9 +394,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.wsService
             .listen('orders')
-            .pipe(
-                takeUntil(this.destroy$)
-            )
+            .pipe(takeUntil(this.destroy$))
             .subscribe((msg) => {
                 // 1. Използваме setTimeout, за да излезем от текущия цикъл на проверка
                 setTimeout(() => {
@@ -674,5 +698,17 @@ export class OrderListComponent implements OnInit, OnDestroy {
                 //     });
             }
         });
+    }
+
+    formatSignals(signals: any[]): string {
+        if (!signals || signals.length === 0) return '';
+
+        return signals
+            .map((s, index) => {
+                const date = s.createDate ? new Date(s.createDate).toLocaleDateString() : '';
+                // Форматираме: "1. [Дата]: Текст на сигнала"
+                return `<b>${index + 1}. [${date}]:</b> ${s.text}`;
+            })
+            .join('<br><br>'); // Двоен ред разстояние между отделните сигнали
     }
 }

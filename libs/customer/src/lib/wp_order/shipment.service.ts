@@ -428,15 +428,15 @@ export class ShipmentService {
 
         this.http.post(ROUTES.wp_order.createWayBill, rs).subscribe({
             next: (res) => {},
-            error: (err) => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: this.tr.instant('Error'),
-                    detail: err.error,
-                    sticky: true // Съобщението стои, докато потребителят не го затвори
-                });
-            },
-            complete: () => {}
+            // error: (err) => {
+            //     this.messageService.add({
+            //         severity: 'error',
+            //         summary: this.tr.instant('Error'),
+            //         detail: err.error,
+            //         sticky: true // Съобщението стои, докато потребителят не го затвори
+            //     });
+            // },
+            // complete: () => {}
         });
     }
 }
