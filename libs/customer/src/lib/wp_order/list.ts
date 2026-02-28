@@ -36,27 +36,36 @@ import { Popover } from 'primeng/popover';
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
-                <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
-                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
-                <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
+                <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2"
+                          (onClick)="detailService.openCreateDialog()"></p-button>
+                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined
+                          [disabled]="!selectedItem" />
+                <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate"
+                          class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync"
+                          outlined></p-button>
             </ng-template>
 
             <ng-template #end>
                 <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">
                     <p-inputicon styleClass="pi pi-search" />
-                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search_by_name_or_phone...' | translate" class="p-inputtext-sm w-full md:w-20rem" />
+                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)"
+                           [placeholder]="'Search_by_name_or_phone...' | translate"
+                           class="p-inputtext-sm w-full md:w-20rem" />
                     <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
                 </p-iconfield>
             </ng-template>
         </p-toolbar>
 
-        <div *ngIf="config?.data?.mode !== 'lookup'" class="flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white border-round shadow-1">
+        <div *ngIf="config?.data?.mode !== 'lookup'"
+             class="flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white border-round shadow-1">
             <span class="font-bold text-secondary mr-2"> <i class="pi pi-filter mr-1"></i> {{ 'Status' | translate }}: </span>
 
-            <p-selectButton [options]="statusFilterOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusFilterChange($event.value)" optionLabel="label" optionValue="value">
+            <p-selectButton [options]="statusFilterOptions" [(ngModel)]="selectedStatus"
+                            (onChange)="onStatusFilterChange($event.value)" optionLabel="label" optionValue="value">
                 <ng-template #item let-item>
                     <div class="flex align-items-center gap-2 px-1">
-                        <i *ngIf="item.value" class="pi pi-circle-fill text-xs" [style.color]="getStatusColor(item.value)"></i>
+                        <i *ngIf="item.value" class="pi pi-circle-fill text-xs"
+                           [style.color]="getStatusColor(item.value)"></i>
                         <span class="font-medium text-sm">{{ item.label | translate }}</span>
                     </div>
                 </ng-template>
@@ -82,7 +91,8 @@ import { Popover } from 'primeng/popover';
                 <tr *ngIf="selectedStatus != null">
                     <th colspan="2" class="text-left py-2" style="border-bottom: 2px solid #dee2e6;">
                         <div class="flex flex-col align-items-start">
-                            <small class="text-secondary uppercase font-bold" style="font-size: 10px;">{{ 'Count' | translate }}</small>
+                            <small class="text-secondary uppercase font-bold"
+                                   style="font-size: 10px;">{{ 'Count' | translate }}</small>
                             <span class="text-900 font-bold text-lg">
                                 <small class="text-primary" style="font-size: 13px;"> {{ itemsCount() }}</small>
                             </span>
@@ -93,7 +103,8 @@ import { Popover } from 'primeng/popover';
 
                     <th class="text-right py-2" style="border-bottom: 2px solid #dee2e6;">
                         <div class="flex flex-col align-items-end" style="width: max-content;">
-                            <small class="text-secondary uppercase font-bold" style="font-size: 10px;">{{ 'Total' | translate }}</small>
+                            <small class="text-secondary uppercase font-bold"
+                                   style="font-size: 10px;">{{ 'Total' | translate }}</small>
                             <span class="text-primary font-bold text-lg" style="font-size: 13px;">
                                 {{ totalAmount() | number: '1.2-2' }}
                                 <small>{{ listService.items()[0]?.currency }}</small>
@@ -155,7 +166,10 @@ import { Popover } from 'primeng/popover';
 
                     <th>
                         <div class="flex align-items-center gap-2">
-                            <i *ngIf="order.showDuplicateWarning" class="pi pi-exclamation-triangle text-yellow-500 text-xl shadow-animate" [pTooltip]="'Detected_duplicate_orders_for_this_customer' | translate" tooltipPosition="top"> </i>
+                            <i *ngIf="order.showDuplicateWarning"
+                               class="pi pi-exclamation-triangle text-yellow-500 text-xl shadow-animate"
+                               [pTooltip]="'Detected_duplicate_orders_for_this_customer' | translate"
+                               tooltipPosition="top"> </i>
 
                             <span>{{ order.wpOrderTime | date: 'dd.MM.yyyy HH:mm' }}</span>
                         </div>
@@ -186,7 +200,7 @@ import { Popover } from 'primeng/popover';
                         </p-tag>
                     </th>
 
-                    <td>
+                    <td [ngClass]="{'bg-red-50': op.overlayVisible}">
                         <div class="flex align-items-center gap-3" style="align-items: center;">
                             <p-badge
                                 [value]="order.customerOrderCount"
@@ -199,7 +213,9 @@ import { Popover } from 'primeng/popover';
                             </p-badge>
 
                             <div class="flex flex-col gap-1">
-                                <div class="font-bold text-900 line-height-1">{{ order.billing.first_name }} {{ order.billing.last_name }}</div>
+                                <div
+                                    class="font-bold text-900 line-height-1">{{ order.billing.first_name }} {{ order.billing.last_name }}
+                                </div>
                                 <div class="text-secondary text-sm flex align-items-center gap-1">
                                     <i class="pi pi-phone text-xs"></i>
                                     {{ order.billing.phone }}
@@ -214,15 +230,19 @@ import { Popover } from 'primeng/popover';
 
                                 <p-popover #op>
                                     <div class="p-3" style="width: 400px">
-                                        <div class="flex align-items-center gap-2 font-bold mb-3 border-bottom-1 pb-2 text-red-600">
+                                        <div
+                                            class="flex align-items-center gap-2 font-bold mb-3 border-bottom-1 pb-2 text-red-600">
                                             <i class="pi pi-exclamation-triangle"></i>
                                             <span>{{ 'Uncorrect_signal' | translate }}</span>
                                         </div>
-                                        <div class="signals-scroll-container" style="max-height: 350px; overflow-y: auto;">
-                                            <div *ngFor="let s of order.signals" class="mb-3 p-2 bg-gray-100 border-round border-left-3 border-red-500">
+                                        <div class="signals-scroll-container"
+                                             style="max-height: 350px; overflow-y: auto;">
+                                            <div *ngFor="let s of order.signals"
+                                                 class="mb-3 p-2 bg-gray-100 border-round border-left-3 border-red-500">
                                                 <div class="flex justify-content-between align-items-center">
-                                                    <small class="text-1xl text-secondary font-bold">{{ s.createDate | date: 'dd.MM.yyyy' }}</small>
-<!--                                                    <small class="text-xs text-400">ID: {{ s.id }}</small>-->
+                                                    <small
+                                                        class="text-1xl text-secondary font-bold">{{ s.createDate | date: 'dd.MM.yyyy' }}</small>
+                                                    <!--                                                    <small class="text-xs text-400">ID: {{ s.id }}</small>-->
                                                 </div>
                                                 <div class="text-1xl mt-1 italic line-height-3">"{{ s.text }}"</div>
                                             </div>
@@ -254,7 +274,8 @@ import { Popover } from 'primeng/popover';
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td class="vertical-align-middle">
-                        <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 " style="min-height: 32px; align-items: center;">
+                        <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 "
+                             style="min-height: 32px; align-items: center;">
                             <!--                            <a [href]="order.wayBillUrl" target="_blank" class="no-underline flex align-items-center">-->
                             <button
                                 pButton
@@ -307,7 +328,9 @@ import { Popover } from 'primeng/popover';
                     <td>
                         <!--                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>-->
                         <!--                        {{ getPaymentLabel(order.paymentMethod) | translate }}-->
-                        <img *ngIf="paymentIcons[order.paymentMethod]" [src]="paymentIcons[order.paymentMethod]" [alt]="order.paymentMethod" style="width: 5rem; height: auto; object-fit: contain;" class="shadow-1 border-round-sm" />
+                        <img *ngIf="paymentIcons[order.paymentMethod]" [src]="paymentIcons[order.paymentMethod]"
+                             [alt]="order.paymentMethod" style="width: 5rem; height: auto; object-fit: contain;"
+                             class="shadow-1 border-round-sm" />
                     </td>
                     <td>
                         <p-tag severity="success" value="{{ order.totalPrice }} {{ order.currency }}" />
@@ -315,14 +338,21 @@ import { Popover } from 'primeng/popover';
 
                     <td>
                         <div class="flex gap-2">
-                            <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info" [pTooltip]="'Generate_Waybill' | translate" (onClick)="openShipmentDialog(order)"></p-button>
+                            <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info"
+                                      [pTooltip]="'Generate_Waybill' | translate"
+                                      (onClick)="openShipmentDialog(order)"></p-button>
                             <div class="relative" *ngIf="order.wayBillShipmentNumber">
-                                <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="danger" [pTooltip]="'Cancel_Waybill' | translate" (onClick)="onCancelShipment($event, order)"> </p-button>
-                                <i class="pi pi-times absolute text-xs font-bold text-red-700" style="top: 20%; right: 20%; pointer-events: none;"></i>
+                                <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="danger"
+                                          [pTooltip]="'Cancel_Waybill' | translate"
+                                          (onClick)="onCancelShipment($event, order)"></p-button>
+                                <i class="pi pi-times absolute text-xs font-bold text-red-700"
+                                   style="top: 20%; right: 20%; pointer-events: none;"></i>
                             </div>
 
-                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
-                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(item.id)"></p-button>
+                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary"
+                                      (onClick)="detailService.openEditDialog(item)"></p-button>
+                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
+                                      (onClick)="onDelete(item.id)"></p-button>
                         </div>
                     </td>
                 </tr>
@@ -332,7 +362,8 @@ import { Popover } from 'primeng/popover';
         <!--        <shipment-detail></shipment-detail>-->
         <shipment-detail *ngIf="config?.data?.mode !== 'lookup'"></shipment-detail>
         <p-blockUI [blocked]="listService.blockUI">
-            <div class="flex flex-column align-items-center" style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%)">
+            <div class="flex flex-column align-items-center"
+                 style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%)">
                 <i class="pi pi-spin pi-spinner text-6xl text-white"></i>
                 <span class="text-white mt-2 font-bold">Синхронизиране...</span>
             </div>
