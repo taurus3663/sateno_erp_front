@@ -222,5 +222,16 @@
   "Detected_signals": "Detected signals",
   "Signals_Click_To_View": "Signals Click To View",
   "Uncorrect_signal": "Uncorrect signal",
-  "Cancel_Waybill": "Cancel Waybill"
+  "Cancel_Waybill": "Cancel Waybill",
+  "SMTP_Settings": "SMTP Settings",
+  "IMAP_POP3_Settings": "IMAP POP3 Settings",
+  "Signature": "Signature",
+  "SMTP_Host": "SMTP Host",
+  "Port": "Port",
+  "Username": "Username",
+  "Password": "Password",
+  "Incoming_Host": "Incoming Host",
+  "Email_Signature": "Email Signature",
+  "SSL_Enabled": "SSL enabled",
+  "SSL_Disabled": "SSL disabled"
 }

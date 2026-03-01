@@ -1,6 +1,7 @@
 export interface IEmail {
     id: number;
     name: string;
+    active: boolean;
 
     host: string;
     port: number;

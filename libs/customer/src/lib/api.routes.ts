@@ -131,7 +131,11 @@ export class apiRoutes {
     public readonly email = {
         ...this.crud(apiRoutes.emailBase),
         test: `${apiRoutes.emailBase}/test`,
+    }
 
+    private static readonly emailSendBase = 'email_send';
+    public readonly emailSend = {
+        ...this.crud(apiRoutes.emailSendBase),
     }
 
 }

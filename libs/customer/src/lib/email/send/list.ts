@@ -1,20 +1,21 @@
 import { Component, inject } from '@angular/core';
-import { EmailListService } from './list.service';
-import { EmailDetailService } from './detail.service';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { IEmail } from './interfaces';
-import { EmailDetailComponent } from './detail';
-import { TableModule } from 'primeng/table';
-import { TranslatePipe } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
 import { Toolbar } from 'primeng/toolbar';
 import { Button } from 'primeng/button';
+import { EmailSendListService } from './list.service';
+import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { EmailSendDetailService } from './detail.service';
+import { IEmailSend } from './interfaces';
+import { TranslatePipe } from '@ngx-translate/core';
+import { TableModule } from 'primeng/table';
+import { CommonModule, NgClass } from '@angular/common';
 import { Tag } from 'primeng/tag';
+import { EmailSendDetailComponent } from './detail';
+
 
 @Component({
-    selector: 'email-list',
+    selector: 'email-send-list',
     standalone: true,
-    imports: [CommonModule, EmailDetailComponent, TableModule, TranslatePipe, Toolbar, Button, Tag],
+    imports: [CommonModule, Toolbar, Button, TranslatePipe, TableModule, NgClass, Tag, EmailSendDetailComponent],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -71,15 +72,15 @@ import { Tag } from 'primeng/tag';
             </ng-template>
         </p-table>
 
-        <email-detail *ngIf="config?.data?.mode !== 'lookup'"></email-detail>
+        <email-send-detail *ngIf="config?.data?.mode !== 'lookup'"></email-send-detail>
     `
 })
-export class EmailListComponent {
-    public listService = inject(EmailListService);
-    public detailService = inject(EmailDetailService);
+export class EmailSendListComponent {
+    public listService = inject(EmailSendListService);
+    public detailService = inject(EmailSendDetailService);
     protected config = inject(DynamicDialogConfig, { optional: true });
 
-    selectedItem!: IEmail | null;
+    selectedItem!: IEmailSend | null;
 
     onLazyLoad(event: any) {
         this.listService.loadList(event.first, event.rows, event.filters);

@@ -222,5 +222,16 @@
   "Detected_signals": "Открити сигнали",
   "Signals_Click_To_View": "Кликни за да прочетеш съобщение/я",
   "Uncorrect_signal": "Сигнал за некоректност",
-  "Cancel_Waybill": "Изтрий товарителница"
+  "Cancel_Waybill": "Изтрий товарителница",
+  "SMTP_Settings": "SMTP Настройки",
+  "IMAP_POP3_Settings": "IMAP POP3 Настройки",
+  "Signature": "Подпис",
+  "SMTP_Host": "SMTP Хост",
+  "Port": "Порт",
+  "Username": "Потребител",
+  "Password": "Парола",
+  "Incoming_Host": "Входящ хост",
+  "Email_Signature": "Имейл подпис",
+  "SSL_Enabled": "SSL активен",
+  "SSL_Disabled": "SSL неактивен"
 }
