@@ -120,7 +120,7 @@
   },
   "STATUS": {
     "PENDING": "В изчакване",
-    "PROCESSING": "Чакаща",
+    "PROCESSING": "Обработка",
     "ON_HOLD": "Задържана",
     "SENT": "Изпратен",
     "CANCELLED": "Отказана",
