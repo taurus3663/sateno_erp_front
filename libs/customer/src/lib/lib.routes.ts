@@ -1,4 +1,4 @@
-import { registerMenu, registerRoute, registerTopbarAction } from 'xl-util';
+    import { registerMenu, registerRoute, registerTopbarAction } from 'xl-util';
 import { PrimeIcons } from 'primeng/api';
 import {CustomerListComponent} from './customer/list';
 import { WpCategoryListComponent } from './wp_category/list';
@@ -47,6 +47,10 @@ registerRoute([
     {
         path: 'courier/list',
         loadComponent: () => import('./courier/list').then(c => c.CourierListComponent)
+    },
+    {
+        path: 'email/list',
+        loadComponent: () => import('./email/list').then(c => c.EmailListComponent)
     }
 ]);
     registerMenu([
@@ -151,6 +155,22 @@ registerRoute([
                 }
             ]
         },
+        {
+            label: '',
+            items: [
+                {
+                    label: 'Имейл',
+                    icon: PrimeIcons.STAR,
+                    items: [
+                        {
+                            label: 'Профили',
+                            icon: PrimeIcons.STOP,
+                            routerLink: ['/email/list']
+                        }
+                    ]
+                }
+            ]
+        }
     ]);
 
 // registerTopbarAction(CustomerListComponent);

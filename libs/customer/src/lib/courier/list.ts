@@ -96,7 +96,7 @@ export class CourierListComponent {
     public detailService = inject(CourierDetailService);
     protected config = inject(DynamicDialogConfig, { optional: true });
 
-    selectedItem!: ICourier[] | null;
+    selectedItem!: ICourier | null;
 
     onLazyLoad(event: any) {
         this.listService.loadList(event.first, event.rows, event.filters);
