@@ -130,7 +130,8 @@ export class apiRoutes {
     // public readonly email = this.crud(apiRoutes.emailBase);
     public readonly email = {
         ...this.crud(apiRoutes.emailBase),
-        test: `${apiRoutes.emailBase}/test`,
+        test: `${apiRoutes.emailBase}/test-connection`,
+        testIncome: `${apiRoutes.emailBase}/test-income-connection`,
     }
 
     private static readonly emailSendBase = 'email_send';

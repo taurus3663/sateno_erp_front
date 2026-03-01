@@ -7,7 +7,7 @@ export interface IEmail {
     port: number;
     username: string;
     password: string;
-    EmailType: EmailType;
+    emailType: EmailType;
     ssl: boolean;
 
     hostSmtp: string;

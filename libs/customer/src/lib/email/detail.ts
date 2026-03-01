@@ -12,13 +12,22 @@ import { ToggleButton } from 'primeng/togglebutton';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { Textarea } from 'primeng/textarea';
 import { Editor } from 'primeng/editor';
+import { SelectButton } from 'primeng/selectbutton';
+import { EmailType } from './interfaces';
 
 @Component({
     selector: 'email-detail',
     standalone: true,
-    imports: [Dialog, TranslatePipe, Button, InputText, FormsModule, TabPanel, TabPanels, Tabs, TabList, Tab, NgIf, Checkbox, ToggleSwitch, Textarea, Editor],
+    imports: [Dialog, TranslatePipe, Button, InputText, FormsModule, TabPanel, TabPanels, Tabs, TabList, Tab, NgIf, Checkbox, ToggleSwitch, Editor, SelectButton],
     template: `
-        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '900px' }" [contentStyle]="{ 'min-height': '450px', 'max-height': '600px' }">
+        <p-dialog
+            [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }"
+            [visible]="detailService.isVisible()"
+            (visibleChange)="detailService.closeDetail()"
+            [modal]="true"
+            [style]="{ width: '900px' }"
+            [contentStyle]="{ 'min-height': '450px', 'max-height': '600px' }"
+        >
             <ng-template #header>
                 <div class="w-full text-center">
                     <span class="text-xl font-bold">
@@ -73,6 +82,23 @@ import { Editor } from 'primeng/editor';
                                             {{ (item.sslSmtp ? 'SSL_Enabled' : 'SSL_Disabled') | translate }}
                                         </label>
                                     </div>
+
+                                    <div class="col-span-12 md:col-span-6 flex justify-end align-items-center mt-2">
+                                        <p-button
+                                            [label]="'Test_Connection' | translate"
+                                            icon="pi pi-bolt"
+                                            [outlined]="true"
+                                            severity="help"
+                                            [loading]="detailService.isTestingConnection()"
+                                            [disabled]="!item.id"
+                                            (onClick)="detailService.testConnection(item.id)"
+                                        >
+                                        </p-button>
+                                    </div>
+
+                                    <div class="col-span-12" *ngIf="!item.id">
+                                        <small class="text-secondary italic">* {{ 'Save_before_test' | translate }}</small>
+                                    </div>
                                 </div>
                             </p-tabpanel>
 
@@ -94,6 +120,38 @@ import { Editor } from 'primeng/editor';
                                         <label class="block font-bold mb-2">{{ 'Password' | translate }}</label>
                                         <input pInputText type="password" [(ngModel)]="item.password" class="w-full" />
                                     </div>
+
+                                    <div class="col-span-12">
+                                        <label class="block font-bold mb-2">{{ 'Protocol_Type' | translate }}</label>
+                                        <p-selectButton
+                                            [(ngModel)]="item.emailType"
+                                            [options]="EmailType"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                        >
+                                        </p-selectButton>
+                                    </div>
+
+                                    <div class="col-span-12 flex align-items-center gap-3 mt-2">
+                                        <p-toggle-switch [(ngModel)]="item.ssl" inputId="ssl"></p-toggle-switch>
+                                        <label for="ssl" class="font-bold cursor-pointer">
+                                            {{ (item.ssl ? 'SSL_Enabled' : 'SSL_Disabled') | translate }}
+                                        </label>
+                                    </div>
+
+                                    <div class="col-span-12 flex justify-end mt-4">
+                                        <p-button
+                                            [label]="'Test_Incoming_Connection' | translate"
+                                            icon="pi pi-refresh"
+                                            severity="help"
+                                            [outlined]="true"
+                                            [disabled]="!item.id"
+                                            (onClick)="detailService.testIncomingConnection(item.id)">
+                                        </p-button>
+                                    </div>
+
+
+
                                 </div>
                             </p-tabpanel>
 
@@ -118,4 +176,9 @@ export class EmailDetailComponent {
     protected detailService = inject(EmailDetailService);
 
     constructor() {}
+
+    protected EmailType = [
+        { label: 'IMAP', value: 'IMAP' },
+        { label: 'POP3', value: 'POP3' }
+    ];
 }
