@@ -12,4 +12,5 @@ export class EmailListService extends BaseListCrud<IEmail>{
     constructor() {
         super(inject(EmailDetailService));
     }
+
 }

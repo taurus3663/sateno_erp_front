@@ -5,9 +5,9 @@ import { IEmailSend } from './interfaces';
 
 @Injectable({ providedIn: 'root' })
 export class EmailSendDetailService extends BaseDetailCrud<IEmailSend> {
-    override saveRoute: string = ROUTES.emailSend.save;
-    override getRoute: string = ROUTES.emailSend.get;
-    override deleteRoute: string = ROUTES.emailSend.delete;
+    override saveRoute: string = ROUTES.email.sent_list_save;
+    override getRoute: string = ROUTES.email.sent_list;
+    override deleteRoute: string = ROUTES.email.sent_list_delete;
 
     constructor() {
         super();

@@ -132,12 +132,15 @@ export class apiRoutes {
         ...this.crud(apiRoutes.emailBase),
         test: `${apiRoutes.emailBase}/test-connection`,
         testIncome: `${apiRoutes.emailBase}/test-income-connection`,
+        sent_list: `${apiRoutes.emailBase}/sent/list`,
+        sent_list_save: `${apiRoutes.emailBase}/sent/save`,
+        sent_list_delete: `${apiRoutes.emailBase}/sent/delete`,
     }
 
-    private static readonly emailSendBase = 'email_send';
-    public readonly emailSend = {
-        ...this.crud(apiRoutes.emailSendBase),
-    }
+    // private static readonly emailSendBase = 'email_send';
+    // public readonly emailSend = {
+    //     ...this.crud(apiRoutes.emailSendBase),
+    // }
 
 }
 

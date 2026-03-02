@@ -1,4 +1,5 @@
 import { ICourier } from '../courier/interfaces';
+import { IEmail } from '../email/interfaces';
 
 export interface ISite {
     id: number;
@@ -11,4 +12,6 @@ export interface ISite {
     active: boolean;
     orderCreateApiKey: string;
     couriers: ICourier[];
+    email: IEmail;
+    newOrderMessage: string;
 }

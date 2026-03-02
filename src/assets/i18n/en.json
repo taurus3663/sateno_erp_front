@@ -233,5 +233,12 @@
   "Incoming_Host": "Incoming Host",
   "Email_Signature": "Email Signature",
   "SSL_Enabled": "SSL enabled",
-  "SSL_Disabled": "SSL disabled"
+  "SSL_Disabled": "SSL disabled",
+  "Notification": "Notification",
+  "Test_Connection": "Test Connection",
+  "Save_before_test": "Save before test",
+  "Protocol_Type": "Protocol Type",
+  "Test_Incoming_Connection": "Test Incoming Connection",
+  "Select_email": "Select email",
+  "Create_order_message": "Create order message"
 }

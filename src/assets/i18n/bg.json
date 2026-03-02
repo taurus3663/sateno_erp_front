@@ -233,5 +233,12 @@
   "Incoming_Host": "Входящ хост",
   "Email_Signature": "Имейл подпис",
   "SSL_Enabled": "SSL активен",
-  "SSL_Disabled": "SSL неактивен"
+  "SSL_Disabled": "SSL неактивен",
+  "Notification": "Нотификация",
+  "Test_Connection": "Проверка на връзка",
+  "Save_before_test": "Запамети преди тест",
+  "Protocol_Type": "Тип на протоколол",
+  "Test_Incoming_Connection": "Проверка на входяща връзка",
+  "Select_email": "Избери имейл",
+  "Create_order_message": "Съобщение при нова поръчка"
 }

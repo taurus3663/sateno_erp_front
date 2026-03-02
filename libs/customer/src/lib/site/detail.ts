@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
-import { Button } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputText } from 'primeng/inputtext';
@@ -14,11 +14,13 @@ import { Tooltip } from 'primeng/tooltip';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { InputNumber } from 'primeng/inputnumber';
 import { CourierType } from '../courier/interfaces';
+import { ISite } from './interfaces';
+import { Editor } from 'primeng/editor';
 
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select, Tooltip, Tabs, TabList, Tab, TabPanels, TabPanel, InputNumber],
+    imports: [Dialog, Button, InputText, FormsModule, CommonModule, TranslatePipe, Checkbox, Select, Tooltip, Tabs, TabList, Tab, TabPanels, TabPanel, InputNumber, ButtonDirective, Editor],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '1000px', 'min-width': '1000px', 'min-height': '800px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -38,6 +40,7 @@ import { CourierType } from '../courier/interfaces';
                         <p-tablist>
                             <p-tab [value]="0">{{ 'Main' | translate }}</p-tab>
                             <p-tab [value]="1">{{ 'Courier' | translate }}</p-tab>
+                            <p-tab [value]="2">{{ 'Notification' | translate }}</p-tab>
                         </p-tablist>
 
                         <p-tabpanels>
@@ -115,7 +118,15 @@ import { CourierType } from '../courier/interfaces';
                                                         <span class="p-inputgroup-addon bg-white border-r-0">
                                                             <i class="pi pi-tag text-xs"></i>
                                                         </span>
-                                                        <p-inputNumber [disabled]="courier.freeShippingPriceMaxBol == false" [(ngModel)]="courier.freeShippingPriceMax" [placeholder]="'Free_shipping_over' | translate" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" class="w-full h-full text-sm">
+                                                        <p-inputNumber
+                                                            [disabled]="courier.freeShippingPriceMaxBol == false"
+                                                            [(ngModel)]="courier.freeShippingPriceMax"
+                                                            [placeholder]="'Free_shipping_over' | translate"
+                                                            mode="decimal"
+                                                            [minFractionDigits]="2"
+                                                            [maxFractionDigits]="2"
+                                                            class="w-full h-full text-sm"
+                                                        >
                                                         </p-inputNumber>
                                                     </div>
                                                 </div>
@@ -125,7 +136,15 @@ import { CourierType } from '../courier/interfaces';
                                                         <span class="p-inputgroup-addon bg-white border-r-0">
                                                             <i class="pi pi-tag text-xs"></i>
                                                         </span>
-                                                        <p-inputNumber [disabled]="courier.autoShippingPrice == true" [(ngModel)]="courier.fixedShippingPrice" [placeholder]="'Fixed_shipping_price' | translate" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2" class="w-full h-full text-sm">
+                                                        <p-inputNumber
+                                                            [disabled]="courier.autoShippingPrice == true"
+                                                            [(ngModel)]="courier.fixedShippingPrice"
+                                                            [placeholder]="'Fixed_shipping_price' | translate"
+                                                            mode="decimal"
+                                                            [minFractionDigits]="2"
+                                                            [maxFractionDigits]="2"
+                                                            class="w-full h-full text-sm"
+                                                        >
                                                         </p-inputNumber>
                                                     </div>
                                                 </div>
@@ -148,7 +167,7 @@ import { CourierType } from '../courier/interfaces';
                                                     </div>
                                                     <div class="flex flex-col items-center">
                                                         <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">{{ 'Active' | translate }}</span>
-                                                        <p-checkbox [(ngModel)]="courier.freeShippingPriceMaxBol" [binary]="true" [pTooltip]="'Free_shipping_over' | translate "></p-checkbox>
+                                                        <p-checkbox [(ngModel)]="courier.freeShippingPriceMaxBol" [binary]="true" [pTooltip]="'Free_shipping_over' | translate"></p-checkbox>
                                                     </div>
                                                 </div>
                                             </div>
@@ -159,6 +178,19 @@ import { CourierType } from '../courier/interfaces';
                                         <i class="pi pi-truck text-3xl mb-2"></i>
                                         <p>{{ 'There_are_no_configured_couriers_for_this_site.' | translate }}</p>
                                     </div>
+                                </div>
+                            </p-tabpanel>
+
+                            <p-tabpanel [value]="2">
+                                <div class="pt-4" *ngIf="detailService.selectedItem() as item">
+                                    <label class="block font-bold mb-2 text-sm">{{ 'Select_email' | translate }}</label>
+                                    <div class="p-inputgroup mb-2">
+                                        <input pInputText [readonly]="true" [placeholder]="item.email?.name || ('Empty' | translate)" />
+                                        <button type="button" pButton icon="pi pi-search" (click)="openParentLookup(item)" severity="secondary"></button>
+                                    </div>
+
+                                    <label class="block font-bold mb-2">{{ 'Create_order_message' | translate }}</label>
+                                    <p-editor [(ngModel)]="item.newOrderMessage" class="w-full" [style]="{ height: '320px' }"> </p-editor>
                                 </div>
                             </p-tabpanel>
                         </p-tabpanels>
@@ -181,7 +213,7 @@ export class SiteDetailComponent {
     // private messageService = inject(MessageService);
     // private tr = inject(TranslateService);
 
-    constructor() {
+    constructor(private cdr: ChangeDetectorRef) {
         // Зареждаме всички валути (напр. първите 1000), за да ги има в падащото меню
         // Това се вика веднъж при създаване на компонента
         this.currencyService.loadList(0, 1000);
@@ -235,4 +267,14 @@ export class SiteDetailComponent {
     }
 
     sortOptions = Array.from({ length: 10 }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }));
+
+    async openParentLookup(item: ISite) {
+        const result = await this.detailService.openLookup('email/list', 'Избери имейл');
+
+        // Ако result.onClick е Observable/EventEmitter:
+        if (result) {
+            item.email = result;
+            this.cdr.detectChanges();
+        }
+    }
 }

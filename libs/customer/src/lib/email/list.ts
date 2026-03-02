@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { EmailListService } from './list.service';
 import { EmailDetailService } from './detail.service';
-import { DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IEmail } from './interfaces';
 import { EmailDetailComponent } from './detail';
 import { TableModule } from 'primeng/table';
@@ -51,7 +51,7 @@ import { Tag } from 'primeng/tag';
             </ng-template>
 
             <ng-template pTemplate="body" let-item>
-                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
+                <tr (click)="onRowClick(item)" [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
@@ -78,10 +78,22 @@ export class EmailListComponent {
     public listService = inject(EmailListService);
     public detailService = inject(EmailDetailService);
     protected config = inject(DynamicDialogConfig, { optional: true });
+    private ref = inject(DynamicDialogRef, { optional: true });
+
 
     selectedItem!: IEmail | null;
 
     onLazyLoad(event: any) {
         this.listService.loadList(event.first, event.rows, event.filters);
+    }
+
+    onRowClick(category: any) {
+        if (this.config?.data?.mode === 'lookup') {
+            // Затваряме диалога и връщаме избраната категория на предишния прозорец
+            console.log(category.toString());
+            if (this.ref) {
+                this.ref.close(category);
+            }
+        }
     }
 }

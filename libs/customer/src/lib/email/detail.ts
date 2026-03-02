@@ -13,7 +13,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { Textarea } from 'primeng/textarea';
 import { Editor } from 'primeng/editor';
 import { SelectButton } from 'primeng/selectbutton';
-import { EmailType } from './interfaces';
+import { EmailType, IEmail } from './interfaces';
 
 @Component({
     selector: 'email-detail',
