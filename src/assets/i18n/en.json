@@ -131,7 +131,8 @@
     "ABANDONED": "Abandoned",
     "COMPLETED": "Delivered",
     "APPROVED": "APPROVED",
-    "JOINT": "JOINT"
+    "JOINT": "JOINT",
+    "WAITING": "WAITING"
   },
   "Order": "Order",
   "Last_Updated": "Last_Updated",
@@ -249,6 +250,13 @@
   "Sender": "Sender",
   "Recipient": "Recipient",
   "Sent": "Sent",
-    "WAITING": "WAITING",
-    "CONFIRMED": "CONFIRMED"
+  "WAITING": "WAITING",
+  "CONFIRMED": "CONFIRMED",
+  "Auto_Status_Change_Timer": "Auto Status Change Timer",
+  "Hours": "Hours",
+  "Minutes": "Minutes",
+  "Minutes_total": "Minutes total",
+  "Status_will_change_automatically_after_this_period": "Status will change automatically after this period",
+  "Message_unconfirmed_order": "Message unconfirmed order",
+  "Auto_send_message_after": "Auto send message after:"
 }

@@ -131,7 +131,8 @@
     "ABANDONED": "Изоставен",
     "COMPLETED": "Доставена",
     "APPROVED": "Потвърден",
-    "JOINT": "Обединен"
+    "JOINT": "Обединен",
+    "WAITING": "ЧАКАЩ"
   },
   "Order": "Поръчка",
   "Last_Updated": "Последно променен",
@@ -249,6 +250,13 @@
   "Sender": "Изпращач",
   "Recipient": "Получател",
   "Sent": "Изпратен",
-    "WAITING": "ЧАКАЩ",
-    "CONFIRMED": "CONFIRMED"
+  "WAITING": "ЧАКАЩ",
+  "CONFIRMED": "CONFIRMED",
+  "Auto_Status_Change_Timer": "Таймер за смяна на статуса автоматично при непотвърждение",
+  "Hours": "Час",
+  "Minutes": "Минути",
+  "Minutes_total": "Общо минути",
+  "Status_will_change_automatically_after_this_period": "Статуса ще се смени автоматично",
+  "Message_unconfirmed_order": "Съобщение при не потвърдена поръчка",
+  "Auto_send_message_after": "Автоматично изпращане на имейл съобщение след:"
 }

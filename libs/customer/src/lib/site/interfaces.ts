@@ -14,4 +14,10 @@ export interface ISite {
     couriers: ICourier[];
     email: IEmail;
     newOrderMessage: string;
+    changeStatusTimer: number;
+
+    secondOrderMessageTimer: number;
+    secondOrderMessage: string;
+    thirdOrderMessageTimer: number;
+    thirdOrderMessage: string;
 }

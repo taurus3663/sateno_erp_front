@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button, ButtonDirective } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -16,6 +16,7 @@ import { InputNumber } from 'primeng/inputnumber';
 import { CourierType } from '../courier/interfaces';
 import { ISite } from './interfaces';
 import { Editor } from 'primeng/editor';
+import { Tag } from 'primeng/tag';
 
 @Component({
     selector: 'site-detail',
@@ -41,6 +42,8 @@ import { Editor } from 'primeng/editor';
                             <p-tab [value]="0">{{ 'Main' | translate }}</p-tab>
                             <p-tab [value]="1">{{ 'Courier' | translate }}</p-tab>
                             <p-tab [value]="2">{{ 'Notification' | translate }}</p-tab>
+                            <p-tab [value]="3">{{ 'Notification' | translate }} 2</p-tab>
+                            <p-tab [value]="4">{{ 'Notification' | translate }} 3</p-tab>
                         </p-tablist>
 
                         <p-tabpanels>
@@ -191,6 +194,172 @@ import { Editor } from 'primeng/editor';
 
                                     <label class="block font-bold mb-2">{{ 'Create_order_message' | translate }}</label>
                                     <p-editor [(ngModel)]="item.newOrderMessage" class="w-full" [style]="{ height: '320px' }"> </p-editor>
+
+                                    <div class="mt-6 border-t pt-4">
+                                        <label class="block font-bold mb-3 text-primary"> <i class="pi pi-clock mr-2"></i>{{ 'Auto_Status_Change_Timer' | translate }} </label>
+
+                                        <div class="flex gap-4 items-center">
+                                            <div class="flex flex-column gap-1">
+                                                <span class="text-xs text-gray-500">{{ 'Hours' | translate }}</span>
+                                                <p-inputNumber
+                                                    [(ngModel)]="tempHours"
+                                                    (onInput)="calculateTotalMinutes(item)"
+                                                    [showButtons]="true"
+                                                    buttonLayout="horizontal"
+                                                    spinnerMode="horizontal"
+                                                    inputId="hours"
+                                                    [min]="0"
+                                                    [inputStyle]="{ width: '50px', 'text-align': 'center' }"
+                                                    incrementButtonIcon="pi pi-plus"
+                                                    decrementButtonIcon="pi pi-minus"
+                                                    inputStyleClass="w-3rem text-center"
+                                                >
+                                                </p-inputNumber>
+                                            </div>
+
+                                            <div class="flex flex-column gap-1">
+                                                <span class="text-xs text-gray-500">{{ 'Minutes' | translate }}</span>
+                                                <p-inputNumber
+                                                    [(ngModel)]="tempMinutes"
+                                                    (onInput)="calculateTotalMinutes(item)"
+                                                    [showButtons]="true"
+                                                    buttonLayout="horizontal"
+                                                    spinnerMode="horizontal"
+                                                    inputId="minutes"
+                                                    [min]="0"
+                                                    [max]="59"
+                                                    [inputStyle]="{ width: '50px', 'text-align': 'center' }"
+                                                    incrementButtonIcon="pi pi-plus"
+                                                    decrementButtonIcon="pi pi-minus"
+                                                    inputStyleClass="w-3rem text-center"
+                                                >
+                                                </p-inputNumber>
+                                            </div>
+
+<!--                                            <div class="mt-4 ml-2">-->
+<!--                                                <p-tag severity="info" [value]="item.changeStatusTimer + ' ' + ('Minutes_total' | translate)"></p-tag>-->
+<!--                                            </div>-->
+                                        </div>
+<!--                                        <small class="block mt-2 text-gray-400">-->
+<!--                                            {{ 'Status_will_change_automatically_after_this_period' | translate }}-->
+<!--                                        </small>-->
+                                    </div>
+                                </div>
+                            </p-tabpanel>
+
+                            <p-tabpanel [value]="3">
+                                <div class="pt-4" *ngIf="detailService.selectedItem() as item">
+
+                                    <label class="block font-bold mb-2">{{ 'Message_unconfirmed_order' | translate }} 1</label>
+                                    <p-editor [(ngModel)]="item.secondOrderMessage" class="w-full" [style]="{ height: '320px' }"> </p-editor>
+
+                                    <div class="mt-6 border-t pt-4">
+                                        <label class="block font-bold mb-3 text-primary"> <i class="pi pi-clock mr-2"></i>{{ 'Auto_send_message_after' | translate }} </label>
+
+                                        <div class="flex gap-4 items-center">
+                                            <div class="flex flex-column gap-1">
+                                                <span class="text-xs text-gray-500">{{ 'Hours' | translate }}</span>
+                                                <p-inputNumber
+                                                    [(ngModel)]="tempHours2"
+                                                    (onInput)="calculateTotalMinutes(item)"
+                                                    [showButtons]="true"
+                                                    buttonLayout="horizontal"
+                                                    spinnerMode="horizontal"
+                                                    inputId="hours"
+                                                    [min]="0"
+                                                    [inputStyle]="{ width: '50px', 'text-align': 'center' }"
+                                                    incrementButtonIcon="pi pi-plus"
+                                                    decrementButtonIcon="pi pi-minus"
+                                                    inputStyleClass="w-3rem text-center"
+                                                >
+                                                </p-inputNumber>
+                                            </div>
+
+                                            <div class="flex flex-column gap-1">
+                                                <span class="text-xs text-gray-500">{{ 'Minutes' | translate }}</span>
+                                                <p-inputNumber
+                                                    [(ngModel)]="tempMinutes2"
+                                                    (onInput)="calculateTotalMinutes(item)"
+                                                    [showButtons]="true"
+                                                    buttonLayout="horizontal"
+                                                    spinnerMode="horizontal"
+                                                    inputId="minutes"
+                                                    [min]="0"
+                                                    [max]="59"
+                                                    [inputStyle]="{ width: '50px', 'text-align': 'center' }"
+                                                    incrementButtonIcon="pi pi-plus"
+                                                    decrementButtonIcon="pi pi-minus"
+                                                    inputStyleClass="w-3rem text-center"
+                                                >
+                                                </p-inputNumber>
+                                            </div>
+
+                                            <!--                                            <div class="mt-4 ml-2">-->
+                                            <!--                                                <p-tag severity="info" [value]="item.changeStatusTimer + ' ' + ('Minutes_total' | translate)"></p-tag>-->
+                                            <!--                                            </div>-->
+                                        </div>
+                                        <!--                                        <small class="block mt-2 text-gray-400">-->
+                                        <!--                                            {{ 'Status_will_change_automatically_after_this_period' | translate }}-->
+                                        <!--                                        </small>-->
+                                    </div>
+                                </div>
+                            </p-tabpanel>
+
+                            <p-tabpanel [value]="4">
+                                <div class="pt-4" *ngIf="detailService.selectedItem() as item">
+
+                                    <label class="block font-bold mb-2">{{ 'Message_unconfirmed_order' | translate }} 2</label>
+                                    <p-editor [(ngModel)]="item.thirdOrderMessage" class="w-full" [style]="{ height: '320px' }"> </p-editor>
+
+                                    <div class="mt-6 border-t pt-4">
+                                        <label class="block font-bold mb-3 text-primary"> <i class="pi pi-clock mr-2"></i>{{ 'Auto_send_message_after' | translate }} </label>
+
+                                        <div class="flex gap-4 items-center">
+                                            <div class="flex flex-column gap-1">
+                                                <span class="text-xs text-gray-500">{{ 'Hours' | translate }}</span>
+                                                <p-inputNumber
+                                                    [(ngModel)]="tempHours3"
+                                                    (onInput)="calculateTotalMinutes(item)"
+                                                    [showButtons]="true"
+                                                    buttonLayout="horizontal"
+                                                    spinnerMode="horizontal"
+                                                    inputId="hours"
+                                                    [min]="0"
+                                                    [inputStyle]="{ width: '50px', 'text-align': 'center' }"
+                                                    incrementButtonIcon="pi pi-plus"
+                                                    decrementButtonIcon="pi pi-minus"
+                                                    inputStyleClass="w-3rem text-center"
+                                                >
+                                                </p-inputNumber>
+                                            </div>
+
+                                            <div class="flex flex-column gap-1">
+                                                <span class="text-xs text-gray-500">{{ 'Minutes' | translate }}</span>
+                                                <p-inputNumber
+                                                    [(ngModel)]="tempMinutes3"
+                                                    (onInput)="calculateTotalMinutes(item)"
+                                                    [showButtons]="true"
+                                                    buttonLayout="horizontal"
+                                                    spinnerMode="horizontal"
+                                                    inputId="minutes"
+                                                    [min]="0"
+                                                    [max]="59"
+                                                    [inputStyle]="{ width: '50px', 'text-align': 'center' }"
+                                                    incrementButtonIcon="pi pi-plus"
+                                                    decrementButtonIcon="pi pi-minus"
+                                                    inputStyleClass="w-3rem text-center"
+                                                >
+                                                </p-inputNumber>
+                                            </div>
+
+                                            <!--                                            <div class="mt-4 ml-2">-->
+                                            <!--                                                <p-tag severity="info" [value]="item.changeStatusTimer + ' ' + ('Minutes_total' | translate)"></p-tag>-->
+                                            <!--                                            </div>-->
+                                        </div>
+                                        <!--                                        <small class="block mt-2 text-gray-400">-->
+                                        <!--                                            {{ 'Status_will_change_automatically_after_this_period' | translate }}-->
+                                        <!--                                        </small>-->
+                                    </div>
                                 </div>
                             </p-tabpanel>
                         </p-tabpanels>
@@ -218,6 +387,25 @@ export class SiteDetailComponent {
         // Това се вика веднъж при създаване на компонента
         this.currencyService.loadList(0, 1000);
         this.languageService.loadList(0, 1000);
+
+
+        effect(() => {
+            const item = this.detailService.selectedItem();
+            if (item) {
+                // Превръщаме общите минути от базата обратно в Часове и Минути за UI
+                const totalMinutes = item.changeStatusTimer || 0;
+                this.tempHours = Math.floor(totalMinutes / 60);
+                this.tempMinutes = totalMinutes % 60;
+
+                const totalMinutes2 = item.secondOrderMessageTimer || 0;
+                this.tempHours2 = Math.floor(totalMinutes2 / 60);
+                this.tempMinutes2 = totalMinutes2 % 60;
+
+                const totalMinutes3 = item.thirdOrderMessageTimer || 0;
+                this.tempMinutes3 = Math.floor(totalMinutes3 / 60);
+                this.tempMinutes3 = totalMinutes3 % 60;
+            }
+        });
     }
 
     // site-detail.component.ts
@@ -276,5 +464,37 @@ export class SiteDetailComponent {
             item.email = result;
             this.cdr.detectChanges();
         }
+    }
+
+
+    // Дефинирай тези променливи в класа на компонента
+    tempHours: number = 0;
+    tempMinutes: number = 0;
+
+    tempHours2: number = 0;
+    tempMinutes2: number = 0;
+
+    tempHours3: number = 0;
+    tempMinutes3: number = 0;
+
+
+// Извиква се при всяко натискане на + или - в интерфейса
+    calculateTotalMinutes(item: ISite) {
+        // Малка застраховка за null стойности
+        const h = this.tempHours || 0;
+        const m = this.tempMinutes || 0;
+
+        // Записваме общия брой минути в обекта, който ще се прати към Java
+        item.changeStatusTimer = (h * 60) + m;
+
+        const h2 = this.tempHours2 || 0;
+        const m2 = this.tempMinutes2 || 0;
+
+        item.secondOrderMessageTimer = (h2 * 60) + m2;
+
+        const h3 = this.tempHours3 || 0;
+        const m3 = this.tempMinutes3 || 0;
+
+        item.thirdOrderMessageTimer = (h3 * 60) + m3;
     }
 }

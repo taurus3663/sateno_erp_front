@@ -153,7 +153,8 @@ export enum OrderStatus {
     ABANDONED = 'abandoned',
     COMPLETED = 'completed',
     APPROVED = 'approved',
-    JOINT = 'joint'
+    JOINT = 'joint',
+    WAITING = 'waiting'
 }
 export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.PROCESSING]: 'STATUS.PROCESSING',
@@ -162,6 +163,7 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.ABANDONED]: 'STATUS.ABANDONED',
     [OrderStatus.COMPLETED]: 'STATUS.COMPLETED',
     [OrderStatus.APPROVED]: 'STATUS.APPROVED',
-    [OrderStatus.JOINT]: 'STATUS.JOINT'
+    [OrderStatus.JOINT]: 'STATUS.JOINT',
+    [OrderStatus.WAITING]: 'STATUS.WAITING',
 };
 
