@@ -240,5 +240,15 @@
   "Protocol_Type": "Тип на протоколол",
   "Test_Incoming_Connection": "Проверка на входяща връзка",
   "Select_email": "Избери имейл",
-  "Create_order_message": "Съобщение при нова поръчка"
+  "Create_order_message": "Съобщение при нова поръчка",
+  "Seen": "Видян",
+  "SENT": "ИЗПРАТЕН",
+  "RECEIVED": "ПОЛУЧЕН",
+  "Subject": "Относно",
+  "Confirmed": "Потвърден",
+  "Sender": "Изпращач",
+  "Recipient": "Получател",
+  "Sent": "Изпратен",
+    "WAITING": "ЧАКАЩ",
+    "CONFIRMED": "CONFIRMED"
 }

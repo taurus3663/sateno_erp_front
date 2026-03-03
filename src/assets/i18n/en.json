@@ -120,7 +120,7 @@
   },
   "STATUS": {
     "PENDING": "Pending",
-    "PROCESSING": "Waiting",
+    "PROCESSING": "Processing",
     "ON_HOLD": "On hold",
     "SENT": "SENT",
     "CANCELLED": "Cancelled",
@@ -240,5 +240,15 @@
   "Protocol_Type": "Protocol Type",
   "Test_Incoming_Connection": "Test Incoming Connection",
   "Select_email": "Select email",
-  "Create_order_message": "Create order message"
+  "Create_order_message": "Create order message",
+  "Seen": "Seen",
+  "SENT": "SENT",
+  "RECEIVED": "RECEIVED",
+  "Subject": "Subject",
+  "Confirmed": "Confirmed",
+  "Sender": "Sender",
+  "Recipient": "Recipient",
+  "Sent": "Sent",
+    "WAITING": "WAITING",
+    "CONFIRMED": "CONFIRMED"
 }

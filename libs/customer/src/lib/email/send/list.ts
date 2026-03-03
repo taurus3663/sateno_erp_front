@@ -45,8 +45,12 @@ import { EmailSendDetailComponent } from './detail';
                         <p-tableHeaderCheckbox />
                     </th>
                     <th>{{ 'Id' | translate }}</th>
-                    <th>{{ 'Name' | translate }}</th>
-                    <th>{{ 'Status' | translate }}</th>
+                    <th>{{'Type' | translate}}</th>
+                    <th>{{'Sender' | translate}}</th>
+                    <th>{{'Recipient' | translate}}</th>
+                    <th>{{'Sent' | translate}}</th>
+                    <th>{{ 'Subject' | translate }}</th>
+                    <th>{{ 'Seen' | translate }}</th>
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
@@ -57,9 +61,13 @@ import { EmailSendDetailComponent } from './detail';
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
                     <td>{{ item.id }}</td>
-                    <td>{{ item.name }}</td>
+                    <td>{{ item.direction | translate }}</td>
+                    <td>{{ item.sender }}</td>
+                    <td>{{ item.recipient }}</td>
+                    <td>{{ item.createTime | date: 'dd.MM.yyyy HH:mm' }}</td>
+                    <td>{{ item.subject | slice:0:10 }}{{ item.subject.length > 10 ? '...' : '' }}</td>
                     <td>
-                        <p-tag [severity]="item.active ? 'success' : 'danger'" [value]="(item.active ? 'Active' : 'Offline') | translate" [rounded]="true"> </p-tag>
+                        <p-tag [severity]="item.seen ? 'success' : 'danger'" [value]="(item.seen ? 'Yes' : 'No') | translate" [rounded]="true"> </p-tag>
                     </td>
 
                     <td>

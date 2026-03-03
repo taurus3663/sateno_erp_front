@@ -125,6 +125,7 @@ import { Popover } from 'primeng/popover';
                     <th>{{ 'Status' | translate }}</th>
                     <th>{{ 'Customer' | translate }}</th>
                     <th>{{ 'Site' | translate }}</th>
+<!--                    <th>{{'Confirmed' | translate}}</th>-->
                     <!--                    <th>{{ 'Customer_agent' | translate }}</th>-->
                     <!--                    <th>{{ 'Customer_ip' | translate }}</th>-->
                     <th>{{ 'Bill_of_lading' | translate }}</th>
@@ -271,6 +272,10 @@ import { Popover } from 'primeng/popover';
                             {{ order?.site?.name ?? order.site.url }}
                         </span>
                     </td>
+<!--                    <td>-->
+<!--                        <p-tag [severity]="item.confirmed ? 'success' : 'danger'" [value]="(item.confirmed ? 'CONFIRMED' : 'WAITING') | translate" [rounded]="true"> </p-tag>-->
+<!--                    </td>-->
+
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td class="vertical-align-middle">
