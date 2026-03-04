@@ -55,6 +55,10 @@ registerRoute([
     {
         path: 'email/send/list',
         loadComponent: () => import('./email/send/list').then(c => c.EmailSendListComponent)
+    },
+    {
+        path: 'email/receive/list',
+        loadComponent: () => import('./email/receive/list').then(c => c.EmailReceiveListComponent)
     }
 ]);
     registerMenu([
@@ -175,6 +179,11 @@ registerRoute([
                             label: 'Изпратени',
                             icon: PrimeIcons.STOP,
                             routerLink: ['/email/send/list']
+                        },
+                        {
+                            label: 'Получени',
+                            icon: PrimeIcons.STOP,
+                            routerLink: ['/email/receive/list']
                         }
                     ]
                 }

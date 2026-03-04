@@ -135,6 +135,10 @@ export class apiRoutes {
         sent_list: `${apiRoutes.emailBase}/sent/list`,
         sent_list_save: `${apiRoutes.emailBase}/sent/save`,
         sent_list_delete: `${apiRoutes.emailBase}/sent/delete`,
+
+        receive_list: `${apiRoutes.emailBase}/receive/list`,
+        receive_list_save: `${apiRoutes.emailBase}/receive/save`,
+        receive_list_delete: `${apiRoutes.emailBase}/receive/delete`,
     }
 
     // private static readonly emailSendBase = 'email_send';
