@@ -193,6 +193,12 @@ import { Tag } from 'primeng/tag';
                                     </div>
 
                                     <label class="block font-bold mb-2">{{ 'Create_order_message' | translate }}</label>
+                                    <div class="mb-2 text-sm text-600">
+                                        <i class="pi pi-info-circle mr-1"></i>
+                                        <span>Използвайте следните ключове за динамични данни:</span>
+                                        <code class="ml-2 font-bold text-primary">(customer)</code> (Име на клиента),
+                                        <code class="ml-2 font-bold text-primary">(orderId)</code> (Номер на поръчка)
+                                    </div>
                                     <p-editor [(ngModel)]="item.newOrderMessage" class="w-full" [style]="{ height: '320px' }"> </p-editor>
 
                                     <div class="mt-6 border-t pt-4">
@@ -251,6 +257,12 @@ import { Tag } from 'primeng/tag';
                                 <div class="pt-4" *ngIf="detailService.selectedItem() as item">
 
                                     <label class="block font-bold mb-2">{{ 'Message_unconfirmed_order' | translate }} 1</label>
+                                    <div class="mb-2 text-sm text-600">
+                                        <i class="pi pi-info-circle mr-1"></i>
+                                        <span>Използвайте следните ключове за динамични данни:</span>
+                                        <code class="ml-2 font-bold text-primary">(customer)</code> (Име на клиента),
+                                        <code class="ml-2 font-bold text-primary">(orderId)</code> (Номер на поръчка)
+                                    </div>
                                     <p-editor [(ngModel)]="item.secondOrderMessage" class="w-full" [style]="{ height: '320px' }"> </p-editor>
 
                                     <div class="mt-6 border-t pt-4">
@@ -309,6 +321,12 @@ import { Tag } from 'primeng/tag';
                                 <div class="pt-4" *ngIf="detailService.selectedItem() as item">
 
                                     <label class="block font-bold mb-2">{{ 'Message_unconfirmed_order' | translate }} 2</label>
+                                    <div class="mb-2 text-sm text-600">
+                                        <i class="pi pi-info-circle mr-1"></i>
+                                        <span>Използвайте следните ключове за динамични данни:</span>
+                                        <code class="ml-2 font-bold text-primary">(customer)</code> (Име на клиента),
+                                        <code class="ml-2 font-bold text-primary">(orderId)</code> (Номер на поръчка)
+                                    </div>
                                     <p-editor [(ngModel)]="item.thirdOrderMessage" class="w-full" [style]="{ height: '320px' }"> </p-editor>
 
                                     <div class="mt-6 border-t pt-4">
