@@ -20,6 +20,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { Image } from 'primeng/image';
+import { WpCategoryListService } from '../wp_category/list.service';
 
 @Component({
     selector: 'wp_product-list',
@@ -68,18 +69,49 @@ import { Image } from 'primeng/image';
                     <th style="width: 5rem">{{ 'Image' | translate }}</th>
                     <th pSortableColumn="sku">{{ 'SKU' | translate }} <p-columnFilter type="text" field="sku" display="menu" /></th>
                     <th pSortableColumn="brand">{{ 'Brand' | translate }} <p-columnFilter type="text" field="brand" display="menu" /></th>
-                    <th pSortableColumn="category">{{ 'Categories' | translate }} <p-columnFilter type="text" field="category" display="menu" /></th>
+                    <th pSortableColumn="category">
+                        {{ 'Categories' | translate }}
+                        <p-columnFilter
+                            field="category"
+                            display="menu"
+                            matchMode="contains"
+                            [showMatchModes]="false"
+                            [showOperator]="false"
+                            [showAddButton]="false">
+
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-select
+                                    [ngModel]="value"
+                                    [options]="categoryLService.items()"
+                                    (onChange)="filter($event.value?.split('|')[0].trim())"
+                                    optionLabel="data.name"
+                                    optionValue="data.name"
+                                    placeholder="{{ 'Select_Category' | translate }}"
+                                    [filter]="true"
+                                    appendTo="body">
+
+                                    <ng-template #item let-option>
+                                        <div class="flex align-items-center gap-2">
+                                            <i class="pi pi-tag text-primary"></i>
+                                            <span>{{ option.data.name.split('|')[0].trim() }}</span>
+                                        </div>
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                    </th>
                     <th pSortableColumn="name">{{ 'Name' | translate }} <p-columnFilter type="text" field="name" display="menu" /></th>
                     <th pSortableColumn="quantity">{{ 'Quantity' | translate }} <p-columnFilter type="text" field="quantity" display="menu" /></th>
                     <th pSortableColumn="status">
                         {{ 'Status' | translate }}
-                        <p-columnFilter type="text" field="status" display="menu"
-                            ><ng-template #filter let-value let-filter="filterCallback">
+                        <p-columnFilter type="text" field="status" display="menu">
+                            <ng-template #filter let-value let-filter="filterCallback">
                                 <p-select [ngModel]="value" [options]="productStatus" (onChange)="filter($event.value)" placeholder="Select One">
                                     <ng-template let-option #item>
                                         <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
                                     </ng-template>
-                                </p-select> </ng-template
+                                </p-select>
+                            </ng-template
                         ></p-columnFilter>
                     </th>
                     <th pSortableColumn="limited">{{'Limited' | translate}} <p-columnFilter type="text" field="limited" display="menu" /></th>
@@ -152,6 +184,7 @@ export class WpProductListComponent {
     protected config = inject(DynamicDialogConfig, { optional: true });
     private authConfig = inject(XL_AUTH_CONFIG);
     protected readonly baseUrl = this.authConfig.apiUrl;
+    protected categoryLService = inject(WpCategoryListService);
 
     selectedItem!: IWpProduct[] | null;
 
@@ -160,6 +193,7 @@ export class WpProductListComponent {
     }
 
     constructor() {
+        this.categoryLService.loadList(0, 1000);
         // this.syncCategories(1);
         this.generateStatusOptions();
         this.tr.onLangChange.subscribe((lang) => {
@@ -200,8 +234,8 @@ export class WpProductListComponent {
             case 'draft':
             case ProductStatus.DRAFT:
                 return 'warn';
-            case 'private':
-            case ProductStatus.PRIVATE:
+            case 'pending':
+            case ProductStatus.PENDING:
                 return 'danger';
             default:
                 return 'info';

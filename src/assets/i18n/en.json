@@ -63,7 +63,7 @@
   "PRODUCT_STATUS": {
     "DRAFT": "DRAFT",
     "PUBLISHED": "PUBLISHED",
-    "PRIVATE": "PRIVATE"
+    "PENDING": "PENDING"
   },
   "Image": "Image",
   "SKU": "SKU",

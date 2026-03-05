@@ -31,7 +31,7 @@ export enum ProductSaleType {
 export enum ProductStatus {
     DRAFT = 0,
     PUBLISHED = 1,
-    PRIVATE = 2,
+    PENDING = 2,
 }
 
 export interface IWpProductAddonConfig {
@@ -83,7 +83,7 @@ export enum ProductUnit {
 export const ProductStatusConfig = {
     [ProductStatus.PUBLISHED]: { severity: 'success', label: 'Published' },
     [ProductStatus.DRAFT]: { severity: 'warn', label: 'Draft' },
-    [ProductStatus.PRIVATE]: { severity: 'danger', label: 'Private' }
+    [ProductStatus.PENDING]: { severity: 'danger', label: 'Pending' }
 };
 
 export interface IWpImage {

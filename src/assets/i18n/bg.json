@@ -63,7 +63,7 @@
   "PRODUCT_STATUS": {
     "DRAFT": "ЧЕРНОВА",
     "PUBLISHED": "ПУБЛИКУВАН",
-    "PRIVATE": "ЛИЧНО"
+    "PENDING": "ЧАКА ПРЕГЛЕД"
   },
   "Image": "Снимка",
   "SKU": "Ску",
