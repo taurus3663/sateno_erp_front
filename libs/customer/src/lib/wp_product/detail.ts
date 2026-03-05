@@ -99,10 +99,10 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                         </div>
                                     </div>
 
-                                    <div class="col-span-3">
-                                        <label class="block font-bold mb-2">{{ 'Unit' | translate }}</label>
-                                        <p-select [options]="productUnit" [(ngModel)]="item.unit" optionLabel="label" optionValue="value" class="w-full"></p-select>
-                                    </div>
+<!--                                    <div class="col-span-3">-->
+<!--                                        <label class="block font-bold mb-2">{{ 'Unit' | translate }}</label>-->
+<!--                                        <p-select [options]="productUnit" [(ngModel)]="item.unit" optionLabel="label" optionValue="value" class="w-full"></p-select>-->
+<!--                                    </div>-->
 
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Quantity' | translate }}</label>

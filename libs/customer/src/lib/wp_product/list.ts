@@ -2,26 +2,28 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WpProductListService } from './list.service';
 import { WpProductDetailService } from './detail.service';
-import { IWpProduct, ProductStatus, ProductUnit } from './interfaces';
+import { IWpProduct, ProductStatus, ProductStatusConfig } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { WpCategoryDetailComponent } from './detail';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { TreeTableModule } from 'primeng/treetable';
 import { Tooltip } from 'primeng/tooltip';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { StatusLabelPipe } from './productStatus.pipe';
-import { UnitLabelPipe } from './productUnit.pipe';
-import {XL_AUTH_CONFIG} from 'xl-auth';
-
+import { XL_AUTH_CONFIG } from 'xl-auth';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { Select } from 'primeng/select';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'wp_product-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, StatusLabelPipe, UnitLabelPipe],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, StatusLabelPipe, IconField, Select, FormsModule],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -32,6 +34,7 @@ import {XL_AUTH_CONFIG} from 'xl-auth';
         </p-toolbar>
 
         <p-table
+            #dt
             [value]="listService.items()"
             [lazy]="true"
             (onLazyLoad)="onLazyLoad($event)"
@@ -44,18 +47,40 @@ import {XL_AUTH_CONFIG} from 'xl-auth';
             [(selection)]="selectedItem"
             [rowHover]="true"
             dataKey="id"
+            filterDelay="menu"
         >
+            <ng-template #caption>
+                <div class="flex justify-content-between">
+                    <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="dt.clear()" />
+                    <p-iconfield iconPosition="left">
+<!--                        <p-inputicon styleClass="pi pi-search"></p-inputicon>-->
+                        <!--                        <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Global Search" />-->
+                    </p-iconfield>
+                </div>
+            </ng-template>
+
             <ng-template pTemplate="header">
                 <tr>
                     <th>
                         <p-tableHeaderCheckbox />
                     </th>
                     <th style="width: 5rem">{{ 'Image' | translate }}</th>
-                    <th>{{ 'Id' | translate }}</th>
-                    <th>{{ 'Name' | translate }}</th>
-                    <th>{{ 'Quantity' | translate }}</th>
-                    <th>{{ 'Unit' | translate }}</th>
-                    <th>{{ 'Status' | translate }}</th>
+                    <th pSortableColumn="sku">{{ 'SKU' | translate }} <p-columnFilter type="text" field="sku" display="menu" /></th>
+                    <th pSortableColumn="brand">{{ 'Brand' | translate }} <p-columnFilter type="text" field="brand" display="menu" /></th>
+                    <th pSortableColumn="category">{{ 'Categories' | translate }} <p-columnFilter type="text" field="category" display="menu" /></th>
+                    <th pSortableColumn="name">{{ 'Name' | translate }} <p-columnFilter type="text" field="name" display="menu" /></th>
+                    <th pSortableColumn="quantity">{{ 'Quantity' | translate }} <p-columnFilter type="text" field="quantity" display="menu" /></th>
+                    <th pSortableColumn="status">
+                        {{ 'Status' | translate }}
+                        <p-columnFilter type="text" field="status" display="menu"
+                            ><ng-template #filter let-value let-filter="filterCallback">
+                                <p-select [ngModel]="value" [options]="productStatus" (onChange)="filter($event.value)" placeholder="Select One">
+                                    <ng-template let-option #item>
+                                        <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
+                                    </ng-template>
+                                </p-select> </ng-template
+                        ></p-columnFilter>
+                    </th>
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
@@ -72,16 +97,24 @@ import {XL_AUTH_CONFIG} from 'xl-auth';
                         </div>
                     </td>
 
-                    <td>{{ item.id }}</td>
+                    <td>
+                        <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>
+                    </td>
+                    <td>{{ item.brand.name }}</td>
+                    <td>
+                        <div class="flex flex-col gap-1 w-70">
+                            <p-tag *ngFor="let cat of item.categories" [value]="cat.slug" severity="secondary"> </p-tag>
+                        </div>
+                    </td>
                     <td>
                         <span [pTooltip]="item.names" tooltipPosition="top" class="cursor-help">
                             {{ item.names }}
                         </span>
                     </td>
                     <td>{{ item.stockQuantity }}</td>
-                    <td>
-                        <p-tag severity="info" [value]="item.unit | unitLabel"> </p-tag>
-                    </td>
+                    <!--                    <td>-->
+                    <!--                        <p-tag severity="info" [value]="item.unit | unitLabel"> </p-tag>-->
+                    <!--                    </td>-->
                     <td>
                         <p-tag [severity]="getStatusSeverity(item.status)" [value]="item.status | statusLabel"> </p-tag>
                     </td>
@@ -114,6 +147,20 @@ export class WpProductListComponent {
 
     constructor() {
         // this.syncCategories(1);
+        this.generateStatusOptions();
+        this.tr.onLangChange.subscribe((lang) => {
+            this.generateStatusOptions();
+        });
+    }
+
+    protected productStatus: any[] = [];
+    private generateStatusOptions() {
+        this.productStatus = Object.keys(ProductStatus)
+            .filter((key) => isNaN(Number(key)))
+            .map((key) => ({
+                label: this.tr.instant(`PRODUCT_STATUS.${key}`),
+                value: ProductStatus[key as keyof typeof ProductStatus]
+            }));
     }
 
     private dialogService = inject(DialogService);
@@ -146,4 +193,12 @@ export class WpProductListComponent {
                 return 'info';
         }
     }
+
+    // В твоя .ts файл дефинирай статусите
+    // statusOptions = [
+    //     { label: 'Active', value: 1 },
+    //     { label: 'Inactive', value: 0 },
+    //     { label: 'Draft', value: 2 }
+    // ];
+    protected readonly ProductStatusConfig = ProductStatusConfig;
 }

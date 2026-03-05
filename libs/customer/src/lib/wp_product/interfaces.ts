@@ -8,7 +8,7 @@ export interface IWpProduct {
     id: number;
     names: string;
     stockQuantity: number;
-    unit: ProductUnit;
+    // unit: ProductUnit;
     weight: string;
     buyPrice: number;
     translations: IWpProductTranslation[];
@@ -100,3 +100,4 @@ export interface IWpProductSiteConfig {
     slug?: string;
     site: ISite;
 }
+
