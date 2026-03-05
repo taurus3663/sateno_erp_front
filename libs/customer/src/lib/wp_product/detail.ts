@@ -8,7 +8,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Select } from 'primeng/select';
 import { LanguageListService } from '../language/list.service';
 import { WpProductDetailService } from './detail.service';
-import { IWpImage, IWpProduct, ProductStatus, ProductUnit } from './interfaces';
+import { IWpImage, IWpProduct, ProductSaleType, ProductStatus, ProductUnit } from './interfaces';
 import { InputNumber } from 'primeng/inputnumber';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Textarea } from 'primeng/textarea';
@@ -33,7 +33,9 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
     standalone: true,
     imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Editor, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox],
     template: `
-        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '90vh', width: '1000px' }">
+        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()"
+                  (visibleChange)="detailService.closeDetail()" [modal]="true"
+                  [style]="{ 'min-width': '1000px', 'min-height': '90vh', width: '1000px' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -59,13 +61,17 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                 <div class="grid grid-cols-12 gap-4 pt-4">
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Status' | translate }}</label>
-                                        <p-select [options]="productStatus" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full"></p-select>
+                                        <p-select [options]="productStatus" [(ngModel)]="item.status"
+                                                  optionLabel="label" optionValue="value" class="w-full"></p-select>
                                     </div>
 
                                     <div class="col-span-12 mt-4">
-                                        <label class="block font-bold mb-2 text-900"> <i class="pi pi-images mr-2 text-primary"></i>{{ 'Images' | translate }} </label>
+                                        <label class="block font-bold mb-2 text-900"> <i
+                                            class="pi pi-images mr-2 text-primary"></i>{{ 'Images' | translate }}
+                                        </label>
 
-                                        <div class="p-4 border-1 border-surface-200 border-round bg-surface-50 shadow-sm">
+                                        <div
+                                            class="p-4 border-1 border-surface-200 border-round bg-surface-50 shadow-sm">
                                             <p-fileupload
                                                 name="file"
                                                 [url]="uploadUrl"
@@ -83,15 +89,28 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                             </p-fileupload>
 
                                             <div class="grid grid-cols-12 gap-3" *ngIf="item?.images?.length">
-                                                <div *ngFor="let img of item.images; let i = index" class="col-span-4 md:col-span-2 relative group">
-                                                    <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4" [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
-                                                        <img [src]="baseUrl + img.localSrc" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" alt="Product thumbnail" />
+                                                <div *ngFor="let img of item.images; let i = index"
+                                                     class="col-span-4 md:col-span-2 relative group">
+                                                    <div
+                                                        class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"
+                                                        [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
+                                                        <img [src]="baseUrl + img.localSrc"
+                                                             style="width: 130px;height: auto;"
+                                                             class="h-8rem object-cover block cursor-pointer"
+                                                             alt="Product thumbnail" />
 
-                                                        <span *ngIf="img.isTemp" class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>
+                                                        <span *ngIf="img.isTemp"
+                                                              class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>
 
-                                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small" pTooltip="{{ 'Remove' | translate }}" (onClick)="removeImage(i)"> </p-button>
-                                                            <p-button icon="pi pi-search-plus" severity="secondary" [rounded]="true" size="small" (onClick)="viewImage(img.localSrc)"> </p-button>
+                                                        <div
+                                                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                            <p-button icon="pi pi-trash" severity="danger"
+                                                                      [rounded]="true" size="small"
+                                                                      pTooltip="{{ 'Remove' | translate }}"
+                                                                      (onClick)="removeImage(i)"></p-button>
+                                                            <p-button icon="pi pi-search-plus" severity="secondary"
+                                                                      [rounded]="true" size="small"
+                                                                      (onClick)="viewImage(img.localSrc)"></p-button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -99,14 +118,22 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                         </div>
                                     </div>
 
-<!--                                    <div class="col-span-3">-->
-<!--                                        <label class="block font-bold mb-2">{{ 'Unit' | translate }}</label>-->
-<!--                                        <p-select [options]="productUnit" [(ngModel)]="item.unit" optionLabel="label" optionValue="value" class="w-full"></p-select>-->
-<!--                                    </div>-->
+                                    <div class="col-span-3" *ngIf="productSaleType.length > 0">
+                                        <label class="block font-bold mb-2">{{ 'Limited' | translate }}</label>
+                                        <p-select
+                                            [options]="productSaleType"
+                                            [(ngModel)]="item.saleType"
+                                            optionLabel="label"
+                                            optionValue="value"
+                                            placeholder="Select Type"
+                                            class="w-full">
+                                        </p-select>
+                                    </div>
 
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Quantity' | translate }}</label>
-                                        <p-inputNumber [(ngModel)]="item.stockQuantity" class="w-full" styleClass="w-full"></p-inputNumber>
+                                        <p-inputNumber [(ngModel)]="item.stockQuantity" class="w-full"
+                                                       styleClass="w-full"></p-inputNumber>
                                     </div>
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Weight' | translate }}</label>
@@ -115,7 +142,8 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
 
                                     <div class="col-span-12 mt-3">
                                         <label class="block font-bold mb-2">{{ 'Brand' | translate }}</label>
-                                        <p-select [options]="brandLService.items()" [(ngModel)]="item.brand" optionLabel="name" class="w-full"></p-select>
+                                        <p-select [options]="brandLService.items()" [(ngModel)]="item.brand"
+                                                  optionLabel="name" class="w-full"></p-select>
                                     </div>
 
                                     <div class="col-span-12 mt-3">
@@ -136,11 +164,14 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                             <ng-template pTemplate="value" let-value>
                                                 <div class="flex items-center gap-1" *ngIf="value && value.length > 0">
                                                     <ng-container *ngFor="let node of value | slice: 0 : 2">
-                                                        <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm border border-blue-200">
+                                                        <span
+                                                            class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm border border-blue-200">
                                                             {{ $any(node).label }}
                                                         </span>
                                                     </ng-container>
-                                                    <span *ngIf="value.length > 2" class="text-sm font-bold text-gray-500 ml-1"> + {{ value.length - 2 }} още </span>
+                                                    <span *ngIf="value.length > 2"
+                                                          class="text-sm font-bold text-gray-500 ml-1"> + {{ value.length - 2 }}
+                                                        още </span>
                                                 </div>
                                             </ng-template>
                                         </p-treeSelect>
@@ -150,27 +181,35 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                             <p-tabpanel value="1">
                                 <div class="pt-4">
                                     <ng-container *ngFor="let lang of item.translations">
-                                        <div class="grid grid-cols-12 gap-4" *ngIf="lang.language.id === selectedLanguage?.id">
+                                        <div class="grid grid-cols-12 gap-4"
+                                             *ngIf="lang.language.id === selectedLanguage?.id">
                                             <div class="col-span-12">
-                                                <label class="block font-bold mb-2">{{ 'Product_Name' | translate }}</label>
+                                                <label
+                                                    class="block font-bold mb-2">{{ 'Product_Name' | translate }}</label>
                                                 <input pInputText class="w-full" [(ngModel)]="lang.name" />
                                             </div>
 
                                             <div class="col-span-12">
-                                                <label class="block font-bold mb-2">{{ 'Short_Description' | translate }}</label>
-                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }" class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>
+                                                <label
+                                                    class="block font-bold mb-2">{{ 'Short_Description' | translate }}</label>
+                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }"
+                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>
                                             </div>
 
                                             <div class="col-span-12">
-                                                <label class="block font-bold mb-2">{{ 'Description' | translate }}</label>
-                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }" class="w-full" [(ngModel)]="lang.description"></p-editor>
+                                                <label
+                                                    class="block font-bold mb-2">{{ 'Description' | translate }}</label>
+                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }"
+                                                          class="w-full" [(ngModel)]="lang.description"></p-editor>
                                             </div>
                                         </div>
                                     </ng-container>
                                 </div>
-                                <div *ngIf="!selectedLanguage" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                <div *ngIf="!selectedLanguage"
+                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
                                     <i class="pi pi-language text-4xl mb-3"></i>
-                                    <span class="text-xl font-medium">{{ 'Please_select_a_language_to_view_or_add_a_translation.' | translate }}</span>
+                                    <span
+                                        class="text-xl font-medium">{{ 'Please_select_a_language_to_view_or_add_a_translation.' | translate }}</span>
                                 </div>
                             </p-tabpanel>
                             <p-tabpanel value="2">
@@ -187,21 +226,28 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                                 [style]="{ width: '100%' }"
                                                 [listStyle]="{ 'max-height': '200px' }">
                                                 <ng-template pTemplate="item" let-addon>
-                                                    <span [pTooltip]="addon.names" class="text-sm">{{ addon.names }}</span>
+                                                    <span [pTooltip]="addon.names"
+                                                          class="text-sm">{{ addon.names }}</span>
                                                 </ng-template>
                                             </p-listbox>
                                         </div>
 
                                         <div class="col-span-8">
-                                            <label class="block font-bold mb-2">{{ 'Available_Values' | translate }}</label>
-                                            <div class="flex flex-wrap gap-2 p-3 border-round bg-surface-50 border-1 border-surface-200" style="min-height: 100px;">
+                                            <label
+                                                class="block font-bold mb-2">{{ 'Available_Values' | translate }}</label>
+                                            <div
+                                                class="flex flex-wrap gap-2 p-3 border-round bg-surface-50 border-1 border-surface-200"
+                                                style="min-height: 100px;">
 
 
-                                                <div *ngIf="this.detailService.isLoadingAddonValues()" class="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
-                                                    <i class="pi pi-spinner pi-spin text-primary" style="font-size: 2rem"></i>
+                                                <div *ngIf="this.detailService.isLoadingAddonValues()"
+                                                     class="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                                                    <i class="pi pi-spinner pi-spin text-primary"
+                                                       style="font-size: 2rem"></i>
                                                 </div>
 
-                                                <div *ngIf="!this.detailService.selectedAddonGroup" class="text-gray-400 italic text-sm">
+                                                <div *ngIf="!this.detailService.selectedAddonGroup"
+                                                     class="text-gray-400 italic text-sm">
                                                     {{ 'Select_group_to_see_values' | translate }}
                                                 </div>
 
@@ -215,7 +261,9 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                                     (onClick)="addValueToSite(val)">
                                                 </p-button>
 
-                                                <div *ngIf="this.detailService.selectedAddonGroup && this.detailService.selectedAddonValues.length === 0" class="text-gray-400 italic text-sm">
+                                                <div
+                                                    *ngIf="this.detailService.selectedAddonGroup && this.detailService.selectedAddonValues.length === 0"
+                                                    class="text-gray-400 italic text-sm">
                                                     {{ 'No_values_found_for_this_group' | translate }}
                                                 </div>
                                             </div>
@@ -223,10 +271,14 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
 
                                         <div class="col-span-12 mt-4">
                                             <div class="flex justify-between items-center mb-2">
-                                                <span class="font-bold text-lg"><i class="pi pi-table mr-2"></i>{{ 'Active_Configuration_for' | translate }}: {{ selectedSite.name }}</span>
+                                                <span class="font-bold text-lg"><i
+                                                    class="pi pi-table mr-2"></i>{{ 'Active_Configuration_for' | translate }}
+                                                    : {{ selectedSite.name }}</span>
                                             </div>
 
-                                            <p-table [value]="currentSiteConfigs" [scrollable]="true" scrollHeight="300px" styleClass="p-datatable-sm shadow-1 border-round overflow-hidden">
+                                            <p-table [value]="currentSiteConfigs" [scrollable]="true"
+                                                     scrollHeight="300px"
+                                                     styleClass="p-datatable-sm shadow-1 border-round overflow-hidden">
                                                 <ng-template pTemplate="header">
                                                     <tr>
                                                         <th>{{ 'Addon' | translate }}</th>
@@ -238,8 +290,10 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                                     <tr>
                                                         <td>
                                                             <div class="flex flex-col">
-                                                                <span class="font-bold">{{ getValueLabel(config.addonValue) }}</span>
-                                                                <small class="text-gray-500">{{ config.addonValue.slug }}</small>
+                                                                <span
+                                                                    class="font-bold">{{ getValueLabel(config.addonValue) }}</span>
+                                                                <small
+                                                                    class="text-gray-500">{{ config.addonValue.slug }}</small>
                                                             </div>
                                                         </td>
                                                         <td>
@@ -257,7 +311,9 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                                             </p-inputNumber>
                                                         </td>
                                                         <td>
-                                                            <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="removeConfig(i)"></p-button>
+                                                            <p-button icon="pi pi-trash" severity="danger" [text]="true"
+                                                                      [rounded]="true"
+                                                                      (onClick)="removeConfig(i)"></p-button>
                                                         </td>
                                                     </tr>
                                                 </ng-template>
@@ -272,24 +328,28 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                         </div>
                                     </div>
                                 </div>
-                                <div *ngIf="!selectedSite" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                <div *ngIf="!selectedSite"
+                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
                                     <i class="pi pi-language text-4xl mb-3"></i>
-                                    <span class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
+                                    <span
+                                        class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
                                 </div>
-
 
 
                                 <div class="pt-4" *ngIf="selectedSite && currentSitePricing">
 
-                                    <div class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
+                                    <div
+                                        class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
                                         <div class="col-span-12">
                                             <h3 class="text-sm font-bold uppercase text-blue-700 mb-2">
-                                                <i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}: {{ selectedSite.name }}
+                                                <i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}
+                                                : {{ selectedSite.name }}
                                             </h3>
                                         </div>
 
                                         <div class="col-span-4">
-                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Regular_Price' | translate }}</label>
+                                            <label
+                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Regular_Price' | translate }}</label>
                                             <p-inputNumber
                                                 [(ngModel)]="currentSitePricing.regularPrice"
                                                 mode="currency"
@@ -300,7 +360,8 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                         </div>
 
                                         <div class="col-span-4">
-                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }}</label>
+                                            <label
+                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }}</label>
                                             <p-inputNumber
                                                 [(ngModel)]="currentSitePricing.price"
                                                 mode="currency"
@@ -311,8 +372,10 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                         </div>
 
                                         <div class="col-span-4">
-                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Site_Specific_SKU' | translate }}</label>
-                                            <input pInputText [(ngModel)]="currentSitePricing.sku" disabled class="w-full" />
+                                            <label
+                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Site_Specific_SKU' | translate }}</label>
+                                            <input pInputText [(ngModel)]="currentSitePricing.sku" disabled
+                                                   class="w-full" />
                                         </div>
                                     </div>
 
@@ -330,7 +393,9 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
             <ng-template #footer>
                 <div class="flex justify-content-between align-items-center w-full p-2 justify-between">
                     <div class="flex flex-col gap-5">
-                        <p-select appendTo="body" [options]="languageLService.items()" [(ngModel)]="selectedLanguage" (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език" [style]="{ width: '220px' }"> </p-select>
+                        <p-select appendTo="body" [options]="languageLService.items()" [(ngModel)]="selectedLanguage"
+                                  (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език"
+                                  [style]="{ width: '220px' }"></p-select>
 
                         <p-select
                             appendTo="body"
@@ -345,9 +410,11 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                     </div>
 
                     <div class="flex gap-2 items-end">
-                        <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
+                        <p-button label="Отказ" severity="secondary" [text]="true"
+                                  (onClick)="detailService.closeDetail()" />
 
-                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"
+                                  (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
                     </div>
                 </div>
             </ng-template>
@@ -401,25 +468,28 @@ export class WpCategoryDetailComponent {
         this.detailService.loadAllCategories();
         this.addonService.loadList(0, 1000);
 
-        this.generateUnitOptions();
+        this.generateProductSaleTypeOptions();
         this.generateStatusOptions();
 
         this.tr.onLangChange.subscribe((lang) => {
-            this.generateUnitOptions();
+            this.generateProductSaleTypeOptions();
             this.generateStatusOptions();
         });
         effect(() => {});
     }
 
-    protected productUnit: any[] = [];
-    private generateUnitOptions() {
-        this.productUnit = Object.keys(ProductUnit)
+    protected productSaleType: any[] = [];
+    private generateProductSaleTypeOptions() {
+        this.productSaleType = Object.keys(ProductSaleType)
             .filter((key) => isNaN(Number(key)))
-            .map((key) => ({
-                // Вече instant() ще има достъп до преводите, защото се вика след смяна на езика
-                label: this.tr.instant(`UNIT.${key}`),
-                value: ProductUnit[key as keyof typeof ProductUnit]
-            }));
+            .map((key) => {
+                // Взимаме числовата стойност от Enum-а
+                const enumValue = ProductSaleType[key as keyof typeof ProductSaleType];
+                return {
+                    label: this.tr.instant(key),
+                    value: Number(enumValue) // ГАРАНТИРАМЕ, че е число 0 или 1
+                };
+            });
     }
 
     protected productStatus: any[] = [];

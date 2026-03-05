@@ -59,7 +59,7 @@ import { CourierType } from '../courier/interfaces';
             </div>
 
             <div class="field"
-                 *ngIf="detailService.selectedCourier && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER')">
+                 *ngIf="detailService.selectedCourier && (detailService.deliveryType === 'OFFICE' || detailService.deliveryType === 'LOCKER' || detailService.deliveryType === 'ADDRESS')">
                 <label class="font-bold block mb-2">{{ 'City' | translate }}</label>
                 <p-select
                     [options]="detailService.cities"
@@ -116,26 +116,26 @@ import { CourierType } from '../courier/interfaces';
             </div>
             <!-- ADDRESS-->
             <div *ngIf="detailService.selectedCity && detailService.deliveryType === 'ADDRESS'" class="fadein">
-                <label class="font-bold block mb-2">{{ 'City' | translate }}</label>
-                <p-select
-                    [options]="detailService.cities"
-                    [(ngModel)]="detailService.selectedCity"
-                    (onChange)="detailService.onCityChange()"
-                    (onFilter)="onCitySearch($event)"
-                    [filter]="true"
-                    [lazy]="true"
-                    optionLabel="name"
-                    [loading]="detailService.loadingCities"
-                    placeholder="{{ 'Type_City_Name' | translate }}"
-                    class="w-full"
-                >
-                    <ng-template pTemplate="item" let-city>
-                        <div class="flex justify-content-between">
-                            <span>{{ city.name }}</span>
-                            <small class="text-secondary">{{ city.postCode }}</small>
-                        </div>
-                    </ng-template>
-                </p-select>
+<!--                <label class="font-bold block mb-2">{{ 'City' | translate }}</label>-->
+<!--                <p-select-->
+<!--                    [options]="detailService.cities"-->
+<!--                    [(ngModel)]="detailService.selectedCity"-->
+<!--                    (onChange)="detailService.onCityChange()"-->
+<!--                    (onFilter)="onCitySearch($event)"-->
+<!--                    [filter]="true"-->
+<!--                    [lazy]="true"-->
+<!--                    optionLabel="name"-->
+<!--                    [loading]="detailService.loadingCities"-->
+<!--                    placeholder="{{ 'Type_City_Name' | translate }}"-->
+<!--                    class="w-full"-->
+<!--                >-->
+<!--                    <ng-template pTemplate="item" let-city>-->
+<!--                        <div class="flex justify-content-between">-->
+<!--                            <span>{{ city.name }}</span>-->
+<!--                            <small class="text-secondary">{{ city.postCode }}</small>-->
+<!--                        </div>-->
+<!--                    </ng-template>-->
+<!--                </p-select>-->
 
                 <div style="width: 90px;">
                     <label class="font-bold block mb-2">{{ 'Post_Code' | translate }}</label>

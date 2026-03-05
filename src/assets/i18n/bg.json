@@ -258,5 +258,8 @@
   "Minutes_total": "Общо минути",
   "Status_will_change_automatically_after_this_period": "Статуса ще се смени автоматично",
   "Message_unconfirmed_order": "Съобщение при не потвърдена поръчка",
-  "Auto_send_message_after": "Автоматично изпращане на имейл съобщение след:"
+  "Auto_send_message_after": "Автоматично изпращане на имейл съобщение след:",
+  "Limited": "Ограничение",
+  "LIMITED": "ОГРАНИЧЕН",
+  "UNLIMITED": "НЕОГРАНИЧЕН"
 }

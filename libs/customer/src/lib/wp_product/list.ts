@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WpProductListService } from './list.service';
 import { WpProductDetailService } from './detail.service';
-import { IWpProduct, ProductStatus, ProductStatusConfig } from './interfaces';
+import { IWpProduct, ProductSaleType, ProductStatus, ProductStatusConfig } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -19,11 +19,12 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
+import { Image } from 'primeng/image';
 
 @Component({
     selector: 'wp_product-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, StatusLabelPipe, IconField, Select, FormsModule],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, StatusLabelPipe, IconField, Select, FormsModule, Image],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -53,7 +54,7 @@ import { FormsModule } from '@angular/forms';
                 <div class="flex justify-content-between">
                     <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="dt.clear()" />
                     <p-iconfield iconPosition="left">
-<!--                        <p-inputicon styleClass="pi pi-search"></p-inputicon>-->
+                        <!--                        <p-inputicon styleClass="pi pi-search"></p-inputicon>-->
                         <!--                        <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Global Search" />-->
                     </p-iconfield>
                 </div>
@@ -81,6 +82,7 @@ import { FormsModule } from '@angular/forms';
                                 </p-select> </ng-template
                         ></p-columnFilter>
                     </th>
+                    <th pSortableColumn="limited">{{'Limited' | translate}} <p-columnFilter type="text" field="limited" display="menu" /></th>
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
@@ -92,8 +94,12 @@ import { FormsModule } from '@angular/forms';
                     </td>
 
                     <td>
-                        <div class="flex justify-content-center">
-                            <img *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" class="w-3rem h-3rem border-round shadow-1" style="width: 10em" (error)="item.m_image = null" />
+                        <div class="flex justify-content-center custom-image-preview">
+                            <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="60" [preview]="true" imageClass="border-round shadow-1 cursor-pointer" (onImageError)="item.m_image = null">
+                                <ng-template #indicator>
+                                    <i class="pi pi-expand"></i>
+                                </ng-template>
+                            </p-image>
                         </div>
                     </td>
 
@@ -118,6 +124,14 @@ import { FormsModule } from '@angular/forms';
                     <td>
                         <p-tag [severity]="getStatusSeverity(item.status)" [value]="item.status | statusLabel"> </p-tag>
                     </td>
+
+
+                    <td>
+                        <p-tag
+                            [severity]="item.saleType === 0 ? 'info' : 'danger'"
+                            [value]="(item.saleType === 0 ? 'LIMITED' : 'UNLIMITED') | translate">
+                        </p-tag>                    </td>
+
                     <td>
                         <div class="flex gap-2">
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
@@ -201,4 +215,5 @@ export class WpProductListComponent {
     //     { label: 'Draft', value: 2 }
     // ];
     protected readonly ProductStatusConfig = ProductStatusConfig;
+    protected readonly ProductSaleType = ProductSaleType;
 }

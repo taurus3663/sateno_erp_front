@@ -21,6 +21,17 @@ export interface IWpProduct {
     addonConfig: any[];
     addonConfigs: IWpProductAddonConfig[];
     siteConfig: IWpProductSiteConfig[];
+    saleType: ProductSaleType;
+}
+export enum ProductSaleType {
+    LIMITED = 0,
+    UNLIMITED = 1
+}
+
+export enum ProductStatus {
+    DRAFT = 0,
+    PUBLISHED = 1,
+    PRIVATE = 2,
 }
 
 export interface IWpProductAddonConfig {
@@ -67,11 +78,7 @@ export enum ProductUnit {
     L = 2, // litre
     M = 3, // meters
 }
-export enum ProductStatus {
-    DRAFT = 0,
-    PUBLISHED = 1,
-    PRIVATE = 2,
-}
+
 // Помощен обект за цветовете на PrimeNG Tag
 export const ProductStatusConfig = {
     [ProductStatus.PUBLISHED]: { severity: 'success', label: 'Published' },
