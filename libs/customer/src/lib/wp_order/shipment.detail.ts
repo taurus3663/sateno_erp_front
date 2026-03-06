@@ -20,7 +20,7 @@ import { CourierType } from '../courier/interfaces';
     imports: [ReactiveFormsModule, Button, Drawer, TranslatePipe, CommonModule, SelectModule, FormsModule, SelectButton, Tooltip, InputText, InputNumber],
     template: `
 
-        <p-drawer [(visible)]="detailService.visible" position="left" [style]="{ width: '30rem' }">
+        <p-drawer [(visible)]="detailService.visible" position="left" [style]="{ width: '30rem' }" [modal]="true">
 
             <ng-template #header>
                 <h4>{{ 'Generate_Waybill' | translate }}</h4>

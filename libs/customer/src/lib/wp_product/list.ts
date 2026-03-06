@@ -13,19 +13,19 @@ import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { TreeTableModule } from 'primeng/treetable';
 import { Tooltip } from 'primeng/tooltip';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
-import { StatusLabelPipe } from './productStatus.pipe';
 import { XL_AUTH_CONFIG } from 'xl-auth';
 import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { Image } from 'primeng/image';
 import { WpCategoryListService } from '../wp_category/list.service';
+import { OverlayBadge } from 'primeng/overlaybadge';
+import { WpBrandListService } from '../wp_brand/list.service';
 
 @Component({
     selector: 'wp_product-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, StatusLabelPipe, IconField, Select, FormsModule, Image],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, IconField, Select, FormsModule, Image, OverlayBadge],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -41,10 +41,10 @@ import { WpCategoryListService } from '../wp_category/list.service';
             [lazy]="true"
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
-            [rows]="10"
+            [rows]="200"
             [totalRecords]="listService.totalRecords()"
             [loading]="listService.loading()"
-            [rowsPerPageOptions]="[10, 20, 50]"
+            [rowsPerPageOptions]="[10, 20, 50, 200]"
             [tableStyle]="{ 'min-width': '50rem' }"
             [(selection)]="selectedItem"
             [rowHover]="true"
@@ -67,18 +67,43 @@ import { WpCategoryListService } from '../wp_category/list.service';
                         <p-tableHeaderCheckbox />
                     </th>
                     <th style="width: 5rem">{{ 'Image' | translate }}</th>
-                    <th pSortableColumn="sku">{{ 'SKU' | translate }} <p-columnFilter type="text" field="sku" display="menu" /></th>
-                    <th pSortableColumn="brand">{{ 'Brand' | translate }} <p-columnFilter type="text" field="brand" display="menu" /></th>
-                    <th pSortableColumn="category">
-                        {{ 'Categories' | translate }}
+                    <th pSortableColumn="sku">{{ 'SKU' | translate }} <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></th>
+                    <th pSortableColumn="name">{{ 'Name' | translate }} <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></th>
+                    <th pSortableColumn="brand">
+                        {{ 'Brand' | translate }}
                         <p-columnFilter
-                            field="category"
+                            field="brand"
                             display="menu"
-                            matchMode="contains"
                             [showMatchModes]="false"
                             [showOperator]="false"
-                            [showAddButton]="false">
-
+                            [showAddButton]="false"
+                        >
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-select
+                                    [ngModel]="value"
+                                    [options]="brandLService.items()"
+                                    (onChange)="filter($event.value)"
+                                    optionLabel="name"
+                                    optionValue="name"
+                                    placeholder="{{ 'Select_Brand' | translate }}"
+                                    [filter]="true"
+                                    appendTo="body"
+                                    class="w-full"
+                                >
+                                    <ng-template #item let-option>
+                                        <div class="flex align-items-center gap-2">
+                                            <i class="pi pi-bookmark text-primary"></i>
+                                            <span>{{ option.name }}</span>
+                                        </div>
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                    </th>
+                    <th pSortableColumn="quantity">{{ 'Quantity' | translate }} <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></th>
+                    <th pSortableColumn="category">
+                        {{ 'Categories' | translate }}
+                        <p-columnFilter field="category" display="menu" matchMode="contains" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                             <ng-template #filter let-value let-filter="filterCallback">
                                 <p-select
                                     [ngModel]="value"
@@ -86,10 +111,10 @@ import { WpCategoryListService } from '../wp_category/list.service';
                                     (onChange)="filter($event.value?.split('|')[0].trim())"
                                     optionLabel="data.name"
                                     optionValue="data.name"
-                                    placeholder="{{ 'Select_Category' | translate }}"
+                                    placeholder="{{ 'Category' | translate }}"
                                     [filter]="true"
-                                    appendTo="body">
-
+                                    appendTo="body"
+                                >
                                     <ng-template #item let-option>
                                         <div class="flex align-items-center gap-2">
                                             <i class="pi pi-tag text-primary"></i>
@@ -100,69 +125,72 @@ import { WpCategoryListService } from '../wp_category/list.service';
                             </ng-template>
                         </p-columnFilter>
                     </th>
-                    <th pSortableColumn="name">{{ 'Name' | translate }} <p-columnFilter type="text" field="name" display="menu" /></th>
-                    <th pSortableColumn="quantity">{{ 'Quantity' | translate }} <p-columnFilter type="text" field="quantity" display="menu" /></th>
-                    <th pSortableColumn="status">
-                        {{ 'Status' | translate }}
-                        <p-columnFilter type="text" field="status" display="menu">
-                            <ng-template #filter let-value let-filter="filterCallback">
-                                <p-select [ngModel]="value" [options]="productStatus" (onChange)="filter($event.value)" placeholder="Select One">
-                                    <ng-template let-option #item>
-                                        <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
+                    <!--                    <th pSortableColumn="status">-->
+                    <!--                        {{ 'Status' | translate }}-->
+                    <!--                        <p-columnFilter type="text" field="status" display="menu">-->
+                    <!--                            <ng-template #filter let-value let-filter="filterCallback">-->
+                    <!--                                <p-select [ngModel]="value" [options]="productStatus" (onChange)="filter($event.value)" placeholder="Select One">-->
+                    <!--                                    <ng-template let-option #item>-->
+                    <!--                                        <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />-->
+                    <!--                                    </ng-template>-->
+                    <!--                                </p-select> </ng-template-->
+                    <!--                        ></p-columnFilter>-->
+                    <!--                    </th>-->
+                    <th pSortableColumn="saleType">{{ 'Limited' | translate }} <p-columnFilter type="text" field="saleType" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false" >
+                        <ng-template #filter let-value let-filter="filterCallback">
+                            <p-select [ngModel]="value" [options]="productSaleType" (onChange)="filter($event.value)" placeholder=" {{ 'Limited' | translate }}">-->
+                                                                    <ng-template let-option #item>
+                                                                        <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
+                                                                    </ng-template>
+                               </p-select>
                                     </ng-template>
-                                </p-select>
-                            </ng-template
-                        ></p-columnFilter>
-                    </th>
-                    <th pSortableColumn="limited">{{'Limited' | translate}} <p-columnFilter type="text" field="limited" display="menu" /></th>
-                    <th style="width: 8rem"></th>
-                </tr>
-            </ng-template>
+                                </p-columnFilter></th>
+                                <th style="width: 8rem"></th>
+                            </tr>
+                        </ng-template>
 
-            <ng-template pTemplate="body" let-item>
-                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
-                    <td (click)="$event.stopPropagation()">
-                        <p-tableCheckbox [value]="item"></p-tableCheckbox>
-                    </td>
+                        <ng-template pTemplate="body" let-item>
+                            <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
+                                <td (click)="$event.stopPropagation()">
+                                    <p-tableCheckbox [value]="item"></p-tableCheckbox>
+                                </td>
 
-                    <td>
-                        <div class="flex justify-content-center custom-image-preview">
-                            <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="60" [preview]="true" imageClass="border-round shadow-1 cursor-pointer" (onImageError)="item.m_image = null">
-                                <ng-template #indicator>
-                                    <i class="pi pi-expand"></i>
-                                </ng-template>
-                            </p-image>
-                        </div>
-                    </td>
+                                <td>
+                                    <div class="flex justify-content-center">
+                                        <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
+                                            <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="70" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"> </p-image>
+                                        </p-overlay-badge>
+                                    </div>
+                                </td>
 
-                    <td>
-                        <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>
-                    </td>
-                    <td>{{ item.brand.name }}</td>
-                    <td>
-                        <div class="flex flex-col gap-1 w-70">
-                            <p-tag *ngFor="let cat of item.categories" [value]="cat.slug" severity="secondary"> </p-tag>
-                        </div>
-                    </td>
-                    <td>
-                        <span [pTooltip]="item.names" tooltipPosition="top" class="cursor-help">
-                            {{ item.names }}
-                        </span>
-                    </td>
-                    <td>{{ item.stockQuantity }}</td>
-                    <!--                    <td>-->
+                                <td>
+                                    <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>
+                                </td>
+
+                                <td>
+                                    <span [pTooltip]="item.names" tooltipPosition="top" class="cursor-help">
+                                        {{ item.names }}
+                                    </span>
+                                </td>
+                                <td>{{ item.brand?.name ?? '' }}</td>
+                                <td>{{ item.stockQuantity }}</td>
+
+                                <td>
+                                    <div class="flex flex-col gap-1 w-70">
+                                        <p-tag *ngFor="let cat of item.categories" [value]="cat.name" severity="secondary"> </p-tag>
+                                    </div>
+                                </td>
+
+                                <!--                    <td>-->
                     <!--                        <p-tag severity="info" [value]="item.unit | unitLabel"> </p-tag>-->
                     <!--                    </td>-->
+                    <!--                    <td>-->
+                    <!--                        <p-tag [severity]="getStatusSeverity(item.status)" [value]="item.status | statusLabel"> </p-tag>-->
+                    <!--                    </td>-->
+
                     <td>
-                        <p-tag [severity]="getStatusSeverity(item.status)" [value]="item.status | statusLabel"> </p-tag>
+                        <p-tag [severity]="item.saleType === 0 ? 'info' : 'danger'" [value]="(item.saleType === 0 ? 'LIMITED' : 'UNLIMITED') | translate"> </p-tag>
                     </td>
-
-
-                    <td>
-                        <p-tag
-                            [severity]="item.saleType === 0 ? 'info' : 'danger'"
-                            [value]="(item.saleType === 0 ? 'LIMITED' : 'UNLIMITED') | translate">
-                        </p-tag>                    </td>
 
                     <td>
                         <div class="flex gap-2">
@@ -185,6 +213,7 @@ export class WpProductListComponent {
     private authConfig = inject(XL_AUTH_CONFIG);
     protected readonly baseUrl = this.authConfig.apiUrl;
     protected categoryLService = inject(WpCategoryListService);
+    protected brandLService = inject(WpBrandListService);
 
     selectedItem!: IWpProduct[] | null;
 
@@ -194,20 +223,34 @@ export class WpProductListComponent {
 
     constructor() {
         this.categoryLService.loadList(0, 1000);
+        this.brandLService.loadList(0, 1000);
+
         // this.syncCategories(1);
-        this.generateStatusOptions();
+        // this.generateStatusOptions();
+        this.generateProductSaleType();
         this.tr.onLangChange.subscribe((lang) => {
-            this.generateStatusOptions();
+            // this.generateStatusOptions();
+            this.generateProductSaleType();
         });
     }
 
-    protected productStatus: any[] = [];
-    private generateStatusOptions() {
-        this.productStatus = Object.keys(ProductStatus)
+    // protected productStatus: any[] = [];
+    // private generateStatusOptions() {
+    //     this.productStatus = Object.keys(ProductStatus)
+    //         .filter((key) => isNaN(Number(key)))
+    //         .map((key) => ({
+    //             label: this.tr.instant(`PRODUCT_STATUS.${key}`),
+    //             value: ProductStatus[key as keyof typeof ProductStatus]
+    //         }));
+    // }
+
+    protected productSaleType: any[] = [];
+    private generateProductSaleType() {
+        this.productSaleType = Object.keys(ProductSaleType)
             .filter((key) => isNaN(Number(key)))
             .map((key) => ({
-                label: this.tr.instant(`PRODUCT_STATUS.${key}`),
-                value: ProductStatus[key as keyof typeof ProductStatus]
+                label: this.tr.instant(key),
+                value: ProductSaleType[key as keyof typeof ProductSaleType]
             }));
     }
 
@@ -226,19 +269,23 @@ export class WpProductListComponent {
         });
     }
 
-    getStatusSeverity(status: ProductStatus | string): any {
+    getStatusSeverity(status: ProductSaleType | string): any {
         switch (status) {
-            case 'publish':
-            case ProductStatus.PUBLISHED:
-                return 'success';
-            case 'draft':
-            case ProductStatus.DRAFT:
-                return 'warn';
-            case 'pending':
-            case ProductStatus.PENDING:
-                return 'danger';
-            default:
+            case ProductSaleType.LIMITED:
                 return 'info';
+                case ProductSaleType.UNLIMITED:
+                    return 'danger';
+            // case 'publish':
+            // case ProductStatus.PUBLISHED:
+            //     return 'success';
+            // case 'draft':
+            // case ProductStatus.DRAFT:
+            //     return 'warn';
+            // case 'pending':
+            // case ProductStatus.PENDING:
+            //     return 'danger';
+            // default:
+            //     return 'info';
         }
     }
 
@@ -248,6 +295,17 @@ export class WpProductListComponent {
     //     { label: 'Inactive', value: 0 },
     //     { label: 'Draft', value: 2 }
     // ];
-    protected readonly ProductStatusConfig = ProductStatusConfig;
-    protected readonly ProductSaleType = ProductSaleType;
+
+    isSelling(item: IWpProduct): boolean {
+        const isPublished = item.status === ProductStatus.PUBLISHED;
+        const hasStock = item.stockQuantity > 0;
+
+        // Ако е UNLIMITED (1), може да се продава и без бройка (зависи от бизнес логиката ти)
+        // Но според твоето изискване: статус + бройка + тип
+        if (item.saleType === ProductSaleType.LIMITED) {
+            return isPublished && hasStock;
+        } else {
+            return isPublished;
+        }
+    }
 }

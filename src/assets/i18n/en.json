@@ -259,5 +259,6 @@
   "Status_will_change_automatically_after_this_period": "Status will change automatically after this period",
   "Message_unconfirmed_order": "Message unconfirmed order",
   "Auto_send_message_after": "Auto send message after:",
-  "Limited": "Limited"
+  "Limited": "Limited",
+  "Select_Brand": "Select Brand"
 }
