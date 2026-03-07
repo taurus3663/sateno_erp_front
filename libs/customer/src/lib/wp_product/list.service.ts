@@ -24,19 +24,18 @@ export class WpProductListService extends BaseListCrud<IWpProduct> {
 
     public syncBrands(siteId: any) {
         this.loading.set(true);
-        this.http.post(`${ROUTES.wp_product.sync}/${siteId}`, {})
-            .subscribe({
-                next: (res) => {
-                    this.loadList(0, 10);
-                    this.loading.set(false);
-                },
-                error: (err) => {
-                    this.loading.set(false);
-                }
-            });
+        this.http.post(`${ROUTES.wp_product.sync}/${siteId}`, {}).subscribe({
+            next: (res) => {
+                this.loadList(0, 10);
+                this.loading.set(false);
+            },
+            error: (err) => {
+                this.loading.set(false);
+            }
+        });
     }
 
-// Инжектираме Sanitizer-а
+    // Инжектираме Sanitizer-а
     private sanitizer = inject(DomSanitizer);
     // В компонента или сервиза
     // Правилната функция за взимане на защитена снимка
@@ -50,5 +49,17 @@ export class WpProductListService extends BaseListCrud<IWpProduct> {
                 return this.sanitizer.bypassSecurityTrustUrl(objectURL);
             })
         );
+    }
+
+    updateProductField(item: IWpProduct) {
+        // Тук викаш API-то за частичен ъпдейт (PATCH)
+        this.http.patch(`${ROUTES.wp_product.patch}`, item).subscribe({
+            next: () => {
+                this.messageService.add({ severity: 'success', summary: this.tr.instant("Updated")});
+            },
+            error: () => {
+                // Връщаме старата стойност при грешка, ако е необходимо
+            }
+        });
     }
 }

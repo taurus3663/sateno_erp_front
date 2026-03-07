@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WpProductListService } from './list.service';
 import { WpProductDetailService } from './detail.service';
-import { IWpProduct, ProductSaleType, ProductStatus, ProductStatusConfig } from './interfaces';
+import { IWpProduct, ProductSaleType, ProductStatus } from './interfaces';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -21,11 +21,12 @@ import { Image } from 'primeng/image';
 import { WpCategoryListService } from '../wp_category/list.service';
 import { OverlayBadge } from 'primeng/overlaybadge';
 import { WpBrandListService } from '../wp_brand/list.service';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
     selector: 'wp_product-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, IconField, Select, FormsModule, Image, OverlayBadge],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, IconField, Select, FormsModule, Image, OverlayBadge, InputNumber],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -67,63 +68,69 @@ import { WpBrandListService } from '../wp_brand/list.service';
                         <p-tableHeaderCheckbox />
                     </th>
                     <th style="width: 5rem">{{ 'Image' | translate }}</th>
-                    <th pSortableColumn="sku">{{ 'SKU' | translate }} <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></th>
-                    <th pSortableColumn="name">{{ 'Name' | translate }} <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></th>
-                    <th pSortableColumn="brand">
-                        {{ 'Brand' | translate }}
-                        <p-columnFilter
-                            field="brand"
-                            display="menu"
-                            [showMatchModes]="false"
-                            [showOperator]="false"
-                            [showAddButton]="false"
-                        >
-                            <ng-template #filter let-value let-filter="filterCallback">
-                                <p-select
-                                    [ngModel]="value"
-                                    [options]="brandLService.items()"
-                                    (onChange)="filter($event.value)"
-                                    optionLabel="name"
-                                    optionValue="name"
-                                    placeholder="{{ 'Select_Brand' | translate }}"
-                                    [filter]="true"
-                                    appendTo="body"
-                                    class="w-full"
-                                >
-                                    <ng-template #item let-option>
-                                        <div class="flex align-items-center gap-2">
-                                            <i class="pi pi-bookmark text-primary"></i>
-                                            <span>{{ option.name }}</span>
-                                        </div>
-                                    </ng-template>
-                                </p-select>
-                            </ng-template>
-                        </p-columnFilter>
+                    <th pSortableColumn="sku">
+                        <div class="flex items-center justify-between">{{ 'SKU' | translate }} <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></div>
                     </th>
-                    <th pSortableColumn="quantity">{{ 'Quantity' | translate }} <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></th>
+                    <th pSortableColumn="name">
+                        <div class="flex items-center justify-between">{{ 'Name' | translate }} <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></div>
+                    </th>
+                    <th pSortableColumn="brand">
+                        <div class="flex items-center justify-between">
+                            {{ 'Brand' | translate }}
+                            <p-columnFilter field="brand" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                                <ng-template #filter let-value let-filter="filterCallback">
+                                    <p-select
+                                        [ngModel]="value"
+                                        [options]="brandLService.items()"
+                                        (onChange)="filter($event.value)"
+                                        optionLabel="name"
+                                        optionValue="name"
+                                        placeholder="{{ 'Select_Brand' | translate }}"
+                                        [filter]="true"
+                                        appendTo="body"
+                                        class="w-full"
+                                    >
+                                        <ng-template #item let-option>
+                                            <div class="flex align-items-center gap-2">
+                                                <i class="pi pi-bookmark text-primary"></i>
+                                                <span>{{ option.name }}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-select>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th pSortableColumn="quantity">
+                        <div class="flex items-center justify-between">
+                            {{ 'Quantity' | translate }} <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter>
+                        </div>
+                    </th>
                     <th pSortableColumn="category">
-                        {{ 'Categories' | translate }}
-                        <p-columnFilter field="category" display="menu" matchMode="contains" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
-                            <ng-template #filter let-value let-filter="filterCallback">
-                                <p-select
-                                    [ngModel]="value"
-                                    [options]="categoryLService.items()"
-                                    (onChange)="filter($event.value?.split('|')[0].trim())"
-                                    optionLabel="data.name"
-                                    optionValue="data.name"
-                                    placeholder="{{ 'Category' | translate }}"
-                                    [filter]="true"
-                                    appendTo="body"
-                                >
-                                    <ng-template #item let-option>
-                                        <div class="flex align-items-center gap-2">
-                                            <i class="pi pi-tag text-primary"></i>
-                                            <span>{{ option.data.name.split('|')[0].trim() }}</span>
-                                        </div>
-                                    </ng-template>
-                                </p-select>
-                            </ng-template>
-                        </p-columnFilter>
+                        <div class="flex items-center justify-between">
+                            {{ 'Categories' | translate }}
+                            <p-columnFilter field="category" display="menu" matchMode="contains" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                                <ng-template #filter let-value let-filter="filterCallback">
+                                    <p-select
+                                        [ngModel]="value"
+                                        [options]="categoryLService.items()"
+                                        (onChange)="filter($event.value?.split('|')[0].trim())"
+                                        optionLabel="data.name"
+                                        optionValue="data.name"
+                                        placeholder="{{ 'Category' | translate }}"
+                                        [filter]="true"
+                                        appendTo="body"
+                                    >
+                                        <ng-template #item let-option>
+                                            <div class="flex align-items-center gap-2">
+                                                <i class="pi pi-tag text-primary"></i>
+                                                <span>{{ option.data.name.split('|')[0].trim() }}</span>
+                                            </div>
+                                        </ng-template>
+                                    </p-select>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
                     </th>
                     <!--                    <th pSortableColumn="status">-->
                     <!--                        {{ 'Status' | translate }}-->
@@ -136,52 +143,73 @@ import { WpBrandListService } from '../wp_brand/list.service';
                     <!--                                </p-select> </ng-template-->
                     <!--                        ></p-columnFilter>-->
                     <!--                    </th>-->
-                    <th pSortableColumn="saleType">{{ 'Limited' | translate }} <p-columnFilter type="text" field="saleType" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false" >
-                        <ng-template #filter let-value let-filter="filterCallback">
-                            <p-select [ngModel]="value" [options]="productSaleType" (onChange)="filter($event.value)" placeholder=" {{ 'Limited' | translate }}">-->
-                                                                    <ng-template let-option #item>
-                                                                        <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
-                                                                    </ng-template>
-                               </p-select>
-                                    </ng-template>
-                                </p-columnFilter></th>
-                                <th style="width: 8rem"></th>
-                            </tr>
-                        </ng-template>
+                    <th pSortableColumn="saleType">
+                        <div class="flex items-center justify-between">
+                            {{ 'Limited' | translate }}
+                            <p-columnFilter type="text" field="saleType" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
+                                <ng-template #filter let-value let-filter="filterCallback">
+                                    <p-select [ngModel]="value" [options]="productSaleType" (onChange)="filter($event.value)" placeholder=" {{ 'Limited' | translate }}"
+                                        >-->
+                                        <ng-template let-option #item>
+                                            <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
+                                        </ng-template>
+                                    </p-select>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th style="width: 8rem"></th>
+                </tr>
+            </ng-template>
 
-                        <ng-template pTemplate="body" let-item>
-                            <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
-                                <td (click)="$event.stopPropagation()">
-                                    <p-tableCheckbox [value]="item"></p-tableCheckbox>
-                                </td>
+            <ng-template pTemplate="body" let-item>
+                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
+                    <td (click)="$event.stopPropagation()">
+                        <p-tableCheckbox [value]="item"></p-tableCheckbox>
+                    </td>
 
-                                <td>
-                                    <div class="flex justify-content-center">
-                                        <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
-                                            <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="70" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"> </p-image>
-                                        </p-overlay-badge>
-                                    </div>
-                                </td>
+                    <td>
+                        <div class="flex justify-content-center">
+                            <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
+                                <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="70" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"> </p-image>
+                            </p-overlay-badge>
+                        </div>
+                    </td>
 
-                                <td>
-                                    <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>
-                                </td>
+                    <td>
+                        <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>
+                    </td>
 
-                                <td>
-                                    <span [pTooltip]="item.names" tooltipPosition="top" class="cursor-help">
-                                        {{ item.names }}
-                                    </span>
-                                </td>
-                                <td>{{ item.brand?.name ?? '' }}</td>
-                                <td>{{ item.stockQuantity }}</td>
+                    <td>
+                        <span [pTooltip]="item.names" tooltipPosition="top" class="cursor-help">
+                            {{ item.names }}
+                        </span>
+                    </td>
+                    <td>{{ item.brand?.name ?? '' }}</td>
+                    <td>
+                        <p-inputNumber
+                            #nb
+                            [(ngModel)]="item.stockQuantity"
+                            [readonly]="!item._isEditing"
+                            (onFocus)="item._oldQty = item.stockQuantity; $any($event.target).select()"
+                            (dblclick)="item._isEditing = true; nb.input.nativeElement.focus()"
+                            (onBlur)="item._isEditing = false; (item.stockQuantity !== item._oldQty ? listService.updateProductField(item) : null)"
+                            [min]="0"
+                            [showButtons]="false"
+                            styleClass="compact-input"
+                            [inputSize]="2"
+                            inputClass="w-3rem text-center font-bold p-1 border-none bg-transparent hover:bg-gray-100 cursor-pointer"
+                        >
+                        </p-inputNumber>
+                    </td>
 
-                                <td>
-                                    <div class="flex flex-col gap-1 w-70">
-                                        <p-tag *ngFor="let cat of item.categories" [value]="cat.name" severity="secondary"> </p-tag>
-                                    </div>
-                                </td>
+                    <td>
+                        <div class="flex flex-col gap-1 w-70">
+                            <p-tag *ngFor="let cat of item.categories" [value]="cat.name" severity="secondary"> </p-tag>
+                        </div>
+                    </td>
 
-                                <!--                    <td>-->
+                    <!--                    <td>-->
                     <!--                        <p-tag severity="info" [value]="item.unit | unitLabel"> </p-tag>-->
                     <!--                    </td>-->
                     <!--                    <td>-->
@@ -189,9 +217,19 @@ import { WpBrandListService } from '../wp_brand/list.service';
                     <!--                    </td>-->
 
                     <td>
-                        <p-tag [severity]="item.saleType === 0 ? 'info' : 'danger'" [value]="(item.saleType === 0 ? 'LIMITED' : 'UNLIMITED') | translate"> </p-tag>
-                    </td>
+                        <p-select styleClass="table-status-select"  [(ngModel)]="item.saleType" [options]="productSaleType" (onChange)="listService.updateProductField(item)" variant="filled" class="w-full">
+                            <ng-template #dropdownicon style="visibility: hidden;display: none;width: 0;">
+                                <span></span>
+                            </ng-template>
+                            <ng-template #selectedItem let-selectedOption>
+                                <p-tag [severity]="selectedOption.value === 0 ? 'info' : 'danger'" [value]="selectedOption.label | translate"> </p-tag>
+                            </ng-template>
 
+                            <ng-template #item let-option>
+                                <p-tag [severity]="option.value === 0 ? 'info' : 'danger'" [value]="option.label | translate"> </p-tag>
+                            </ng-template>
+                        </p-select>
+                    </td>
                     <td>
                         <div class="flex gap-2">
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
@@ -203,6 +241,42 @@ import { WpBrandListService } from '../wp_brand/list.service';
         </p-table>
 
         <wp_product-detail *ngIf="config?.data?.mode !== 'lookup'"></wp_product-detail>
+        <style>
+            /* Влияе само на p-select, който има клас 'table-status-select' */
+            :host ::ng-deep .table-status-select {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                width: auto !important; /* Свиваме го до размера на тага */
+                min-width: 0 !important;
+            }
+
+            /* Премахваме фона на лейбъла само за този селект */
+            :host ::ng-deep .table-status-select .p-select-label {
+                background: transparent !important;
+                padding: 0 !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Скриваме стрелката само за този селект */
+            :host ::ng-deep .table-status-select .p-select-dropdown {
+                display: none !important;
+            }
+
+            /* Премахваме фокуса само за този селект */
+            :host ::ng-deep .table-status-select.p-focus {
+                box-shadow: none !important;
+                outline: none !important;
+            }
+
+            /* Стилизация за InputNumber (Quantity) */
+            :host ::ng-deep .compact-input .p-inputnumber-input {
+                width: 3.5rem !important;
+                min-width: 0 !important;
+            }
+        </style>
     `
 })
 export class WpProductListComponent {
@@ -273,8 +347,8 @@ export class WpProductListComponent {
         switch (status) {
             case ProductSaleType.LIMITED:
                 return 'info';
-                case ProductSaleType.UNLIMITED:
-                    return 'danger';
+            case ProductSaleType.UNLIMITED:
+                return 'danger';
             // case 'publish':
             // case ProductStatus.PUBLISHED:
             //     return 'success';

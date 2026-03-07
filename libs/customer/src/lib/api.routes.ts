@@ -92,6 +92,7 @@ export class apiRoutes {
         sync: `${apiRoutes.wpProductBase}/sync`,
         upload_template: `${apiRoutes.wpProductBase}/upload_temp`,
         get_selected_addon_values: `${apiRoutes.wpProductBase}/get_addon_values`,
+        patch: `${apiRoutes.wpProductBase}/patch`,
     }
 
     private static readonly wpBrandBase = 'wp_brand';

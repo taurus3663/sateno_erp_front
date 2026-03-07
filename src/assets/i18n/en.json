@@ -260,5 +260,6 @@
   "Message_unconfirmed_order": "Message unconfirmed order",
   "Auto_send_message_after": "Auto send message after:",
   "Limited": "Limited",
-  "Select_Brand": "Select Brand"
+  "Select_Brand": "Select Brand",
+    "Saved": "Saved"
 }

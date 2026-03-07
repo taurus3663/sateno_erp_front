@@ -128,6 +128,7 @@ import { Popover } from 'primeng/popover';
 <!--                    <th>{{'Confirmed' | translate}}</th>-->
                     <!--                    <th>{{ 'Customer_agent' | translate }}</th>-->
                     <!--                    <th>{{ 'Customer_ip' | translate }}</th>-->
+                    <th>{{ 'Courier' | translate}}</th>
                     <th>{{ 'Bill_of_lading' | translate }}</th>
                     <th>{{ 'Payment_method' | translate }}</th>
                     <th>{{ 'Price' | translate }}</th>
@@ -278,6 +279,25 @@ import { Popover } from 'primeng/popover';
 
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
+                    <td>
+                        <div class="flex align-items-center gap-2" *ngIf="listService.getCourierType(item) as courierInfo">
+                            <img
+                                *ngIf="courierInfo.courierName"
+                                [src]="listService.courierLogos[courierInfo.courierName] || listService.courierLogos['UNKNOWN']"
+                                [alt]="courierInfo.courierName"
+                                class="w-8rem border-round shadow-1"
+                                [pTooltip]="courierInfo.mode | translate"
+                                tooltipPosition="top"
+                            />
+
+                            <p-tag
+                                *ngIf="courierInfo.mode"
+                                [value]="courierInfo.mode | translate"
+                                [severity]="courierInfo.mode === 'ADDRESS' ? 'info' : 'secondary'"
+                                class="text-xs">
+                            </p-tag>
+                        </div>
+                    </td>
                     <td class="vertical-align-middle">
                         <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 "
                              style="min-height: 32px; align-items: center;">

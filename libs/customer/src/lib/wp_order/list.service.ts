@@ -76,6 +76,14 @@ export class OrderListService extends BaseListCrud<IOrder> {
     return {"mode": mode, "courierName": courierName};
     }
 
+    // В самия клас на компонента
+    public courierLogos: { [key: string]: string } = {
+        'ECONT': 'assets/img/econt-logo.png',
+        'SPEEDY': 'assets/img/speedy-logo.png',
+        'BOXNOW': 'assets/img/boxnow-logo.png',
+        // 'UNKNOWN': 'assets/img/couriers/default-truck.png' // Fallback ако няма съвпадение
+    };
+
     public printWayBill(order: IOrder, waybillId: string | string[], format: 'A4' | 'A6') {
         this.http.post(ROUTES.wp_order.generateWayBillPrint(order.id, waybillId, format), {}, {
             responseType: 'blob',
