@@ -171,7 +171,7 @@ import { InputNumber } from 'primeng/inputnumber';
                     <td>
                         <div class="flex justify-content-center">
                             <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
-                                <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="70" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"> </p-image>
+                                <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"> </p-image>
                             </p-overlay-badge>
                         </div>
                     </td>
@@ -198,6 +198,7 @@ import { InputNumber } from 'primeng/inputnumber';
                             [showButtons]="false"
                             styleClass="compact-input"
                             [inputSize]="2"
+                            [inputStyle]="{'color': item.stockQuantity <= 0 ? '#ef4444' : '#22c55e'}"
                             inputClass="w-3rem text-center font-bold p-1 border-none bg-transparent hover:bg-gray-100 cursor-pointer"
                         >
                         </p-inputNumber>

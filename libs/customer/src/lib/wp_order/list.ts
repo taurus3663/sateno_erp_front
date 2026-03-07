@@ -224,7 +224,7 @@ import { Popover } from 'primeng/popover';
                                 </div>
 
                                 <i *ngIf="order.signals?.length"
-                                   class="pi pi-thumbs-down-fill text-red-600 cursor-pointer p-1"
+                                   class="pi pi-thumbs-down-fill text-red-600 cursor-pointer p-1 animate-bounce"
                                    [pTooltip]="('Detected_signals' | translate) + ' ' + order.signals.length + ' ' + ('Signals_Click_To_View' | translate)"
                                    tooltipPosition="top"
                                    (click)="$event.stopPropagation(); op.toggle($event)">
@@ -280,8 +280,8 @@ import { Popover } from 'primeng/popover';
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td>
-                        <div class="flex align-items-center gap-2" *ngIf="listService.getCourierType(item) as courierInfo">
-                            <img
+                        <div class="flex align-items-center gap-1 flex-col" *ngIf="listService.getCourierType(item) as courierInfo">
+                            <img style="width: 80px;"
                                 *ngIf="courierInfo.courierName"
                                 [src]="listService.courierLogos[courierInfo.courierName] || listService.courierLogos['UNKNOWN']"
                                 [alt]="courierInfo.courierName"
@@ -294,8 +294,9 @@ import { Popover } from 'primeng/popover';
                                 *ngIf="courierInfo.mode"
                                 [value]="courierInfo.mode | translate"
                                 [severity]="courierInfo.mode === 'ADDRESS' ? 'info' : 'secondary'"
-                                class="text-xs">
+                                class="text-xs animate-width">
                             </p-tag>
+
                         </div>
                     </td>
                     <td class="vertical-align-middle">
