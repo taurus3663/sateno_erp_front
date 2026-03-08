@@ -51,13 +51,41 @@ import { InputNumber } from 'primeng/inputnumber';
             [rowHover]="true"
             dataKey="id"
             filterDelay="menu"
+            paginatorPosition="both"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Показани: {{listService.items().length}} от {totalRecords} записа"
         >
+<!--            <ng-template pTemplate="paginatorleft" style="text-align: center;">-->
+<!--                <div class="flex align-items-center px-3 py-1 border-round bg-gray-100 text-sm font-medium text-600 shadow-sm">-->
+<!--                    <i class="pi pi-list mr-2 text-primary"></i>-->
+<!--                    <span>Показани: <b class="text-900">{{ listService.items().length }}</b></span>-->
+<!--                    <span class="mx-2 text-400">/</span>-->
+<!--                    <span>Общо: <b class="text-900">{{ listService.totalRecords() }}</b></span>-->
+<!--                </div>-->
+<!--            </ng-template>-->
             <ng-template #caption>
-                <div class="flex justify-content-between">
-                    <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="dt.clear()" />
+                <div class="flex justify-content-between align-items-center">
+                    <div class="flex gap-3 align-items-center flex-wrap">
+                        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="dt.clear()" />
+
+                        <div class="flex gap-2 align-items-center">
+                            <ng-container *ngFor="let filter of dt.filters | keyvalue">
+                                <p-tag
+                                    *ngIf="getFilterValue(filter.value)"
+                                    severity="secondary"
+                                    [rounded]="true"
+                                    class="shadow-1"
+                                >
+                                    <div class="flex align-items-center gap-2 px-1">
+                                        <span class="text-xs font-bold uppercase text-primary">{{ filter.key | titlecase | translate }}:</span>
+                                        <span class="text-sm">{{ getFilterValue(filter.value) }}</span>
+                                    </div>
+                                </p-tag>
+                            </ng-container>
+                        </div>
+                    </div>
+
                     <p-iconfield iconPosition="left">
-                        <!--                        <p-inputicon styleClass="pi pi-search"></p-inputicon>-->
-                        <!--                        <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Global Search" />-->
                     </p-iconfield>
                 </div>
             </ng-template>
@@ -198,7 +226,7 @@ import { InputNumber } from 'primeng/inputnumber';
                             [showButtons]="false"
                             styleClass="compact-input"
                             [inputSize]="2"
-                            [inputStyle]="{'color': item.stockQuantity <= 0 ? '#ef4444' : '#22c55e'}"
+                            [inputStyle]="{'color': item.stockQuantity <= 0 ? '#ef4444' : '#22c55e', 'font-size': '1.1rem', 'font-weight': 'bolder'}"
                             inputClass="w-3rem text-center font-bold p-1 border-none bg-transparent hover:bg-gray-100 cursor-pointer"
                         >
                         </p-inputNumber>
@@ -382,5 +410,33 @@ export class WpProductListComponent {
         } else {
             return isPublished;
         }
+    }
+
+    // Помощен метод за извличане на стойността на филтъра
+    getFilterValue(filterMeta: any): string | null {
+        if (!filterMeta) return null;
+
+        // Ако е масив (стандартно при PrimeNG с display="menu")
+        if (Array.isArray(filterMeta)) {
+            const active = filterMeta.find(f => f.value !== null && f.value !== undefined && f.value !== '');
+            return active ? active.value : null;
+        }
+
+        // Ако е единичен обект
+        return filterMeta.value || null;
+    }
+
+    removeSingleFilter(table: any, field: string) {
+        // 1. Изчистваме стойността в обекта на филтрите на PrimeNG
+        if (table.filters[field]) {
+            if (Array.isArray(table.filters[field])) {
+                table.filters[field].forEach((f: any) => f.value = null);
+            } else {
+                table.filters[field].value = null;
+            }
+        }
+
+        // 2. Казваме на таблицата да приложи "празния" филтър (това обновява UI-а)
+        table.filter(null, field, 'contains');
     }
 }

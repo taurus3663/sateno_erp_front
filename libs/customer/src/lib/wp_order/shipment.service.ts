@@ -157,13 +157,12 @@ export class ShipmentService {
         this.selectedOrder = order;
         this.reset();
         this.visible = true;
-        console.log(order)
         const addr = order.billing.address_1 || '';
 
         // 1. Дефиниране на RegExp
         const regex1 = /^\[(OFFICE|LOCKER|ADDRESS)\]\s*(.*)\s*\[(.*?)\]\s*\[(SPEEDY|ECONT|BOXNOW)\]$/i;
-        const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)\[(.*?)\]:\s*(.*)/i;
-        // const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)\s*\[(.*?)\]:\s*(.*)/i;
+        // const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)\[(.*?)\]:\s*(.*)/i;
+        const regex2 = /До\s+(офис|адрес|автомат)\s+(speedy|econt|boxnow)(?:-[a-z]+)?\s*\[(.*?)\]:\s*(.*)/i;
 
         let match = addr.match(regex1) || addr.match(regex2);
         let mode: string | undefined;
@@ -227,7 +226,6 @@ export class ShipmentService {
 
                 return c.courierType === courierName && order.site.id == c.site?.id && c.active && c.defaultCourier;
             });
-            console.log(this.selectedCourier)
             if (this.selectedCourier) {
                 // Ако е адрес, разглобяваме го на Улица и Номер
                 if (this.deliveryType === 'ADDRESS' && rawText) {
@@ -302,12 +300,8 @@ export class ShipmentService {
 
                     // 2. ВЕДНАГА КАЗВАМЕ НА ANGULAR, ЧЕ МАСИВЪТ ВЕЧЕ НЕ Е ПРАЗЕН
                     this.cdr?.detectChanges();
-
                     setTimeout(() => {
                         this.selectedOffice = this.offices.find((o) => String(o.code) === String(officeId) || String(o.id) === String(officeId));
-
-                        // console.log('officeId:', officeId);
-                        // this.offices.forEach(o => console.log('o.code', o.code, 'o.id', o.id));
                         // 3. Опресняваме последно, за да се види селектираното име
                         this.cdr?.detectChanges();
                     }, 100);
