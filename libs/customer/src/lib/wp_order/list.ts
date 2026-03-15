@@ -16,7 +16,7 @@ import { Tooltip } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { SelectButton } from 'primeng/selectbutton';
 import { WebSocketService } from 'xl-util';
-import { delay, Subject, takeUntil, tap } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { Badge } from 'primeng/badge';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -24,48 +24,39 @@ import { InputText } from 'primeng/inputtext';
 import { ShipmentDetailComponent } from './shipment.detail';
 import { ShipmentService } from './shipment.service';
 import { CourierType } from '../courier/interfaces';
-import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { BlockUI } from 'primeng/blockui';
 import { Popover } from 'primeng/popover';
+import { Textarea } from 'primeng/textarea';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, BlockUI, Popover],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, BlockUI, Popover, Textarea],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
-                <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2"
-                          (onClick)="detailService.openCreateDialog()"></p-button>
-                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined
-                          [disabled]="!selectedItem" />
-                <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate"
-                          class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync"
-                          outlined></p-button>
+                <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
+                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
+                <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
 
             <ng-template #end>
                 <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">
                     <p-inputicon styleClass="pi pi-search" />
-                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)"
-                           [placeholder]="'Search_by_name_or_phone...' | translate"
-                           class="p-inputtext-sm w-full md:w-20rem" />
+                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search_by_name_or_phone...' | translate" class="p-inputtext-sm w-full md:w-20rem" />
                     <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
                 </p-iconfield>
             </ng-template>
         </p-toolbar>
 
-        <div *ngIf="config?.data?.mode !== 'lookup'"
-             class="flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white border-round shadow-1">
+        <div *ngIf="config?.data?.mode !== 'lookup'" class="flex flex-wrap align-items-center gap-3 mb-4 p-3 bg-white border-round shadow-1">
             <span class="font-bold text-secondary mr-2"> <i class="pi pi-filter mr-1"></i> {{ 'Status' | translate }}: </span>
 
-            <p-selectButton [options]="statusFilterOptions" [(ngModel)]="selectedStatus"
-                            (onChange)="onStatusFilterChange($event.value)" optionLabel="label" optionValue="value">
+            <p-selectButton [options]="statusFilterOptions" [(ngModel)]="selectedStatus" (onChange)="onStatusFilterChange($event.value)" optionLabel="label" optionValue="value">
                 <ng-template #item let-item>
                     <div class="flex align-items-center gap-2 px-1">
-                        <i *ngIf="item.value" class="pi pi-circle-fill text-xs"
-                           [style.color]="getStatusColor(item.value)"></i>
+                        <i *ngIf="item.value" class="pi pi-circle-fill text-xs" [style.color]="getStatusColor(item.value)"></i>
                         <span class="font-medium text-sm">{{ item.label | translate }}</span>
                     </div>
                 </ng-template>
@@ -86,13 +77,13 @@ import { Popover } from 'primeng/popover';
             [rowHover]="true"
             dataKey="id"
             stripedRows
+            [rowTrackBy]="trackByOrderId"
         >
             <ng-template pTemplate="header">
                 <tr *ngIf="selectedStatus != null">
                     <th colspan="2" class="text-left py-2" style="border-bottom: 2px solid #dee2e6;">
                         <div class="flex flex-col align-items-start">
-                            <small class="text-secondary uppercase font-bold"
-                                   style="font-size: 10px;">{{ 'Count' | translate }}</small>
+                            <small class="text-secondary uppercase font-bold" style="font-size: 10px;">{{ 'Count' | translate }}</small>
                             <span class="text-900 font-bold text-lg">
                                 <small class="text-primary" style="font-size: 13px;"> {{ itemsCount() }}</small>
                             </span>
@@ -103,8 +94,7 @@ import { Popover } from 'primeng/popover';
 
                     <th class="text-right py-2" style="border-bottom: 2px solid #dee2e6;">
                         <div class="flex flex-col align-items-end" style="width: max-content;">
-                            <small class="text-secondary uppercase font-bold"
-                                   style="font-size: 10px;">{{ 'Total' | translate }}</small>
+                            <small class="text-secondary uppercase font-bold" style="font-size: 10px;">{{ 'Total' | translate }}</small>
                             <span class="text-primary font-bold text-lg" style="font-size: 13px;">
                                 {{ totalAmount() | number: '1.2-2' }}
                                 <small>{{ listService.items()[0]?.currency }}</small>
@@ -122,13 +112,14 @@ import { Popover } from 'primeng/popover';
                     <!--                    <th>{{'Last_Updated' | translate}}</th>-->
                     <!--                    <th>{{ 'Id' | translate }}</th>-->
                     <th>{{ 'Wp_order_id' | translate }}</th>
+                    <th>{{ 'Comment' | translate }}</th>
                     <th>{{ 'Status' | translate }}</th>
                     <th>{{ 'Customer' | translate }}</th>
                     <th>{{ 'Site' | translate }}</th>
-<!--                    <th>{{'Confirmed' | translate}}</th>-->
+                    <!--                    <th>{{'Confirmed' | translate}}</th>-->
                     <!--                    <th>{{ 'Customer_agent' | translate }}</th>-->
                     <!--                    <th>{{ 'Customer_ip' | translate }}</th>-->
-                    <th>{{ 'Courier' | translate}}</th>
+                    <th>{{ 'Courier' | translate }}</th>
                     <th>{{ 'Bill_of_lading' | translate }}</th>
                     <th>{{ 'Payment_method' | translate }}</th>
                     <th>{{ 'Price' | translate }}</th>
@@ -168,10 +159,7 @@ import { Popover } from 'primeng/popover';
 
                     <th>
                         <div class="flex align-items-center gap-2">
-                            <i *ngIf="order.showDuplicateWarning"
-                               class="pi pi-exclamation-triangle text-yellow-500 text-xl shadow-animate"
-                               [pTooltip]="'Detected_duplicate_orders_for_this_customer' | translate"
-                               tooltipPosition="top"> </i>
+                            <i *ngIf="order.showDuplicateWarning" class="pi pi-exclamation-triangle text-yellow-500 text-xl shadow-animate" [pTooltip]="'Detected_duplicate_orders_for_this_customer' | translate" tooltipPosition="top"> </i>
 
                             <span>{{ order.wpOrderTime | date: 'dd.MM.yyyy HH:mm' }}</span>
                         </div>
@@ -179,6 +167,50 @@ import { Popover } from 'primeng/popover';
                     <!--                    <th>{{order.updateTime | date: 'dd.MM.yyyy HH:mm'}}</th>-->
                     <!--                    <td>{{ order.id }}</td>-->
                     <td>{{ order.wpOrderId }}</td>
+
+                    <td style="min-width: 220px; max-width: 300px;">
+                        <div
+                            class="p-2 border-round border-left-3 cursor-pointer shadow-sm transition-all"
+                            [ngClass]="order.comment ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'"
+                            (click)="$event.stopPropagation(); commentOp.toggle($event)"
+                        >
+                            <div class="flex align-items-center gap-2 mb-1">
+<!--                                <i class="pi pi-comment text-xs text-yellow-600"></i>-->
+<!--                                <span class="text-xs font-bold uppercase" style="font-size: 10px;">{{ 'Comment' | translate }}</span>-->
+                            </div>
+                            <div class="text-sm font-medium text-900 italic line-height-2 line-clamp-2 overflow-hidden w-full">
+<!--                                {{ order.comment ? order.comment : ('Add_note...' | translate) }}-->
+                                {{order.comment}}
+                            </div>
+                        </div>
+
+                        <p-popover #commentOp (onShow)="onCommentPopShow(order)" [style]="{ width: '600px' }">
+                            <div class="flex justify-center justify-content-between border-bottom-1 pb-2 surface-border w-full">
+                                <span class="font-bold text-900 uppercase text-xs tracking-wider"> <i class="pi pi-comment mr-1 text-yellow-600"></i> {{ 'Comment' | translate }} </span>
+                                <p-tag severity="secondary" [value]="'#' + order.wpOrderId"></p-tag>
+                            </div>
+
+                            <div class="p-3 flex flex-col gap-3 w-full" style="box-sizing: border-box;">
+                                <div class="w-full">
+                                    <textarea
+                                        pInputTextarea
+                                        [(ngModel)]="editableComment"
+                                        rows="6"
+                                        [autoResize]="false"
+                                        class="w-full p-3 text-lg border-round border-1 surface-border shadow-inner font-medium"
+                                        [placeholder]="'Comment' | translate"
+                                        style="width: 100% !important; display: block; resize: none; box-sizing: border-box;"
+                                    >
+                                    </textarea>
+                                </div>
+
+                                <div class="flex justify-end flex-row gap-2 w-full pt-2">
+                                    <p-button [label]="'Cancel' | translate" [text]="true" severity="secondary" (onClick)="commentOp.hide()"></p-button>
+                                    <p-button [label]="'Save' | translate" icon="pi pi-check" [loading]="isSavingComment" (onClick)="saveQuickComment(order, commentOp)"></p-button>
+                                </div>
+                            </div>
+                        </p-popover>
+                    </td>
                     <!--                    <td>{{ order.currency }}</td>-->
                     <!--                    <td>{{ order.currencySymbol }}</td>-->
 
@@ -202,7 +234,7 @@ import { Popover } from 'primeng/popover';
                         </p-tag>
                     </th>
 
-                    <td [ngClass]="{'bg-red-50': op.overlayVisible}">
+                    <td [ngClass]="{ 'bg-red-50': op.overlayVisible }">
                         <div class="flex align-items-center gap-3" style="align-items: center;">
                             <p-badge
                                 [value]="order.customerOrderCount"
@@ -215,35 +247,31 @@ import { Popover } from 'primeng/popover';
                             </p-badge>
 
                             <div class="flex flex-col gap-1">
-                                <div
-                                    class="font-bold text-900 line-height-1">{{ order.billing.first_name }} {{ order.billing.last_name }}
-                                </div>
+                                <div class="font-bold text-900 line-height-1">{{ order.billing.first_name }} {{ order.billing.last_name }}</div>
                                 <div class="text-secondary text-sm flex align-items-center gap-1">
                                     <i class="pi pi-phone text-xs"></i>
                                     {{ order.billing.phone }}
                                 </div>
 
-                                <i *ngIf="order.signals?.length"
-                                   class="pi pi-thumbs-down-fill text-red-600 cursor-pointer p-1 animate-bounce"
-                                   [pTooltip]="('Detected_signals' | translate) + ' ' + order.signals.length + ' ' + ('Signals_Click_To_View' | translate)"
-                                   tooltipPosition="top"
-                                   (click)="$event.stopPropagation(); op.toggle($event)">
+                                <i
+                                    *ngIf="order.signals?.length"
+                                    class="pi pi-thumbs-down-fill text-red-600 cursor-pointer p-1 animate-bounce"
+                                    [pTooltip]="('Detected_signals' | translate) + ' ' + order.signals.length + ' ' + ('Signals_Click_To_View' | translate)"
+                                    tooltipPosition="top"
+                                    (click)="$event.stopPropagation(); op.toggle($event)"
+                                >
                                 </i>
 
                                 <p-popover #op>
                                     <div class="p-3" style="width: 400px">
-                                        <div
-                                            class="flex align-items-center gap-2 font-bold mb-3 border-bottom-1 pb-2 text-red-600">
+                                        <div class="flex align-items-center gap-2 font-bold mb-3 border-bottom-1 pb-2 text-red-600">
                                             <i class="pi pi-exclamation-triangle"></i>
                                             <span>{{ 'Uncorrect_signal' | translate }}</span>
                                         </div>
-                                        <div class="signals-scroll-container"
-                                             style="max-height: 350px; overflow-y: auto;">
-                                            <div *ngFor="let s of order.signals"
-                                                 class="mb-3 p-2 bg-gray-100 border-round border-left-3 border-red-500">
+                                        <div class="signals-scroll-container" style="max-height: 350px; overflow-y: auto;">
+                                            <div *ngFor="let s of order.signals" class="mb-3 p-2 bg-gray-100 border-round border-left-3 border-red-500">
                                                 <div class="flex justify-content-between align-items-center">
-                                                    <small
-                                                        class="text-1xl text-secondary font-bold">{{ s.createDate | date: 'dd.MM.yyyy' }}</small>
+                                                    <small class="text-1xl text-secondary font-bold">{{ s.createDate | date: 'dd.MM.yyyy' }}</small>
                                                     <!--                                                    <small class="text-xs text-400">ID: {{ s.id }}</small>-->
                                                 </div>
                                                 <div class="text-1xl mt-1 italic line-height-3">"{{ s.text }}"</div>
@@ -273,15 +301,16 @@ import { Popover } from 'primeng/popover';
                             {{ order?.site?.name ?? order.site.url }}
                         </span>
                     </td>
-<!--                    <td>-->
-<!--                        <p-tag [severity]="item.confirmed ? 'success' : 'danger'" [value]="(item.confirmed ? 'CONFIRMED' : 'WAITING') | translate" [rounded]="true"> </p-tag>-->
-<!--                    </td>-->
+                    <!--                    <td>-->
+                    <!--                        <p-tag [severity]="item.confirmed ? 'success' : 'danger'" [value]="(item.confirmed ? 'CONFIRMED' : 'WAITING') | translate" [rounded]="true"> </p-tag>-->
+                    <!--                    </td>-->
 
                     <!--                    <td [pTooltip]="order.customerAgent">{{ order.customerAgent.slice(0, 50) }}</td>-->
                     <!--                    <td [pTooltip]="order.customerIp">{{ order.customerIp.slice(0, 10) }}</td>-->
                     <td>
                         <div class="flex align-items-center gap-1 flex-col" *ngIf="listService.getCourierType(item) as courierInfo">
-                            <img style="width: 80px;"
+                            <img
+                                style="width: 80px;"
                                 *ngIf="courierInfo.courierName"
                                 [src]="listService.courierLogos[courierInfo.courierName] || listService.courierLogos['UNKNOWN']"
                                 [alt]="courierInfo.courierName"
@@ -290,18 +319,11 @@ import { Popover } from 'primeng/popover';
                                 tooltipPosition="top"
                             />
 
-                            <p-tag
-                                *ngIf="courierInfo.mode"
-                                [value]="courierInfo.mode | translate"
-                                [severity]="courierInfo.mode === 'ADDRESS' ? 'info' : 'secondary'"
-                                class="text-xs animate-width">
-                            </p-tag>
-
+                            <p-tag *ngIf="courierInfo.mode" [value]="courierInfo.mode | translate" [severity]="courierInfo.mode === 'ADDRESS' ? 'info' : 'secondary'" class="text-xs animate-width"> </p-tag>
                         </div>
                     </td>
                     <td class="vertical-align-middle">
-                        <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 "
-                             style="min-height: 32px; align-items: center;">
+                        <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 " style="min-height: 32px; align-items: center;">
                             <!--                            <a [href]="order.wayBillUrl" target="_blank" class="no-underline flex align-items-center">-->
                             <button
                                 pButton
@@ -354,9 +376,7 @@ import { Popover } from 'primeng/popover';
                     <td>
                         <!--                        <i class="pi pi-credit-card mr-2 text-color-secondary"></i>-->
                         <!--                        {{ getPaymentLabel(order.paymentMethod) | translate }}-->
-                        <img *ngIf="paymentIcons[order.paymentMethod]" [src]="paymentIcons[order.paymentMethod]"
-                             [alt]="order.paymentMethod" style="width: 5rem; height: auto; object-fit: contain;"
-                             class="shadow-1 border-round-sm" />
+                        <img *ngIf="paymentIcons[order.paymentMethod]" [src]="paymentIcons[order.paymentMethod]" [alt]="order.paymentMethod" style="width: 5rem; height: auto; object-fit: contain;" class="shadow-1 border-round-sm" />
                     </td>
                     <td>
                         <p-tag severity="success" value="{{ order.totalPrice }} {{ order.currency }}" />
@@ -364,21 +384,14 @@ import { Popover } from 'primeng/popover';
 
                     <td>
                         <div class="flex gap-2">
-                            <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info"
-                                      [pTooltip]="'Generate_Waybill' | translate"
-                                      (onClick)="openShipmentDialog(order)"></p-button>
+                            <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="info" [pTooltip]="'Generate_Waybill' | translate" (onClick)="openShipmentDialog(order)"></p-button>
                             <div class="relative" *ngIf="order.wayBillShipmentNumber">
-                                <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="danger"
-                                          [pTooltip]="'Cancel_Waybill' | translate"
-                                          (onClick)="onCancelShipment($event, order)"></p-button>
-                                <i class="pi pi-times absolute text-xs font-bold text-red-700"
-                                   style="top: 20%; right: 20%; pointer-events: none;"></i>
+                                <p-button icon="pi pi-truck" [rounded]="true" [text]="true" severity="danger" [pTooltip]="'Cancel_Waybill' | translate" (onClick)="onCancelShipment($event, order)"></p-button>
+                                <i class="pi pi-times absolute text-xs font-bold text-red-700" style="top: 20%; right: 20%; pointer-events: none;"></i>
                             </div>
 
-                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary"
-                                      (onClick)="detailService.openEditDialog(item)"></p-button>
-                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger"
-                                      (onClick)="onDelete(item.id)"></p-button>
+                            <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
+                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(item.id)"></p-button>
                         </div>
                     </td>
                 </tr>
@@ -388,8 +401,7 @@ import { Popover } from 'primeng/popover';
         <!--        <shipment-detail></shipment-detail>-->
         <shipment-detail *ngIf="config?.data?.mode !== 'lookup'"></shipment-detail>
         <p-blockUI [blocked]="listService.blockUI">
-            <div class="flex flex-column align-items-center"
-                 style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%)">
+            <div class="flex flex-column align-items-center" style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%)">
                 <i class="pi pi-spin pi-spinner text-6xl text-white"></i>
                 <span class="text-white mt-2 font-bold">Синхронизиране...</span>
             </div>
@@ -520,6 +532,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
             // case OrderStatus.REFUNDED:  return 'danger';    // Червено
             case OrderStatus.CANCELLED:
                 return 'contrast'; // Черно
+            case OrderStatus.FAILED:
+                return 'danger';
             default:
                 return 'secondary';
         }
@@ -612,7 +626,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
         [OrderStatus.APPROVED]: '#3a9d00', // Завършена - Зелено
         // [OrderStatus.REFUNDED]: '#d90000',   // Върната - Червено
         [OrderStatus.CANCELLED]: '#000000', // Отказана - Черно
-        [OrderStatus.JOINT]: '#e6ef61'
+        [OrderStatus.JOINT]: '#e6ef61',
+        [OrderStatus.FAILED]: '#ff0000',
     };
 
     public totalAmount = computed(() => {
@@ -767,5 +782,41 @@ export class OrderListComponent implements OnInit, OnDestroy {
                 return `<b>${index + 1}. [${date}]:</b> ${s.text}`;
             })
             .join('<br><br>'); // Двоен ред разстояние между отделните сигнали
+    }
+
+    // Помощни променливи за бърза редакция
+    protected editableComment: string = '';
+    protected isSavingComment: boolean = false;
+
+    /**
+     * При отваряне на попъвъра зареждаме текущия коментар в локалната променлива
+     */
+    onCommentPopShow(order: IOrder) {
+        this.editableComment = order.comment || '';
+    }
+
+    /**
+     * Запис на коментара директно през сървиса
+     */
+    saveQuickComment(order: IOrder, popover: any) {
+        this.isSavingComment = true;
+
+        // 1. Обновяваме полето в обекта
+        order.comment = this.editableComment;
+
+        // 2. Извикваме сървиса за запис
+        // Забележка: Тук предполагаме, че updateOrderField в listService връща Observable
+        // или директно управляваме затварянето.
+        this.listService.updateOrderField(order);
+
+        // 3. Малък delay за визуален ефект на зареждане и затваряне
+        setTimeout(() => {
+            this.isSavingComment = false;
+            popover.hide();
+        }, 300);
+    }
+
+    trackByOrderId(index: number, item: IOrder): number {
+        return item.id; // или item.wpOrderId, стига да е уникално
     }
 }

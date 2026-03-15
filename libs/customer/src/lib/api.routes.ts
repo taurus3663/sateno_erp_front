@@ -110,6 +110,7 @@ export class apiRoutes {
         get: `${apiRoutes.wpOrderBase}/detail`,
         save: `${apiRoutes.wpOrderBase}/save`,
         delete: `${apiRoutes.wpOrderBase}/delete`,
+        patch: `${apiRoutes.wpOrderBase}/patch`,
         sync: `${apiRoutes.wpOrderBase}/sync`,
         createWayBill: `${apiRoutes.wpOrderBase}/create/waybill`,
         deleteWayBill: `${apiRoutes.wpOrderBase}/delete/waybill`,

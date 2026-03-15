@@ -261,5 +261,9 @@
   "Auto_send_message_after": "Auto send message after:",
   "Limited": "Limited",
   "Select_Brand": "Select Brand",
-    "Saved": "Saved"
+  "Saved": "Saved",
+  "Order_Comments": "Order Comments",
+  "Comment": "Comment",
+  "Add_note...": "Add note...",
+  "Save": "Save"
 }

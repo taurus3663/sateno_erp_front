@@ -139,4 +139,13 @@ export class OrderListService extends BaseListCrud<IOrder> {
                 }
             });
     }
+
+    updateOrderField(item: IOrder) {
+        this.http.patch(`${ROUTES.wp_order.patch}`, item).subscribe({
+            next: (response) => {
+                this.messageService.add({severity: 'success', summary: this.tr.instant("Updated")});
+            },
+            error: (err) => {}
+        })
+    }
 }

@@ -205,7 +205,8 @@ import { InputNumber } from 'primeng/inputnumber';
                     </td>
 
                     <td>
-                        <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>
+<!--                        <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>-->
+                        <p-tag [value]="item.sku" severity="secondary"> </p-tag>
                     </td>
 
                     <td>

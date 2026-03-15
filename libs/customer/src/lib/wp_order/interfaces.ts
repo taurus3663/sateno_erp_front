@@ -56,6 +56,7 @@ export interface IOrder {
     courierType: CourierType;
     courierId: number;
     signals: ISignalUser[];
+    comment: string;
 }
 
 export interface ISignalUser {
@@ -154,7 +155,8 @@ export enum OrderStatus {
     COMPLETED = 'completed',
     APPROVED = 'approved',
     JOINT = 'joint',
-    WAITING = 'waiting'
+    WAITING = 'waiting',
+    FAILED = 'failed',
 }
 export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.PROCESSING]: 'STATUS.PROCESSING',
@@ -165,5 +167,6 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.APPROVED]: 'STATUS.APPROVED',
     [OrderStatus.JOINT]: 'STATUS.JOINT',
     [OrderStatus.WAITING]: 'STATUS.WAITING',
+    [OrderStatus.FAILED]: 'STATUS.FAILED',
 };
 

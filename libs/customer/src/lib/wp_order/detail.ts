@@ -13,11 +13,12 @@ import { OrderStatus, OrderStatusLabels, PaymentMethod, PaymentMethodLabels } fr
 import { Select } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { InputText } from 'primeng/inputtext';
+import { Textarea } from 'primeng/textarea';
 
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '100%', height: '100vh' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -106,30 +107,43 @@ import { InputText } from 'primeng/inputtext';
                             </p-select>
                         </div>
 
-                        <div class="col-span-12 md:col-span-4 pl-4 border-left-1 surface-border">
-                            <span class="text-secondary text-xs font-bold uppercase">{{ 'Last_Updated' | translate }}</span>
-                            <div class="p-inputgroup mt-1">
-                                <span class="p-inputgroup-addon"><i class="pi pi-clock"></i></span>
-                                <input pInputText [value]="item.updateTime | date: 'dd.MM.yyyy HH:mm'" readonly class="w-full bg-gray-50 border-none font-bold" />
-                            </div>
-                        </div>
+<!--                        <div class="col-span-12 md:col-span-4 pl-4 border-left-1 surface-border">-->
+<!--                            <span class="text-secondary text-xs font-bold uppercase">{{ 'Last_Updated' | translate }}</span>-->
+<!--                            <div class="p-inputgroup mt-1">-->
+<!--                                <span class="p-inputgroup-addon"><i class="pi pi-clock"></i></span>-->
+<!--                                <input pInputText [value]="item.updateTime | date: 'dd.MM.yyyy HH:mm'" readonly class="w-full bg-gray-50 border-none font-bold" />-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="grid grid-cols-12 gap-3 col-span-12 mt-3">
-                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
-                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_ip' | translate }}</span>
-                                <div class="p-inputgroup mt-1">
-                                    <span class="p-inputgroup-addon"><i class="pi pi-desktop"></i></span>
-                                    <input pInputText [value]="item.customerIp" readonly class="w-full bg-gray-50 border-none font-bold" />
-                                </div>
-                            </div>
+<!--                        <div class="grid grid-cols-12 gap-3 col-span-12 mt-3">-->
+<!--                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">-->
+<!--                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_ip' | translate }}</span>-->
+<!--                                <div class="p-inputgroup mt-1">-->
+<!--                                    <span class="p-inputgroup-addon"><i class="pi pi-desktop"></i></span>-->
+<!--                                    <input pInputText [value]="item.customerIp" readonly class="w-full bg-gray-50 border-none font-bold" />-->
+<!--                                </div>-->
+<!--                            </div>-->
 
-                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
-                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_agent' | translate }}</span>
-                                <div class="p-inputgroup mt-1">
-                                    <span class="p-inputgroup-addon"><i class="pi pi-info-circle"></i></span>
-                                    <input pInputText [value]="item.customerAgent" [pTooltip]="item.customerAgent" readonly class="w-full bg-gray-50 border-none font-medium text-sm" />
-                                </div>
-                            </div>
+<!--                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">-->
+<!--                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_agent' | translate }}</span>-->
+<!--                                <div class="p-inputgroup mt-1">-->
+<!--                                    <span class="p-inputgroup-addon"><i class="pi pi-info-circle"></i></span>-->
+<!--                                    <input pInputText [value]="item.customerAgent" [pTooltip]="item.customerAgent" readonly class="w-full bg-gray-50 border-none font-medium text-sm" />-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+                        <div class="col-span-12 mt-4">
+                            <span class="text-secondary text-xs font-bold uppercase block mb-2"> <i class="pi pi-comment mr-1"></i> {{ 'Order_Comments' | translate }} </span>
+                            <textarea
+                                rows="3"
+                                pTextarea
+                                [(ngModel)]="item.comment"
+                                [placeholder]="'Comment' | translate"
+                                class="w-full p-3 border-round border-1 surface-border surface-50 font-medium text-900 focus:border-primary"
+                                style="resize: none;"
+                            >
+                            </textarea>
                         </div>
 
                         <div class="col-span-12 mt-4">
@@ -348,7 +362,8 @@ export class OrderDetailComponent {
         [OrderStatus.COMPLETED]: '#3a9d00', // Завършена
         [OrderStatus.CANCELLED]: '#000000', // Отказана
         [OrderStatus.APPROVED]: '#3a9d00',
-        [OrderStatus.JOINT]: '#e6ef61'
+        [OrderStatus.JOINT]: '#e6ef61',
+        [OrderStatus.FAILED]: '#ff0000',
         // [OrderStatus.FAILED]: '#ef4444',     // Неуспешна
         // [OrderStatus.REFUNDED]: '#d90000'    // Върната
     };
