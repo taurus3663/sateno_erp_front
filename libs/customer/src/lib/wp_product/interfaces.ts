@@ -22,6 +22,7 @@ export interface IWpProduct {
     addonConfigs: IWpProductAddonConfig[];
     siteConfig: IWpProductSiteConfig[];
     saleType: ProductSaleType;
+    sku: string;
 }
 export enum ProductSaleType {
     LIMITED = 0,
@@ -47,7 +48,6 @@ export interface IWpProductTranslation {
     wpProductId: number;
     description: string;
     shortDescription: string;
-    sku: string;
     price: number;
     regularPrice: number;
     slug: string;

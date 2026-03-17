@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { BaseListCrud} from 'xl-util';
 import { IWpProduct } from './interfaces';
 import {ROUTES} from '../api.routes';
@@ -60,6 +60,52 @@ export class WpProductListService extends BaseListCrud<IWpProduct> {
             error: () => {
                 // Връщаме старата стойност при грешка, ако е необходимо
             }
+        });
+    }
+
+    // Сигнал, който държи само променените обекти
+    public pendingChanges = signal<IWpProduct[]>([]);
+
+    addToPendingChanges(item: IWpProduct) {
+        this.pendingChanges.update(changes => {
+            const index = changes.findIndex(c => c.id === item.id);
+            if (index > -1) {
+                changes[index] = { ...item }; // Обновяваме съществуваща промяна
+                return [...changes];
+            }
+            return [...changes, { ...item }]; // Добавяме нова
+        });
+    }
+
+    clearChanges() {
+        this.pendingChanges.set([]);
+    }
+
+    saveAllChanges() {
+        const changes = this.pendingChanges();
+
+        for (const change of changes) {
+            this.updateProductField(change);
+        }
+        this.clearChanges();
+        // Изпращаме масив от обекти към бекенда
+        // return this.http.put('', changes);
+    }
+
+    resetItemsMeta() {
+        // Използваме метода .update() на Signal-а
+        this.items.update(currentItems => {
+            // Map създава нов масив с "чисти" обекти
+            return currentItems.map(item => {
+                const newItem = { ...item }; // Копираме обекта
+
+                // Изтриваме временните променливи
+                delete (newItem as any)._oldQty;
+                delete (newItem as any)._isDirty;
+                delete (newItem as any)._isEditing;
+
+                return newItem;
+            });
         });
     }
 }

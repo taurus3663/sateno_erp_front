@@ -265,5 +265,7 @@
   "Order_Comments": "Order Comments",
   "Comment": "Comment",
   "Add_note...": "Add note...",
-  "Save": "Save"
+  "Save": "Save",
+  "Have": "Have",
+  "not_saved_records": "not saved records"
 }

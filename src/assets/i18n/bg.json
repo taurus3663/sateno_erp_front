@@ -93,7 +93,7 @@
   "No_addons_configured_for_this_site": "Няма избрани стойностти",
   "Main_Pricing_for": "Цена за",
   "Regular_Price": "Стара цена",
-  "Sale_Price": "Актуална цена",
+  "Sale_Price": "Промоционална цена",
   "Site_Specific_SKU": "СКУ за сайт",
   "Order_create_key": "КЛЮЧ- Създаване на поръчка",
   "Generate_code": "Генерирай код",
@@ -267,5 +267,7 @@
   "Order_Comments": "Коментар на поръчка",
   "Comment": "Коментар",
   "Add_note...": "Добави бележка...",
-  "Save": "Запиши"
+  "Save": "Запиши",
+  "Have": "Има",
+  "not_saved_records": "не записани записи"
 }

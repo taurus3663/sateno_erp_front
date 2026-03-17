@@ -349,7 +349,7 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
 
                                         <div class="col-span-4">
                                             <label
-                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Regular_Price' | translate }}</label>
+                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }}</label>
                                             <p-inputNumber
                                                 [(ngModel)]="currentSitePricing.regularPrice"
                                                 mode="currency"
@@ -369,13 +369,6 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                                 class="w-full"
                                                 styleClass="w-full">
                                             </p-inputNumber>
-                                        </div>
-
-                                        <div class="col-span-4">
-                                            <label
-                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Site_Specific_SKU' | translate }}</label>
-                                            <input pInputText [(ngModel)]="currentSitePricing.sku" disabled
-                                                   class="w-full" />
                                         </div>
                                     </div>
 
@@ -449,7 +442,6 @@ export class WpCategoryDetailComponent {
                 price: 0,
                 regularPrice: 0,
                 shortDescription: '',
-                sku: '',
                 slug: '',
                 wpProductId: 0,
                 language: { ...this.selectedLanguage }
@@ -669,7 +661,6 @@ export class WpCategoryDetailComponent {
                 site: { ...this.selectedSite },
                 price: 0,
                 regularPrice: 0,
-                sku: '', // можеш да пренасяш основното SKU като начално
                 slug: ''
             };
             item.siteConfig.push(config);

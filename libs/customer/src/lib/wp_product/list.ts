@@ -53,16 +53,16 @@ import { InputNumber } from 'primeng/inputnumber';
             filterDelay="menu"
             paginatorPosition="both"
             [showCurrentPageReport]="true"
-            currentPageReportTemplate="Показани: {{listService.items().length}} от {totalRecords} записа"
+            currentPageReportTemplate="Показани: {{ listService.items().length }} от {totalRecords} записа"
         >
-<!--            <ng-template pTemplate="paginatorleft" style="text-align: center;">-->
-<!--                <div class="flex align-items-center px-3 py-1 border-round bg-gray-100 text-sm font-medium text-600 shadow-sm">-->
-<!--                    <i class="pi pi-list mr-2 text-primary"></i>-->
-<!--                    <span>Показани: <b class="text-900">{{ listService.items().length }}</b></span>-->
-<!--                    <span class="mx-2 text-400">/</span>-->
-<!--                    <span>Общо: <b class="text-900">{{ listService.totalRecords() }}</b></span>-->
-<!--                </div>-->
-<!--            </ng-template>-->
+            <!--            <ng-template pTemplate="paginatorleft" style="text-align: center;">-->
+            <!--                <div class="flex align-items-center px-3 py-1 border-round bg-gray-100 text-sm font-medium text-600 shadow-sm">-->
+            <!--                    <i class="pi pi-list mr-2 text-primary"></i>-->
+            <!--                    <span>Показани: <b class="text-900">{{ listService.items().length }}</b></span>-->
+            <!--                    <span class="mx-2 text-400">/</span>-->
+            <!--                    <span>Общо: <b class="text-900">{{ listService.totalRecords() }}</b></span>-->
+            <!--                </div>-->
+            <!--            </ng-template>-->
             <ng-template #caption>
                 <div class="flex justify-content-between align-items-center">
                     <div class="flex gap-3 align-items-center flex-wrap">
@@ -70,14 +70,9 @@ import { InputNumber } from 'primeng/inputnumber';
 
                         <div class="flex gap-2 align-items-center">
                             <ng-container *ngFor="let filter of dt.filters | keyvalue">
-                                <p-tag
-                                    *ngIf="getFilterValue(filter.value)"
-                                    severity="secondary"
-                                    [rounded]="true"
-                                    class="shadow-1"
-                                >
+                                <p-tag *ngIf="getFilterValue(filter.value)" severity="secondary" [rounded]="true" class="shadow-1">
                                     <div class="flex align-items-center gap-2 px-1">
-                                        <span class="text-xs font-bold uppercase text-primary">{{ filter.key | titlecase | translate }}:</span>
+                                        <span class="text-xs font-bold uppercase text-primary">{{ filter.key | titlecase | translate }} :</span>
                                         <span class="text-sm">{{ getFilterValue(filter.value) }}</span>
                                     </div>
                                 </p-tag>
@@ -85,8 +80,7 @@ import { InputNumber } from 'primeng/inputnumber';
                         </div>
                     </div>
 
-                    <p-iconfield iconPosition="left">
-                    </p-iconfield>
+                    <p-iconfield iconPosition="left"> </p-iconfield>
                 </div>
             </ng-template>
 
@@ -97,10 +91,16 @@ import { InputNumber } from 'primeng/inputnumber';
                     </th>
                     <th style="width: 5rem">{{ 'Image' | translate }}</th>
                     <th pSortableColumn="sku">
-                        <div class="flex items-center justify-between">{{ 'SKU' | translate }} <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></div>
+                        <div class="flex items-center justify-between">
+                            {{ 'SKU' | translate }}
+                            <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
+                        </div>
                     </th>
                     <th pSortableColumn="name">
-                        <div class="flex items-center justify-between">{{ 'Name' | translate }} <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter></div>
+                        <div class="flex items-center justify-between">
+                            {{ 'Name' | translate }}
+                            <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
+                        </div>
                     </th>
                     <th pSortableColumn="brand">
                         <div class="flex items-center justify-between">
@@ -129,10 +129,13 @@ import { InputNumber } from 'primeng/inputnumber';
                             </p-columnFilter>
                         </div>
                     </th>
-                    <th pSortableColumn="quantity">
+                    <th pSortableColumn="stockQuantity">
                         <div class="flex items-center justify-between">
-                            {{ 'Quantity' | translate }} <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"> </p-columnFilter>
+                            {{ 'Quantity' | translate }}
+                            <p-sortIcon field="stockQuantity"></p-sortIcon>
+
                         </div>
+                        <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
                     </th>
                     <th pSortableColumn="category">
                         <div class="flex items-center justify-between">
@@ -176,7 +179,7 @@ import { InputNumber } from 'primeng/inputnumber';
                             {{ 'Limited' | translate }}
                             <p-columnFilter type="text" field="saleType" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                                 <ng-template #filter let-value let-filter="filterCallback">
-                                    <p-select [ngModel]="value" [options]="productSaleType" (onChange)="filter($event.value)" placeholder=" {{ 'Limited' | translate }}"
+                                    <p-select scrollHeight="150px"  [filter]="true" appendTo="body" [ngModel]="value" [options]="productSaleType" (onChange)="filter($event.value)" placeholder=" {{ 'Limited' | translate }}"
                                         >-->
                                         <ng-template let-option #item>
                                             <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
@@ -199,14 +202,14 @@ import { InputNumber } from 'primeng/inputnumber';
                     <td>
                         <div class="flex justify-content-center">
                             <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
-                                <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"> </p-image>
+                                <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
                             </p-overlay-badge>
                         </div>
                     </td>
 
                     <td>
-<!--                        <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>-->
-                        <p-tag [value]="item.sku" severity="secondary"> </p-tag>
+                        <!--                        <p-tag *ngFor="let cat of item.siteConfig" [value]="cat.sku" severity="secondary"> </p-tag>-->
+                        <p-tag [value]="item.sku" severity="secondary"></p-tag>
                     </td>
 
                     <td>
@@ -215,27 +218,30 @@ import { InputNumber } from 'primeng/inputnumber';
                         </span>
                     </td>
                     <td>{{ item.brand?.name ?? '' }}</td>
+
+
                     <td>
-                        <p-inputNumber
-                            #nb
-                            [(ngModel)]="item.stockQuantity"
-                            [readonly]="!item._isEditing"
-                            (onFocus)="item._oldQty = item.stockQuantity; $any($event.target).select()"
-                            (dblclick)="item._isEditing = true; nb.input.nativeElement.focus()"
-                            (onBlur)="item._isEditing = false; (item.stockQuantity !== item._oldQty ? listService.updateProductField(item) : null)"
-                            [min]="0"
-                            [showButtons]="false"
-                            styleClass="compact-input"
-                            [inputSize]="2"
-                            [inputStyle]="{'color': item.stockQuantity <= 0 ? '#ef4444' : '#22c55e', 'font-size': '1.1rem', 'font-weight': 'bolder'}"
-                            inputClass="w-3rem text-center font-bold p-1 border-none bg-transparent hover:bg-gray-100 cursor-pointer"
-                        >
-                        </p-inputNumber>
+                        <div (dblclick)="item._isEditing = true">
+                            <p-inputNumber
+                                #nb
+                                *ngIf="item._isEditing"
+                                [(ngModel)]="item.stockQuantity"
+                                (onBlur)="onInputBlur(item)"
+                                (onFocus)="onInputFocus(item)"
+                                autofocus
+                                [inputSize]="4"
+                                inputClass="w-3rem text-center font-bold p-1 border-1 border-primary"
+                            ></p-inputNumber>
+
+                            <span *ngIf="!item._isEditing" class="text-xl font-bold cursor-pointer hover:text-primary transition-colors" [style.color]="item.stockQuantity <= 0 ? '#ef4444' : '#22c55e'">
+                                {{ item.stockQuantity }}
+                            </span>
+                        </div>
                     </td>
 
                     <td>
                         <div class="flex flex-col gap-1 w-70">
-                            <p-tag *ngFor="let cat of item.categories" [value]="cat.name" severity="secondary"> </p-tag>
+                            <p-tag *ngFor="let cat of item.categories" [value]="cat.name" severity="secondary"></p-tag>
                         </div>
                     </td>
 
@@ -247,16 +253,16 @@ import { InputNumber } from 'primeng/inputnumber';
                     <!--                    </td>-->
 
                     <td>
-                        <p-select styleClass="table-status-select"  [(ngModel)]="item.saleType" [options]="productSaleType" (onChange)="listService.updateProductField(item)" variant="filled" class="w-full">
+                        <p-select styleClass="table-status-select" [(ngModel)]="item.saleType" [options]="productSaleType" (onChange)="listService.updateProductField(item)" variant="filled" class="w-full">
                             <ng-template #dropdownicon style="visibility: hidden;display: none;width: 0;">
                                 <span></span>
                             </ng-template>
                             <ng-template #selectedItem let-selectedOption>
-                                <p-tag [severity]="selectedOption.value === 0 ? 'info' : 'danger'" [value]="selectedOption.label | translate"> </p-tag>
+                                <p-tag [severity]="selectedOption.value === 0 ? 'info' : 'danger'" [value]="selectedOption.label | translate"></p-tag>
                             </ng-template>
 
                             <ng-template #item let-option>
-                                <p-tag [severity]="option.value === 0 ? 'info' : 'danger'" [value]="option.label | translate"> </p-tag>
+                                <p-tag [severity]="option.value === 0 ? 'info' : 'danger'" [value]="option.label | translate"></p-tag>
                             </ng-template>
                         </p-select>
                     </td>
@@ -269,6 +275,21 @@ import { InputNumber } from 'primeng/inputnumber';
                 </tr>
             </ng-template>
         </p-table>
+
+        <div *ngIf="listService.pendingChanges().length > 0" class=" fixed right-0 w-full bg-white shadow-lg border-t-1 p-3 flex justify-content-between align-items-center z-5"
+        style="width: unset;
+    display: flex;
+    bottom: 5px;
+    right: 5px;">
+            <div class="flex align-items-center gap-3 ml-4">
+                <i class="pi pi-exclamation-circle text-orange-500 text-xl"></i>
+                <span class="font-medium"> {{'Have' | translate}} {{ listService.pendingChanges().length }} {{ 'not_saved_records' | translate}} </span>
+            </div>
+            <div class="flex gap-2 mr-4">
+                <p-button label="{{'Cancel' | translate}}" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="cancelAllChanges()"></p-button>
+                <p-button label="{{'Save' | translate}}" icon="pi pi-save" severity="success" (onClick)="saveChanges()"></p-button>
+            </div>
+        </div>
 
         <wp_product-detail *ngIf="config?.data?.mode !== 'lookup'"></wp_product-detail>
         <style>
@@ -322,7 +343,7 @@ export class WpProductListComponent {
     selectedItem!: IWpProduct[] | null;
 
     onLazyLoad(event: any) {
-        this.listService.loadList(event.first, event.rows, event.filters);
+        this.listService.loadList(event.first, event.rows, event.filters, event.sortField, event.sortOrder);
     }
 
     constructor() {
@@ -419,7 +440,7 @@ export class WpProductListComponent {
 
         // Ако е масив (стандартно при PrimeNG с display="menu")
         if (Array.isArray(filterMeta)) {
-            const active = filterMeta.find(f => f.value !== null && f.value !== undefined && f.value !== '');
+            const active = filterMeta.find((f) => f.value !== null && f.value !== undefined && f.value !== '');
             return active ? active.value : null;
         }
 
@@ -431,7 +452,7 @@ export class WpProductListComponent {
         // 1. Изчистваме стойността в обекта на филтрите на PrimeNG
         if (table.filters[field]) {
             if (Array.isArray(table.filters[field])) {
-                table.filters[field].forEach((f: any) => f.value = null);
+                table.filters[field].forEach((f: any) => (f.value = null));
             } else {
                 table.filters[field].value = null;
             }
@@ -439,5 +460,41 @@ export class WpProductListComponent {
 
         // 2. Казваме на таблицата да приложи "празния" филтър (това обновява UI-а)
         table.filter(null, field, 'contains');
+    }
+
+    onInputBlur(item: any) {
+        item._isEditing = false;
+        if (item.stockQuantity !== item._oldQty) {
+            // Маркираме продукта като променен
+            item._isDirty = true;
+            this.listService.addToPendingChanges(item);
+        }
+    }
+
+    onInputFocus(item: any) {
+        // Важно: записваме старата бройка само ако още нямаме записана такава
+        // (предотвратява презаписване на оригинала, ако потребителят цъкне два пъти)
+        if (item._oldQty === undefined) {
+            item._oldQty = item.stockQuantity;
+        }
+    }
+
+    saveChanges() {
+        this.listService.saveAllChanges();
+        this.listService.resetItemsMeta();
+
+    }
+
+    cancelAllChanges() {
+        // Най-лесният начин да "върнете" старите стойности е да презаредите текущата страница
+        this.listService.clearChanges();
+        const table = document.querySelector('p-table') as any;
+        // Или просто викаме loadList със сегашните параметри
+        this.listService.loadList(
+            this.listService.lastFirst,
+            this.listService.lastRows,
+            this.listService.lastFilters
+        );
+        this.listService.resetItemsMeta();
     }
 }
