@@ -9,7 +9,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { WpCategoryDetailComponent } from './detail';
-import { DialogService, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TreeTableModule } from 'primeng/treetable';
 import { Tooltip } from 'primeng/tooltip';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
@@ -194,7 +194,9 @@ import { InputNumber } from 'primeng/inputnumber';
             </ng-template>
 
             <ng-template pTemplate="body" let-item>
-                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
+                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }"
+                    (click)="onRowClick(item)"
+                >
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
@@ -267,7 +269,7 @@ import { InputNumber } from 'primeng/inputnumber';
                         </p-select>
                     </td>
                     <td>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2" *ngIf="config?.data?.mode !== 'lookup'">
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
                             <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="this.listService.deleteItem(item.id)"></p-button>
                         </div>
@@ -496,5 +498,17 @@ export class WpProductListComponent {
             this.listService.lastFilters
         );
         this.listService.resetItemsMeta();
+    }
+    protected ref = inject(DynamicDialogRef, { optional: true });
+    onRowClick(product: IWpProduct) {
+        // Проверяваме дали сме в режим lookup
+        if (this.config?.data?.mode === 'lookup') {
+            console.log('Product selected via row click:', product);
+
+            // Затваряме диалога и връщаме избрания обект
+            if (this.ref) {
+                this.ref.close(product);
+            }
+        }
     }
 }

@@ -269,5 +269,10 @@
   "Add_note...": "Добави бележка...",
   "Save": "Запиши",
   "Have": "Има",
-  "not_saved_records": "не записани записи"
+  "not_saved_records": "не записани записи",
+  "first_name": "Име",
+  "last_name": "Фамилно име",
+  "Total_Weight": "Общо тегло",
+  "Shipping": "Доставка",
+  "Add_Product": "Добави продукт"
 }

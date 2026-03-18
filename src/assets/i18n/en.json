@@ -267,5 +267,10 @@
   "Add_note...": "Add note...",
   "Save": "Save",
   "Have": "Have",
-  "not_saved_records": "not saved records"
+  "not_saved_records": "not saved records",
+  "first_name": "first name",
+  "last_name": "last name",
+  "Total_Weight": "Total Weight",
+  "Shipping": "Shipping",
+  "Add_Product": "Add Product"
 }

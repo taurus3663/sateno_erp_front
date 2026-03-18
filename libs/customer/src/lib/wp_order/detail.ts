@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
-import { Button } from 'primeng/button';
+import { Button, ButtonDirective } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -14,11 +14,15 @@ import { Select } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { InputText } from 'primeng/inputtext';
 import { Textarea } from 'primeng/textarea';
+import { InputNumber } from 'primeng/inputnumber';
+import {SiteSelectorComponent} from '../_reusables/ProductSelectorComponent';
+import { DialogService } from 'primeng/dynamicdialog';
+import { WpProductListComponent } from '../wp_product/list';
 
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea, ButtonDirective, InputNumber],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '100%', height: '100vh' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -45,20 +49,32 @@ import { Textarea } from 'primeng/textarea';
                             <div class="grid grid-cols-1 gap-3">
                                 <div class="p-3 border-round surface-100 flex align-items-center gap-3">
                                     <p-avatar icon="pi pi-user" size="large" shape="circle" class="bg-primary-reverse text-primary"></p-avatar>
-                                    <div class="flex flex-column">
-                                        <span class="text-secondary text-xs font-bold uppercase">{{ 'Name' | translate }}</span>
-                                        <span class="text-xl font-bold text-900">{{ item?.billing?.first_name ?? '' }} {{ item?.billing?.last_name ?? '' }}</span>
+                                    <div class="grid grid-cols-2 gap-2 w-full">
+                                        <div class="flex flex-column">
+                                            <span class="text-secondary text-xs font-bold uppercase">{{ 'first_name' | translate }}</span>
+                                            <input pInputText [(ngModel)]="item.billing.first_name" class="w-full p-inputtext-sm font-bold" />
+                                        </div>
+                                        <div class="flex flex-column">
+                                            <span class="text-secondary text-xs font-bold uppercase">{{ 'last_name' | translate }}</span>
+                                            <input pInputText [(ngModel)]="item.billing.last_name" class="w-full p-inputtext-sm font-bold" />
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-2">
                                     <div class="p-3 border-round surface-100 flex flex-column gap-1">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Phone' | translate }}</span>
-                                        <a [href]="'tel:' + item?.billing?.phone" class="no-underline text-blue-600 font-bold"> <i class="pi pi-phone text-xs mr-1"></i> {{ item?.customer?.phone ?? '' }} </a>
+                                        <div class="p-inputgroup">
+                                            <span class="p-inputgroup-addon"><i class="pi pi-phone"></i></span>
+                                            <input pInputText [(ngModel)]="item.billing.phone" class="w-full p-inputtext-sm font-bold text-blue-600" />
+                                        </div>
                                     </div>
                                     <div class="p-3 border-round surface-100 flex flex-column gap-1">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Email' | translate }}</span>
-                                        <span class="text-900 font-medium truncate text-xl" [pTooltip]="item?.billing?.email ?? ''"> <i class="pi pi-envelope text-xs mr-1"></i> {{ item?.customer?.email ?? '' }} </span>
+                                        <div class="p-inputgroup">
+                                            <span class="p-inputgroup-addon"><i class="pi pi-envelope"></i></span>
+                                            <input pInputText [(ngModel)]="item.billing.email" class="w-full p-inputtext-sm font-medium" />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -107,31 +123,31 @@ import { Textarea } from 'primeng/textarea';
                             </p-select>
                         </div>
 
-<!--                        <div class="col-span-12 md:col-span-4 pl-4 border-left-1 surface-border">-->
-<!--                            <span class="text-secondary text-xs font-bold uppercase">{{ 'Last_Updated' | translate }}</span>-->
-<!--                            <div class="p-inputgroup mt-1">-->
-<!--                                <span class="p-inputgroup-addon"><i class="pi pi-clock"></i></span>-->
-<!--                                <input pInputText [value]="item.updateTime | date: 'dd.MM.yyyy HH:mm'" readonly class="w-full bg-gray-50 border-none font-bold" />-->
-<!--                            </div>-->
-<!--                        </div>-->
+                        <!--                        <div class="col-span-12 md:col-span-4 pl-4 border-left-1 surface-border">-->
+                        <!--                            <span class="text-secondary text-xs font-bold uppercase">{{ 'Last_Updated' | translate }}</span>-->
+                        <!--                            <div class="p-inputgroup mt-1">-->
+                        <!--                                <span class="p-inputgroup-addon"><i class="pi pi-clock"></i></span>-->
+                        <!--                                <input pInputText [value]="item.updateTime | date: 'dd.MM.yyyy HH:mm'" readonly class="w-full bg-gray-50 border-none font-bold" />-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
 
-<!--                        <div class="grid grid-cols-12 gap-3 col-span-12 mt-3">-->
-<!--                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">-->
-<!--                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_ip' | translate }}</span>-->
-<!--                                <div class="p-inputgroup mt-1">-->
-<!--                                    <span class="p-inputgroup-addon"><i class="pi pi-desktop"></i></span>-->
-<!--                                    <input pInputText [value]="item.customerIp" readonly class="w-full bg-gray-50 border-none font-bold" />-->
-<!--                                </div>-->
-<!--                            </div>-->
+                        <!--                        <div class="grid grid-cols-12 gap-3 col-span-12 mt-3">-->
+                        <!--                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">-->
+                        <!--                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_ip' | translate }}</span>-->
+                        <!--                                <div class="p-inputgroup mt-1">-->
+                        <!--                                    <span class="p-inputgroup-addon"><i class="pi pi-desktop"></i></span>-->
+                        <!--                                    <input pInputText [value]="item.customerIp" readonly class="w-full bg-gray-50 border-none font-bold" />-->
+                        <!--                                </div>-->
+                        <!--                            </div>-->
 
-<!--                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">-->
-<!--                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_agent' | translate }}</span>-->
-<!--                                <div class="p-inputgroup mt-1">-->
-<!--                                    <span class="p-inputgroup-addon"><i class="pi pi-info-circle"></i></span>-->
-<!--                                    <input pInputText [value]="item.customerAgent" [pTooltip]="item.customerAgent" readonly class="w-full bg-gray-50 border-none font-medium text-sm" />-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
+                        <!--                            <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">-->
+                        <!--                                <span class="text-secondary text-xs font-bold uppercase">{{ 'Customer_agent' | translate }}</span>-->
+                        <!--                                <div class="p-inputgroup mt-1">-->
+                        <!--                                    <span class="p-inputgroup-addon"><i class="pi pi-info-circle"></i></span>-->
+                        <!--                                    <input pInputText [value]="item.customerAgent" [pTooltip]="item.customerAgent" readonly class="w-full bg-gray-50 border-none font-medium text-sm" />-->
+                        <!--                                </div>-->
+                        <!--                            </div>-->
+                        <!--                        </div>-->
 
                         <div class="col-span-12 mt-4">
                             <span class="text-secondary text-xs font-bold uppercase block mb-2"> <i class="pi pi-comment mr-1"></i> {{ 'Order_Comments' | translate }} </span>
@@ -148,25 +164,30 @@ import { Textarea } from 'primeng/textarea';
 
                         <div class="col-span-12 mt-4">
                             <h5 class="text-900 font-bold mb-3 border-bottom-1 pb-2">{{ 'Order_Items' | translate }}</h5>
+
                             <div class="border-round border-1 surface-border overflow-hidden">
                                 <table class="w-full text-left border-collapse">
                                     <thead class="surface-100">
                                         <tr>
+                                            <th class="p-3 text-sm font-bold text-center" style="width: 50px;"></th>
                                             <th class="p-3 text-sm font-bold">{{ 'Product' | translate }}</th>
-                                            <th class="p-3 text-sm font-bold text-center">{{ 'Qty' | translate }}</th>
+                                            <th class="p-3 text-sm font-bold text-center" style="width: 160px;">{{ 'Qty' | translate }}</th>
                                             <th class="p-3 text-sm font-bold text-right">{{ 'Price' | translate }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let line of item.orderLine" class="border-top-1 surface-border">
+                                        <tr *ngFor="let line of item.orderLine; let i = index" class="border-top-1 surface-border">
+                                            <td class="p-3 text-center border-right-1 surface-border">
+                                                <button pButton icon="pi pi-trash" class="p-button-danger p-button-text p-button-rounded" (click)="removeLine(i)" [pTooltip]="'Delete' | translate"></button>
+                                            </td>
+
                                             <td class="p-3">
                                                 <div class="flex align-items-start gap-3">
                                                     <div class="flex-shrink-0">
-                                                        <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 90px; height: auto;">
+                                                        <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                                                             <a *ngIf="line?.image?.src" [href]="line.image.src" target="_blank">
                                                                 <img [src]="line.image.src" [alt]="line.productName" class="w-full h-full object-cover cursor-zoom-in" />
                                                             </a>
-
                                                             <i *ngIf="!line?.image?.src" class="pi pi-image text-400 text-2xl"></i>
                                                         </div>
                                                     </div>
@@ -175,37 +196,87 @@ import { Textarea } from 'primeng/textarea';
                                                         <div class="font-bold text-900 line-height-3">
                                                             {{ line.productName }} |
                                                             <span class="text-secondary font-normal">{{ 'Base' | translate }}:</span>
-                                                            <span class="text-amber-700 bg-green-50 px-2 border-round border-1 border-green-200 ml-1"> {{ getBasePrice(line) | number: '1.2-2' }} {{ item.currencySymbol || item.currency }} </span>
+                                                            <span class="text-amber-700 bg-green-50 px-2 border-round border-1 border-green-200 ml-1"> {{ getBasePrice(line) | number: '1.2-2' }} {{ item.currency }} </span>
                                                         </div>
 
                                                         <div class="text-xs text-secondary mt-1 font-medium uppercase tracking-wider">SKU: {{ line.sku }}</div>
 
-                                                        <div *ngFor="let meta of line.paoIdValue" class="mt-2">
-                                                            <div *ngFor="let v of meta.value" class="text-1xl italic text-orange-600 flex align-items-center flex-wrap gap-1 mb-1">
-                                                                <span class="text-700">• {{ v.key }}:</span>
-                                                                <span class="font-bold text-orange-900 bg-orange-100 px-2 py-0 border-round shadow-sm">
-                                                                    {{ v.value }}
-                                                                </span>
-                                                                <span *ngIf="v.rawPrice && v.rawPrice !== '0'" class="ml-1 font-bold text-green-600 bg-green-50 px-2 border-round border-1 border-green-200 text-xs">
-                                                                    +{{ v.rawPrice | number: '1.2-2' }} {{ item.currencySymbol || item.currency }}
-                                                                </span>
+                                                        <div *ngIf="line.paoIdValue && line.paoIdValue.length > 0" class="mt-2">
+                                                            <div *ngFor="let group of line.paoIdValue">
+                                                                <div *ngFor="let v of group.value" class="text-sm italic text-orange-600 flex align-items-center flex-wrap gap-1 mb-1">
+                                                                    <span class="text-700">• {{ v.key }}:</span>
+                                                                    <span class="font-bold text-orange-900 bg-orange-100 px-2 py-0 border-round shadow-sm">
+                                                                        {{ v.value }}
+                                                                    </span>
+                                                                    <span *ngIf="v.rawPrice && v.rawPrice !== '0'" class="ml-1 font-bold text-green-600 bg-green-50 px-2 border-round border-1 border-green-200 text-xs">
+                                                                        +{{ v.rawPrice | number: '1.2-2' }} {{ item.currency }}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="p-3 text-center">{{ line.quantity }}</td>
+
+                                            <td class="p-3 text-center">
+                                                <div class="flex align-items-center justify-content-center no-wrap">
+                                                    <button
+                                                        type="button"
+                                                        pButton
+                                                        icon="pi pi-minus"
+                                                        class="p-button-secondary p-button-outlined p-button-sm border-round-left"
+                                                        style="width: 32px; height: 32px; border-right: none;"
+                                                        (click)="changeQty(line, -1)"
+                                                    ></button>
+                                                    <input
+                                                        type="text"
+                                                        [(ngModel)]="line.quantity"
+                                                        (ngModelChange)="onQuantityChange(line)"
+                                                        class="text-center font-bold border-1 surface-border appearance-none"
+                                                        style="width: 40px; height: 32px; outline: none; border-top: 1px solid #ced4da; border-bottom: 1px solid #ced4da;"
+                                                        readonly
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        pButton
+                                                        icon="pi pi-plus"
+                                                        class="p-button-secondary p-button-outlined p-button-sm border-round-right"
+                                                        style="width: 32px; height: 32px; border-left: none;"
+                                                        (click)="changeQty(line, 1)"
+                                                    ></button>
+                                                </div>
+                                            </td>
+
                                             <td class="p-3 text-right font-medium text-900">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>
                                         </tr>
                                     </tbody>
 
                                     <tfoot class="bg-gray-50">
-                                        <!--                                        <tr>-->
-                                        <!--                                            <td colspan="2" class="p-3 text-right font-medium text-secondary">{{ 'Subtotal' | translate }}:</td>-->
-                                        <!--                                            <td class="p-3 text-right text-900 font-medium">{{ item.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>-->
-                                        <!--                                        </tr>-->
                                         <tr class="border-top-1 surface-border">
-                                            <td colspan="2" class="p-3 text-right font-bold text-xl text-900">{{ 'Total' | translate }}:</td>
+                                            <td colspan="3" class="p-3 text-right font-medium text-secondary"><i class="pi pi-box mr-1"></i> {{ 'Total_Weight' | translate }}:</td>
+                                            <td class="p-3 text-right text-900 font-bold">{{ getTotalWeight(item.orderLine) | number: '1.2-2' }} кг</td>
+                                        </tr>
+                                        <tr class="border-top-1 surface-border">
+                                            <td colspan="3" class="p- text-right font-medium text-secondary"><i class="pi pi-truck mr-1 text-xs"></i> {{ 'Shipping' | translate }}:</td>
+
+                                            <td class="p-3 text-right">
+                                                <span class="text-900 font-bold">[10.00 {{ item.currency }}]</span>
+                                                <p-tag value="БЕЗПЛАТНА" severity="success" [rounded]="true" class="font-bold mr-2"></p-tag>
+                                                <p-inputNumber
+                                                    mode="decimal"
+                                                    [minFractionDigits]="2"
+                                                    [maxFractionDigits]="2"
+                                                    [min]="0"
+                                                    [inputSize]="5"
+                                                    inputStyleClass="w-3rem text-right p-inputtext-sm font-bold surface-100 border-round"
+                                                    placeholder="0.00"
+                                                >
+                                                </p-inputNumber>
+                                                <span class="text-900 font-bold"> {{ item.currency }}</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-top-1 surface-border">
+                                            <td colspan="3" class="p-3 text-right font-bold text-xl text-900">{{ 'Total' | translate }}:</td>
                                             <td class="p-3 text-right font-bold text-xl text-primary">{{ item.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>
                                         </tr>
                                     </tfoot>
@@ -269,7 +340,37 @@ import { Textarea } from 'primeng/textarea';
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="p-3 text-center align-top">{{ line.quantity }}</td>
+                                                    <!--                                                    <td class="p-3 text-center align-top">{{ line.quantity }}</td>-->
+                                                    <td class="p-3 text-center" style="width: 150px;">
+                                                        <div class="flex align-items-center justify-content-center">
+                                                            <button
+                                                                type="button"
+                                                                pButton
+                                                                icon="pi pi-minus"
+                                                                class="p-button-secondary p-button-outlined p-button-sm border-round-left"
+                                                                style="width: 35px; height: 35px; border-right: none;"
+                                                                (click)="changeQty(line, -1)"
+                                                            ></button>
+
+                                                            <input
+                                                                type="text"
+                                                                [(ngModel)]="line.quantity"
+                                                                (ngModelChange)="onQuantityChange(line)"
+                                                                class="text-center font-bold border-1 surface-border appearance-none"
+                                                                style="width: 45px; height: 35px; outline: none; border-left: 1px solid #ced4da; border-right: 1px solid #ced4da;"
+                                                                readonly
+                                                            />
+
+                                                            <button
+                                                                type="button"
+                                                                pButton
+                                                                icon="pi pi-plus"
+                                                                class="p-button-secondary p-button-outlined p-button-sm border-round-right"
+                                                                style="width: 35px; height: 35px; border-left: none;"
+                                                                (click)="changeQty(line, 1)"
+                                                            ></button>
+                                                        </div>
+                                                    </td>
                                                     <td class="p-3 text-right font-medium text-900 align-top">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>
                                                 </tr>
                                             </tbody>
@@ -283,6 +384,7 @@ import { Textarea } from 'primeng/textarea';
                                     </div>
                                 </div>
                             </div>
+                            <p-button (onClick)="this.openProductSelector()" [label]="'Add_Product' | translate" icon="pi pi-plus" severity="success" [text]="true" size="small"> </p-button>
                         </div>
                     </div>
                 </div>
@@ -363,7 +465,7 @@ export class OrderDetailComponent {
         [OrderStatus.CANCELLED]: '#000000', // Отказана
         [OrderStatus.APPROVED]: '#3a9d00',
         [OrderStatus.JOINT]: '#e6ef61',
-        [OrderStatus.FAILED]: '#ff0000',
+        [OrderStatus.FAILED]: '#ff0000'
         // [OrderStatus.FAILED]: '#ef4444',     // Неуспешна
         // [OrderStatus.REFUNDED]: '#d90000'    // Върната
     };
@@ -433,4 +535,110 @@ export class OrderDetailComponent {
         console.log(currentOrder.orderLineOtherOrders);
         // Можеш да добавиш малък Toast или съобщение "Поръчката е маркирана за обединяване"
     }
+
+    // В OrderDetailComponent
+    public getTotalWeight(items: any[]): number {
+        if (!items) return 0;
+        return items.reduce((total, line) => {
+            // Уверяваме се, че теглото е число, преди да умножим
+            const weight = parseFloat(line.weight) || 0;
+            const qty = line.quantity || 1;
+            return total + weight * qty;
+        }, 0);
+    }
+
+    //     -------------------------
+    private dialogService = inject(DialogService);
+    openProductSelector() {
+        const ref = this.dialogService.open(WpProductListComponent, {
+            header: this.tr.instant('Product'),
+            width: '',
+            // Можеш да подадеш данни, ако искаш да филтрираш продукти само за конкретен сайт
+            data: { siteId: this.detailService.selectedItem()?.site?.id,
+            mode: 'lookup'}
+        });
+
+        // ref?.onClose.subscribe((product: any) => {
+        //     if (product) {
+        //         this.addProductToOrder(product);
+        //     }
+        // });
+
+    }
+
+    private addProductToOrder(product: any) {
+        const item = this.detailService.selectedItem();
+        if (!item) return;
+
+        // Подготвяме новия ред по структурата на твоя IOrderLineItem
+        const newLine = {
+            productName: product.name || product.productName,
+            sku: product.sku,
+            quantity: 1,
+            price: product.price,
+            totalPrice: product.price, // цена за 1 бройка първоначално
+            weight: product.weight || '0.5',
+            image: {
+                src: product.image?.src || product.mainImage || '',
+                id: product.image?.id || 0
+            },
+            paoIdValue: [], // Празни опции за нов продукт
+            productId: product.id,
+            wpOrderId: item.wpOrderId
+        };
+
+        // Добавяме в масива
+        // item.orderLine.push(newLine);
+
+        // Преизчисляваме тоталите
+        // this.updateGrandTotal();
+        //
+        // this.messageService.add({
+        //     severity: 'success',
+        //     summary: this.tr.instant('Success'),
+        //     detail: this.tr.instant('Product_Added')
+        // });
+    }
+
+    // 1. Увеличава или намалява количеството
+    changeQty(line: any, delta: number) {
+        // Вземаме текущото количество (подсигуряваме се, че е число)
+        let currentQty = parseInt(line.quantity) || 1;
+        let newQty = currentQty + delta;
+
+        // Не позволяваме количество по-малко от 1
+        if (newQty >= 1) {
+            line.quantity = newQty;
+            this.onQuantityChange(line);
+        }
+    }
+
+    // 2. Преизчислява цената за реда и общия тотал
+    onQuantityChange(line: any) {
+        // Вземаме единичната цена (price)
+        const unitPrice = parseFloat(line.price) || 0;
+        const qty = parseInt(line.quantity) || 1;
+
+        // Обновяваме тотала за конкретния ред
+        line.totalPrice = unitPrice * qty;
+
+        // Обновяваме финалната сума на цялата поръчка
+        this.updateGrandTotal();
+    }
+
+    // 3. Обновява финалния тотал на поръчката (Продукти + Доставка)
+    updateGrandTotal() {
+        const item = this.detailService.selectedItem();
+        if (!item) return;
+
+        // Сумираме totalPrice на всички редове
+        const productsSubtotal = item.orderLine.reduce((sum: number, l: any) => sum + (l.totalPrice || 0), 0);
+
+        // Добавяме доставката (статично 5.00)
+        const shipping = 5.0;
+
+        item.totalPrice = productsSubtotal + shipping;
+    }
+
+    removeLine(i: number) {}
 }
