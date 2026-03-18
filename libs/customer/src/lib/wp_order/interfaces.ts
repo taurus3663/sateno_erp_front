@@ -57,6 +57,19 @@ export interface IOrder {
     courierId: number;
     signals: ISignalUser[];
     comment: string;
+    savedCourierBilling: OrderSavedCourierSettings;
+}
+export interface OrderSavedCourierSettings {
+    courierId: number;
+    courierType: CourierType;
+    courierShipmentType: CourierShipmentType;
+    city: Object;
+    office: Object;
+    street: string;
+    weight: number;
+    packCount: number;
+    fiscalReceipt: boolean;
+    boxNowSize: BoxnowPacketSize;
 }
 
 export interface ISignalUser {

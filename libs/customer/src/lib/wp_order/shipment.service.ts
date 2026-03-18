@@ -157,6 +157,35 @@ export class ShipmentService {
         this.selectedOrder = order;
         this.reset();
         this.visible = true;
+
+        if (order.savedCourierBilling && order.savedCourierBilling.courierId) {
+            const saved = order.savedCourierBilling;
+            this.deliveryType = saved.courierShipmentType;
+            this.weight = saved.weight;
+            this.packCount = saved.packCount;
+            this.addressStreet = saved.street;
+            this.fiscalReceipt = saved.fiscalReceipt;
+            this.selectedBoxNowSize = saved.boxNowSize !== undefined ? String(saved.boxNowSize) : '';
+            // 1. Намираме куриера
+            this.selectedCourier = this.courierListService.items().find((c) => {
+
+                return c.id == saved.courierId;
+            });
+
+            // 2. Зареждаме визуално града и офиса (тъй като ги пазим като обекти)
+            this.selectedCity = saved.city;
+            this.selectedOffice = saved.office;
+
+            // Попълваме списъците, за да не са празни дропдауните
+            if (this.selectedCity) this.cities = [this.selectedCity];
+            if (this.selectedOffice) this.offices = [this.selectedOffice];
+
+            return; // Спираме тук! Не пускаме Regex-а.
+        }
+
+
+
+
         const addr = order.billing.address_1 || '';
 
         // 1. Дефиниране на RegExp
@@ -432,5 +461,38 @@ export class ShipmentService {
             // },
             // complete: () => {}
         });
+    }
+
+    // В ShipmentService.ts
+    public saveShipmentConfig(orderId: number) {
+        if (!this.selectedOrder) return;
+
+        // Подготвяме обекта за Java (OrderSavedCourierSettings)
+        const payload = {
+        'savedCourierBilling': {
+            courierId: this.selectedCourier?.id, // ID от твоята база
+            courierType: this.selectedCourier?.courierType, // ECONT, SPEEDY, BOX_NOW
+            courierShipmentType: this.deliveryType, // OFFICE, ADDRESS, LOCKER
+
+            // Добавяме тези полета към твоя Java клас OrderSavedCourierSettings:
+            city: this.selectedCity,      // Целият обект (име, ID, пощенски код)
+            office: this.selectedOffice,  // Целият обект (име, код, адрес)
+            street: this.addressStreet,
+            weight: this.weight,
+            packCount: this.packCount,
+            fiscalReceipt: this.fiscalReceipt,
+            boxNowSize: this.selectedBoxNowSize,
+           },
+            id: orderId
+        };
+
+        // console.log(payload);
+        // Правим POST към поръчката
+        this.http.patch(ROUTES.wp_order.patch, payload)
+            .subscribe(() => {
+                this.messageService.add({severity:'success', summary:'Запазено'});
+                // Обновяваме локалния обект, за да знае Angular, че вече има записи
+                // this.selectedOrder!.savedCourierSettings = payload;
+            });
     }
 }

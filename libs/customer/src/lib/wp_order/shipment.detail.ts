@@ -116,26 +116,26 @@ import { CourierType } from '../courier/interfaces';
             </div>
             <!-- ADDRESS-->
             <div *ngIf="detailService.selectedCity && detailService.deliveryType === 'ADDRESS'" class="fadein">
-<!--                <label class="font-bold block mb-2">{{ 'City' | translate }}</label>-->
-<!--                <p-select-->
-<!--                    [options]="detailService.cities"-->
-<!--                    [(ngModel)]="detailService.selectedCity"-->
-<!--                    (onChange)="detailService.onCityChange()"-->
-<!--                    (onFilter)="onCitySearch($event)"-->
-<!--                    [filter]="true"-->
-<!--                    [lazy]="true"-->
-<!--                    optionLabel="name"-->
-<!--                    [loading]="detailService.loadingCities"-->
-<!--                    placeholder="{{ 'Type_City_Name' | translate }}"-->
-<!--                    class="w-full"-->
-<!--                >-->
-<!--                    <ng-template pTemplate="item" let-city>-->
-<!--                        <div class="flex justify-content-between">-->
-<!--                            <span>{{ city.name }}</span>-->
-<!--                            <small class="text-secondary">{{ city.postCode }}</small>-->
-<!--                        </div>-->
-<!--                    </ng-template>-->
-<!--                </p-select>-->
+                <!--                <label class="font-bold block mb-2">{{ 'City' | translate }}</label>-->
+                <!--                <p-select-->
+                <!--                    [options]="detailService.cities"-->
+                <!--                    [(ngModel)]="detailService.selectedCity"-->
+                <!--                    (onChange)="detailService.onCityChange()"-->
+                <!--                    (onFilter)="onCitySearch($event)"-->
+                <!--                    [filter]="true"-->
+                <!--                    [lazy]="true"-->
+                <!--                    optionLabel="name"-->
+                <!--                    [loading]="detailService.loadingCities"-->
+                <!--                    placeholder="{{ 'Type_City_Name' | translate }}"-->
+                <!--                    class="w-full"-->
+                <!--                >-->
+                <!--                    <ng-template pTemplate="item" let-city>-->
+                <!--                        <div class="flex justify-content-between">-->
+                <!--                            <span>{{ city.name }}</span>-->
+                <!--                            <small class="text-secondary">{{ city.postCode }}</small>-->
+                <!--                        </div>-->
+                <!--                    </ng-template>-->
+                <!--                </p-select>-->
 
                 <div style="width: 90px;">
                     <label class="font-bold block mb-2">{{ 'Post_Code' | translate }}</label>
@@ -201,7 +201,8 @@ import { CourierType } from '../courier/interfaces';
                         buttonLayout="vertical"
                         spinnerMode="horizontal"
                         [min]="1"
-                        [max]="(detailService.selectedCourier?.courierType === 'SPEEDY' || detailService.selectedCourier?.courierType === CourierType.SPEEDY) ? 10 : 99"                        inputStyleClass="text-center font-bold border-round-lg"
+                        [max]="(detailService.selectedCourier?.courierType === 'SPEEDY' || detailService.selectedCourier?.courierType === CourierType.SPEEDY) ? 10 : 99"
+                        inputStyleClass="text-center font-bold border-round-lg"
                         decrementButtonClass="p-button-secondary p-button-outlined"
                         incrementButtonClass="p-button-secondary p-button-outlined"
                         incrementButtonIcon="pi pi-plus"
@@ -276,6 +277,15 @@ import { CourierType } from '../courier/interfaces';
                 <div class="flex gap-2 w-full pt-2 justify-end">
                     <p-button [label]="'Cancel' | translate" severity="warn" [text]="true"
                               (onClick)="detailService.visible = false" />
+
+
+                    <p-button
+                        [label]="'Save' | translate"
+                        icon="pi pi-save"
+                        severity="primary"
+                        [outlined]="true"
+                        (onClick)="detailService.saveShipmentConfig(order?.id?? -1)"
+                        class="mr-2" />
 
                     <p-button [disabled]="order?.courierId || order?.wayBillShipmentNumber"
                               [label]="'Generate' | translate" icon="pi pi-check"
