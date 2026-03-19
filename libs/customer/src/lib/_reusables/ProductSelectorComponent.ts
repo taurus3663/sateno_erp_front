@@ -11,7 +11,7 @@ import { Image } from 'primeng/image'; // Твоят сървис за сайт�
 
 @Component({
     standalone: true,
-    selector: 'app-site-selector',
+    selector: 'app-product-selector',
     imports: [CommonModule, Select, Button, FormsModule, TranslatePipe, Image],
     template: `
         <div class="flex flex-col gap-5 p-2">
@@ -98,7 +98,7 @@ import { Image } from 'primeng/image'; // Твоят сървис за сайт�
         </div>
     `
 })
-export class SiteSelectorComponent {
+export class ProductSelectorComponent {
     protected productListService = inject(WpProductListService);
     protected ref = inject(DynamicDialogRef);
     protected config = inject(DynamicDialogConfig);

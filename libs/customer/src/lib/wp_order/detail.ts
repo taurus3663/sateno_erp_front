@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button, ButtonDirective } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -9,20 +9,22 @@ import { CurrencyListService } from '../currency/list.service';
 import { LanguageListService } from '../language/list.service';
 import { Tooltip } from 'primeng/tooltip';
 import { Avatar } from 'primeng/avatar';
-import { OrderStatus, OrderStatusLabels, PaymentMethod, PaymentMethodLabels } from './interfaces';
+import { IOrderLineItem, OrderStatus, OrderStatusLabels, PaymentMethod, PaymentMethodLabels } from './interfaces';
 import { Select } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { InputText } from 'primeng/inputtext';
 import { Textarea } from 'primeng/textarea';
 import { InputNumber } from 'primeng/inputnumber';
-import {SiteSelectorComponent} from '../_reusables/ProductSelectorComponent';
+import { ProductSelectorComponent } from '../_reusables/ProductSelectorComponent';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WpProductListComponent } from '../wp_product/list';
+import { XL_AUTH_CONFIG } from 'xl-auth';
+import { Image } from 'primeng/image';
 
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea, ButtonDirective, InputNumber],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea, ButtonDirective, InputNumber, Image],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '100%', height: '100vh' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -185,9 +187,7 @@ import { WpProductListComponent } from '../wp_product/list';
                                                 <div class="flex align-items-start gap-3">
                                                     <div class="flex-shrink-0">
                                                         <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                                            <a *ngIf="line?.image?.src" [href]="line.image.src" target="_blank">
-                                                                <img [src]="line.image.src" [alt]="line.productName" class="w-full h-full object-cover cursor-zoom-in" />
-                                                            </a>
+                                                                <p-image [src]="line.image.src" [alt]="line.productName" [preview]="true" class="w-full h-full object-cover cursor-zoom-in" />
                                                             <i *ngIf="!line?.image?.src" class="pi pi-image text-400 text-2xl"></i>
                                                         </div>
                                                     </div>
@@ -254,7 +254,7 @@ import { WpProductListComponent } from '../wp_product/list';
                                     <tfoot class="bg-gray-50">
                                         <tr class="border-top-1 surface-border">
                                             <td colspan="3" class="p-3 text-right font-medium text-secondary"><i class="pi pi-box mr-1"></i> {{ 'Total_Weight' | translate }}:</td>
-                                            <td class="p-3 text-right text-900 font-bold">{{ getTotalWeight(item.orderLine) | number: '1.2-2' }} кг</td>
+                                            <td class="p-3 text-right text-900 font-bold">{{ totalWeight() | number: '1.2-2' }} кг</td>
                                         </tr>
                                         <tr class="border-top-1 surface-border">
                                             <td colspan="3" class="p- text-right font-medium text-secondary"><i class="pi pi-truck mr-1 text-xs"></i> {{ 'Shipping' | translate }}:</td>
@@ -277,19 +277,19 @@ import { WpProductListComponent } from '../wp_product/list';
                                         </tr>
                                         <tr class="border-top-1 surface-border">
                                             <td colspan="3" class="p-3 text-right font-bold text-xl text-900">{{ 'Total' | translate }}:</td>
-                                            <td class="p-3 text-right font-bold text-xl text-primary">{{ item.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>
+                                            <td class="p-3 text-right font-bold text-xl text-primary">{{ grandTotal() | number: '1.2-2' }} {{ item.currency }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
                             </div>
 
-                            <div class="col-span-12 mt-5" *ngIf="item?.orderLineOtherOrders?.length">
+                            <div class="col-span-12 mt-5" *ngIf="groupedOtherOrders().length">
                                 <h5 class="text-orange-600 font-bold mb-4 flex align-items-center gap-2 border-bottom-1 pb-2">
                                     <i class="pi pi-clone"></i>
                                     {{ 'Pending_Duplicates' | translate }}
                                 </h5>
 
-                                <div *ngFor="let group of getGroupedOtherOrders(item.orderLineOtherOrders)" class="mb-6">
+                                <div *ngFor="let group of groupedOtherOrders()" class="mb-6">
                                     <div class="flex justify-content-between align-items-center mb-2 px-2">
                                         <span class="text-900 font-bold">
                                             <i class="pi pi-shopping-cart text-orange-500 mr-2"></i>
@@ -403,16 +403,16 @@ export class OrderDetailComponent {
     protected detailService = inject(OrderDetailService);
     protected currencyService = inject(CurrencyListService);
     protected languageService = inject(LanguageListService);
-    // private messageService = inject(MessageService);
     private tr = inject(TranslateService);
+    private cdr = inject(ChangeDetectorRef);
+
+    private authConfig = inject(XL_AUTH_CONFIG);
+    protected readonly baseUrl = this.authConfig.apiUrl;
+    // 1. ДОБАВЯМЕ САМО ТОВА: Малък тригер за сигналите
+    private refreshTrigger = signal(0);
 
     constructor() {
-        // Зареждаме всички валути (напр. първите 1000), за да ги има в падащото меню
-        // Това се вика веднъж при създаване на компонента
-        // this.currencyService.loadList(0, 1000);
-        // this.languageService.loadList(0, 1000);
         this.generateStatusOptions();
-        // Ако потребителят смени езика, докато диалогът е отворен
         this.tr.onLangChange.subscribe(() => {
             this.generateStatusOptions();
         });
@@ -433,12 +433,10 @@ export class OrderDetailComponent {
     }
 
     public getPaymentLabel(method: any): string {
-        // Кастваме към PaymentMethod, за да спрем грешката
         const key = method as PaymentMethod;
         return PaymentMethodLabels[key] || 'Неизвестен метод';
     }
 
-    // В list.component.ts
     protected statusLabels = OrderStatusLabels;
     getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
         switch (status) {
@@ -456,18 +454,15 @@ export class OrderDetailComponent {
         }
     }
 
-    // В класа OrderDetailComponent
     private readonly statusColorMap: Record<string, string> = {
-        [OrderStatus.PROCESSING]: '#808080', // Чакаща
-        [OrderStatus.ABANDONED]: '#94a3b8', // Изоставена
-        [OrderStatus.SENT]: '#e67e22', // Изпратена
-        [OrderStatus.COMPLETED]: '#3a9d00', // Завършена
-        [OrderStatus.CANCELLED]: '#000000', // Отказана
+        [OrderStatus.PROCESSING]: '#808080',
+        [OrderStatus.ABANDONED]: '#94a3b8',
+        [OrderStatus.SENT]: '#e67e22',
+        [OrderStatus.COMPLETED]: '#3a9d00',
+        [OrderStatus.CANCELLED]: '#000000',
         [OrderStatus.APPROVED]: '#3a9d00',
         [OrderStatus.JOINT]: '#e6ef61',
         [OrderStatus.FAILED]: '#ff0000'
-        // [OrderStatus.FAILED]: '#ef4444',     // Неуспешна
-        // [OrderStatus.REFUNDED]: '#d90000'    // Върната
     };
 
     public getStatusColor(status: string): string {
@@ -485,11 +480,10 @@ export class OrderDetailComponent {
             }));
     }
 
-    // В OrderDetailComponent
-    public getGroupedOtherOrders(lines: any[]) {
-        if (!lines || lines.length === 0) return [];
+    readonly groupedOtherOrders = computed(() => {
+        const lines = this.detailService.selectedItem()?.orderLineOtherOrders || [];
+        if (lines.length === 0) return [];
 
-        // 1. Групираме по вътрешното ни orderId
         const groups = lines.reduce(
             (acc, obj) => {
                 const key = obj.orderId;
@@ -500,16 +494,15 @@ export class OrderDetailComponent {
             {} as Record<string, any[]>
         );
 
-        // 2. Преобразуваме в масив и извличаме wpOrderId от първия продукт в групата
         return Object.keys(groups).map((id) => {
             const items = groups[id];
             return {
-                orderId: id, // Вътрешно ID
-                wpOrderId: items[0]?.wpOrderId, // WooCommerce ID (от първия елемент)
-                items: items // Списък с продукти
+                orderId: id,
+                wpOrderId: items[0]?.wpOrderId,
+                items: items
             };
         });
-    }
+    });
 
     public getSubtotal(items: any[]): number {
         return items.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
@@ -520,125 +513,151 @@ export class OrderDetailComponent {
         const currentOrder = this.detailService.selectedItem();
         if (!currentOrder) return;
 
-        // Инициализираме списъка, ако не съществува
         if (!currentOrder.ordersToMerge) {
             currentOrder.ordersToMerge = [];
         }
 
-        // Добавяме ID-то на поръчката за сливане
         if (!currentOrder.ordersToMerge.includes(parseInt)) {
             currentOrder.ordersToMerge.push(parseInt);
         }
 
-        // Визуално премахваме таблицата от екрана, за да знае операторът, че е "маркирана"
         currentOrder.orderLineOtherOrders = currentOrder.orderLineOtherOrders.filter((line) => line.orderId !== parseInt);
-        console.log(currentOrder.orderLineOtherOrders);
-        // Можеш да добавиш малък Toast или съобщение "Поръчката е маркирана за обединяване"
+        this.refreshTrigger.update((v) => v + 1); // Обновяваме тригера
     }
 
-    // В OrderDetailComponent
-    public getTotalWeight(items: any[]): number {
-        if (!items) return 0;
-        return items.reduce((total, line) => {
-            // Уверяваме се, че теглото е число, преди да умножим
-            const weight = parseFloat(line.weight) || 0;
-            const qty = line.quantity || 1;
-            return total + weight * qty;
-        }, 0);
-    }
-
-    //     -------------------------
     private dialogService = inject(DialogService);
     openProductSelector() {
         const ref = this.dialogService.open(WpProductListComponent, {
             header: this.tr.instant('Product'),
             width: '',
-            // Можеш да подадеш данни, ако искаш да филтрираш продукти само за конкретен сайт
-            data: { siteId: this.detailService.selectedItem()?.site?.id,
-            mode: 'lookup'}
+            closeOnEscape: true,
+            closable: true,
+            data: { siteId: this.detailService.selectedItem()?.site?.id, mode: 'lookup' }
         });
 
-        // ref?.onClose.subscribe((product: any) => {
-        //     if (product) {
-        //         this.addProductToOrder(product);
-        //     }
+        ref?.onClose.subscribe((product: any) => {
+            this.openAddonConfigurator(product);
+            if (product) {
+                this.addProductToOrder(product);
+            }
+        });
+    }
+
+    // НОВ МЕТОД ЗА КОНФИГУРАЦИЯ
+    private openAddonConfigurator(product: any) {
+
+
+
+        // const ref = this.dialogService.open(ProductSelectorComponent, {
+        //     header: this.tr.instant('Configure_Product') + ': ' + product.name,
+        //     width: '500px',
+        //     data: { product: product }
         // });
 
+        // ref?.onClose.subscribe((configuredProduct: any) => {
+        //     if (configuredProduct) {
+        //         Тук configuredProduct трябва да съдържа избраните паоIdValue
+                // this.addProductToOrder(configuredProduct);
+            // }
+        // });
     }
+
+    // 2. ОБНОВЯВАМЕ ТУК: Добавяме refreshTrigger() вътре
+    readonly totalWeight = computed(() => {
+        this.refreshTrigger(); // Важно: кара сигнала да се преизчисли
+        const lines = this.detailService.selectedItem()?.orderLine || [];
+        return lines.reduce((sum, line) => sum + parseFloat(line.weight || '0') * (line.quantity || 1), 0);
+    });
+
+    // 3. ОБНОВЯВАМЕ ТУК: Добавяме refreshTrigger() вътре
+    readonly grandTotal = computed(() => {
+        this.refreshTrigger(); // Важно: кара сигнала да се преизчисли
+        const lines = this.detailService.selectedItem()?.orderLine || [];
+        const subtotal = lines.reduce((sum, line) => sum + (line.totalPrice || 0), 0);
+        const shipping = 5.0;
+        return subtotal + shipping;
+    });
 
     private addProductToOrder(product: any) {
         const item = this.detailService.selectedItem();
         if (!item) return;
 
-        // Подготвяме новия ред по структурата на твоя IOrderLineItem
-        const newLine = {
+        let price = product.siteConfig[0].price;
+        //                                 <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
+        const newLine: IOrderLineItem = {
             productName: product.name || product.productName,
             sku: product.sku,
             quantity: 1,
-            price: product.price,
-            totalPrice: product.price, // цена за 1 бройка първоначално
+            price: parseFloat(price),
+            totalPrice: parseFloat(price),
             weight: product.weight || '0.5',
             image: {
-                src: product.image?.src || product.mainImage || '',
+                src: this.baseUrl + product.m_image,
                 id: product.image?.id || 0
             },
-            paoIdValue: [], // Празни опции за нов продукт
+            orderId: item.wpOrderId,
+            dimensions: { length: '', width: '', height: '' },
+            paoIdValue: [],
             productId: product.id,
             wpOrderId: item.wpOrderId
         };
 
-        // Добавяме в масива
-        // item.orderLine.push(newLine);
-
-        // Преизчисляваме тоталите
-        // this.updateGrandTotal();
-        //
-        // this.messageService.add({
-        //     severity: 'success',
-        //     summary: this.tr.instant('Success'),
-        //     detail: this.tr.instant('Product_Added')
-        // });
+        setTimeout(() => {
+            item.orderLine = [...(item.orderLine || []), newLine];
+            this.refreshTrigger.update((v) => v + 1); // БУТАМЕ ТРИГЕРА
+            this.updateGrandTotal();
+            this.cdr.detectChanges();
+        });
     }
 
-    // 1. Увеличава или намалява количеството
     changeQty(line: any, delta: number) {
-        // Вземаме текущото количество (подсигуряваме се, че е число)
         let currentQty = parseInt(line.quantity) || 1;
         let newQty = currentQty + delta;
 
-        // Не позволяваме количество по-малко от 1
         if (newQty >= 1) {
             line.quantity = newQty;
             this.onQuantityChange(line);
         }
     }
 
-    // 2. Преизчислява цената за реда и общия тотал
     onQuantityChange(line: any) {
-        // Вземаме единичната цена (price)
+        const item = this.detailService.selectedItem();
+        if (!item) return;
+
         const unitPrice = parseFloat(line.price) || 0;
         const qty = parseInt(line.quantity) || 1;
-
-        // Обновяваме тотала за конкретния ред
         line.totalPrice = unitPrice * qty;
 
-        // Обновяваме финалната сума на цялата поръчка
+        item.orderLine = [...item.orderLine];
+        this.refreshTrigger.update((v) => v + 1); // БУТАМЕ ТРИГЕРА
         this.updateGrandTotal();
     }
 
-    // 3. Обновява финалния тотал на поръчката (Продукти + Доставка)
     updateGrandTotal() {
         const item = this.detailService.selectedItem();
         if (!item) return;
 
-        // Сумираме totalPrice на всички редове
         const productsSubtotal = item.orderLine.reduce((sum: number, l: any) => sum + (l.totalPrice || 0), 0);
-
-        // Добавяме доставката (статично 5.00)
         const shipping = 5.0;
-
         item.totalPrice = productsSubtotal + shipping;
+
+        this.refreshTrigger.update((v) => v + 1); // БУТАМЕ ТРИГЕРА
+        this.cdr.detectChanges();
     }
 
-    removeLine(i: number) {}
+    removeLine(index: number) {
+        const confirmDelete = confirm(this.tr.instant('Are_you_sure?'));
+        if (confirmDelete) {
+            const item = this.detailService.selectedItem();
+            if (item) {
+                const updatedLines = [...item.orderLine];
+                updatedLines.splice(index, 1);
+                item.orderLine = updatedLines;
+
+                this.refreshTrigger.update((v) => v + 1); // БУТАМЕ ТРИГЕРА
+                this.updateGrandTotal();
+                this.cdr.detectChanges();
+            }
+        }
+    }
 }
