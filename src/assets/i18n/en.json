@@ -272,5 +272,7 @@
   "last_name": "last name",
   "Total_Weight": "Total Weight",
   "Shipping": "Shipping",
-  "Add_Product": "Add Product"
+  "Add_Product": "Add Product",
+  "Sku": "Sku",
+  "Free": "Free"
 }

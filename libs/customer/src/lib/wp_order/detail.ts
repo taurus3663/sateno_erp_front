@@ -20,6 +20,10 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { WpProductListComponent } from '../wp_product/list';
 import { XL_AUTH_CONFIG } from 'xl-auth';
 import { Image } from 'primeng/image';
+import { IWpProduct, IWpProductAddonConfig } from '../wp_product/interfaces';
+import { ROUTES } from '../api.routes';
+import { ProductAddonSelectComponent } from '../_reusables/ProductAddonSelectComponent';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'site-detail',
@@ -535,31 +539,37 @@ export class OrderDetailComponent {
             data: { siteId: this.detailService.selectedItem()?.site?.id, mode: 'lookup' }
         });
 
-        ref?.onClose.subscribe((product: any) => {
-            this.openAddonConfigurator(product);
-            if (product) {
-                this.addProductToOrder(product);
+        ref?.onClose.subscribe(async (product: any) => {
+
+            const fullProduct = await this.detailService.getProduct(product);
+
+            if (fullProduct?.addonConfigs && fullProduct.addonConfigs.length > 0) {
+                // Отваряме конфигуратора и чакаме той да върне ИЗБРАНИЯ адон
+                this.openAddonConfigurator(fullProduct, (selectedAddon) => {
+                    // Когато потребителят потвърди адона, добавяме продукта с него
+                    this.addProductToOrder(fullProduct, selectedAddon);
+                });
+            } else if (fullProduct) {
+                // Ако няма адони, добавяме продукта директно
+                this.addProductToOrder(fullProduct);
             }
         });
     }
 
     // НОВ МЕТОД ЗА КОНФИГУРАЦИЯ
-    private openAddonConfigurator(product: any) {
+    private openAddonConfigurator(product: any, onConfirm: (addon: any) => void) {
+        const ref = this.dialogService.open(ProductAddonSelectComponent, {
+            header: product.name,
+            width: '500px',
+            data: { items: product.addonConfigs }
+        });
 
-
-
-        // const ref = this.dialogService.open(ProductSelectorComponent, {
-        //     header: this.tr.instant('Configure_Product') + ': ' + product.name,
-        //     width: '500px',
-        //     data: { product: product }
-        // });
-
-        // ref?.onClose.subscribe((configuredProduct: any) => {
-        //     if (configuredProduct) {
-        //         Тук configuredProduct трябва да съдържа избраните паоIdValue
-                // this.addProductToOrder(configuredProduct);
-            // }
-        // });
+        ref?.onClose.subscribe((selectedAddon: any) => {
+            if (selectedAddon) {
+                // Връщаме избрания адон обратно към повикващия метод
+                onConfirm(selectedAddon);
+            }
+        });
     }
 
     // 2. ОБНОВЯВАМЕ ТУК: Добавяме refreshTrigger() вътре
@@ -578,18 +588,49 @@ export class OrderDetailComponent {
         return subtotal + shipping;
     });
 
-    private addProductToOrder(product: any) {
+    private addProductToOrder(product: any, selectedAddon?: any) {
         const item = this.detailService.selectedItem();
         if (!item) return;
 
-        let price = product.siteConfig[0].price;
-        //                                 <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
+        // 1. Първо вземаме базовата цена от конфигурацията на сайта
+        let basePrice = parseFloat(product.siteConfig?.[0]?.price || 0);
+        let finalPrice = basePrice;
+        let paoValues: any[] = [];
+
+        // 2. Ако има избран адон, изчисляваме новата цена и пълним структурата
+        if (selectedAddon) {
+            const addonPrice = parseFloat(selectedAddon.priceModifier || 0);
+            finalPrice = basePrice + addonPrice;
+
+            const groupLabel = selectedAddon.label || 'Options';
+            const addonValueLabel = this.getTranslationForAddon(selectedAddon);
+
+            // Тук правим точно структурата, която ми показа
+            paoValues = [
+                {
+                    id: Math.floor(Math.random() * 100000),
+                    key: "_pao_ids",
+                    value: [
+                        {
+                            id: selectedAddon.id || Math.floor(Math.random() * 1000000000),
+                            key: groupLabel,
+                            value: addonValueLabel,
+                            rawPrice: addonPrice.toString(),
+                            rawValue: addonValueLabel,
+                            priceType: "flat_fee"
+                        }
+                    ]
+                }
+            ];
+        }
+
+        // 3. Сглобяваме новия ред (NewLine)
         const newLine: IOrderLineItem = {
             productName: product.name || product.productName,
             sku: product.sku,
             quantity: 1,
-            price: parseFloat(price),
-            totalPrice: parseFloat(price),
+            price: finalPrice,         // Вече включва адона
+            totalPrice: finalPrice,    // Цена за 1 бройка
             weight: product.weight || '0.5',
             image: {
                 src: this.baseUrl + product.m_image,
@@ -597,17 +638,34 @@ export class OrderDetailComponent {
             },
             orderId: item.wpOrderId,
             dimensions: { length: '', width: '', height: '' },
-            paoIdValue: [],
+            paoIdValue: paoValues,     // Подаваме масива, който сглобихме горе
             productId: product.id,
             wpOrderId: item.wpOrderId
         };
 
+        // 4. Обновяваме UI-то
         setTimeout(() => {
             item.orderLine = [...(item.orderLine || []), newLine];
-            this.refreshTrigger.update((v) => v + 1); // БУТАМЕ ТРИГЕРА
+            this.refreshTrigger.update((v) => v + 1);
             this.updateGrandTotal();
             this.cdr.detectChanges();
         });
+    }
+
+    private getTranslationForAddon(option: any): string {
+        if (!option?.addonValue?.translations) return '';
+
+        // Вземаме кода на езика от обекта на сайта (напр. 'bg')
+        // Ако по някаква причина липсва, слагаме 'bg' по подразбиране
+        const siteLangCode = option.site?.language?.code || 'bg';
+
+        // Търсим превод, който съвпада с езика на сайта
+        const translation = option.addonValue.translations.find(
+            (t: any) => t.language.code === siteLangCode
+        );
+
+        // Връщаме намерения превод или първия наличен като резервен вариант (fallback)
+        return translation ? translation.label : option.addonValue.translations[0]?.label || 'No label';
     }
 
     changeQty(line: any, delta: number) {

@@ -2,6 +2,8 @@ import { effect, Injectable } from '@angular/core';
 import { BaseDetailCrud } from 'xl-util';
 import { IOrder } from './interfaces';
 import { ROUTES } from '../api.routes';
+import { IWpProduct } from '../wp_product/interfaces';
+import { lastValueFrom } from 'rxjs';
 
 
 @Injectable({ providedIn: 'root' })
@@ -29,4 +31,10 @@ export class OrderDetailService extends BaseDetailCrud<IOrder> {
             });
         }
     }
+
+
+    public async getProduct(product: any): Promise<IWpProduct | null> {
+       return await lastValueFrom(this.http.get<IWpProduct>(`${ROUTES.wp_product.get}/${product.id}`));
+    }
+
 }
