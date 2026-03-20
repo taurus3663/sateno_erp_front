@@ -251,7 +251,21 @@ import { lastValueFrom } from 'rxjs';
                                                 </div>
                                             </td>
 
-                                            <td class="p-3 text-right font-medium text-900">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>
+<!--                                            <td class="p-3 text-right font-medium text-900">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>-->
+                                            <td class="p-3 text-right">
+<!--                                                <div class="flex align-items-center justify-content-end gap-2">-->
+                                                    <p-inputNumber
+                                                        [(ngModel)]="line.totalPrice"
+                                                        (ngModelChange)="updateGrandTotal()"
+                                                        mode="decimal"
+                                                        [minFractionDigits]="2"
+                                                        [maxFractionDigits]="2"
+                                                        [inputSize]="5"
+                                                        inputStyleClass="w-5rem text-right p-inputtext-sm font-bold surface-100 border-round text-primary"
+                                                    ></p-inputNumber>
+                                                    <span class="text-900 font-medium">{{ item.currency }}</span>
+<!--                                                </div>-->
+                                            </td>
                                         </tr>
                                     </tbody>
 
@@ -547,11 +561,11 @@ export class OrderDetailComponent {
                 // Отваряме конфигуратора и чакаме той да върне ИЗБРАНИЯ адон
                 this.openAddonConfigurator(fullProduct, (selectedAddon) => {
                     // Когато потребителят потвърди адона, добавяме продукта с него
-                    this.addProductToOrder(fullProduct, selectedAddon);
+                    this.addProductToOrder(product, selectedAddon);
                 });
             } else if (fullProduct) {
                 // Ако няма адони, добавяме продукта директно
-                this.addProductToOrder(fullProduct);
+                this.addProductToOrder(product);
             }
         });
     }
@@ -561,7 +575,11 @@ export class OrderDetailComponent {
         const ref = this.dialogService.open(ProductAddonSelectComponent, {
             header: product.name,
             width: '500px',
-            data: { items: product.addonConfigs }
+            data:
+                {
+                    items: product.addonConfigs,
+                    label: this.tr.instant('Choose') + '    ' + this.tr.instant('Addon'),
+                }
         });
 
         ref?.onClose.subscribe((selectedAddon: any) => {
@@ -602,7 +620,7 @@ export class OrderDetailComponent {
             const addonPrice = parseFloat(selectedAddon.priceModifier || 0);
             finalPrice = basePrice + addonPrice;
 
-            const groupLabel = selectedAddon.label || 'Options';
+            const groupLabel = selectedAddon.label || this.tr.instant('Option');
             const addonValueLabel = this.getTranslationForAddon(selectedAddon);
 
             // Тук правим точно структурата, която ми показа
@@ -623,7 +641,6 @@ export class OrderDetailComponent {
                 }
             ];
         }
-
         // 3. Сглобяваме новия ред (NewLine)
         const newLine: IOrderLineItem = {
             productName: product.name || product.productName,
@@ -634,7 +651,7 @@ export class OrderDetailComponent {
             weight: product.weight || '0.5',
             image: {
                 src: this.baseUrl + product.m_image,
-                id: product.image?.id || 0
+                id:  0
             },
             orderId: item.wpOrderId,
             dimensions: { length: '', width: '', height: '' },
