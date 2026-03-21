@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, effect, inject, signal } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button, ButtonDirective } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -24,6 +24,8 @@ import { IWpProduct, IWpProductAddonConfig } from '../wp_product/interfaces';
 import { ROUTES } from '../api.routes';
 import { ProductAddonSelectComponent } from '../_reusables/ProductAddonSelectComponent';
 import { lastValueFrom } from 'rxjs';
+import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
+import { SiteObjectSelectorComponent } from '../_reusables/SiteObjectSelectorComponent';
 
 @Component({
     selector: 'site-detail',
@@ -108,8 +110,30 @@ import { lastValueFrom } from 'rxjs';
                         </div>
 
                         <div class="flex flex-column col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
-                            <span class="text-secondary text-xs font-bold uppercase">{{ 'Payment_method' | translate }}</span>
-                            <input pInputText [value]="getPaymentLabel(item.paymentMethod) | translate" readonly class="w-full bg-gray-50 border-none font-bold" />
+                            <label class="text-secondary text-xs font-bold uppercase mb-2">{{ 'Payment_method' | translate }}</label>
+                            <p-select
+                                [options]="paymentMethods"
+                                [(ngModel)]="item.paymentMethod"
+                                optionLabel="label"
+                                optionValue="value"
+                                class="w-full mt-1"
+                                placeholder="{{ 'Payment_method' | translate }}"
+                                appendTo="body">
+
+                                <ng-template #selectedItem let-selectedOption>
+                                    <div class="flex align-items-center gap-2" *ngIf="selectedOption">
+                                        <i class="pi pi-credit-card text-primary"></i>
+                                        <span class="font-bold">{{ selectedOption.label | translate }}</span>
+                                    </div>
+                                </ng-template>
+
+                                <ng-template #item let-option>
+                                    <div class="flex align-items-center gap-2">
+                                        <i class="pi pi-credit-card text-400"></i>
+                                        <span>{{ option.label | translate }}</span>
+                                    </div>
+                                </ng-template>
+                            </p-select>
                         </div>
 
                         <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
@@ -166,6 +190,27 @@ import { lastValueFrom } from 'rxjs';
                                 style="resize: none;"
                             >
                             </textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex align-items-center gap-2" *ngIf="selectedSiteName()">
+                                <h5 class="text-900 font-bold border-bottom-1 pb-2 flex-grow-1">
+                                    {{ 'Site' | translate }}:
+                                    <p-tag [value]="selectedSiteName()" severity="info" class="ml-2"></p-tag>
+                                </h5>
+                                <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger"
+                                          (onClick)="selectedSiteName.set('')" pTooltip="Clear selection"></p-button>
+                            </div>
+
+                            <div *ngIf="!selectedSiteName()" class="flex align-items-center gap-2 border-bottom-1 pb-2">
+                                <h5 class="text-900 font-bold m-0">{{ 'Site' | translate }}</h5>
+                                <p-button
+                                    icon="pi pi-search"
+                                    [text]="true"
+                                    size="small"
+                                    (onClick)="openSiteDialog()">
+                                </p-button>
+                            </div>
                         </div>
 
                         <div class="col-span-12 mt-4">
@@ -288,6 +333,8 @@ import { lastValueFrom } from 'rxjs';
                                                     [inputSize]="5"
                                                     inputStyleClass="w-3rem text-right p-inputtext-sm font-bold surface-100 border-round"
                                                     placeholder="0.00"
+                                                    [(ngModel)]="item.customShippingTotal"
+                                                    (ngModelChange)="updateGrandTotal()"
                                                 >
                                                 </p-inputNumber>
                                                 <span class="text-900 font-bold"> {{ item.currency }}</span>
@@ -295,7 +342,7 @@ import { lastValueFrom } from 'rxjs';
                                         </tr>
                                         <tr class="border-top-1 surface-border">
                                             <td colspan="3" class="p-3 text-right font-bold text-xl text-900">{{ 'Total' | translate }}:</td>
-                                            <td class="p-3 text-right font-bold text-xl text-primary">{{ grandTotal() | number: '1.2-2' }} {{ item.currency }}</td>
+                                            <td class="p-3 text-right font-bold text-xl text-primary" >{{ grandTotal() | number: '1.2-2' }} {{ item.currency }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -431,10 +478,25 @@ export class OrderDetailComponent {
 
     constructor() {
         this.generateStatusOptions();
+        this.generatePaymentMethodOptions();
         this.tr.onLangChange.subscribe(() => {
             this.generateStatusOptions();
         });
+
+        effect(() => {
+            const item = this.detailService.selectedItem();
+            if (item?.site) {
+                // Използвай url, name или slug - според това какво искаш да виждаш
+                this.selectedSiteName.set(item.site.url || item.site.name || '');
+            } else {
+                this.selectedSiteName.set('');
+            }
+        }, { allowSignalWrites: true });
+
+
     }
+
+
 
     getBasePrice(line: any): number {
         let addonsTotal = 0;
@@ -602,7 +664,11 @@ export class OrderDetailComponent {
         this.refreshTrigger(); // Важно: кара сигнала да се преизчисли
         const lines = this.detailService.selectedItem()?.orderLine || [];
         const subtotal = lines.reduce((sum, line) => sum + (line.totalPrice || 0), 0);
-        const shipping = 5.0;
+
+
+        let selectedItem = this.detailService.selectedItem();
+        const shipping = selectedItem!.customShippingTotal;
+        selectedItem!.totalPrice = subtotal + shipping;
         return subtotal + shipping;
     });
 
@@ -709,13 +775,6 @@ export class OrderDetailComponent {
     }
 
     updateGrandTotal() {
-        const item = this.detailService.selectedItem();
-        if (!item) return;
-
-        const productsSubtotal = item.orderLine.reduce((sum: number, l: any) => sum + (l.totalPrice || 0), 0);
-        const shipping = 5.0;
-        item.totalPrice = productsSubtotal + shipping;
-
         this.refreshTrigger.update((v) => v + 1); // БУТАМЕ ТРИГЕРА
         this.cdr.detectChanges();
     }
@@ -734,5 +793,27 @@ export class OrderDetailComponent {
                 this.cdr.detectChanges();
             }
         }
+    }
+
+    public selectedSiteName = signal<string>('');
+    openSiteDialog(): void {
+        const ref = this.dialogService.open(SiteObjectSelectorComponent, {
+            header: this.tr.instant('Choose'),
+            width: '450px',
+        });
+        ref?.onClose.subscribe((site: any) => {
+            this.selectedSiteName.set(site.url);
+            this.detailService.selectedItem()!.site = site;
+        });
+
+    }
+
+    protected paymentMethods: any[] = [];
+
+    private generatePaymentMethodOptions() {
+        this.paymentMethods = Object.entries(PaymentMethodLabels).map(([value, labelKey]) => ({
+            label: this.tr.instant(labelKey),
+            value: value
+        }));
     }
 }

@@ -58,6 +58,7 @@ export interface IOrder {
     signals: ISignalUser[];
     comment: string;
     savedCourierBilling: OrderSavedCourierSettings;
+    customShippingTotal: number;
 }
 export interface OrderSavedCourierSettings {
     courierId: number;
