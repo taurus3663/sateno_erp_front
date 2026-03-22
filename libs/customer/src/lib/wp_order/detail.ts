@@ -9,7 +9,7 @@ import { CurrencyListService } from '../currency/list.service';
 import { LanguageListService } from '../language/list.service';
 import { Tooltip } from 'primeng/tooltip';
 import { Avatar } from 'primeng/avatar';
-import { IOrderLineItem, OrderStatus, OrderStatusLabels, PaymentMethod, PaymentMethodLabels } from './interfaces';
+import { IOrder, IOrderLineItem, OrderStatus, OrderStatusLabels, PaymentMethod, PaymentMethodLabels } from './interfaces';
 import { Select } from 'primeng/select';
 import { Tag } from 'primeng/tag';
 import { InputText } from 'primeng/inputtext';
@@ -26,6 +26,8 @@ import { ProductAddonSelectComponent } from '../_reusables/ProductAddonSelectCom
 import { lastValueFrom } from 'rxjs';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { SiteObjectSelectorComponent } from '../_reusables/SiteObjectSelectorComponent';
+import { OrderListService } from './list.service';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'site-detail',
@@ -210,6 +212,41 @@ import { SiteObjectSelectorComponent } from '../_reusables/SiteObjectSelectorCom
                                     size="small"
                                     (onClick)="openSiteDialog()">
                                 </p-button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 flex align-items-center gap-4">
+                            <div class="flex flex-column align-items-center gap-2">
+                                <p-button
+                                    icon="pi pi-truck"
+                                    severity="info"
+                                    [rounded]="true"
+                                    (onClick)="openShipmentDialog(item)"
+                                    [pTooltip]="'Generate_Waybill' | translate"
+                                    styleClass="p-button-raised p-button-lg shadow-3"
+                                    [style]="{'width': '4.5rem', 'height': '4.5rem', 'font-size': '1.5rem'}">
+                                </p-button>
+<!--                                <span class="text-xs font-bold text-600 uppercase">{{ 'Generate' | translate }}</span>-->
+                            </div>
+
+                            <div class="flex flex-column align-items-center gap-2" *ngIf="item.wayBillShipmentNumber">
+                                <div class="relative">
+                                    <p-button
+                                        icon="pi pi-truck"
+                                        severity="danger"
+                                        [rounded]="true"
+                                        (onClick)="onCancelShipment($event, item)"
+                                        [pTooltip]="'Cancel_Waybill' | translate"
+                                        styleClass="p-button-raised p-button-lg shadow-3"
+                                        [style]="{'width': '4.5rem', 'height': '4.5rem', 'font-size': '1.5rem'}">
+                                    </p-button>
+
+                                    <div class="absolute bg-white border-circle flex align-items-center justify-content-center shadow-2"
+                                         style="top: 0; right: 0; width: 1.5rem; height: 1.5rem; border: 2px solid #ef4444;">
+                                        <i class="pi pi-times text-red-600 font-bold" style="font-size: 0.7rem;"></i>
+                                    </div>
+                                </div>
+<!--                                <span class="text-xs font-bold text-red-500 uppercase">{{ 'Cancel' | translate }}</span>-->
                             </div>
                         </div>
 
@@ -815,5 +852,40 @@ export class OrderDetailComponent {
             label: this.tr.instant(labelKey),
             value: value
         }));
+    }
+
+    public listService = inject(OrderListService);
+    openShipmentDialog(order: IOrder) {
+        this.listService.openShipmentDialog(order);
+    }
+
+    private confirmationService = inject(ConfirmationService);
+    onCancelShipment(event: Event, order: IOrder) {
+        this.confirmationService.confirm({
+            target: event.target as EventTarget,
+            message: `${this.tr.instant('Сигурни ли сте, че искате да анулирате товарителница №')} ${order.wayBillShipmentNumber}?`,
+            header: this.tr.instant('Внимание'),
+            icon: 'pi pi-exclamation-triangle',
+            rejectLabel: this.tr.instant('Отказ'),
+            acceptLabel: this.tr.instant('Анулирай'),
+            acceptButtonProps: {
+                label: this.tr.instant('Анулирай'),
+                severity: 'danger'
+            },
+            accept: () => {
+                this.listService.cancelShipment(order);
+                // Викаме бекенда само при потвърждение
+                // this.http.post(`${window.location.origin.replace(':4200', ':9494')}/orders/cancel-shipment/${order.id}`, {})
+                //     .subscribe({
+                //         next: () => {
+                //             this.reload();
+                //             // Можеш да добавиш toast съобщение тук
+                //         },
+                //         error: (err) => {
+                //             alert("Грешка при анулиране: " + (err.error || err.message));
+                //         }
+                //     });
+            }
+        });
     }
 }

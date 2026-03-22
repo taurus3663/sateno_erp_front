@@ -59,6 +59,11 @@ export interface IOrder {
     comment: string;
     savedCourierBilling: OrderSavedCourierSettings;
     customShippingTotal: number;
+    courierHistory: CourierHistory[];
+}
+export interface CourierHistory {
+    statusDescription: string;
+    eventTime: string;
 }
 export interface OrderSavedCourierSettings {
     courierId: number;

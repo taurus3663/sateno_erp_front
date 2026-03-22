@@ -28,11 +28,12 @@ import { ConfirmationService } from 'primeng/api';
 import { BlockUI } from 'primeng/blockui';
 import { Popover } from 'primeng/popover';
 import { Textarea } from 'primeng/textarea';
+import { TimelineModule } from 'primeng/timeline';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, BlockUI, Popover, Textarea],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, BlockUI, Popover, Textarea, TimelineModule],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
@@ -370,7 +371,48 @@ import { Textarea } from 'primeng/textarea';
                                 (onClick)="$event.stopPropagation(); handleTrack(order)"
                             >
                             </p-button>
+
+
+                            <i *ngIf="order.courierHistory?.length"
+                               class="pi pi-history text-blue-500 cursor-pointer hover:text-blue-800 transition-colors"
+                               (mouseenter)="opHistory.show($event)"
+                               (mouseleave)="opHistory.hide()"
+                               (click)="$event.stopPropagation(); opHistory.toggle($event)">
+                            </i>
+
+
+
+                            <p-popover #opHistory>
+                                <div class="p-3" style="min-width: 300px">
+                                    <div class="flex align-items-center gap-2 border-bottom-1 surface-border pb-2 mb-3">
+                                        <i class="pi pi-truck text-primary"></i>
+                                        <span class="font-bold text-900">Хронология на доставката</span>
+                                    </div>
+
+                                    <p-timeline [value]="order.courierHistory" layout="vertical" styleClass="history-timeline">
+                                        <ng-template pTemplate="marker" let-event>
+                        <span class="border-circle flex align-items-center justify-content-center shadow-1"
+                              [style.background-color]="getTimelineColor(event.statusDescription)"
+                              style="width: 12px; height: 12px; border: 2px solid white;">
+                        </span>
+                                        </ng-template>
+
+                                        <ng-template pTemplate="content" let-event>
+                                            <div class="flex flex-column mb-3">
+                                                <span class="text-sm font-bold text-900 line-height-1">{{ event.statusDescription }}</span>
+                                                <small class="text-500 mt-1">
+                                                    <i class="pi pi-calendar-plus mr-1" style="font-size: 0.7rem"></i>
+                                                    {{ event.eventTime | date:'dd.MM.yyyy HH:mm' }}
+                                                </small>
+                                            </div>
+                                        </ng-template>
+                                    </p-timeline>
+                                </div>
+                            </p-popover>
+
+
                         </div>
+
                         <span *ngIf="!order.wayBillShipmentNumber" class="text-400">-</span>
                     </td>
                     <td>
@@ -406,6 +448,21 @@ import { Textarea } from 'primeng/textarea';
                 <span class="text-white mt-2 font-bold">Синхронизиране...</span>
             </div>
         </p-blockUI>
+
+        <style>
+            ::ng-deep .history-timeline {
+                .p-timeline-event-opposite {
+                    display: none !important; /* Спестява място */
+                }
+                .p-timeline-event-content {
+                    padding: 0 1rem 0 1rem !important;
+                }
+                .p-timeline-event-connector {
+                    background-color: #e2e8f0 !important;
+                    width: 2px !important;
+                }
+            }
+        </style>
     `,
     providers: [OrderListService]
 })
@@ -818,5 +875,34 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
     trackByOrderId(index: number, item: IOrder): number {
         return item.id; // или item.wpOrderId, стига да е уникално
+    }
+
+    getTimelineColor(status: string): string {
+        if (!status) return '#94A3B8'; // Сиво по подразбиране (няма статус)
+
+        const s = status.toLowerCase();
+
+        // 1. Успешно приключени (Зелено)
+        if (s.includes('доставена') || s.includes('получена') || s.includes('delivered')) {
+            return '#22C55E';
+        }
+
+        // 2. Проблемни / Анулирани (Червено)
+        if (s.includes('анулирана') || s.includes('отказана') || s.includes('canceled') || s.includes('rejected')) {
+            return '#EF4444';
+        }
+
+        // 3. Връщане към подател (Оранжево)
+        if (s.includes('връщане') || s.includes('reclamation') || s.includes('returning')) {
+            return '#F59E0B';
+        }
+
+        // 4. В движение / Офис (Синьо)
+        if (s.includes('приета') || s.includes('път') || s.includes('офис') || s.includes('склад')) {
+            return '#3B82F6';
+        }
+
+        // Ако е нещо друго (напр. "Подготвена")
+        return '#3B82F6';
     }
 }
