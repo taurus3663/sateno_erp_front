@@ -148,6 +148,11 @@ export class apiRoutes {
     //     ...this.crud(apiRoutes.emailSendBase),
     // }
 
+    private static readonly checkout = 'checkout';
+    public readonly checkout = {
+        recalculate_price: `${apiRoutes.checkout}/recalculate-price`
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

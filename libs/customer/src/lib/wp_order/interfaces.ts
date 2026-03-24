@@ -60,6 +60,7 @@ export interface IOrder {
     savedCourierBilling: OrderSavedCourierSettings;
     customShippingTotal: number;
     courierHistory: CourierHistory[];
+    totalPriceFCoutier: number;
 }
 export interface CourierHistory {
     statusDescription: string;

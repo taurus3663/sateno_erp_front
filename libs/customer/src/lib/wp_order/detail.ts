@@ -400,9 +400,9 @@ import { ConfirmationService } from 'primeng/api';
                                             <td colspan="3" class="p- text-right font-medium text-secondary"><i class="pi pi-truck mr-1 text-xs"></i> {{ 'Shipping' | translate }}:</td>
 
                                             <td class="p-3 text-right">
-                                                <span class="text-900 font-bold">[10.00 {{ item.currency }}]</span>
-                                                <p-tag value="БЕЗПЛАТНА" severity="success" [rounded]="true" class="font-bold mr-2"></p-tag>
-                                                <p-inputNumber
+                                                <span class="text-900 font-bold">[{{realSippingPrice()}} {{ item.currency }}]</span>
+                                                <p-tag *ngIf="tP.value === 0" value="БЕЗПЛАТНА" severity="success" [rounded]="true" class="font-bold mr-2"></p-tag>
+                                                <p-inputNumber #tP
                                                     mode="decimal"
                                                     [minFractionDigits]="2"
                                                     [maxFractionDigits]="2"
@@ -554,6 +554,7 @@ export class OrderDetailComponent {
     protected readonly baseUrl = this.authConfig.apiUrl;
     // 1. ДОБАВЯМЕ САМО ТОВА: Малък тригер за сигналите
     private refreshTrigger = signal(0);
+    protected realSippingPrice = signal(0);
 
     constructor() {
         this.generateStatusOptions();
@@ -572,7 +573,44 @@ export class OrderDetailComponent {
             }
         }, { allowSignalWrites: true });
 
+        effect(async () => {
+            // Регистрираме зависимост към тригера
+            this.refreshTrigger();
 
+            const item = this.detailService.selectedItem();
+            if (item && item.orderLine && item.orderLine.length > 0) {
+                await this.runShippingCalculation(item);
+            }
+        }, { allowSignalWrites: true });
+    }
+    private shippingTimeout: any;
+    protected isCalculatingShipping = signal(false);
+    private async runShippingCalculation(item: IOrder) {
+        if (this.shippingTimeout) clearTimeout(this.shippingTimeout);
+
+        this.shippingTimeout = setTimeout(async () => {
+            try {
+                this.isCalculatingShipping.set(true);
+                this.cdr.detectChanges();
+
+                // Извикваме сервиза, който съдържа Regex логиката
+                const newPrice = await this.detailService.calculateShipping(item);
+
+                if (newPrice !== undefined && newPrice !== null) {
+                    // if(item.customShippingTotal === )
+                    // item.customShippingTotal = newPrice;
+                    this.realSippingPrice.set(newPrice);
+
+                    // Тук не обновяваме refreshTrigger, за да избегнем цикъл!
+                    this.cdr.detectChanges();
+                }
+            } catch (err) {
+                console.error("Shipping calculation failed:", err);
+            } finally {
+                this.isCalculatingShipping.set(false);
+                this.cdr.detectChanges();
+            }
+        }, 600); // Изчакваме 600ms след последната промяна
     }
 
 
@@ -742,7 +780,6 @@ export class OrderDetailComponent {
         this.refreshTrigger(); // Важно: кара сигнала да се преизчисли
         const lines = this.detailService.selectedItem()?.orderLine || [];
         const subtotal = lines.reduce((sum, line) => sum + (line.totalPrice || 0), 0);
-
 
         let selectedItem = this.detailService.selectedItem();
         const shipping = selectedItem!.customShippingTotal;
