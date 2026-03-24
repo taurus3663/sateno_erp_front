@@ -88,14 +88,54 @@ import { ConfirmationService } from 'primeng/api';
                                     </div>
                                 </div>
 
-                                <div class="p-3 border-round bg-orange-50 border-left-3 border-orange-500 flex flex-column gap-2">
-                                    <div class="flex align-items-center gap-2">
-                                        <i class="pi pi-map-marker text-orange-600 font-bold"></i>
-                                        <span class="text-orange-700 font-bold">{{ 'Shipping_Address' | translate }}</span>
-                                    </div>
-                                    <div class="text-900 line-height-3 font-medium bg-white-alpha-50 p-2 border-round">
-                                        {{ item?.billing?.address_1 }}
-                                    </div>
+                                <div class="p-3 border-round flex flex-column gap-2"
+                                     [ngClass]="item.savedCourierBilling ? 'bg-blue-50 border-left-3 border-blue-500 shadow-1' : 'bg-orange-50 border-left-3 border-orange-500'">
+
+                                    <ng-container *ngIf="item.savedCourierBilling; else originalAddress">
+                                        <div class="flex align-items-center justify-content-between mb-1">
+                                            <div class="flex align-items-center gap-2">
+                                                <i class="pi pi-check-circle text-blue-600 font-bold"></i>
+                                                <span class="text-blue-700 font-bold uppercase text-xs">{{ 'Changed_Address' | translate }}</span>
+                                            </div>
+                                            <p-tag [value]="item.savedCourierBilling.courierType" severity="info" [rounded]="true"></p-tag>
+                                        </div>
+
+                                        <div class="text-900 line-height-3 font-bold bg-white-alpha-50 p-2 border-round">
+                                            <div *ngIf="item.savedCourierBilling.courierShipmentType !== 'ADDRESS'" class="flex flex-column">
+                <span class="text-primary text-sm">
+                    <i class="pi pi-building mr-1"></i> {{ $any(item.savedCourierBilling.office)?.name }}
+                </span>
+                                                <small class="text-secondary font-normal italic">
+                                                    {{ $any(item.savedCourierBilling.office)?.address }}
+                                                </small>
+                                            </div>
+
+                                            <div *ngIf="item.savedCourierBilling.courierShipmentType === 'ADDRESS'">
+                                                <i class="pi pi-home mr-1 text-blue-600"></i> {{ item.savedCourierBilling.street }}
+                                            </div>
+
+                                            <div class="text-xs mt-1 border-top-1 surface-border pt-1 font-medium text-700">
+                                                <i class="pi pi-map mr-1"></i>
+                                                {{ $any(item.savedCourierBilling.city)?.name }}, {{ $any(item.savedCourierBilling.city)?.postCode }}
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-3 mt-1 px-1">
+                                            <p-tag severity="secondary" [value]="item.savedCourierBilling.weight + ' кг'" icon="pi pi-box"></p-tag>
+                                            <p-tag severity="secondary" [value]="item.savedCourierBilling.packCount + ' бр.'" icon="pi pi-clone"></p-tag>
+<!--                                            <i *ngIf="item.savedCourierBilling.fiscalReceipt" class="pi pi-print text-green-600" pTooltip="Fiscal Receipt Requested"></i>-->
+                                        </div>
+                                    </ng-container>
+
+                                    <ng-template #originalAddress>
+                                        <div class="flex align-items-center gap-2">
+                                            <i class="pi pi-map-marker text-orange-600 font-bold"></i>
+                                            <span class="text-orange-700 font-bold">{{ 'Shipping_Address' | translate }}</span>
+                                        </div>
+                                        <div class="text-900 line-height-3 font-medium bg-white-alpha-50 p-2 border-round">
+                                            {{ item?.billing?.address_1 }}
+                                        </div>
+                                    </ng-template>
                                 </div>
 
                                 <div class="flex gap-2">
@@ -385,6 +425,8 @@ import { ConfirmationService } from 'primeng/api';
                                 </table>
                             </div>
 
+                            <p-button (onClick)="this.openProductSelector()" [label]="'Add_Product' | translate" icon="pi pi-plus" severity="success" [text]="true" size="small"> </p-button>
+
                             <div class="col-span-12 mt-5" *ngIf="groupedOtherOrders().length">
                                 <h5 class="text-orange-600 font-bold mb-4 flex align-items-center gap-2 border-bottom-1 pb-2">
                                     <i class="pi pi-clone"></i>
@@ -486,7 +528,7 @@ import { ConfirmationService } from 'primeng/api';
                                     </div>
                                 </div>
                             </div>
-                            <p-button (onClick)="this.openProductSelector()" [label]="'Add_Product' | translate" icon="pi pi-plus" severity="success" [text]="true" size="small"> </p-button>
+
                         </div>
                     </div>
                 </div>
@@ -653,7 +695,6 @@ export class OrderDetailComponent {
         });
 
         ref?.onClose.subscribe(async (product: any) => {
-
             const fullProduct = await this.detailService.getProduct(product);
 
             if (fullProduct?.addonConfigs && fullProduct.addonConfigs.length > 0) {
@@ -746,7 +787,7 @@ export class OrderDetailComponent {
         }
         // 3. Сглобяваме новия ред (NewLine)
         const newLine: IOrderLineItem = {
-            productName: product.name || product.productName,
+            productName: product.name || product.productName || product.names,
             sku: product.sku,
             quantity: 1,
             price: finalPrice,         // Вече включва адона
