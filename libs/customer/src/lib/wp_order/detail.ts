@@ -400,7 +400,7 @@ import { ConfirmationService } from 'primeng/api';
                                             <td colspan="3" class="p- text-right font-medium text-secondary"><i class="pi pi-truck mr-1 text-xs"></i> {{ 'Shipping' | translate }}:</td>
 
                                             <td class="p-3 text-right">
-                                                <span class="text-900 font-bold">[{{realSippingPrice()}} {{ item.currency }}]</span>
+                                                <span class="text-900 font-bold" [class.opacity-50]="isCalculatingShipping()">[{{realSippingPrice()}} {{ item.currency }}]</span>
                                                 <p-tag *ngIf="tP.value === 0" value="БЕЗПЛАТНА" severity="success" [rounded]="true" class="font-bold mr-2"></p-tag>
                                                 <p-inputNumber #tP
                                                     mode="decimal"
@@ -408,6 +408,7 @@ import { ConfirmationService } from 'primeng/api';
                                                     [maxFractionDigits]="2"
                                                     [min]="0"
                                                     [inputSize]="5"
+                                                    [disabled]="isCalculatingShipping2()"
                                                     inputStyleClass="w-3rem text-right p-inputtext-sm font-bold surface-100 border-round"
                                                     placeholder="0.00"
                                                     [(ngModel)]="item.customShippingTotal"

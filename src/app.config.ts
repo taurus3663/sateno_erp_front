@@ -25,8 +25,8 @@ const finalRoutes: Routes = [
         loadComponent: () => import('./app/pages/notfound/notfound').then(value => value.Notfound)
     }
 ];
-const API_URL = 'http://192.168.31.232:9494';
-// const API_URL = 'https://erp.sateno.bg';
+// const API_URL = 'http://192.168.31.232:9494';
+const API_URL = 'https://erp.sateno.bg';
 export const appConfig: ApplicationConfig = {
     providers: [
         DialogService,

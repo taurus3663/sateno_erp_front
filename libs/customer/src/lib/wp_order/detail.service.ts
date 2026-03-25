@@ -63,7 +63,8 @@ export class OrderDetailService extends BaseDetailCrud<IOrder> {
                 quantity: line.quantity,
                 price: line.price,
                 weight: line.weight
-            }))
+            })),
+            orderId: order.id
         };
 
         return lastValueFrom(this.http.post<number>(`${ROUTES.checkout.recalculate_price_custom_field}`, payload));
