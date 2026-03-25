@@ -150,7 +150,8 @@ export class apiRoutes {
 
     private static readonly checkout = 'checkout';
     public readonly checkout = {
-        recalculate_price: `${apiRoutes.checkout}/recalculate-price`
+        recalculate_price: `${apiRoutes.checkout}/recalculate-price`,
+        recalculate_price_custom_field: `${apiRoutes.checkout}/recalculate-price-custom-field-shipping-price`,
     }
 
 }

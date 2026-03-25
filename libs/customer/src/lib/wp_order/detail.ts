@@ -580,11 +580,14 @@ export class OrderDetailComponent {
             const item = this.detailService.selectedItem();
             if (item && item.orderLine && item.orderLine.length > 0) {
                 await this.runShippingCalculation(item);
+                await this.runCustomShippingCalculation(item);
             }
         }, { allowSignalWrites: true });
     }
     private shippingTimeout: any;
+    private shippingTimeout2: any;
     protected isCalculatingShipping = signal(false);
+    protected isCalculatingShipping2 = signal(false);
     private async runShippingCalculation(item: IOrder) {
         if (this.shippingTimeout) clearTimeout(this.shippingTimeout);
 
@@ -611,6 +614,33 @@ export class OrderDetailComponent {
                 this.cdr.detectChanges();
             }
         }, 600); // Изчакваме 600ms след последната промяна
+    }
+    private async runCustomShippingCalculation(item: IOrder) {
+        if(this.shippingTimeout2) clearTimeout(this.shippingTimeout2);
+
+
+        this.shippingTimeout2 = setTimeout(async () => {
+            try {
+                this.isCalculatingShipping2.set(true);
+                this.cdr.detectChanges();
+
+                const newPrice = await this.detailService.calculateCustomShippingField(item);
+
+                if (newPrice !== undefined && newPrice !== null) {
+                    item.customShippingTotal = newPrice;
+
+                    // Тук не обновяваме refreshTrigger, за да избегнем цикъл!
+                    this.cdr.detectChanges();
+                }
+
+            } catch (err) {
+                console.error("Shipping2 calculation failed:", err);
+            } finally {
+                this.isCalculatingShipping2.set(false);
+                this.cdr.detectChanges();
+            }
+        }, 600);
+
     }
 
 
