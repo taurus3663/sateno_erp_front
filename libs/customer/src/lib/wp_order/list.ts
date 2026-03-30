@@ -153,7 +153,10 @@ import { TimelineModule } from 'primeng/timeline';
                     </tr>
                 }
 
-                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }">
+                <tr [ngClass]="{
+    'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup',
+    'bg-yellow-50': hasPaidAddons(order)
+}">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
@@ -461,6 +464,10 @@ import { TimelineModule } from 'primeng/timeline';
                     background-color: #e2e8f0 !important;
                     width: 2px !important;
                 }
+            }
+            .bg-yellow-50 {
+                background-color: #fffdec !important; /* Светло кремаво/жълто */
+                border-left: 4px solid #facc15; /* Добавяме и жълта ивица отляво за акцент */
             }
         </style>
     `,
@@ -905,4 +912,28 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // Ако е нещо друго (напр. "Подготвена")
         return '#3B82F6';
     }
+
+
+    hasPaidAddons(order: IOrder): boolean {
+        if (!order.orderLine || order.orderLine.length === 0) return false;
+
+        // Обхождаме всички артикули в поръчката
+        return order.orderLine.some(lineItem => {
+            // Проверяваме дали съществува paoIdValue (Product Add-Ons ID Value)
+            if (!lineItem.paoIdValue || lineItem.paoIdValue.length === 0) return false;
+
+            // Обхождаме масива paoIdValue
+            return lineItem.paoIdValue.some(pao => {
+                // В него има поле value, което всъщност е списъкът с избрани адони
+                if (!pao.value || !Array.isArray(pao.value)) return false;
+
+                // Проверяваме дали някой от адоните има rawPrice > 0
+                return pao.value.some(addon => {
+                    const price = parseFloat(addon.rawPrice);
+                    return !isNaN(price) && price > 0;
+                });
+            });
+        });
+    }
+
 }

@@ -1,59 +1,41 @@
-# Sakai19
+# 🚀 Sateno Admin Panel (Sakai19 + Nx Monorepo)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.5.
+Това е административната система на **Sateno**, изградена с **Angular 20** и **Nx Monorepo**. Проектът използва модулна архитектура със Standalone компоненти.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🛠️ Предварителни изисквания
 
+Преди да започнете, уверете се, че имате инсталирани:
+* **Node.js** (LTS версия, препоръчително 20.x)
+* **npm** (идва заедно с Node.js)
+
+---
+
+## 🏁 Основни команди за работа
+
+Използвайте следните команди в терминала на проекта:
+
+### 1. Инсталиране на зависимости
+Изпълнете след клониране или при добавяне на нови библиотеки:
 ```bash
-ng serve
-```
+npm install
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-## Code scaffolding
+2. Стартиране на проекта (Development Server)
+Стартира приложението локално с Hot Reload:
+npx nx serve
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+3. Генериране на преводи (Internationalization)
+Когато добавите нови текстове в HTML или TS (напр. {{ 'KEY' | translate }}):
 
-```bash
-ng generate component component-name
-```
+Bash
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+npm run intl
 
-```bash
-ng generate --help
-```
+4. Обновяване на модулите (Update)
+За да обновите всички външни npm библиотеки (Angular, PrimeNG и др.) към най-новите съвместими версии:
 
-## Building
+Bash
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+npm run update
