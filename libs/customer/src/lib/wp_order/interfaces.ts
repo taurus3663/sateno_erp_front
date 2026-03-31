@@ -62,6 +62,9 @@ export interface IOrder {
     courierHistory: CourierHistory[];
     totalPriceFCoutier: number;
 }
+export interface IOrderStatusStats {
+    orderStatusMap: Record<string, number>;
+}
 export interface CourierHistory {
     statusDescription: string;
     eventTime: string;
@@ -169,13 +172,13 @@ export const PaymentMethodLabels: Record<PaymentMethod, string> = {
 };
 export enum OrderStatus {
     PROCESSING = 'processing',
+    APPROVED = 'approved',
+    WAITING = 'waiting',
     SENT = 'sent',
     CANCELLED = 'cancelled',
     ABANDONED = 'abandoned',
     COMPLETED = 'completed',
-    APPROVED = 'approved',
     JOINT = 'joint',
-    WAITING = 'waiting',
     FAILED = 'failed',
 }
 export const OrderStatusLabels: Record<OrderStatus, string> = {

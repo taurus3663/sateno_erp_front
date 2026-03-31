@@ -27,12 +27,15 @@ import { lastValueFrom } from 'rxjs';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { SiteObjectSelectorComponent } from '../_reusables/SiteObjectSelectorComponent';
 import { OrderListService } from './list.service';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, PrimeTemplate } from 'primeng/api';
+import { CourierType } from '../courier/interfaces';
+import { Popover } from 'primeng/popover';
+import { Timeline } from 'primeng/timeline';
 
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea, ButtonDirective, InputNumber, Image],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea, ButtonDirective, InputNumber, Image, Popover, Timeline, PrimeTemplate],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '100%', height: '100vh' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -88,9 +91,7 @@ import { ConfirmationService } from 'primeng/api';
                                     </div>
                                 </div>
 
-                                <div class="p-3 border-round flex flex-column gap-2"
-                                     [ngClass]="item.savedCourierBilling ? 'bg-blue-50 border-left-3 border-blue-500 shadow-1' : 'bg-orange-50 border-left-3 border-orange-500'">
-
+                                <div class="p-3 border-round flex flex-column gap-2" [ngClass]="item.savedCourierBilling ? 'bg-blue-50 border-left-3 border-blue-500 shadow-1' : 'bg-orange-50 border-left-3 border-orange-500'">
                                     <ng-container *ngIf="item.savedCourierBilling; else originalAddress">
                                         <div class="flex align-items-center justify-content-between mb-1">
                                             <div class="flex align-items-center gap-2">
@@ -102,17 +103,13 @@ import { ConfirmationService } from 'primeng/api';
 
                                         <div class="text-900 line-height-3 font-bold bg-white-alpha-50 p-2 border-round">
                                             <div *ngIf="item.savedCourierBilling.courierShipmentType !== 'ADDRESS'" class="flex flex-column">
-                <span class="text-primary text-sm">
-                    <i class="pi pi-building mr-1"></i> {{ $any(item.savedCourierBilling.office)?.name }}
-                </span>
+                                                <span class="text-primary text-sm"> <i class="pi pi-building mr-1"></i> {{ $any(item.savedCourierBilling.office)?.name }} </span>
                                                 <small class="text-secondary font-normal italic">
                                                     {{ $any(item.savedCourierBilling.office)?.address }}
                                                 </small>
                                             </div>
 
-                                            <div *ngIf="item.savedCourierBilling.courierShipmentType === 'ADDRESS'">
-                                                <i class="pi pi-home mr-1 text-blue-600"></i> {{ item.savedCourierBilling.street }}
-                                            </div>
+                                            <div *ngIf="item.savedCourierBilling.courierShipmentType === 'ADDRESS'"><i class="pi pi-home mr-1 text-blue-600"></i> {{ item.savedCourierBilling.street }}</div>
 
                                             <div class="text-xs mt-1 border-top-1 surface-border pt-1 font-medium text-700">
                                                 <i class="pi pi-map mr-1"></i>
@@ -123,7 +120,7 @@ import { ConfirmationService } from 'primeng/api';
                                         <div class="flex gap-3 mt-1 px-1">
                                             <p-tag severity="secondary" [value]="item.savedCourierBilling.weight + ' кг'" icon="pi pi-box"></p-tag>
                                             <p-tag severity="secondary" [value]="item.savedCourierBilling.packCount + ' бр.'" icon="pi pi-clone"></p-tag>
-<!--                                            <i *ngIf="item.savedCourierBilling.fiscalReceipt" class="pi pi-print text-green-600" pTooltip="Fiscal Receipt Requested"></i>-->
+                                            <!--                                            <i *ngIf="item.savedCourierBilling.fiscalReceipt" class="pi pi-print text-green-600" pTooltip="Fiscal Receipt Requested"></i>-->
                                         </div>
                                     </ng-container>
 
@@ -153,15 +150,7 @@ import { ConfirmationService } from 'primeng/api';
 
                         <div class="flex flex-column col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
                             <label class="text-secondary text-xs font-bold uppercase mb-2">{{ 'Payment_method' | translate }}</label>
-                            <p-select
-                                [options]="paymentMethods"
-                                [(ngModel)]="item.paymentMethod"
-                                optionLabel="label"
-                                optionValue="value"
-                                class="w-full mt-1"
-                                placeholder="{{ 'Payment_method' | translate }}"
-                                appendTo="body">
-
+                            <p-select [options]="paymentMethods" [(ngModel)]="item.paymentMethod" optionLabel="label" optionValue="value" class="w-full mt-1" placeholder="{{ 'Payment_method' | translate }}" appendTo="body">
                                 <ng-template #selectedItem let-selectedOption>
                                     <div class="flex align-items-center gap-2" *ngIf="selectedOption">
                                         <i class="pi pi-credit-card text-primary"></i>
@@ -240,22 +229,16 @@ import { ConfirmationService } from 'primeng/api';
                                     {{ 'Site' | translate }}:
                                     <p-tag [value]="selectedSiteName()" severity="info" class="ml-2"></p-tag>
                                 </h5>
-                                <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger"
-                                          (onClick)="selectedSiteName.set('')" pTooltip="Clear selection"></p-button>
+                                <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger" (onClick)="selectedSiteName.set('')" pTooltip="Clear selection"></p-button>
                             </div>
 
                             <div *ngIf="!selectedSiteName()" class="flex align-items-center gap-2 border-bottom-1 pb-2">
                                 <h5 class="text-900 font-bold m-0">{{ 'Site' | translate }}</h5>
-                                <p-button
-                                    icon="pi pi-search"
-                                    [text]="true"
-                                    size="small"
-                                    (onClick)="openSiteDialog()">
-                                </p-button>
+                                <p-button icon="pi pi-search" [text]="true" size="small" (onClick)="openSiteDialog()"> </p-button>
                             </div>
                         </div>
 
-                        <div class="mb-4 flex align-items-center gap-4">
+                        <div class="mb-4 flex align-items-center gap-4 p-3  border-round border-1 surface-border">
                             <div class="flex flex-column align-items-center gap-2">
                                 <p-button
                                     icon="pi pi-truck"
@@ -264,9 +247,10 @@ import { ConfirmationService } from 'primeng/api';
                                     (onClick)="openShipmentDialog(item)"
                                     [pTooltip]="'Generate_Waybill' | translate"
                                     styleClass="p-button-raised p-button-lg shadow-3"
-                                    [style]="{'width': '4.5rem', 'height': '4.5rem', 'font-size': '1.5rem'}">
+                                    [style]="{ width: '4.5rem', height: '4.5rem', 'font-size': '1.5rem' }"
+                                >
                                 </p-button>
-<!--                                <span class="text-xs font-bold text-600 uppercase">{{ 'Generate' | translate }}</span>-->
+
                             </div>
 
                             <div class="flex flex-column align-items-center gap-2" *ngIf="item.wayBillShipmentNumber">
@@ -277,16 +261,58 @@ import { ConfirmationService } from 'primeng/api';
                                         [rounded]="true"
                                         (onClick)="onCancelShipment($event, item)"
                                         [pTooltip]="'Cancel_Waybill' | translate"
-                                        styleClass="p-button-raised p-button-lg shadow-3"
-                                        [style]="{'width': '4.5rem', 'height': '4.5rem', 'font-size': '1.5rem'}">
+                                        styleClass="p-button-raised shadow-3"
+                                        [style]="{ width: '4.5rem', height: '4.5rem', 'font-size': '1.5rem' }"
+                                    >
                                     </p-button>
-
-                                    <div class="absolute bg-white border-circle flex align-items-center justify-content-center shadow-2"
-                                         style="top: 0; right: 0; width: 1.5rem; height: 1.5rem; border: 2px solid #ef4444;">
-                                        <i class="pi pi-times text-red-600 font-bold" style="font-size: 0.7rem;"></i>
-                                    </div>
                                 </div>
-<!--                                <span class="text-xs font-bold text-red-500 uppercase">{{ 'Cancel' | translate }}</span>-->
+                            </div>
+
+                            <div *ngIf="item.wayBillShipmentNumber" class="flex align-items-center gap-3 border-left-1 surface-border pl-4">
+                                <div class="flex flex-column align-items-center gap-2">
+                                    <p-button icon="pi pi-file-pdf" severity="secondary" [rounded]="true" [pTooltip]="'Принтирай A6'" (onClick)="handlePrint(item, undefined, 'A6', item.parcelIds)" styleClass="p-button-outlined"> </p-button>
+                                    <span class="text-xs font-bold uppercase">A6</span>
+                                </div>
+
+                                <div class="flex flex-column align-items-center gap-2">
+                                    <p-button icon="pi pi-map" severity="secondary" [rounded]="true" [pTooltip]="'Track' | translate" (onClick)="handleTrack(item)" styleClass="p-button-outlined"> </p-button>
+                                    <span class="text-xs font-bold uppercase">{{ 'Track' | translate }}</span>
+                                </div>
+
+                                <div class="flex flex-column align-items-center gap-2" *ngIf="item.courierHistory?.length">
+                                    <p-button icon="pi pi-history" severity="info" [rounded]="true" [pTooltip]="'History' | translate" (onClick)="opHistoryDetail.toggle($event)" styleClass="p-button-outlined"> </p-button>
+                                    <span class="text-xs font-bold uppercase">{{ 'History' | translate }}</span>
+                                </div>
+
+                                <p-popover #opHistoryDetail>
+                                    <div class="p-3" style="min-width: 300px">
+                                        <div class="flex align-items-center gap-2 border-bottom-1 surface-border pb-2 mb-3">
+                                            <i class="pi pi-truck text-primary"></i>
+                                            <span class="font-bold text-900">Хронология на доставката</span>
+                                        </div>
+
+                                        <p-timeline [value]="item.courierHistory" layout="vertical" styleClass="history-timeline">
+                                            <ng-template pTemplate="marker" let-event>
+                                                <span
+                                                    class="border-circle flex align-items-center justify-content-center shadow-1"
+                                                    [style.background-color]="getTimelineColor(event.statusDescription)"
+                                                    style="width: 12px; height: 12px; border: 2px solid white;"
+                                                >
+                                                </span>
+                                            </ng-template>
+
+                                            <ng-template pTemplate="content" let-event>
+                                                <div class="flex flex-column mb-3">
+                                                    <span class="text-sm font-bold text-900 line-height-1">{{ event.statusDescription }}</span>
+                                                    <small class="text-500 mt-1">
+                                                        <i class="pi pi-calendar-plus mr-1" style="font-size: 0.7rem"></i>
+                                                        {{ event.eventTime | date: 'dd.MM.yyyy HH:mm' }}
+                                                    </small>
+                                                </div>
+                                            </ng-template>
+                                        </p-timeline>
+                                    </div>
+                                </p-popover>
                             </div>
                         </div>
 
@@ -313,7 +339,7 @@ import { ConfirmationService } from 'primeng/api';
                                                 <div class="flex align-items-start gap-3">
                                                     <div class="flex-shrink-0">
                                                         <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                                                <p-image [src]="line.image.src" [alt]="line.productName" [preview]="true" class="w-full h-full object-cover cursor-zoom-in" />
+                                                            <p-image [src]="line.image.src" [alt]="line.productName" [preview]="true" class="w-full h-full object-cover cursor-zoom-in" />
                                                             <i *ngIf="!line?.image?.src" class="pi pi-image text-400 text-2xl"></i>
                                                         </div>
                                                     </div>
@@ -373,20 +399,20 @@ import { ConfirmationService } from 'primeng/api';
                                                 </div>
                                             </td>
 
-<!--                                            <td class="p-3 text-right font-medium text-900">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>-->
+                                            <!--                                            <td class="p-3 text-right font-medium text-900">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>-->
                                             <td class="p-3 text-right">
-<!--                                                <div class="flex align-items-center justify-content-end gap-2">-->
-                                                    <p-inputNumber
-                                                        [(ngModel)]="line.totalPrice"
-                                                        (ngModelChange)="updateGrandTotal()"
-                                                        mode="decimal"
-                                                        [minFractionDigits]="2"
-                                                        [maxFractionDigits]="2"
-                                                        [inputSize]="5"
-                                                        inputStyleClass="w-5rem text-right p-inputtext-sm font-bold surface-100 border-round text-primary"
-                                                    ></p-inputNumber>
-                                                    <span class="text-900 font-medium">{{ item.currency }}</span>
-<!--                                                </div>-->
+                                                <!--                                                <div class="flex align-items-center justify-content-end gap-2">-->
+                                                <p-inputNumber
+                                                    [(ngModel)]="line.totalPrice"
+                                                    (ngModelChange)="updateGrandTotal()"
+                                                    mode="decimal"
+                                                    [minFractionDigits]="2"
+                                                    [maxFractionDigits]="2"
+                                                    [inputSize]="5"
+                                                    inputStyleClass="w-5rem text-right p-inputtext-sm font-bold surface-100 border-round text-primary"
+                                                ></p-inputNumber>
+                                                <span class="text-900 font-medium">{{ item.currency }}</span>
+                                                <!--                                                </div>-->
                                             </td>
                                         </tr>
                                     </tbody>
@@ -400,9 +426,10 @@ import { ConfirmationService } from 'primeng/api';
                                             <td colspan="3" class="p- text-right font-medium text-secondary"><i class="pi pi-truck mr-1 text-xs"></i> {{ 'Shipping' | translate }}:</td>
 
                                             <td class="p-3 text-right">
-                                                <span class="text-900 font-bold" [class.opacity-50]="isCalculatingShipping()">[{{realSippingPrice()}} {{ item.currency }}]</span>
+                                                <span class="text-900 font-bold" [class.opacity-50]="isCalculatingShipping()">[{{ realSippingPrice() }} {{ item.currency }}]</span>
                                                 <p-tag *ngIf="tP.value === 0" value="БЕЗПЛАТНА" severity="success" [rounded]="true" class="font-bold mr-2"></p-tag>
-                                                <p-inputNumber #tP
+                                                <p-inputNumber
+                                                    #tP
                                                     mode="decimal"
                                                     [minFractionDigits]="2"
                                                     [maxFractionDigits]="2"
@@ -420,7 +447,7 @@ import { ConfirmationService } from 'primeng/api';
                                         </tr>
                                         <tr class="border-top-1 surface-border">
                                             <td colspan="3" class="p-3 text-right font-bold text-xl text-900">{{ 'Total' | translate }}:</td>
-                                            <td class="p-3 text-right font-bold text-xl text-primary" >{{ grandTotal() | number: '1.2-2' }} {{ item.currency }}</td>
+                                            <td class="p-3 text-right font-bold text-xl text-primary">{{ grandTotal() | number: '1.2-2' }} {{ item.currency }}</td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -529,7 +556,6 @@ import { ConfirmationService } from 'primeng/api';
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -538,7 +564,7 @@ import { ConfirmationService } from 'primeng/api';
             <ng-template #footer>
                 <span *ngIf="detailService.selectedItem()?.ordersToMerge?.length" class="mr-3 text-green-600 font-bold"> <i class="pi pi-info-circle"></i> Ще бъдат обединени {{ detailService.selectedItem()?.ordersToMerge?.length }} поръчки </span>
                 <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
-                <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" [disabled]="isReadOnly" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
             </ng-template>
         </p-dialog>
     `
@@ -557,6 +583,18 @@ export class OrderDetailComponent {
     private refreshTrigger = signal(0);
     protected realSippingPrice = signal(0);
 
+    // В OrderDetailComponent
+    get isReadOnly(): boolean {
+        const item = this.detailService.selectedItem();
+        if (!item) return false;
+
+        // Списък със статуси, които позволяват редактиране
+        const allowedStatuses = ['processing', 'approved', 'pending'];
+
+        // Ако статусът НЕ е в списъка на позволените, значи е само за четене
+        return !allowedStatuses.includes(item.status);
+    }
+
     constructor() {
         this.generateStatusOptions();
         this.generatePaymentMethodOptions();
@@ -564,26 +602,48 @@ export class OrderDetailComponent {
             this.generateStatusOptions();
         });
 
-        effect(() => {
-            const item = this.detailService.selectedItem();
-            if (item?.site) {
-                // Използвай url, name или slug - според това какво искаш да виждаш
-                this.selectedSiteName.set(item.site.url || item.site.name || '');
-            } else {
-                this.selectedSiteName.set('');
-            }
-        }, { allowSignalWrites: true });
+        effect(
+            () => {
+                const item = this.detailService.selectedItem();
+                if (!item?.billing) {
+                    item!.billing = {
+                        address_1: '',
+                        address_2: '',
+                        city: '',
+                        company: '',
+                        country: '',
+                        email: '',
+                        first_name: '',
+                        last_name: '',
+                        phone: '',
+                        postcode: '',
+                        state: ''
+                    };
+                }
 
-        effect(async () => {
-            // Регистрираме зависимост към тригера
-            this.refreshTrigger();
+                if (item?.site) {
+                    // Използвай url, name или slug - според това какво искаш да виждаш
+                    this.selectedSiteName.set(item.site.url || item.site.name || '');
+                } else {
+                    this.selectedSiteName.set('');
+                }
+            },
+            { allowSignalWrites: true }
+        );
 
-            const item = this.detailService.selectedItem();
-            if (item && item.orderLine && item.orderLine.length > 0) {
-                await this.runShippingCalculation(item);
-                await this.runCustomShippingCalculation(item);
-            }
-        }, { allowSignalWrites: true });
+        effect(
+            async () => {
+                // Регистрираме зависимост към тригера
+                this.refreshTrigger();
+
+                const item = this.detailService.selectedItem();
+                if (item && item.orderLine && item.orderLine.length > 0) {
+                    await this.runShippingCalculation(item);
+                    await this.runCustomShippingCalculation(item);
+                }
+            },
+            { allowSignalWrites: true }
+        );
     }
     private shippingTimeout: any;
     private shippingTimeout2: any;
@@ -609,7 +669,7 @@ export class OrderDetailComponent {
                     this.cdr.detectChanges();
                 }
             } catch (err) {
-                console.error("Shipping calculation failed:", err);
+                console.error('Shipping calculation failed:', err);
             } finally {
                 this.isCalculatingShipping.set(false);
                 this.cdr.detectChanges();
@@ -617,8 +677,7 @@ export class OrderDetailComponent {
         }, 600); // Изчакваме 600ms след последната промяна
     }
     private async runCustomShippingCalculation(item: IOrder) {
-        if(this.shippingTimeout2) clearTimeout(this.shippingTimeout2);
-
+        if (this.shippingTimeout2) clearTimeout(this.shippingTimeout2);
 
         this.shippingTimeout2 = setTimeout(async () => {
             try {
@@ -633,18 +692,14 @@ export class OrderDetailComponent {
                     // Тук не обновяваме refreshTrigger, за да избегнем цикъл!
                     this.cdr.detectChanges();
                 }
-
             } catch (err) {
-                console.error("Shipping2 calculation failed:", err);
+                console.error('Shipping2 calculation failed:', err);
             } finally {
                 this.isCalculatingShipping2.set(false);
                 this.cdr.detectChanges();
             }
         }, 600);
-
     }
-
-
 
     getBasePrice(line: any): number {
         let addonsTotal = 0;
@@ -658,28 +713,6 @@ export class OrderDetailComponent {
             });
         }
         return line.price - addonsTotal;
-    }
-
-    public getPaymentLabel(method: any): string {
-        const key = method as PaymentMethod;
-        return PaymentMethodLabels[key] || 'Неизвестен метод';
-    }
-
-    protected statusLabels = OrderStatusLabels;
-    getStatusSeverity(status: string): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' {
-        switch (status) {
-            case OrderStatus.SENT:
-                return 'contrast';
-            case OrderStatus.COMPLETED:
-                return 'success';
-            case OrderStatus.PROCESSING:
-                return 'info';
-            case OrderStatus.CANCELLED:
-            case OrderStatus.ABANDONED:
-                return 'danger';
-            default:
-                return 'secondary';
-        }
     }
 
     private readonly statusColorMap: Record<string, string> = {
@@ -784,11 +817,10 @@ export class OrderDetailComponent {
         const ref = this.dialogService.open(ProductAddonSelectComponent, {
             header: product.name,
             width: '500px',
-            data:
-                {
-                    items: product.addonConfigs,
-                    label: this.tr.instant('Choose') + '    ' + this.tr.instant('Addon'),
-                }
+            data: {
+                items: product.addonConfigs,
+                label: this.tr.instant('Choose') + '    ' + this.tr.instant('Addon')
+            }
         });
 
         ref?.onClose.subscribe((selectedAddon: any) => {
@@ -839,7 +871,7 @@ export class OrderDetailComponent {
             paoValues = [
                 {
                     id: Math.floor(Math.random() * 100000),
-                    key: "_pao_ids",
+                    key: '_pao_ids',
                     value: [
                         {
                             id: selectedAddon.id || Math.floor(Math.random() * 1000000000),
@@ -847,7 +879,7 @@ export class OrderDetailComponent {
                             value: addonValueLabel,
                             rawPrice: addonPrice.toString(),
                             rawValue: addonValueLabel,
-                            priceType: "flat_fee"
+                            priceType: 'flat_fee'
                         }
                     ]
                 }
@@ -858,16 +890,16 @@ export class OrderDetailComponent {
             productName: product.name || product.productName || product.names,
             sku: product.sku,
             quantity: 1,
-            price: finalPrice,         // Вече включва адона
-            totalPrice: finalPrice,    // Цена за 1 бройка
+            price: finalPrice, // Вече включва адона
+            totalPrice: finalPrice, // Цена за 1 бройка
             weight: product.weight || '0.5',
             image: {
                 src: this.baseUrl + product.m_image,
-                id:  0
+                id: 0
             },
             orderId: item.wpOrderId,
             dimensions: { length: '', width: '', height: '' },
-            paoIdValue: paoValues,     // Подаваме масива, който сглобихме горе
+            paoIdValue: paoValues, // Подаваме масива, който сглобихме горе
             productId: product.id,
             wpOrderId: item.wpOrderId
         };
@@ -889,9 +921,7 @@ export class OrderDetailComponent {
         const siteLangCode = option.site?.language?.code || 'bg';
 
         // Търсим превод, който съвпада с езика на сайта
-        const translation = option.addonValue.translations.find(
-            (t: any) => t.language.code === siteLangCode
-        );
+        const translation = option.addonValue.translations.find((t: any) => t.language.code === siteLangCode);
 
         // Връщаме намерения превод или първия наличен като резервен вариант (fallback)
         return translation ? translation.label : option.addonValue.translations[0]?.label || 'No label';
@@ -945,13 +975,12 @@ export class OrderDetailComponent {
     openSiteDialog(): void {
         const ref = this.dialogService.open(SiteObjectSelectorComponent, {
             header: this.tr.instant('Choose'),
-            width: '450px',
+            width: '450px'
         });
         ref?.onClose.subscribe((site: any) => {
             this.selectedSiteName.set(site.url);
             this.detailService.selectedItem()!.site = site;
         });
-
     }
 
     protected paymentMethods: any[] = [];
@@ -996,5 +1025,35 @@ export class OrderDetailComponent {
                 //     });
             }
         });
+    }
+
+    // Вътре в class OrderDetailComponent добави:
+
+    handleTrack(order: IOrder) {
+        if (order.courierType === CourierType.ECONT) {
+            window.open(`https://www.econt.com/services/track-shipment/${order.wayBillShipmentNumber}`, '_blank');
+        } else if (order.courierType === CourierType.SPEEDY) {
+            window.open(`https://www.speedy.bg/bg/track-shipment?shipmentNumber=${order.wayBillShipmentNumber}`, '_blank');
+        } else if (String(order.courierType).includes('BOX')) {
+            const id = order.parcelIds?.[0] || order.wayBillShipmentNumber;
+            window.open(`https://www.boxnow.bg/?track=${id}`, '_blank');
+        }
+    }
+
+    handlePrint(order: IOrder, waybillId?: string, format?: 'A4' | 'A6', waybillIds?: string[]) {
+        if (order.courierType === CourierType.ECONT) {
+            window.open(order.wayBillUrl, '_blank');
+        } else {
+            this.listService.printWayBill(order, waybillId ?? waybillIds ?? order.wayBillShipmentNumber.toString(), format ?? 'A6');
+        }
+    }
+
+    getTimelineColor(status: string): string {
+        if (!status) return '#94A3B8';
+        const s = status.toLowerCase();
+        if (s.includes('доставена') || s.includes('получена') || s.includes('delivered')) return '#22C55E';
+        if (s.includes('анулирана') || s.includes('отказана') || s.includes('canceled')) return '#EF4444';
+        if (s.includes('връщане') || s.includes('returning')) return '#F59E0B';
+        return '#3B82F6';
     }
 }

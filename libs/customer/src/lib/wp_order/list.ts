@@ -29,11 +29,59 @@ import { BlockUI } from 'primeng/blockui';
 import { Popover } from 'primeng/popover';
 import { Textarea } from 'primeng/textarea';
 import { TimelineModule } from 'primeng/timeline';
+import { Select } from 'primeng/select';
 
 @Component({
     selector: 'site-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, OrderDetailComponent, TranslatePipe, Tooltip, FormsModule, SelectButton, Badge, IconField, InputIcon, InputText, ShipmentDetailComponent, BlockUI, Popover, Textarea, TimelineModule],
+    imports: [
+        CommonModule,
+        TableModule,
+        ButtonModule,
+        TagModule,
+        Toolbar,
+        OrderDetailComponent,
+        TranslatePipe,
+        Tooltip,
+        FormsModule,
+        SelectButton,
+        Badge,
+        IconField,
+        InputIcon,
+        InputText,
+        ShipmentDetailComponent,
+        BlockUI,
+        Popover,
+        Textarea,
+        TimelineModule,
+        Select
+    ],
+    styles: [`
+        /* Стиловете са капсулирани чрез името на класа на таблицата или компонента */
+        .table-status-select {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            width: 100%;
+        }
+
+        .table-status-select .p-select-label {
+            padding: 0 !important;
+            display: flex;
+            justify-content: center;
+        }
+
+        .table-status-select:not(.p-disabled).p-focus {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        /* Ако искаш да скриеш иконата на стрелката по-чисто */
+        .table-status-select .p-select-dropdown {
+            display: none !important;
+        }
+    `],
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
@@ -59,6 +107,7 @@ import { TimelineModule } from 'primeng/timeline';
                     <div class="flex align-items-center gap-2 px-1">
                         <i *ngIf="item.value" class="pi pi-circle-fill text-xs" [style.color]="getStatusColor(item.value)"></i>
                         <span class="font-medium text-sm">{{ item.label | translate }}</span>
+                        <p-badge *ngIf="item.value !== null" [value]="listService.statusStats()?.orderStatusMap?.[item.value] || 0" severity="info" styleClass="text-xs ml-1"> </p-badge>
                     </div>
                 </ng-template>
             </p-selectButton>
@@ -153,10 +202,12 @@ import { TimelineModule } from 'primeng/timeline';
                     </tr>
                 }
 
-                <tr [ngClass]="{
-    'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup',
-    'bg-yellow-50': hasPaidAddons(order)
-}">
+                <tr
+                    [ngClass]="{
+                        'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup',
+                        'has-paid-color': hasPaidAddons(order)
+                    }"
+                >
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
@@ -173,18 +224,14 @@ import { TimelineModule } from 'primeng/timeline';
                     <td>{{ order.wpOrderId }}</td>
 
                     <td style="min-width: 220px; max-width: 300px;">
-                        <div
-                            class="p-2 border-round border-left-3 cursor-pointer shadow-sm transition-all"
-                            [ngClass]="order.comment ? 'bg-yellow-50 border-yellow-400' : 'bg-gray-50 border-gray-300'"
-                            (click)="$event.stopPropagation(); commentOp.toggle($event)"
-                        >
+                        <div class="p-2 border-round border-left-3 cursor-pointer shadow-sm transition-all" [ngClass]="order.comment ? 'bg-yellow-100' : 'bg-gray-50 border-gray-300'" (click)="$event.stopPropagation(); commentOp.toggle($event)">
                             <div class="flex align-items-center gap-2 mb-1">
-<!--                                <i class="pi pi-comment text-xs text-yellow-600"></i>-->
-<!--                                <span class="text-xs font-bold uppercase" style="font-size: 10px;">{{ 'Comment' | translate }}</span>-->
+                                <!--                                <i class="pi pi-comment text-xs text-yellow-600"></i>-->
+                                <!--                                <span class="text-xs font-bold uppercase" style="font-size: 10px;">{{ 'Comment' | translate }}</span>-->
                             </div>
                             <div class="text-sm font-medium text-900 italic line-height-2 line-clamp-2 overflow-hidden w-full">
-<!--                                {{ order.comment ? order.comment : ('Add_note...' | translate) }}-->
-                                {{order.comment}}
+                                <!--                                {{ order.comment ? order.comment : ('Add_note...' | translate) }}-->
+                                {{ order.comment }}
                             </div>
                         </div>
 
@@ -218,25 +265,44 @@ import { TimelineModule } from 'primeng/timeline';
                     <!--                    <td>{{ order.currency }}</td>-->
                     <!--                    <td>{{ order.currencySymbol }}</td>-->
 
-                    <th>
-                        <!--                        <p-tag [value]="getStatusLabel(order.status) | translate" [rounded]="false" [style]="{ background: getStatusColor(order.status), color: '#ffffff' }"> </p-tag>-->
-                        <p-tag
-                            [value]="getStatusLabel(order.status) | translate"
-                            [style]="{
-                                background: getStatusColor(order.status),
-                                color: '#ffffff',
-                                width: '90px',
-                                height: '26px',
-                                'line-height': '26px',
-                                padding: '0',
-                                'justify-content': 'center',
-                                'border-radius': '3px',
-                                'font-size': '13px',
-                                'font-weight': '600'
-                            }"
-                        >
-                        </p-tag>
-                    </th>
+                    <td (click)="$event.stopPropagation()">
+                        <p-select [(ngModel)]="order.status" [options]="statusOptions" (onChange)="listService.updateOrderField(order)" styleClass="table-status-select" appendTo="body" class="w-full">
+                            <ng-template #dropdownicon>
+                                <span style="display: none;"></span>
+                            </ng-template>
+
+                            <ng-template #selectedItem let-selectedOption>
+                                <p-tag
+                                    [value]="selectedOption.label | translate"
+                                    [style]="{
+                                        background: getStatusColor(selectedOption.value),
+                                        color: '#ffffff',
+                                        width: '90px',
+                                        height: '26px',
+                                        'justify-content': 'center',
+                                        'border-radius': '3px',
+                                        'font-size': '13px',
+                                        cursor: 'pointer'
+                                    }"
+                                >
+                                </p-tag>
+                            </ng-template>
+
+                            <ng-template #item let-option>
+                                <p-tag
+                                    [value]="option.label | translate"
+                                    [style]="{
+                                        background: getStatusColor(option.value),
+                                        color: '#ffffff',
+                                        width: '90px',
+                                        'justify-content': 'center',
+                                        'border-radius': '3px'
+                                    }"
+                                >
+                                </p-tag>
+                            </ng-template>
+                        </p-select>
+                    </td>
 
                     <td [ngClass]="{ 'bg-red-50': op.overlayVisible }">
                         <div class="flex align-items-center gap-3" style="align-items: center;">
@@ -327,7 +393,7 @@ import { TimelineModule } from 'primeng/timeline';
                         </div>
                     </td>
                     <td class="vertical-align-middle">
-                        <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 " style="min-height: 32px; align-items: center;">
+                        <div *ngIf="order.wayBillShipmentNumber" class="flex align-items-center gap-2 " style="min-height: 32px; align-items: center;display: flex; flex-direction: column;">
                             <!--                            <a [href]="order.wayBillUrl" target="_blank" class="no-underline flex align-items-center">-->
                             <button
                                 pButton
@@ -375,15 +441,14 @@ import { TimelineModule } from 'primeng/timeline';
                             >
                             </p-button>
 
-
-                            <i *ngIf="order.courierHistory?.length"
-                               class="pi pi-history text-blue-500 cursor-pointer hover:text-blue-800 transition-colors"
-                               (mouseenter)="opHistory.show($event)"
-                               (mouseleave)="opHistory.hide()"
-                               (click)="$event.stopPropagation(); opHistory.toggle($event)">
+                            <i
+                                *ngIf="order.courierHistory?.length"
+                                class="pi pi-history text-blue-500 cursor-pointer hover:text-blue-800 transition-colors"
+                                (mouseenter)="opHistory.show($event)"
+                                (mouseleave)="opHistory.hide()"
+                                (click)="$event.stopPropagation(); opHistory.toggle($event)"
+                            >
                             </i>
-
-
 
                             <p-popover #opHistory>
                                 <div class="p-3" style="min-width: 300px">
@@ -394,10 +459,12 @@ import { TimelineModule } from 'primeng/timeline';
 
                                     <p-timeline [value]="order.courierHistory" layout="vertical" styleClass="history-timeline">
                                         <ng-template pTemplate="marker" let-event>
-                        <span class="border-circle flex align-items-center justify-content-center shadow-1"
-                              [style.background-color]="getTimelineColor(event.statusDescription)"
-                              style="width: 12px; height: 12px; border: 2px solid white;">
-                        </span>
+                                            <span
+                                                class="border-circle flex align-items-center justify-content-center shadow-1"
+                                                [style.background-color]="getTimelineColor(event.statusDescription)"
+                                                style="width: 12px; height: 12px; border: 2px solid white;"
+                                            >
+                                            </span>
                                         </ng-template>
 
                                         <ng-template pTemplate="content" let-event>
@@ -405,15 +472,13 @@ import { TimelineModule } from 'primeng/timeline';
                                                 <span class="text-sm font-bold text-900 line-height-1">{{ event.statusDescription }}</span>
                                                 <small class="text-500 mt-1">
                                                     <i class="pi pi-calendar-plus mr-1" style="font-size: 0.7rem"></i>
-                                                    {{ event.eventTime | date:'dd.MM.yyyy HH:mm' }}
+                                                    {{ event.eventTime | date: 'dd.MM.yyyy HH:mm' }}
                                                 </small>
                                             </div>
                                         </ng-template>
                                     </p-timeline>
                                 </div>
                             </p-popover>
-
-
                         </div>
 
                         <span *ngIf="!order.wayBillShipmentNumber" class="text-400">-</span>
@@ -465,9 +530,10 @@ import { TimelineModule } from 'primeng/timeline';
                     width: 2px !important;
                 }
             }
-            .bg-yellow-50 {
-                background-color: #fffdec !important; /* Светло кремаво/жълто */
-                border-left: 4px solid #facc15; /* Добавяме и жълта ивица отляво за акцент */
+            .has-paid-color {
+                background-color: #ffdcec !important; /* Светло кремаво/жълто */
+                /*border-left: 4px solid #facc15; !* Добавяме и жълта ивица отляво за акцент *!*/
+                border-left: 4px solid #ffdcec; /* Добавяме и жълта ивица отляво за акцент */
             }
         </style>
     `,
@@ -499,11 +565,18 @@ export class OrderListComponent implements OnInit, OnDestroy {
             filters['phone'] = { value: this.config.data.filterPhone, matchMode: 'equals' };
         }
 
+        this.lastParams = {
+            first: event.first,
+            rows: event.rows,
+            filters: filters
+        };
+
         // 3. Извикваме ЛОКАЛНАТА инстанция на сървиса
         this.listService.loadList(event.first, event.rows, filters);
 
         // 4. Запазваме параметрите ЛОКАЛНО за този компонент
-        this.lastParams = { first: event.first, rows: event.rows, filters: filters };
+        // this.lastParams = { first: event.first, rows: event.rows, filters: filters };
+        this.listService.loadStatusStats();
     }
 
     onDelete(id: any) {
@@ -549,8 +622,13 @@ export class OrderListComponent implements OnInit, OnDestroy {
     }
 
     public reload() {
-        console.log('🔄 Автоматично обновяване на списъка...');
-        this.listService.loadList(this.lastParams.first, this.lastParams.rows, this.lastParams.filters);
+        // Вече lastParams.filters съдържа и статуса, и търсенето, и страницата
+        this.listService.loadList(
+            this.lastParams.first,
+            this.lastParams.rows,
+            this.lastParams.filters
+        );
+        this.listService.loadStatusStats();
     }
 
     protected http = inject(HttpClient);
@@ -663,10 +741,23 @@ export class OrderListComponent implements OnInit, OnDestroy {
     protected statusFilterOptions: any[] = [];
 
     onStatusFilterChange(value: any) {
-        // Ръчно задействаме loadList с новия филтър
-        this.listService.loadList(0, 100, {
-            status: { value: value, matchMode: 'equals' }
-        });
+        this.selectedStatus = value; // Запазваме локално за UI-то
+
+        // Обновяваме филтрите в lastParams
+        const newFilters = { ...this.lastParams.filters };
+
+        if (value !== null) {
+            newFilters['status'] = { value: value, matchMode: 'equals' };
+        } else {
+            delete newFilters['status']; // Ако е "All", махаме филтъра
+        }
+
+        // Връщаме на първа страница при смяна на филтър
+        this.lastParams.first = 0;
+        this.lastParams.filters = newFilters;
+
+        this.listService.loadList(0, this.lastParams.rows, newFilters);
+        this.listService.loadStatusStats();
     }
 
     getStatusColor(status: string): string {
@@ -691,7 +782,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // [OrderStatus.REFUNDED]: '#d90000',   // Върната - Червено
         [OrderStatus.CANCELLED]: '#000000', // Отказана - Черно
         [OrderStatus.JOINT]: '#e6ef61',
-        [OrderStatus.FAILED]: '#ff0000',
+        [OrderStatus.FAILED]: '#ff0000'
     };
 
     public totalAmount = computed(() => {
@@ -763,6 +854,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
             // Винаги връщаме на страница 0 (първа), когато правим ново търсене
             this.listService.loadList(0, this.lastParams.rows, filters);
+            this.listService.loadStatusStats();
 
             // Обновяваме локалното състояние
             this.lastParams.filters = filters;
@@ -913,27 +1005,25 @@ export class OrderListComponent implements OnInit, OnDestroy {
         return '#3B82F6';
     }
 
-
     hasPaidAddons(order: IOrder): boolean {
         if (!order.orderLine || order.orderLine.length === 0) return false;
 
         // Обхождаме всички артикули в поръчката
-        return order.orderLine.some(lineItem => {
+        return order.orderLine.some((lineItem) => {
             // Проверяваме дали съществува paoIdValue (Product Add-Ons ID Value)
             if (!lineItem.paoIdValue || lineItem.paoIdValue.length === 0) return false;
 
             // Обхождаме масива paoIdValue
-            return lineItem.paoIdValue.some(pao => {
+            return lineItem.paoIdValue.some((pao) => {
                 // В него има поле value, което всъщност е списъкът с избрани адони
                 if (!pao.value || !Array.isArray(pao.value)) return false;
 
                 // Проверяваме дали някой от адоните има rawPrice > 0
-                return pao.value.some(addon => {
+                return pao.value.some((addon) => {
                     const price = parseFloat(addon.rawPrice);
                     return !isNaN(price) && price > 0;
                 });
             });
         });
     }
-
 }

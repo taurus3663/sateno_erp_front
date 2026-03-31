@@ -117,6 +117,7 @@ export class apiRoutes {
         generateWayBillPrint: (orderId: number, waybillId: string | string[], paperSize: string) =>
             `${apiRoutes.wpOrderBase}/generate/waybill/${orderId}/${waybillId}/${paperSize}`,
         cancelShipment: (orderId: number) => `${apiRoutes.wpOrderBase}/cancel-shipment/${orderId}`,
+        getStatusStats: `${apiRoutes.wpOrderBase}/status/stats`,
     }
 
     private static readonly courierBase = 'courier';

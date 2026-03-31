@@ -1,6 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { BaseListCrud} from 'xl-util';
-import { IOrder } from './interfaces';
+import { IOrder, IOrderStatusStats } from './interfaces';
 import {ROUTES} from '../api.routes';
 import {OrderDetailService} from './detail.service';
 import { ShipmentService } from './shipment.service';
@@ -43,7 +43,11 @@ export class OrderListService extends BaseListCrud<IOrder> {
         const addr = order.billing.address_1 || '';
         let match = addr.match(regex1) || addr.match(regex2);
 
-        if (match) {
+        if(order.savedCourierBilling && order.savedCourierBilling.courierType.length > 0) {
+           courierName = order.savedCourierBilling.courierType;
+           mode = order.savedCourierBilling.courierShipmentType.toString();
+        }
+        else if (match) {
             // Проверка кой Regex е съвпаднал (Regex1 започва с '[')
             if (match[0].startsWith('[')) {
                 // mode = match[1].toUpperCase();
@@ -109,6 +113,19 @@ export class OrderListService extends BaseListCrud<IOrder> {
                     // Тук можеш да добавиш toast съобщение за потребителя
                 }
             });
+    }
+    public statusStats = signal<IOrderStatusStats | null>(null);
+    public loadStatusStats() {
+        this.http.get<IOrderStatusStats>(ROUTES.wp_order.getStatusStats).subscribe({
+            next: (res) => {
+                // Записваме резултата в сигнала
+                this.statusStats.set(res);
+                console.log('📊 Статистиките са заредени:', res);
+            },
+            error: (err) => {
+                console.error('❌ Грешка при зареждане на статистики:', err);
+            }
+        });
     }
 
     private shipmentService = inject(ShipmentService);

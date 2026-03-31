@@ -77,7 +77,12 @@ registerRoute([
                     label: 'Поръчки',
                     icon: PrimeIcons.EURO,
                     routerLink: ['/wp_order/list']
-                }
+                },
+                {
+                    label: 'Продукти',
+                    icon: PrimeIcons.PALETTE,
+                    routerLink: ['/wp_product/list']
+                },
             ]
         },
         {
@@ -134,11 +139,6 @@ registerRoute([
                     label: 'Склад',
                     icon: PrimeIcons.RECEIPT,
                     items: [
-                        {
-                          label: 'Продукти',
-                          icon: PrimeIcons.PALETTE,
-                          routerLink: ['/wp_product/list']
-                        },
                         {
                             label: 'Категория',
                             icon: PrimeIcons.CHART_SCATTER,

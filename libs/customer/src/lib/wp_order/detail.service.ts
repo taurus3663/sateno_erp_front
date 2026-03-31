@@ -61,7 +61,7 @@ export class OrderDetailService extends BaseDetailCrud<IOrder> {
                 productName: line.productName,
                 sku: line.sku,
                 quantity: line.quantity,
-                price: line.price,
+                price: line.totalPrice,
                 weight: line.weight
             })),
             orderId: order.id

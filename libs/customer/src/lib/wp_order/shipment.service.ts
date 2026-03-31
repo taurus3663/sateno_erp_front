@@ -450,7 +450,10 @@ export class ShipmentService {
         };
 
         this.http.post(ROUTES.wp_order.createWayBill, rs).subscribe({
-            next: (res) => {},
+            next: (res) => {
+                this.visible = false;
+                this.cdr?.detectChanges();
+            },
             // error: (err) => {
             //     this.messageService.add({
             //         severity: 'error',
