@@ -49,7 +49,7 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
 
             <ng-template #content>
                 <div *ngIf="detailService.selectedItem() as item">
-                    <p-tabs value="0">
+                    <p-tabs [value]="activeTab" (valueChange)="activeTab = $event">
                         <p-tablist>
                             <p-tab value="0"><i class="pi pi-info-circle mr-2"></i>{{ 'Main' | translate }}</p-tab>
                             <p-tab value="1"><i class="pi pi-language mr-2"></i>{{ 'Translations' | translate }}</p-tab>
@@ -63,6 +63,11 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                         <label class="block font-bold mb-2">{{ 'Status' | translate }}</label>
                                         <p-select [options]="productStatus" [(ngModel)]="item.status"
                                                   optionLabel="label" optionValue="value" class="w-full"></p-select>
+                                    </div>
+
+                                    <div class="col-span-2 ml-10">
+                                        <label class="block font-bold mb-2">{{ 'SKU' | translate }}</label>
+                                        <input pInputText class="w-full" readonly [value]="item?.sku?? ''" />
                                     </div>
 
                                     <div class="col-span-12 mt-4">
@@ -386,11 +391,11 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
             <ng-template #footer>
                 <div class="flex justify-content-between align-items-center w-full p-2 justify-between">
                     <div class="flex flex-col gap-5">
-                        <p-select appendTo="body" [options]="languageLService.items()" [(ngModel)]="selectedLanguage"
+                        <p-select *ngIf="activeTab === '1'" appendTo="body" [options]="languageLService.items()" [(ngModel)]="selectedLanguage"
                                   (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език"
                                   [style]="{ width: '220px' }"></p-select>
 
-                        <p-select
+                        <p-select *ngIf="activeTab === '2'"
                             appendTo="body"
                             [options]="siteLService.items()"
                             [(ngModel)]="selectedSite"
@@ -427,6 +432,8 @@ export class WpCategoryDetailComponent {
     selectedLanguage: any = null;
     selectedSite: any = null;
 
+    activeTab: string | undefined | number = '0';
+
     // currentTranslation: IWpProductTranslation | null = null;
 
     onLanguageChange() {
@@ -454,6 +461,7 @@ export class WpCategoryDetailComponent {
     onSiteChange() {}
 
     constructor() {
+        this.activeTab = "0";
         this.languageLService.loadList(0, 1000);
         this.siteLService.loadList(0, 1000);
         this.brandLService.loadList(0, 1000);

@@ -31,6 +31,7 @@ import { ConfirmationService, PrimeTemplate } from 'primeng/api';
 import { CourierType } from '../courier/interfaces';
 import { Popover } from 'primeng/popover';
 import { Timeline } from 'primeng/timeline';
+import { ShipmentService } from './shipment.service';
 
 @Component({
     selector: 'site-detail',
@@ -65,11 +66,11 @@ import { Timeline } from 'primeng/timeline';
                                     <div class="grid grid-cols-2 gap-2 w-full">
                                         <div class="flex flex-column">
                                             <span class="text-secondary text-xs font-bold uppercase">{{ 'first_name' | translate }}</span>
-                                            <input pInputText [(ngModel)]="item.billing.first_name" class="w-full p-inputtext-sm font-bold" />
+                                            <input pInputText [(ngModel)]="item.billing.first_name" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-bold" />
                                         </div>
                                         <div class="flex flex-column">
                                             <span class="text-secondary text-xs font-bold uppercase">{{ 'last_name' | translate }}</span>
-                                            <input pInputText [(ngModel)]="item.billing.last_name" class="w-full p-inputtext-sm font-bold" />
+                                            <input pInputText [(ngModel)]="item.billing.last_name" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-bold" />
                                         </div>
                                     </div>
                                 </div>
@@ -79,14 +80,14 @@ import { Timeline } from 'primeng/timeline';
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Phone' | translate }}</span>
                                         <div class="p-inputgroup">
                                             <span class="p-inputgroup-addon"><i class="pi pi-phone"></i></span>
-                                            <input pInputText [(ngModel)]="item.billing.phone" class="w-full p-inputtext-sm font-bold text-blue-600" />
+                                            <input pInputText [(ngModel)]="item.billing.phone" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-bold text-blue-600" />
                                         </div>
                                     </div>
                                     <div class="p-3 border-round surface-100 flex flex-column gap-1">
                                         <span class="text-secondary text-xs font-bold uppercase">{{ 'Email' | translate }}</span>
                                         <div class="p-inputgroup">
                                             <span class="p-inputgroup-addon"><i class="pi pi-envelope"></i></span>
-                                            <input pInputText [(ngModel)]="item.billing.email" class="w-full p-inputtext-sm font-medium" />
+                                            <input pInputText [(ngModel)]="item.billing.email" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-medium" />
                                         </div>
                                     </div>
                                 </div>
@@ -150,7 +151,7 @@ import { Timeline } from 'primeng/timeline';
 
                         <div class="flex flex-column col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
                             <label class="text-secondary text-xs font-bold uppercase mb-2">{{ 'Payment_method' | translate }}</label>
-                            <p-select [options]="paymentMethods" [(ngModel)]="item.paymentMethod" optionLabel="label" optionValue="value" class="w-full mt-1" placeholder="{{ 'Payment_method' | translate }}" appendTo="body">
+                            <p-select [options]="paymentMethods" [disabled]="isReadOnly" [(ngModel)]="item.paymentMethod" optionLabel="label" optionValue="value" class="w-full mt-1" placeholder="{{ 'Payment_method' | translate }}" appendTo="body">
                                 <ng-template #selectedItem let-selectedOption>
                                     <div class="flex align-items-center gap-2" *ngIf="selectedOption">
                                         <i class="pi pi-credit-card text-primary"></i>
@@ -248,6 +249,7 @@ import { Timeline } from 'primeng/timeline';
                                     [pTooltip]="'Generate_Waybill' | translate"
                                     styleClass="p-button-raised p-button-lg shadow-3"
                                     [style]="{ width: '4.5rem', height: '4.5rem', 'font-size': '1.5rem' }"
+                                    [disabled]="isReadOnly"
                                 >
                                 </p-button>
 
@@ -263,6 +265,7 @@ import { Timeline } from 'primeng/timeline';
                                         [pTooltip]="'Cancel_Waybill' | translate"
                                         styleClass="p-button-raised shadow-3"
                                         [style]="{ width: '4.5rem', height: '4.5rem', 'font-size': '1.5rem' }"
+                                        [disabled]="isReadOnly"
                                     >
                                     </p-button>
                                 </div>
@@ -564,7 +567,7 @@ import { Timeline } from 'primeng/timeline';
             <ng-template #footer>
                 <span *ngIf="detailService.selectedItem()?.ordersToMerge?.length" class="mr-3 text-green-600 font-bold"> <i class="pi pi-info-circle"></i> Ще бъдат обединени {{ detailService.selectedItem()?.ordersToMerge?.length }} поръчки </span>
                 <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
-                <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()" [disabled]="isReadOnly" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"  (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
             </ng-template>
         </p-dialog>
     `
@@ -576,6 +579,7 @@ export class OrderDetailComponent {
     protected languageService = inject(LanguageListService);
     private tr = inject(TranslateService);
     private cdr = inject(ChangeDetectorRef);
+    protected shipmentService = inject(ShipmentService);
 
     private authConfig = inject(XL_AUTH_CONFIG);
     protected readonly baseUrl = this.authConfig.apiUrl;
@@ -583,6 +587,7 @@ export class OrderDetailComponent {
     private refreshTrigger = signal(0);
     protected realSippingPrice = signal(0);
 
+    private originalStatus: string | null = null;
     // В OrderDetailComponent
     get isReadOnly(): boolean {
         const item = this.detailService.selectedItem();
@@ -591,8 +596,11 @@ export class OrderDetailComponent {
         // Списък със статуси, които позволяват редактиране
         const allowedStatuses = ['processing', 'approved', 'pending'];
 
-        // Ако статусът НЕ е в списъка на позволените, значи е само за четене
-        return !allowedStatuses.includes(item.status);
+        // ВАЖНО: Проверяваме оригиналния статус от базата
+        const statusToCheck = this.originalStatus || item.status;
+
+        return !allowedStatuses.includes(statusToCheck);
+        // return false;
     }
 
     constructor() {
@@ -601,6 +609,20 @@ export class OrderDetailComponent {
         this.tr.onLangChange.subscribe(() => {
             this.generateStatusOptions();
         });
+
+        effect(() => {
+            const item = this.detailService.selectedItem();
+            if (item && this.detailService.isVisible()) {
+                // Когато поръчката се зареди и диалогът е видим,
+                // запазваме статуса й САМО ако originalStatus още не е сетнат
+                if (!this.originalStatus) {
+                    this.originalStatus = item.status;
+                }
+            } else if (!this.detailService.isVisible()) {
+                // Когато затворим диалога, чистим оригиналния статус
+                this.originalStatus = null;
+            }
+        }, { allowSignalWrites: true });
 
         effect(
             () => {
@@ -995,10 +1017,23 @@ export class OrderDetailComponent {
     public listService = inject(OrderListService);
     openShipmentDialog(order: IOrder) {
         this.listService.openShipmentDialog(order);
+        const checkClosed = setInterval(() => {
+            // Проверяваме променливата visible в ShipmentService
+            if (!this.shipmentService.visible) {
+
+                // 3. Щом видим, че visible е станало false (прозорецът е затворен)
+                clearInterval(checkClosed); // Спираме таймера
+
+                console.log('Прозорецът беше затворен, опреснявам данните...');
+                this.refresh(); // Викаме твоя метод за презареждане
+            }
+        }, 500); // 500ms е идеален интервал - не товари процесора и реагира бързо
+
     }
 
     private confirmationService = inject(ConfirmationService);
-    onCancelShipment(event: Event, order: IOrder) {
+
+   async onCancelShipment(event: Event, order: IOrder) {
         this.confirmationService.confirm({
             target: event.target as EventTarget,
             message: `${this.tr.instant('Сигурни ли сте, че искате да анулирате товарителница №')} ${order.wayBillShipmentNumber}?`,
@@ -1010,8 +1045,10 @@ export class OrderDetailComponent {
                 label: this.tr.instant('Анулирай'),
                 severity: 'danger'
             },
-            accept: () => {
+            accept: async () => {
                 this.listService.cancelShipment(order);
+                await this.waitForService();
+                this.refresh();
                 // Викаме бекенда само при потвърждение
                 // this.http.post(`${window.location.origin.replace(':4200', ':9494')}/orders/cancel-shipment/${order.id}`, {})
                 //     .subscribe({
@@ -1024,6 +1061,17 @@ export class OrderDetailComponent {
                 //         }
                 //     });
             }
+        });
+    }
+
+    private waitForService(): Promise<void> {
+        return new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (!this.listService.blockUI) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 100); // Проверява на всеки 100ms
         });
     }
 
@@ -1055,5 +1103,15 @@ export class OrderDetailComponent {
         if (s.includes('анулирана') || s.includes('отказана') || s.includes('canceled')) return '#EF4444';
         if (s.includes('връщане') || s.includes('returning')) return '#F59E0B';
         return '#3B82F6';
+    }
+
+
+    // В OrderDetailComponent
+    refresh() {
+        const currentId = this.detailService.selectedItem()?.id;
+        if (currentId) {
+            // Използваме метода от базовия сървис, за да заредим данните наново
+            this.detailService.loadData(currentId);
+        }
     }
 }
