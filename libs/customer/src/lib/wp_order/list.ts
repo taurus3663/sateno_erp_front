@@ -161,7 +161,12 @@ import { Select } from 'primeng/select';
                     <th>{{ 'Created' | translate }}</th>
                     <!--                    <th>{{'Last_Updated' | translate}}</th>-->
                     <!--                    <th>{{ 'Id' | translate }}</th>-->
-                    <th>{{ 'Wp_order_id' | translate }}</th>
+                    <th pSortableColumn="id">
+                        <div class="flex items-center justify-between">
+                            {{ 'Wp_order_id' | translate }}
+                            <p-columnFilter type="text" field="id" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
+                        </div>
+                    </th>
                     <th>{{ 'Comment' | translate }}</th>
                     <th>{{ 'Status' | translate }}</th>
                     <th>{{ 'Customer' | translate }}</th>
@@ -221,7 +226,11 @@ import { Select } from 'primeng/select';
                     </th>
                     <!--                    <th>{{order.updateTime | date: 'dd.MM.yyyy HH:mm'}}</th>-->
                     <!--                    <td>{{ order.id }}</td>-->
-                    <td>{{ order.wpOrderId }}</td>
+                    <td>
+                        <span class="font-bold text-900">{{ order.id }}</span>
+                        <br>
+                        <span class="text-secondary text-1xl">#{{ order.wpOrderId }}</span>
+                    </td>
 
                     <td style="min-width: 220px; max-width: 300px;">
                         <div class="p-2 border-round border-left-3 cursor-pointer shadow-sm transition-all" [ngClass]="order.comment ? 'bg-yellow-100' : 'bg-gray-50 border-gray-300'" (click)="$event.stopPropagation(); commentOp.toggle($event)">

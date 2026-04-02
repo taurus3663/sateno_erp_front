@@ -627,8 +627,9 @@ export class OrderDetailComponent {
         effect(
             () => {
                 const item = this.detailService.selectedItem();
-                if (!item?.billing) {
-                    item!.billing = {
+                if(!item) return;
+                if (!item.billing) {
+                    item.billing = {
                         address_1: '',
                         address_2: '',
                         city: '',

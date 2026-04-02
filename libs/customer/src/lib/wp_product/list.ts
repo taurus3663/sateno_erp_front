@@ -22,11 +22,13 @@ import { WpCategoryListService } from '../wp_category/list.service';
 import { OverlayBadge } from 'primeng/overlaybadge';
 import { WpBrandListService } from '../wp_brand/list.service';
 import { InputNumber } from 'primeng/inputnumber';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
     selector: 'wp_product-list',
     standalone: true,
-    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, IconField, Select, FormsModule, Image, OverlayBadge, InputNumber],
+    imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, IconField, Select, FormsModule, Image, OverlayBadge, InputNumber, InputIcon, InputText],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -34,6 +36,14 @@ import { InputNumber } from 'primeng/inputnumber';
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined />
                 <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
+
+<!--            <ng-template #center>-->
+<!--                <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">-->
+<!--                    <p-inputicon styleClass="pi pi-search" />-->
+<!--                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search_by_name_or_sku...' | translate" class="p-inputtext-sm w-full md:w-20rem" />-->
+<!--                    <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />-->
+<!--                </p-iconfield>-->
+<!--            </ng-template>-->
         </p-toolbar>
 
         <p-table
@@ -64,11 +74,12 @@ import { InputNumber } from 'primeng/inputnumber';
             <!--                </div>-->
             <!--            </ng-template>-->
             <ng-template #caption>
-                <div class="flex justify-content-between align-items-center">
-                    <div class="flex gap-3 align-items-center flex-wrap">
-                        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="dt.clear()" />
+                <div class="flex flex-wrap align-items-center justify-content-between gap-3 w-full">
 
-                        <div class="flex gap-2 align-items-center">
+                    <div class="flex align-items-center gap-3 flex-1">
+                        <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="dt.clear()" size="small" />
+
+                        <div class="flex gap-2 align-items-center overflow-auto">
                             <ng-container *ngFor="let filter of dt.filters | keyvalue">
                                 <p-tag *ngIf="getFilterValue(filter.value)" severity="secondary" [rounded]="true" class="shadow-1">
                                     <div class="flex align-items-center gap-2 px-1">
@@ -80,7 +91,24 @@ import { InputNumber } from 'primeng/inputnumber';
                         </div>
                     </div>
 
-                    <p-iconfield iconPosition="left"> </p-iconfield>
+                    <div class="flex-1 flex justify-content-center">
+                        <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">
+                            <p-inputicon styleClass="pi pi-search" />
+                            <input
+                                pInputText
+                                type="text"
+                                [(ngModel)]="searchValue"
+                                (input)="onSearch($event)"
+                                [placeholder]="'Search_by_name_or_sku...' | translate"
+                                class="p-inputtext-sm w-full md:w-25rem border-round-xl shadow-1"
+                            />
+                            <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
+                        </p-iconfield>
+                    </div>
+
+                    <div class="flex-1 flex justify-content-end">
+                    </div>
+
                 </div>
             </ng-template>
 
@@ -133,7 +161,6 @@ import { InputNumber } from 'primeng/inputnumber';
                         <div class="flex items-center justify-between">
                             {{ 'Quantity' | translate }}
                             <p-sortIcon field="stockQuantity"></p-sortIcon>
-
                         </div>
                         <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
                     </th>
@@ -179,7 +206,7 @@ import { InputNumber } from 'primeng/inputnumber';
                             {{ 'Limited' | translate }}
                             <p-columnFilter type="text" field="saleType" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
                                 <ng-template #filter let-value let-filter="filterCallback">
-                                    <p-select scrollHeight="150px"  [filter]="true" appendTo="body" [ngModel]="value" [options]="productSaleType" (onChange)="filter($event.value)" placeholder=" {{ 'Limited' | translate }}"
+                                    <p-select scrollHeight="150px" [filter]="true" appendTo="body" [ngModel]="value" [options]="productSaleType" (onChange)="filter($event.value)" placeholder=" {{ 'Limited' | translate }}"
                                         >-->
                                         <ng-template let-option #item>
                                             <p-tag [value]="option.label" [severity]="getStatusSeverity(option.value)" />
@@ -194,9 +221,7 @@ import { InputNumber } from 'primeng/inputnumber';
             </ng-template>
 
             <ng-template pTemplate="body" let-item>
-                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }"
-                    (click)="onRowClick(item)"
-                >
+                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }" (click)="onRowClick(item)">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
@@ -220,7 +245,6 @@ import { InputNumber } from 'primeng/inputnumber';
                         </span>
                     </td>
                     <td>{{ item.brand?.name ?? '' }}</td>
-
 
                     <td>
                         <div (dblclick)="item._isEditing = true">
@@ -278,18 +302,21 @@ import { InputNumber } from 'primeng/inputnumber';
             </ng-template>
         </p-table>
 
-        <div *ngIf="listService.pendingChanges().length > 0" class=" fixed right-0 w-full bg-white shadow-lg border-t-1 p-3 flex justify-content-between align-items-center z-5"
-        style="width: unset;
+        <div
+            *ngIf="listService.pendingChanges().length > 0"
+            class=" fixed right-0 w-full bg-white shadow-lg border-t-1 p-3 flex justify-content-between align-items-center z-5"
+            style="width: unset;
     display: flex;
     bottom: 5px;
-    right: 5px;">
+    right: 5px;"
+        >
             <div class="flex align-items-center gap-3 ml-4">
                 <i class="pi pi-exclamation-circle text-orange-500 text-xl"></i>
-                <span class="font-medium"> {{'Have' | translate}} {{ listService.pendingChanges().length }} {{ 'not_saved_records' | translate}} </span>
+                <span class="font-medium"> {{ 'Have' | translate }} {{ listService.pendingChanges().length }} {{ 'not_saved_records' | translate }} </span>
             </div>
             <div class="flex gap-2 mr-4">
-                <p-button label="{{'Cancel' | translate}}" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="cancelAllChanges()"></p-button>
-                <p-button label="{{'Save' | translate}}" icon="pi pi-save" severity="success" (onClick)="saveChanges()"></p-button>
+                <p-button label="{{ 'Cancel' | translate }}" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="cancelAllChanges()"></p-button>
+                <p-button label="{{ 'Save' | translate }}" icon="pi pi-save" severity="success" (onClick)="saveChanges()"></p-button>
             </div>
         </div>
 
@@ -370,6 +397,50 @@ export class WpProductListComponent {
     //             value: ProductStatus[key as keyof typeof ProductStatus]
     //         }));
     // }
+
+    protected searchValue: string = '';
+    private searchTimeout: any;
+    private lastParams: any = { first: 0, rows: 100, filters: {} };
+
+    private executeSearch(value: string) {
+        if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+        }
+
+        this.searchTimeout = setTimeout(() => {
+            // Копираме текущите филтри, за да не загубим избрания статус
+            const filters = { ...this.lastParams.filters };
+
+            if (value && value.trim() !== '') {
+                // 'customer' е името на параметъра, който Java-та ще очаква
+                filters['name_sku'] = { value: value.trim(), matchMode: 'contains' };
+            } else {
+                // Ако няма текст, премахваме глобалния филтър
+                delete filters['name_sku'];
+            }
+
+            // Винаги връщаме на страница 0 (първа), когато правим ново търсене
+            this.listService.loadList(0, this.lastParams.rows, filters);
+            // this.listService.loadStatusStats();
+
+            // Обновяваме локалното състояние
+            this.lastParams.filters = filters;
+            this.lastParams.first = 0;
+        }, 400); // 400ms е златната среда за изчакване
+    }
+
+    onSearch(event: any) {
+        // Взимаме стойността независимо дали е събитие или директен низ
+        const value = event?.target?.value !== undefined ? event.target.value : event;
+        this.executeSearch(value);
+    }
+    clearSearch() {
+        this.searchValue = '';
+        this.executeSearch('');
+    }
+
+
+
 
     protected productSaleType: any[] = [];
     private generateProductSaleType() {
@@ -484,7 +555,6 @@ export class WpProductListComponent {
     saveChanges() {
         this.listService.saveAllChanges();
         this.listService.resetItemsMeta();
-
     }
 
     cancelAllChanges() {
@@ -492,11 +562,7 @@ export class WpProductListComponent {
         this.listService.clearChanges();
         const table = document.querySelector('p-table') as any;
         // Или просто викаме loadList със сегашните параметри
-        this.listService.loadList(
-            this.listService.lastFirst,
-            this.listService.lastRows,
-            this.listService.lastFilters
-        );
+        this.listService.loadList(this.listService.lastFirst, this.listService.lastRows, this.listService.lastFilters);
         this.listService.resetItemsMeta();
     }
     protected ref = inject(DynamicDialogRef, { optional: true });
