@@ -284,7 +284,7 @@ import { CourierType } from '../courier/interfaces';
                         icon="pi pi-save"
                         severity="primary"
                         [outlined]="true"
-                        (onClick)="detailService.saveShipmentConfig(order?.id?? -1)"
+                        (onClick)="saveNewAddress(order?.id?? -1)"
                         class="mr-2" />
 
                     <p-button [disabled]="order?.courierId || order?.wayBillShipmentNumber"
@@ -309,6 +309,12 @@ export class ShipmentDetailComponent implements OnInit {
 
     get order() {
         return this.detailService.selectedOrder;
+    }
+    messageService = inject(MessageService);
+    protected saveNewAddress(id: number) {
+        this.detailService.saveShipmentConfig(id)?.subscribe(() => {
+            this.messageService.add({severity:'success', summary:'Запазено'});
+        })
     }
 
     ngOnInit(): void {

@@ -1,17 +1,20 @@
 import { inject, Injectable } from '@angular/core';
-import { ICreateLabel, IOrder, IOrderLineItem } from './interfaces';
+import { ICreateLabel, IOrder } from './interfaces';
 import { HttpClient } from '@angular/common/http';
 import { CourierListService } from '../courier/list.service';
 import { ROUTES } from '../api.routes';
 import { CourierShipmentType, ICourier } from '../courier/interfaces';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
+import { lastValueFrom, Observable, throwError } from 'rxjs';
+import { OrderDetailService } from './detail.service';
 
 @Injectable({ providedIn: 'root' })
 export class ShipmentService {
     private http = inject(HttpClient);
     private messageService = inject(MessageService);
     private tr = inject(TranslateService);
+    private detailService = inject(OrderDetailService);
 
     visible = false;
     selectedOrder?: IOrder;
@@ -420,6 +423,27 @@ export class ShipmentService {
         }
     }
 
+    private hasChanges(): boolean {
+        if (!this.selectedOrder) return false;
+
+        // 1. Ако вече имаме записани настройки (savedCourierBilling), сравняваме с тях
+        if (this.selectedOrder.savedCourierBilling) {
+            const saved = this.selectedOrder.savedCourierBilling;
+            return (
+                this.selectedCourier?.id !== saved.courierId ||
+                this.deliveryType !== saved.courierShipmentType ||
+                this.selectedOffice !== saved.office ||
+                this.selectedCity !== saved.city ||
+                this.addressStreet !== saved.street
+            );
+        }
+
+        // 2. Ако нямаме savedCourierBilling, сравняваме с оригиналния адрес от billing (проверка за промяна спрямо Regex-а)
+        // Тук логиката зависи от това колко стриктни искате да бъдете.
+        // Най-сигурно е да приемем, че ако няма savedCourierBilling, първото генериране винаги записва конфиг.
+        return true;
+    }
+
     // В ShipmentService
     boxNowSizes = [
         // { label: 'Автоматично', value: '' },
@@ -430,6 +454,7 @@ export class ShipmentService {
     selectedBoxNowSize: string = '';
 
     public createWayBill() {
+
         const rs: ICreateLabel = {
             id: this.selectedOrder?.id,
             wpOrderId: this.selectedOrder?.wpOrderId,
@@ -450,25 +475,32 @@ export class ShipmentService {
         };
 
         this.http.post(ROUTES.wp_order.createWayBill, rs).subscribe({
-            next: (res) => {
+            next: async (res) => {
+                if (this.hasChanges()) {
+                    console.log('Открити промени в адреса/куриера. Автоматично записване...');
+                    // Използваме тръбопровод, за да сме сигурни, че първо се записва, после се генерира
+                    // this.saveShipmentConfig(this.selectedOrder?.id ?? -1);
+                    // ЧАКАМЕ бекенда да запише и да върне новата поръчка (с новата цена!)
+                    const updatedOrder = await lastValueFrom(this.saveShipmentConfig(this.selectedOrder?.id ?? -1));
+                    if(updatedOrder) {
+                        this.selectedOrder = updatedOrder;
+                        let freshPrice = await this.detailService.calculateCustomShippingField(updatedOrder);
+
+                        if (this.selectedOrder) {
+                            this.selectedOrder.customShippingTotal = freshPrice;
+                        }
+                    }
+                }
+
                 this.visible = false;
                 this.cdr?.detectChanges();
-            },
-            // error: (err) => {
-            //     this.messageService.add({
-            //         severity: 'error',
-            //         summary: this.tr.instant('Error'),
-            //         detail: err.error,
-            //         sticky: true // Съобщението стои, докато потребителят не го затвори
-            //     });
-            // },
-            // complete: () => {}
+            }
         });
     }
 
     // В ShipmentService.ts
-    public saveShipmentConfig(orderId: number) {
-        if (!this.selectedOrder) return;
+    public saveShipmentConfig(orderId: number): Observable<any> {
+        if (!this.selectedOrder) return throwError(() => new Error('No selected order'));
 
         // Подготвяме обекта за Java (OrderSavedCourierSettings)
         const payload = {
@@ -491,11 +523,11 @@ export class ShipmentService {
 
         // console.log(payload);
         // Правим POST към поръчката
-        this.http.patch(ROUTES.wp_order.patch, payload)
-            .subscribe(() => {
-                this.messageService.add({severity:'success', summary:'Запазено'});
-                // Обновяваме локалния обект, за да знае Angular, че вече има записи
-                // this.selectedOrder!.savedCourierSettings = payload;
-            });
+      return this.http.patch(ROUTES.wp_order.patch, payload)
+            // .subscribe(() => {
+            //     this.messageService.add({severity:'success', summary:'Запазено'});
+            //     Обновяваме локалния обект, за да знае Angular, че вече има записи
+            //     this.selectedOrder!.savedCourierSettings = payload;
+            // });
     }
 }

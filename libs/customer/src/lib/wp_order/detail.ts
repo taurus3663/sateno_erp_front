@@ -442,6 +442,7 @@ import { ShipmentService } from './shipment.service';
                                                     inputStyleClass="w-3rem text-right p-inputtext-sm font-bold surface-100 border-round"
                                                     placeholder="0.00"
                                                     [(ngModel)]="item.customShippingTotal"
+                                                    (onInput)="isManualShipping = true"
                                                     (ngModelChange)="updateGrandTotal()"
                                                 >
                                                 </p-inputNumber>
@@ -603,12 +604,16 @@ export class OrderDetailComponent {
         // return false;
     }
 
+    protected isManualShipping = false;
+
     constructor() {
         this.generateStatusOptions();
         this.generatePaymentMethodOptions();
         this.tr.onLangChange.subscribe(() => {
             this.generateStatusOptions();
         });
+
+        this.isManualShipping = false;
 
         effect(() => {
             const item = this.detailService.selectedItem();
@@ -662,7 +667,9 @@ export class OrderDetailComponent {
                 const item = this.detailService.selectedItem();
                 if (item && item.orderLine && item.orderLine.length > 0) {
                     await this.runShippingCalculation(item);
-                    await this.runCustomShippingCalculation(item);
+                    if (!this.isManualShipping) {
+                        await this.runCustomShippingCalculation(item);
+                    }
                 }
             },
             { allowSignalWrites: true }

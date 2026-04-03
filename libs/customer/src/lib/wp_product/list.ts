@@ -121,13 +121,13 @@ import { InputText } from 'primeng/inputtext';
                     <th pSortableColumn="sku">
                         <div class="flex items-center justify-between">
                             {{ 'SKU' | translate }}
-                            <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
+<!--                            <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
                     <th pSortableColumn="name">
                         <div class="flex items-center justify-between">
                             {{ 'Name' | translate }}
-                            <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
+<!--                            <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
                     <th pSortableColumn="brand">
