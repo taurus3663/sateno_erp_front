@@ -166,4 +166,21 @@ export class OrderListService extends BaseListCrud<IOrder> {
             error: (err) => {}
         })
     }
+
+    openViber(phone: string) {
+        if (!phone) return;
+
+        // 1. Махаме абсолютно всичко, което не е цифра (чистим +, интервали, тирета)
+        let cleanPhone = phone.replace(/\D/g, '');
+
+        // 2. Ако започва с 0 (напр. 0877...), го правим на 359877...
+        if (cleanPhone.startsWith('0')) {
+            cleanPhone = '359' + cleanPhone.substring(1);
+        }
+
+        // 3. Форматът viber://chat?number= е по-съвместим с новите версии на десктоп
+        const url = `viber://chat?number=${cleanPhone}`;
+
+        window.location.assign(url);
+    }
 }

@@ -329,7 +329,13 @@ import { Select } from 'primeng/select';
                                 <div class="font-bold text-900 line-height-1">{{ order.billing.first_name }} {{ order.billing.last_name }}</div>
                                 <div class="text-secondary text-sm flex align-items-center gap-1">
                                     <i class="pi pi-phone text-xs"></i>
-                                    {{ order.billing.phone }}
+                                    <span
+                                        class="cursor-pointer hover:text-purple-600 transition-colors"
+                                        (click)="this.listService.openViber(order.billing.phone)"
+                                        pTooltip="Отвори чат във Viber"
+                                        tooltipPosition="top">
+        {{ order.billing.phone }}
+    </span>
                                 </div>
 
                                 <i
