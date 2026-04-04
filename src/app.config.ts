@@ -14,7 +14,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { XL_API_URL } from '../libs/xl-util/src/lib/ws/WsToken';
 
-import { environment } from './environment/environment';
+import { environment } from './environments/environment';
 
 const finalRoutes: Routes = [
     ...appRoutes,
