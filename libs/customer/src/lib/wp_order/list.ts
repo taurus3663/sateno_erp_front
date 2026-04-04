@@ -391,7 +391,7 @@ import { Select } from 'primeng/select';
                             <img
                                 style="width: 80px;"
                                 *ngIf="courierInfo.courierName"
-                                [src]="listService.courierLogos[courierInfo.courierName] || listService.courierLogos['UNKNOWN']"
+                                [src]="listService.courierLogos[courierInfo.courierName]"
                                 [alt]="courierInfo.courierName"
                                 class="w-8rem border-round shadow-1"
                                 [pTooltip]="courierInfo.mode | translate"

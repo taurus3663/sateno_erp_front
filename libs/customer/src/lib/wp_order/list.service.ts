@@ -85,6 +85,7 @@ export class OrderListService extends BaseListCrud<IOrder> {
         'ECONT': 'assets/img/econt-logo.png',
         'SPEEDY': 'assets/img/speedy-logo.png',
         'BOXNOW': 'assets/img/boxnow-logo.png',
+        'BOX_NOW': 'assets/img/boxnow-logo.png',
         // 'UNKNOWN': 'assets/img/couriers/default-truck.png' // Fallback ако няма съвпадение
     };
 
