@@ -568,6 +568,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // 1. Вземаме филтрите от събитието на таблицата
         const filters = { ...event.filters };
 
+        if (this.selectedStatus && !filters['status']) {
+            filters['status'] = { value: this.selectedStatus, matchMode: 'equals' };
+        }
+
+
         // 2. ПРОВЕРКА: Ако този конкретен компонент е отворен в диалог с телефон
         if (this.config?.data?.filterPhone) {
             // Налагаме филтъра по телефон, за да не го изгубим при смяна на страница
@@ -607,6 +612,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
     }
     private cdr = inject(ChangeDetectorRef);
     ngOnInit(): void {
+
+        this.lastParams.filters = {
+            'status': { value: OrderStatus.PROCESSING, matchMode: 'equals' }
+        };
+
         this.wsService
             .listen('orders')
             .pipe(takeUntil(this.destroy$))
@@ -746,7 +756,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         return d1 !== d2;
     }
 
-    protected selectedStatus: string | null = null; // Държи текущия филтър
+    protected selectedStatus: string | null = OrderStatus.PROCESSING; // Държи текущия филтър
     protected statusFilterOptions: any[] = [];
 
     onStatusFilterChange(value: any) {

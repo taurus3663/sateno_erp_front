@@ -14,6 +14,8 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { XL_API_URL } from '../libs/xl-util/src/lib/ws/WsToken';
 
+import { environment } from './environment/environment';
+
 const finalRoutes: Routes = [
     ...appRoutes,
     {
@@ -26,7 +28,8 @@ const finalRoutes: Routes = [
     }
 ];
 // const API_URL = 'http://192.168.31.232:9494';
-const API_URL = 'https://erp.sateno.bg';
+// const API_URL = 'https://erp.sateno.bg';
+const API_URL = environment.apiUrl;
 export const appConfig: ApplicationConfig = {
     providers: [
         DialogService,
