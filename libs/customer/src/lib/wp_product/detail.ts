@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, Signal, signal } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -8,7 +8,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Select } from 'primeng/select';
 import { LanguageListService } from '../language/list.service';
 import { WpProductDetailService } from './detail.service';
-import { IWpImage, IWpProduct, ProductSaleType, ProductStatus, ProductUnit } from './interfaces';
+import { IWpImage, IWpProduct, IWpProductTranslation, ProductSaleType, ProductStatus, ProductUnit } from './interfaces';
 import { InputNumber } from 'primeng/inputnumber';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Textarea } from 'primeng/textarea';
@@ -17,7 +17,7 @@ import { WpBrandListService } from '../wp_brand/list.service';
 import { Editor } from 'primeng/editor';
 import { MultiSelect } from 'primeng/multiselect';
 import { TreeSelect } from 'primeng/treeselect';
-import { PrimeTemplate } from 'primeng/api';
+import { MessageService, PrimeTemplate } from 'primeng/api';
 import { FileUpload } from 'primeng/fileupload';
 import { ROUTES } from '../api.routes';
 import { Tooltip } from 'primeng/tooltip';
@@ -27,6 +27,7 @@ import { TableModule } from 'primeng/table';
 import { Listbox } from 'primeng/listbox';
 import { WpAddonListService } from '../wp_addon/list.service';
 import { XL_AUTH_CONFIG } from 'xl-auth';
+import { ILanguage } from '../language/interfaces';
 
 @Component({
     selector: 'wp_product-detail',
@@ -189,21 +190,65 @@ import { XL_AUTH_CONFIG } from 'xl-auth';
                                         <div class="grid grid-cols-12 gap-4"
                                              *ngIf="lang.language.id === selectedLanguage?.id">
                                             <div class="col-span-12">
-                                                <label
-                                                    class="block font-bold mb-2">{{ 'Product_Name' | translate }}</label>
+                                                <div class="flex justify-between items-center mb-2">
+                                                    <label class="font-bold">
+                                                        {{ 'Product_Name' | translate }}
+                                                    </label>
+
+                                                    <p-button
+                                                        [label]="'Auto_Translate_To_Other_Languages' | translate"
+                                                        icon="pi pi-sparkles"
+                                                        severity="help"
+                                                        [outlined]="true"
+                                                        size="small"
+                                                        [loading]="isTranslatingTitle()"
+                                                        (onClick)="translateProductContent(lang, isTranslatingTitle, 1)"
+                                                       >
+                                                    </p-button>
+                                                </div>
+
                                                 <input pInputText class="w-full" [(ngModel)]="lang.name" />
                                             </div>
 
                                             <div class="col-span-12">
-                                                <label
-                                                    class="block font-bold mb-2">{{ 'Short_Description' | translate }}</label>
+                                                <div class="flex justify-between items-center mb-2">
+                                                    <label
+                                                        class="block font-bold mb-2">{{ 'Short_Description' | translate }}
+                                                    </label>
+                                                    <p-button
+                                                        [label]="'Auto_Translate_To_Other_Languages' | translate"
+                                                        icon="pi pi-sparkles"
+                                                        severity="help"
+                                                        [outlined]="true"
+                                                        size="small"
+                                                        [loading]="isTranslatingShortInformation()"
+                                                        (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2)"
+                                                    >
+                                                    </p-button>
+                                                </div>
+
                                                 <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }"
                                                           class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>
                                             </div>
 
                                             <div class="col-span-12">
-                                                <label
-                                                    class="block font-bold mb-2">{{ 'Description' | translate }}</label>
+                                                <div class="flex justify-between items-center mb-2">
+                                                    <label
+                                                        class="block font-bold mb-2">{{ 'Description' | translate }}
+                                                    </label>
+                                                    <p-button
+                                                        [label]="'Auto_Translate_To_Other_Languages' | translate"
+                                                        icon="pi pi-sparkles"
+                                                        severity="help"
+                                                        [outlined]="true"
+                                                        size="small"
+                                                        [loading]="isTranslatingInformation()"
+                                                        (onClick)="translateProductContent(lang, isTranslatingInformation, 3)"
+                                                    >
+                                                    </p-button>
+                                                </div>
+
+
                                                 <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }"
                                                           class="w-full" [(ngModel)]="lang.description"></p-editor>
                                             </div>
@@ -676,6 +721,35 @@ export class WpCategoryDetailComponent {
 
         return config;
     }
+
+    protected isTranslatingTitle = signal(false);
+    protected isTranslatingShortInformation = signal(false);
+    protected isTranslatingInformation = signal(false);
+    protected ms = inject(MessageService);
+
+    protected translateProductContent(item: IWpProductTranslation, signalM: any, type: number) {
+        signalM.set(true);
+        const payload = {
+          item: item,
+          type: type,
+          productId: this.detailService.selectedItem()?.id,
+        };
+        this.detailService.translateProductContent(payload)
+            .subscribe({
+                next: (e) => {
+                    this.ms.add({severity:'success', summary:'Преведен'});
+                    signalM.set(false);
+                    this.detailService.loadData(this.detailService.selectedItem()?.id);
+                },
+                error: (e) => {
+                    signalM.set(false);
+                },
+                complete: () => {
+                    signalM.set(false);
+                }
+            });
+    }
+
 
 
 }

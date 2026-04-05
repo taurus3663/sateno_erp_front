@@ -93,6 +93,7 @@ export class apiRoutes {
         upload_template: `${apiRoutes.wpProductBase}/upload_temp`,
         get_selected_addon_values: `${apiRoutes.wpProductBase}/get_addon_values`,
         patch: `${apiRoutes.wpProductBase}/patch`,
+        translateProductContent: `${apiRoutes.wpProductBase}/translate/content`,
     }
 
     private static readonly wpBrandBase = 'wp_brand';

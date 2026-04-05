@@ -118,19 +118,19 @@ import { InputText } from 'primeng/inputtext';
                         <p-tableHeaderCheckbox />
                     </th>
                     <th style="width: 5rem">{{ 'Image' | translate }}</th>
-                    <th pSortableColumn="sku">
+                    <th >
                         <div class="flex items-center justify-between">
                             {{ 'SKU' | translate }}
 <!--                            <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
-                    <th pSortableColumn="name">
+                    <th >
                         <div class="flex items-center justify-between">
                             {{ 'Name' | translate }}
 <!--                            <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
-                    <th pSortableColumn="brand">
+                    <th >
                         <div class="flex items-center justify-between">
                             {{ 'Brand' | translate }}
                             <p-columnFilter field="brand" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
@@ -164,7 +164,7 @@ import { InputText } from 'primeng/inputtext';
                         </div>
                         <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
                     </th>
-                    <th pSortableColumn="category">
+                    <th >
                         <div class="flex items-center justify-between">
                             {{ 'Categories' | translate }}
                             <p-columnFilter field="category" display="menu" matchMode="contains" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
@@ -426,12 +426,13 @@ export class WpProductListComponent {
             // Обновяваме локалното състояние
             this.lastParams.filters = filters;
             this.lastParams.first = 0;
-        }, 400); // 400ms е златната среда за изчакване
+        }, 1000); // 400ms е златната среда за изчакване
     }
 
     onSearch(event: any) {
         // Взимаме стойността независимо дали е събитие или директен низ
         const value = event?.target?.value !== undefined ? event.target.value : event;
+
         this.executeSearch(value);
     }
     clearSearch() {
