@@ -453,7 +453,9 @@ export class ShipmentService {
     ];
     selectedBoxNowSize: string = '';
 
-    public createWayBill() {
+    async createWayBill() {
+
+        let calculateShipping = await this.detailService.calculateShipping(this.selectedOrder!);
 
         const rs: ICreateLabel = {
             id: this.selectedOrder?.id,
@@ -472,6 +474,7 @@ export class ShipmentService {
             street: this.addressStreet,
             boxNowPacketSize: Number.parseInt(this.selectedBoxNowSize),
             fiscalReceipt: this.fiscalReceipt,
+            realShipmentPrice: calculateShipping
         };
 
         this.http.post(ROUTES.wp_order.createWayBill, rs).subscribe({

@@ -166,7 +166,7 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         return null;
     }
 
-    override saveItem(item: IWpProduct) {
+    override saveItem(item: IWpProduct, lastEditedSiteId?: number | null) {
         if (!item) return;
 
         // 1. Подготовка на категориите (вече имаш метода)

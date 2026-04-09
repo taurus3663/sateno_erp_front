@@ -1033,21 +1033,25 @@ export class OrderListComponent implements OnInit, OnDestroy {
     hasPaidAddons(order: IOrder): boolean {
         if (!order.orderLine || order.orderLine.length === 0) return false;
 
-        // Обхождаме всички артикули в поръчката
         return order.orderLine.some((lineItem) => {
-            // Проверяваме дали съществува paoIdValue (Product Add-Ons ID Value)
-            if (!lineItem.paoIdValue || lineItem.paoIdValue.length === 0) return false;
+            // Проверяваме структурата: paoIdValue -> първи елемент [0] -> масив value
+            const paoContainer = lineItem.paoIdValue && lineItem.paoIdValue[0];
+            if (!paoContainer || !Array.isArray(paoContainer.value)) return false;
 
-            // Обхождаме масива paoIdValue
-            return lineItem.paoIdValue.some((pao) => {
-                // В него има поле value, което всъщност е списъкът с избрани адони
-                if (!pao.value || !Array.isArray(pao.value)) return false;
+            return paoContainer.value.some((addon) => {
+                // Взимаме цената от rawPrice
+                // const price = parseFloat(addon.rawPrice);
+                // const isPaid = !isNaN(price) && price > 0;
 
-                // Проверяваме дали някой от адоните има rawPrice > 0
-                return pao.value.some((addon) => {
-                    const price = parseFloat(addon.rawPrice);
-                    return !isNaN(price) && price > 0;
-                });
+                // Според твоя JSON, текстът е в полето 'value'
+                // Пример: "С ластик 180 х 200 +30см"
+                const addonText = addon.value ? addon.value.toLowerCase() : '';
+
+                // Търсим дали НЕ съдържа "без ластик"
+                const doesNotHaveElasticLabel = !addonText.includes('без ластик');
+
+                // Връщаме true, само ако е платено И в текста липсва "без ластик"
+                return doesNotHaveElasticLabel;
             });
         });
     }

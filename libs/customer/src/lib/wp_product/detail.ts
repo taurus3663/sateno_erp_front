@@ -55,6 +55,7 @@ import { ILanguage } from '../language/interfaces';
                             <p-tab value="0"><i class="pi pi-info-circle mr-2"></i>{{ 'Main' | translate }}</p-tab>
                             <p-tab value="1"><i class="pi pi-language mr-2"></i>{{ 'Translations' | translate }}</p-tab>
                             <p-tab value="2"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
+                            <p-tab value="3"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
                         </p-tablist>
 
                         <p-tabpanels>
@@ -94,28 +95,47 @@ import { ILanguage } from '../language/interfaces';
                                             >
                                             </p-fileupload>
 
-                                            <div class="grid grid-cols-12 gap-3" *ngIf="item?.images?.length">
-                                                <div *ngFor="let img of item.images; let i = index"
+<!--                                            <div class="grid grid-cols-12 gap-3" *ngIf="item?.images?.length">-->
+<!--                                                <div *ngFor="let img of item.images; let i = index"-->
+<!--                                                     class="col-span-4 md:col-span-2 relative group">-->
+<!--                                                    <div-->
+<!--                                                        class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"-->
+<!--                                                        [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">-->
+<!--                                                        <img [src]="baseUrl + img.localSrc"-->
+<!--                                                             style="width: 130px;height: auto;"-->
+<!--                                                             class="h-8rem object-cover block cursor-pointer"-->
+<!--                                                             alt="Product thumbnail" />-->
+
+<!--                                                        <span *ngIf="img.isTemp"-->
+<!--                                                              class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>-->
+
+<!--                                                        <div-->
+<!--                                                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">-->
+<!--                                                            <p-button icon="pi pi-trash" severity="danger"-->
+<!--                                                                      [rounded]="true" size="small"-->
+<!--                                                                      pTooltip="{{ 'Remove' | translate }}"-->
+<!--                                                                      (onClick)="removeImage(i)"></p-button>-->
+<!--                                                            <p-button icon="pi pi-search-plus" severity="secondary"-->
+<!--                                                                      [rounded]="true" size="small"-->
+<!--                                                                      (onClick)="viewImage(img.localSrc)"></p-button>-->
+<!--                                                        </div>-->
+<!--                                                    </div>-->
+<!--                                                </div>-->
+<!--                                            </div>-->
+                                            <div class="grid grid-cols-12 gap-3" *ngIf="filteredImages.length">
+                                                <div *ngFor="let img of filteredImages; let i = index"
                                                      class="col-span-4 md:col-span-2 relative group">
-                                                    <div
-                                                        class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"
-                                                        [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
+                                                    <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"
+                                                         [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
+
                                                         <img [src]="baseUrl + img.localSrc"
                                                              style="width: 130px;height: auto;"
-                                                             class="h-8rem object-cover block cursor-pointer"
-                                                             alt="Product thumbnail" />
+                                                             class="h-8rem object-cover block cursor-pointer" />
 
-                                                        <span *ngIf="img.isTemp"
-                                                              class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>
-
-                                                        <div
-                                                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                            <p-button icon="pi pi-trash" severity="danger"
-                                                                      [rounded]="true" size="small"
-                                                                      pTooltip="{{ 'Remove' | translate }}"
+                                                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small"
                                                                       (onClick)="removeImage(i)"></p-button>
-                                                            <p-button icon="pi pi-search-plus" severity="secondary"
-                                                                      [rounded]="true" size="small"
+                                                            <p-button icon="pi pi-search-plus" severity="secondary" [rounded]="true" size="small"
                                                                       (onClick)="viewImage(img.localSrc)"></p-button>
                                                         </div>
                                                     </div>
@@ -263,7 +283,45 @@ import { ILanguage } from '../language/interfaces';
                                 </div>
                             </p-tabpanel>
                             <p-tabpanel value="2">
-                                <div class="pt-4" *ngIf="selectedSite;">
+                                <div class="pt-4" *ngIf="selectedSite && currentSitePricing">
+                                    <div class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
+                                        <div class="col-span-12">
+                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2">
+                                                <i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}: {{ selectedSite.name }}
+                                            </h3>
+                                        </div>
+
+                                        <div class="col-span-4">
+                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }}</label>
+                                            <p-inputNumber
+                                                [(ngModel)]="currentSitePricing.regularPrice"
+                                                mode="currency"
+                                                [currency]="selectedSite.currency?.code || 'BGN'"
+                                                class="w-full"
+                                                styleClass="w-full">
+                                            </p-inputNumber>
+                                        </div>
+
+                                        <div class="col-span-4">
+                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }}</label>
+                                            <p-inputNumber
+                                                [(ngModel)]="currentSitePricing.price"
+                                                mode="currency"
+                                                [currency]="selectedSite.currency?.code || 'BGN'"
+                                                class="w-full"
+                                                styleClass="w-full">
+                                            </p-inputNumber>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="!selectedSite"
+                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                    <span class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
+                                </div>
+                            </p-tabpanel>
+                            <p-tabpanel value="3">
+                                <div class="pt-4">
                                     <div class="grid grid-cols-12 gap-4">
                                         <div class="col-span-4 border-r pr-4">
                                             <label class="block font-bold mb-2">{{ 'Addon_Groups' | translate }}</label>
@@ -276,31 +334,18 @@ import { ILanguage } from '../language/interfaces';
                                                 [style]="{ width: '100%' }"
                                                 [listStyle]="{ 'max-height': '200px' }">
                                                 <ng-template pTemplate="item" let-addon>
-                                                    <span [pTooltip]="addon.names"
-                                                          class="text-sm">{{ addon.names }}</span>
+                                                    <span [pTooltip]="addon.names" class="text-sm">{{ addon.names }}</span>
                                                 </ng-template>
                                             </p-listbox>
                                         </div>
 
                                         <div class="col-span-8">
-                                            <label
-                                                class="block font-bold mb-2">{{ 'Available_Values' | translate }}</label>
-                                            <div
-                                                class="flex flex-wrap gap-2 p-3 border-round bg-surface-50 border-1 border-surface-200"
-                                                style="min-height: 100px;">
-
-
-                                                <div *ngIf="this.detailService.isLoadingAddonValues()"
-                                                     class="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
-                                                    <i class="pi pi-spinner pi-spin text-primary"
-                                                       style="font-size: 2rem"></i>
+                                            <label class="block font-bold mb-2">{{ 'Available_Values' | translate }}</label>
+                                            <div class="flex flex-wrap gap-2 p-3 border-round bg-surface-50 border-1 border-surface-200" style="min-height: 100px;">
+                                                <div *ngIf="this.detailService.isLoadingAddonValues()" class="absolute inset-0 flex items-center justify-center bg-white/50 z-10">
+                                                    <i class="pi pi-spinner pi-spin text-primary" style="font-size: 2rem"></i>
                                                 </div>
-
-                                                <div *ngIf="!this.detailService.selectedAddonGroup"
-                                                     class="text-gray-400 italic text-sm">
-                                                    {{ 'Select_group_to_see_values' | translate }}
-                                                </div>
-
+                                                <div *ngIf="!this.detailService.selectedAddonGroup" class="text-gray-400 italic text-sm">{{ 'Select_group_to_see_values' | translate }}</div>
                                                 <p-button
                                                     *ngFor="let val of this.detailService.selectedAddonValues"
                                                     [label]="getValueLabel(val)"
@@ -310,25 +355,15 @@ import { ILanguage } from '../language/interfaces';
                                                     icon="pi pi-plus"
                                                     (onClick)="addValueToSite(val)">
                                                 </p-button>
-
-                                                <div
-                                                    *ngIf="this.detailService.selectedAddonGroup && this.detailService.selectedAddonValues.length === 0"
-                                                    class="text-gray-400 italic text-sm">
-                                                    {{ 'No_values_found_for_this_group' | translate }}
-                                                </div>
                                             </div>
                                         </div>
 
                                         <div class="col-span-12 mt-4">
-                                            <div class="flex justify-between items-center mb-2">
-                                                <span class="font-bold text-lg"><i
-                                                    class="pi pi-table mr-2"></i>{{ 'Active_Configuration_for' | translate }}
-                                                    : {{ selectedSite.name }}</span>
-                                            </div>
+<!--                                            <div class="flex justify-between items-center mb-2">-->
+<!--                                                <span class="font-bold text-lg"><i class="pi pi-table mr-2"></i>{{ 'Global_Addon_Configuration' | translate }}</span>-->
+<!--                                            </div>-->
 
-                                            <p-table [value]="currentSiteConfigs" [scrollable]="true"
-                                                     scrollHeight="300px"
-                                                     styleClass="p-datatable-sm shadow-1 border-round overflow-hidden">
+                                            <p-table [value]="currentAddonConfigs" [scrollable]="true" scrollHeight="300px" styleClass="p-datatable-sm shadow-1 border-round overflow-hidden">
                                                 <ng-template pTemplate="header">
                                                     <tr>
                                                         <th>{{ 'Addon' | translate }}</th>
@@ -340,10 +375,8 @@ import { ILanguage } from '../language/interfaces';
                                                     <tr>
                                                         <td>
                                                             <div class="flex flex-col">
-                                                                <span
-                                                                    class="font-bold">{{ getValueLabel(config.addonValue) }}</span>
-                                                                <small
-                                                                    class="text-gray-500">{{ config.addonValue.slug }}</small>
+                                                                <span class="font-bold">{{ getValueLabel(config.addonValue) }}</span>
+                                                                <small class="text-gray-500">{{ config.addonValue.slug }}</small>
                                                             </div>
                                                         </td>
                                                         <td>
@@ -355,75 +388,22 @@ import { ILanguage } from '../language/interfaces';
                                                                 incrementButtonIcon="pi pi-plus"
                                                                 decrementButtonIcon="pi pi-minus"
                                                                 [minFractionDigits]="2"
-                                                                suffix=" {{ selectedSite.currency?.symbol }}"
-                                                                styleClass="w-full"
-                                                            >
+                                                                styleClass="w-full">
                                                             </p-inputNumber>
                                                         </td>
                                                         <td>
-                                                            <p-button icon="pi pi-trash" severity="danger" [text]="true"
-                                                                      [rounded]="true"
-                                                                      (onClick)="removeConfig(i)"></p-button>
+                                                            <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="removeConfig(i)"></p-button>
                                                         </td>
                                                     </tr>
                                                 </ng-template>
                                                 <ng-template pTemplate="emptymessage">
                                                     <tr>
                                                         <td colspan="3" class="text-center p-4 text-gray-400">
-                                                            {{ 'No_addons_configured_for_this_site' | translate }}
+                                                            {{ 'No_addons_configured' | translate }}
                                                         </td>
                                                     </tr>
                                                 </ng-template>
                                             </p-table>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div *ngIf="!selectedSite"
-                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
-                                    <i class="pi pi-language text-4xl mb-3"></i>
-                                    <span
-                                        class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
-                                </div>
-
-
-                                <div class="pt-4" *ngIf="selectedSite && currentSitePricing">
-
-                                    <div
-                                        class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
-                                        <div class="col-span-12">
-                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2">
-                                                <i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}
-                                                : {{ selectedSite.name }}
-                                            </h3>
-                                        </div>
-
-                                        <div class="col-span-4">
-                                            <label
-                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }}</label>
-                                            <p-inputNumber
-                                                [(ngModel)]="currentSitePricing.regularPrice"
-                                                mode="currency"
-                                                [currency]="selectedSite.currency?.code || 'BGN'"
-                                                class="w-full"
-                                                styleClass="w-full">
-                                            </p-inputNumber>
-                                        </div>
-
-                                        <div class="col-span-4">
-                                            <label
-                                                class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }}</label>
-                                            <p-inputNumber
-                                                [(ngModel)]="currentSitePricing.price"
-                                                mode="currency"
-                                                [currency]="selectedSite.currency?.code || 'BGN'"
-                                                class="w-full"
-                                                styleClass="w-full">
-                                            </p-inputNumber>
-                                        </div>
-                                    </div>
-
-                                    <div class="grid grid-cols-12 gap-4">
-                                        <div class="col-span-4 border-r pr-4">
                                         </div>
                                     </div>
                                 </div>
@@ -440,7 +420,7 @@ import { ILanguage } from '../language/interfaces';
                                   (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език"
                                   [style]="{ width: '220px' }"></p-select>
 
-                        <p-select *ngIf="activeTab === '2'"
+                        <p-select *ngIf="activeTab === '0' || activeTab === '2'"
                             appendTo="body"
                             [options]="siteLService.items()"
                             [(ngModel)]="selectedSite"
@@ -448,6 +428,7 @@ import { ILanguage } from '../language/interfaces';
                             optionLabel="name"
                             [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
                             [style]="{ width: '220px' }"
+                            [showClear]="true"
                         >
                         </p-select>
                     </div>
@@ -457,7 +438,7 @@ import { ILanguage } from '../language/interfaces';
                                   (onClick)="detailService.closeDetail()" />
 
                         <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"
-                                  (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                                  (onClick)="triggerSave()" />
                     </div>
                 </div>
             </ng-template>
@@ -577,24 +558,24 @@ export class WpCategoryDetailComponent {
         }
     }
 
-    private addImageToModel(item: IWpProduct, res: any) {
-        const newImage: IWpImage = {
-            id: 0, // Нова снимка, още няма ID в базата
-            localSrc: res.url, // URL към временната папка за визуализация
-            tempName: res.fileName, // Името, по което Java ще намери файла в temp/
-            isTemp: true, // Маркер за бекенда, че трябва да мести файл
-            siteMappings: [] // Празно, защото още не е синхронизирана с WP
-        };
+    // private addImageToModel(item: IWpProduct, res: any) {
+    //     const newImage: IWpImage = {
+    //         id: 0, // Нова снимка, още няма ID в базата
+    //         localSrc: res.url, // URL към временната папка за визуализация
+    //         tempName: res.fileName, // Името, по което Java ще намери файла в temp/
+    //         isTemp: true, // Маркер за бекенда, че трябва да мести файл
+    //         siteMappings: [] // Празно, защото още не е синхронизирана с WP
+    //     };
+    //
+    //     item.images.push(newImage);
+    // }
 
-        item.images.push(newImage);
-    }
-
-    removeImage(index: number) {
-        const item = this.detailService.selectedItem();
-        if (item && item.images) {
-            item.images.splice(index, 1);
-        }
-    }
+    // removeImage(index: number) {
+    //     const item = this.detailService.selectedItem();
+    //     if (item && item.images) {
+    //         item.images.splice(index, 1);
+    //     }
+    // }
 
     viewImage(src: string) {
         window.open(src, '_blank');
@@ -608,51 +589,37 @@ export class WpCategoryDetailComponent {
         this.totalSizePercent = (total / 5000000) * 100; // спрямо 5MB лимит
     }
 
-    // 1. Филтрирани конфигурации за долната таблица
-    get currentSiteConfigs() {
-        const product = this.detailService.selectedItem(); // Твоят JSON
-        if (!product || !this.selectedSite) return [];
 
-        // Показваме само аддоните, които са конфигурирани за ТЕКУЩИЯ сайт
-        return product.addonConfigs.filter((c) => c.site.id === this.selectedSite.id);
-    }
+    // В detail.ts намери проблемния участък
+    // get currentAddonConfigs() {
+    //     const item = this.detailService.selectedItem();
+    //     if (!item || !item.addonConfigs) return [];
+    //     return item.addonConfigs;
+    // }
 
     // 2. Метод за добавяне на нова стойност в долната таблица
+    // detail.ts
+
     addValueToSite(value: any) {
-        console.log(value);
         const product = this.detailService.selectedItem();
 
-        // 1. Проверка дали има избран продукт и сайт
-        if (!product || !this.selectedSite) {
-            console.warn('Please select a site first!');
-            return;
-        }
+        if (!product) return;
 
-        // Инициализираме масива, ако бекендът е върнал null
         if (!product.addonConfigs) {
             product.addonConfigs = [];
         }
 
-        // 2. Проверка за дублиране (сайт + стойност)
-        const exists = product.addonConfigs.some((c) =>
-            c.site.id === this.selectedSite.id &&
-            c.addonValue.id === value.id
-        );
+        // СЕГА: Проверяваме само дали тази стойност (addonValue) вече е добавена
+        const exists = product.addonConfigs.some((c) => c.addonValue.id === value.id);
 
         if (!exists) {
-            // 3. Добавяме нов конфигурационен обект
             product.addonConfigs.push({
-                // id: null, // Нов запис
-                id: value.id,
-                site: { ...this.selectedSite }, // Копираме избрания сайт
-                addonValue: { ...value },       // Копираме избраната стойност (с преводите)
-                priceModifier: 0                // Начална цена
+                // Премахваме site обекта, защото бекендът вече не го очаква
+                addonValue: { ...value },
+                priceModifier: 0
             });
-
-            // Опционално: съобщение за успех или лог
-            console.log('Added config:', value.slug);
         } else {
-            console.warn('This value is already added for this site');
+            console.warn('This value is already added');
         }
     }
 
@@ -684,14 +651,10 @@ export class WpCategoryDetailComponent {
 // Метод за изтриване на конфигурация
     removeConfig(index: number) {
         const product = this.detailService.selectedItem();
-        if (!product) return;
-
-        // Тъй като таблицата е филтрирана, трябва да намерим обекта и да го премахнем от оригиналния масив
-        const configToDelete = this.currentSiteConfigs[index];
-        const globalIndex = product.addonConfigs.indexOf(configToDelete);
-
-        if (globalIndex > -1) {
-            product.addonConfigs.splice(globalIndex, 1);
+        if (product && product.addonConfigs) {
+            // Тъй като таблицата вече показва директно addonConfigs,
+            // индексът от таблицата съвпада с индекса в масива.
+            product.addonConfigs.splice(index, 1);
         }
     }
 
@@ -751,5 +714,74 @@ export class WpCategoryDetailComponent {
     }
 
 
+//     ----------------
+    // 1. Гетър за снимките спрямо избрания сайт
+    get filteredImages(): IWpImage[] {
+        const item = this.detailService.selectedItem();
+        if (!item || !item.images) return [];
+
+        if (!item.id || item.id === 0) return item.images;
+
+        if (this.selectedSite) {
+            return item.images.filter(img => {
+                if (img.isTemp) return true;
+
+                // Ако масивът е празен (както в твоя JSON), тук ще върне false
+                return img.siteMappings && img.siteMappings.length > 0 && img.siteMappings.some(m => {
+                    // Проверяваме всички възможни пътища до ID-то на сайта
+                    const mSiteId = (m as any).siteId || (m as any).site?.id;
+                    return mSiteId == this.selectedSite.id;
+                });
+            });
+        }
+
+        return item.images;
+    }
+
+    // 2. Метод за изтриване на снимка (премахва от основния масив)
+    removeImage(index: number) {
+        const item = this.detailService.selectedItem();
+        if (!item) return;
+
+        // Взимаме реалния обект от филтрирания списък
+        const imgToRemove = this.filteredImages[index];
+
+        // Намираме индекса му в глобалния масив
+        const globalIndex = item.images.indexOf(imgToRemove);
+
+        if (globalIndex > -1) {
+            item.images.splice(globalIndex, 1);
+        }
+    }
+
+    // 3. Добавяне на снимка (isTemp)
+    private addImageToModel(item: IWpProduct, res: any) {
+        const newImage: IWpImage = {
+            id: 0,
+            localSrc: res.url,
+            tempName: res.fileName,
+            isTemp: true,
+            siteMappings: []
+        };
+
+        if (!item.images) item.images = [];
+        item.images.push(newImage);
+    }
+
+// 4. Getter за адоните (вече в таб 3)
+    get currentAddonConfigs() {
+        const item = this.detailService.selectedItem();
+        return item?.addonConfigs || [];
+    }
+
+// 5. Прехвърляне на ID-то на избрания сайт при запис
+    triggerSave() {
+        const item = this.detailService.selectedItem();
+        if (item) {
+            // Прикачваме избрания сайт, за да знае Java къде да качва/трие снимките
+            item.lastEditedSiteId = this.selectedSite?.id;
+            this.detailService.saveItem(item);
+        }
+    }
 
 }

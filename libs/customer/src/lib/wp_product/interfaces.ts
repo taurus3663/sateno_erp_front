@@ -23,6 +23,7 @@ export interface IWpProduct {
     siteConfig: IWpProductSiteConfig[];
     saleType: ProductSaleType;
     sku: string;
+    lastEditedSiteId?: number
 }
 export enum ProductSaleType {
     LIMITED = 0,
@@ -37,7 +38,7 @@ export enum ProductStatus {
 
 export interface IWpProductAddonConfig {
     id?: number;
-    site: ISite;
+    // site: ISite;
     priceModifier: number;
     addonValue: IWpAddonValue;
 }
@@ -95,6 +96,7 @@ export interface IWpImage {
 }
 export interface IWpImageSiteMapping {
     id: number;
+    siteId: number;
     wpMediaId: number;
     wpUrl: string;
 }

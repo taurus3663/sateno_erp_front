@@ -18,6 +18,7 @@ export interface ICreateLabel {
     street: string;
     boxNowPacketSize: BoxnowPacketSize;
     fiscalReceipt?: boolean;
+    realShipmentPrice?: number;
 }
 export enum BoxnowPacketSize {
     SMALL,
