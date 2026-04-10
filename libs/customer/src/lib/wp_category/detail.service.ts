@@ -43,6 +43,7 @@ export class WpCategoryDetailService extends BaseDetailCrud<IWpCategory> {
     saveTranslation(categoryId: number, languageId: number, name: string, parentId: number | null): Observable<any> {
         this.isSaving.set(true);
         // Използваме обекта, който Java очаква (Upsert логика)
+
         return this.http
             .post(ROUTES.wp_category.updateTranslation, {
                 categoryId,
