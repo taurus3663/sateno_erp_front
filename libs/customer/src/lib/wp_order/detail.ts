@@ -820,10 +820,11 @@ export class OrderDetailComponent {
     openProductSelector() {
         const ref = this.dialogService.open(WpProductListComponent, {
             header: this.tr.instant('Product'),
-            width: '',
+            width: '100%',
+            height: '100%',
             closeOnEscape: true,
             closable: true,
-            data: { siteId: this.detailService.selectedItem()?.site?.id, mode: 'lookup' }
+            data: { siteId: this.detailService.selectedItem()?.site?.id, mode: 'lookup', rows: 10 }
         });
 
         ref?.onClose.subscribe(async (product: any) => {

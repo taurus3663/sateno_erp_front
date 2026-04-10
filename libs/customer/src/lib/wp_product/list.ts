@@ -52,7 +52,7 @@ import { InputText } from 'primeng/inputtext';
             [lazy]="true"
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
-            [rows]="200"
+            [rows]=rows
             [totalRecords]="listService.totalRecords()"
             [loading]="listService.loading()"
             [rowsPerPageOptions]="[10, 20, 50, 200]"
@@ -92,7 +92,7 @@ import { InputText } from 'primeng/inputtext';
                     </div>
 
                     <div class="flex-1 flex justify-content-center">
-                        <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">
+                        <p-iconfield  iconPosition="left">
                             <p-inputicon styleClass="pi pi-search" />
                             <input
                                 pInputText
@@ -386,6 +386,10 @@ export class WpProductListComponent {
             // this.generateStatusOptions();
             this.generateProductSaleType();
         });
+
+        if(this.config?.data.rows != null) {
+            this.rows = this.config?.data.rows;
+        }
     }
 
     // protected productStatus: any[] = [];
@@ -578,4 +582,5 @@ export class WpProductListComponent {
             }
         }
     }
+    protected rows = 200;
 }

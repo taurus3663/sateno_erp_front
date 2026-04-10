@@ -282,5 +282,8 @@
   "Search_by_name_or_sku...": "Търси по име/ску...",
   "History": "История",
   "Auto_Translate_To_Other_Languages": "Автоматичен превод на други езици",
-  "Addons": "Адони"
+  "Addons": "Адони",
+  "Global_Addon_Configuration": "Global Addon Configuration",
+  "No_addons_configured": "No addons configured",
+  "Delivered": "Доставен"
 }

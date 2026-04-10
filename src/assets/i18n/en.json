@@ -280,5 +280,8 @@
   "Search_by_name_or_sku...": "Search by name or sku...",
   "History": "History",
   "Auto_Translate_To_Other_Languages": "Auto Translate To Other Languages",
-  "Addons": "Addons"
+  "Addons": "Addons",
+  "Global_Addon_Configuration": "Global Addon Configuration",
+  "No_addons_configured": "No addons configured",
+  "Delivered": "Delivered"
 }

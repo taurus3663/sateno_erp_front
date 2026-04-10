@@ -186,7 +186,7 @@ import { Select } from 'primeng/select';
             <ng-template pTemplate="body" let-item let-i="rowIndex">
                 @let order = asCast(item);
 
-                @if (isNewDay(order, i)) {
+                @if (selectedStatus === null && isNewDay(order, i)) {
                     <tr *ngIf="selectedStatus == null" class="bg-gray-100">
                         <td colspan="8" class="py-2 px-4 border-bottom-2 border-primary-500">
                             <div class="flex align-items-center gap-2">
@@ -202,6 +202,50 @@ import { Select } from 'primeng/select';
                                         {{ order.wpOrderTime | date: 'yyyy' }}
                                     </span>
                                 </span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                @if (selectedStatus === OrderStatus.SENT && isNewShipmentDay(order, i)) {
+                    <tr class="bg-orange-50">
+                        <td colspan="12" class="py-2 px-4 border-bottom-2 border-orange-500">
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-truck text-orange-600 font-bold"></i>
+                                <span class="text-orange-900 font-bold uppercase tracking-wider">
+                    <span class="mr-2">{{ 'Sent' | translate }}:</span>
+
+                                    @let shipDate = (order.courierHistory && order.courierHistory.length > 0
+                                        ? order.courierHistory[0].eventTime
+                                        : order.updateTime);
+
+                                    {{ 'DAYS.' + (shipDate | date: 'EEEE') | translate }},
+                                    {{ shipDate | date: 'dd' }}
+                                    {{ 'MONTHS.' + (shipDate | date: 'MMMM') | translate }}
+                                    {{ shipDate | date: 'yyyy' }}
+                </span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                @if (selectedStatus === OrderStatus.COMPLETED && isNewCompletedDay(order, i)) {
+                    <tr class="bg-green-50">
+                        <td colspan="12" class="py-2 px-4 border-bottom-2 border-green-500">
+                            <div class="flex align-items-center gap-2">
+                                <i class="pi pi-check-circle text-green-600 font-bold"></i>
+                                <span class="text-green-900 font-bold uppercase tracking-wider">
+                    <span class="mr-2">{{ 'Delivered' | translate }}:</span>
+
+                                    @let deliveryDate = (order.courierHistory && order.courierHistory.length > 0
+                                        ? order.courierHistory[order.courierHistory.length - 1].eventTime
+                                        : order.updateTime);
+
+                                    {{ 'DAYS.' + (deliveryDate | date: 'EEEE') | translate }},
+                                    {{ deliveryDate | date: 'dd' }}
+                                    {{ 'MONTHS.' + (deliveryDate | date: 'MMMM') | translate }}
+                                    {{ deliveryDate | date: 'yyyy' }}
+                </span>
                             </div>
                         </td>
                     </tr>
@@ -762,6 +806,46 @@ export class OrderListComponent implements OnInit, OnDestroy {
         return d1 !== d2;
     }
 
+    isNewShipmentDay(currentOrder: IOrder, index: number): boolean {
+        if (index === 0) return true;
+
+        const items = this.listService.items();
+        const current = items[index];
+        const previous = items[index - 1];
+
+        // Помощна функция за вземане на дата от историята
+        const getCourierDate = (order: IOrder) => {
+            if (order.courierHistory && order.courierHistory.length > 0) {
+                // Вземаме първото събитие (създаването)
+                return new Date(order.courierHistory[0].eventTime).toDateString();
+            }
+            // Fallback ако историята още не е заредена
+            return order.updateTime ? new Date(order.updateTime).toDateString() : new Date(order.wpOrderTime).toDateString();
+        };
+
+        return getCourierDate(current) !== getCourierDate(previous);
+    }
+
+    isNewCompletedDay(currentOrder: IOrder, index: number): boolean {
+        if (index === 0) return true;
+
+        const items = this.listService.items();
+        const current = items[index];
+        const previous = items[index - 1];
+
+        const getDeliveryDate = (order: IOrder) => {
+            if (order.courierHistory && order.courierHistory.length > 0) {
+                // Вземаме ПОСЛЕДНИЯ запис (индекс length - 1)
+                const lastIndex = order.courierHistory.length - 1;
+                return new Date(order.courierHistory[lastIndex].eventTime).toDateString();
+            }
+            // Fallback към updateTime, ако историята липсва
+            return order.updateTime ? new Date(order.updateTime).toDateString() : new Date(order.wpOrderTime).toDateString();
+        };
+
+        return getDeliveryDate(current) !== getDeliveryDate(previous);
+    }
+
     protected selectedStatus: string | null = OrderStatus.PROCESSING; // Държи текущия филтър
     protected statusFilterOptions: any[] = [];
 
@@ -1055,4 +1139,6 @@ export class OrderListComponent implements OnInit, OnDestroy {
             });
         });
     }
+
+    protected readonly OrderStatus = OrderStatus;
 }
