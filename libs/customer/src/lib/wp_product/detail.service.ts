@@ -173,9 +173,9 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
         this.prepareCategoriesForSave();
 
         // 2. Филтриране на преводите (пращаме само попълнените)
-        if (item.translations) {
-            item.translations = item.translations.filter((t) => t.name && t.name.trim() !== '');
-        }
+        // if (item.translations) {
+        //     item.translations = item.translations.filter((t) => t.name && t.name.trim() !== '');
+        // }
 
         // 3. ПРЕЧИСТВАНЕ НА АДОНИТЕ (Премахваме translations, за да не гърми Java-та)
         if (item.addonConfigs) {

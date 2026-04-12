@@ -36,7 +36,7 @@ import { ILanguage } from '../language/interfaces';
     template: `
         <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()"
                   (visibleChange)="detailService.closeDetail()" [modal]="true"
-                  [style]="{ 'min-width': '1000px', 'min-height': '90vh', width: '1000px' }">
+                  [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -247,7 +247,7 @@ import { ILanguage } from '../language/interfaces';
                                                     </p-button>
                                                 </div>
 
-                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }"
+                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"
                                                           class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>
                                             </div>
 
@@ -269,7 +269,7 @@ import { ILanguage } from '../language/interfaces';
                                                 </div>
 
 
-                                                <p-editor [style]="{ height: '25vh', 'max-width': 'auto' }"
+                                                <p-editor [style]="{ height: '70vh', 'max-width': 'auto' }"
                                                           class="w-full" [(ngModel)]="lang.description"></p-editor>
                                             </div>
                                         </div>
@@ -420,7 +420,7 @@ import { ILanguage } from '../language/interfaces';
                                   (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език"
                                   [style]="{ width: '220px' }"></p-select>
 
-                        <p-select *ngIf="activeTab === '0' || activeTab === '2'"
+                        <p-select *ngIf="activeTab === '2'"
                             appendTo="body"
                             [options]="siteLService.items()"
                             [(ngModel)]="selectedSite"
@@ -429,6 +429,18 @@ import { ILanguage } from '../language/interfaces';
                             [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
                             [style]="{ width: '220px' }"
                             [showClear]="true"
+                        >
+                        </p-select>
+
+                        <p-select *ngIf="activeTab === '0'"
+                                  appendTo="body"
+                                  [options]="siteLService.items()"
+                                  [(ngModel)]="syncSite"
+                                  (onChange)="onSiteChange()"
+                                  optionLabel="name"
+                                  [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
+                                  [style]="{ width: '220px' }"
+                                  [showClear]="true"
                         >
                         </p-select>
                     </div>
@@ -457,6 +469,7 @@ export class WpCategoryDetailComponent {
 
     selectedLanguage: any = null;
     selectedSite: any = null;
+    syncSite: any = null;
 
     activeTab: string | undefined | number = '0';
 
@@ -722,7 +735,7 @@ export class WpCategoryDetailComponent {
 
         if (!item.id || item.id === 0) return item.images;
 
-        if (this.selectedSite) {
+        if (this.syncSite) {
             return item.images.filter(img => {
                 if (img.isTemp) return true;
 
@@ -730,7 +743,7 @@ export class WpCategoryDetailComponent {
                 return img.siteMappings && img.siteMappings.length > 0 && img.siteMappings.some(m => {
                     // Проверяваме всички възможни пътища до ID-то на сайта
                     const mSiteId = (m as any).siteId || (m as any).site?.id;
-                    return mSiteId == this.selectedSite.id;
+                    return mSiteId == this.syncSite.id;
                 });
             });
         }
@@ -779,7 +792,7 @@ export class WpCategoryDetailComponent {
         const item = this.detailService.selectedItem();
         if (item) {
             // Прикачваме избрания сайт, за да знае Java къде да качва/трие снимките
-            item.lastEditedSiteId = this.selectedSite?.id;
+            item.lastEditedSiteId = this.syncSite?.id;
             this.detailService.saveItem(item);
         }
     }
