@@ -283,5 +283,6 @@
   "Addons": "Addons",
   "Global_Addon_Configuration": "Global Addon Configuration",
   "No_addons_configured": "No addons configured",
-  "Delivered": "Delivered"
+  "Delivered": "Delivered",
+  "Descriptions": "Descriptions"
 }

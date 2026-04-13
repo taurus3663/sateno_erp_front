@@ -1,4 +1,4 @@
-import { Component, effect, inject, Signal, signal } from '@angular/core';
+import { Component, computed, effect, HostListener, inject, Signal, signal } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -28,15 +28,17 @@ import { Listbox } from 'primeng/listbox';
 import { WpAddonListService } from '../wp_addon/list.service';
 import { XL_AUTH_CONFIG } from 'xl-auth';
 import { ILanguage } from '../language/interfaces';
+import { readonly } from '@angular/forms/signals';
 
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
     imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Editor, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox],
     template: `
-        <p-dialog [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [visible]="detailService.isVisible()"
+        <p-dialog [visible]="detailService.isVisible()"
                   (visibleChange)="detailService.closeDetail()" [modal]="true"
-                  [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }">
+                  [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }"
+        >
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -53,7 +55,7 @@ import { ILanguage } from '../language/interfaces';
                     <p-tabs [value]="activeTab" (valueChange)="activeTab = $event">
                         <p-tablist>
                             <p-tab value="0"><i class="pi pi-info-circle mr-2"></i>{{ 'Main' | translate }}</p-tab>
-                            <p-tab value="1"><i class="pi pi-language mr-2"></i>{{ 'Translations' | translate }}</p-tab>
+                            <p-tab value="1"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
                             <p-tab value="2"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
                             <p-tab value="3"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
                         </p-tablist>
@@ -223,6 +225,7 @@ import { ILanguage } from '../language/interfaces';
                                                         size="small"
                                                         [loading]="isTranslatingTitle()"
                                                         (onClick)="translateProductContent(lang, isTranslatingTitle, 1)"
+                                                        [hidden]="this.isNewProduct()"
                                                        >
                                                     </p-button>
                                                 </div>
@@ -243,6 +246,7 @@ import { ILanguage } from '../language/interfaces';
                                                         size="small"
                                                         [loading]="isTranslatingShortInformation()"
                                                         (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2)"
+                                                        [hidden]="this.isNewProduct()"
                                                     >
                                                     </p-button>
                                                 </div>
@@ -264,6 +268,7 @@ import { ILanguage } from '../language/interfaces';
                                                         size="small"
                                                         [loading]="isTranslatingInformation()"
                                                         (onClick)="translateProductContent(lang, isTranslatingInformation, 3)"
+                                                        [hidden]="this.isNewProduct()"
                                                     >
                                                     </p-button>
                                                 </div>
@@ -418,7 +423,9 @@ import { ILanguage } from '../language/interfaces';
                     <div class="flex flex-col gap-5">
                         <p-select *ngIf="activeTab === '1'" appendTo="body" [options]="languageLService.items()" [(ngModel)]="selectedLanguage"
                                   (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език"
-                                  [style]="{ width: '220px' }"></p-select>
+                                  [style]="{ width: '220px' }"
+                                  [hidden]="this.isNewProduct()"
+                        ></p-select>
 
                         <p-select *ngIf="activeTab === '2'"
                             appendTo="body"
@@ -429,6 +436,7 @@ import { ILanguage } from '../language/interfaces';
                             [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
                             [style]="{ width: '220px' }"
                             [showClear]="true"
+                            [hidden]="this.isNewProduct()"
                         >
                         </p-select>
 
@@ -441,6 +449,8 @@ import { ILanguage } from '../language/interfaces';
                                   [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
                                   [style]="{ width: '220px' }"
                                   [showClear]="true"
+                                  [disabled]="!detailService.selectedItem()?.id"
+                                  [hidden]="!detailService.selectedItem()?.id"
                         >
                         </p-select>
                     </div>
@@ -514,7 +524,23 @@ export class WpCategoryDetailComponent {
             this.generateProductSaleTypeOptions();
             this.generateStatusOptions();
         });
-        effect(() => {});
+        this.syncSite = null;
+        this.selectedLanguage = null;
+
+        effect(() => {
+            const item = this.detailService.selectedItem();
+            const languages = this.languageLService.items();
+            const sites = this.siteLService.items();
+                if(!item?.id) {
+                    const bgLang = languages.find(l => l.code === 'bg');
+                    if (bgLang) {
+                        this.selectedLanguage = bgLang;
+                        this.onLanguageChange();
+                    }
+                    this.selectedSite = sites.find(value => value.url.includes('sateno.bg'));
+                }
+
+        });
     }
 
     protected productSaleType: any[] = [];
@@ -530,6 +556,11 @@ export class WpCategoryDetailComponent {
                 };
             });
     }
+
+    protected readonly isNewProduct = computed(() => {
+        const item = this.detailService.selectedItem();
+        return !item?.id || item.id === 0;
+    });
 
     protected productStatus: any[] = [];
     private generateStatusOptions() {
@@ -790,11 +821,30 @@ export class WpCategoryDetailComponent {
 // 5. Прехвърляне на ID-то на избрания сайт при запис
     triggerSave() {
         const item = this.detailService.selectedItem();
-        if (item) {
-            // Прикачваме избрания сайт, за да знае Java къде да качва/трие снимките
-            item.lastEditedSiteId = this.syncSite?.id;
-            this.detailService.saveItem(item);
+        if (!item) return;
+
+        item.lastEditedSiteId = this.syncSite?.id;
+
+        // При нов продукт — добави конфигурация за ВСИЧКИ сайтове с 0
+        if (!item.id || item.id === 0) {
+            const allSites = this.siteLService.items();
+
+            for (const site of allSites) {
+                const exists = item.siteConfig?.find(c => c.site?.id === site.id);
+                if (!exists) {
+                    if (!item.siteConfig) item.siteConfig = [];
+                    item.siteConfig.push({
+                        id: -1,
+                        site: { ...site },
+                        price: 0,
+                        regularPrice: 0,
+                        slug: ''
+                    });
+                }
+            }
         }
+
+        this.detailService.saveItem(item);
     }
 
 }
