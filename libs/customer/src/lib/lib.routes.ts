@@ -59,6 +59,10 @@ registerRoute([
     {
         path: 'email/receive/list',
         loadComponent: () => import('./email/receive/list').then(c => c.EmailReceiveListComponent)
+    },
+    {
+        path: 'scheme_wp_product/list',
+        loadComponent: () => import('./wp_product_scheme/list').then(c => c.WpProductSchemeListComponent)
     }
 ]);
     registerMenu([
@@ -83,6 +87,11 @@ registerRoute([
                     icon: PrimeIcons.PALETTE,
                     routerLink: ['/wp_product/list']
                 },
+                {
+                    label: "Шаблон за продукти",
+                    icon: PrimeIcons.DISCORD,
+                    routerLink: ['/scheme_wp_product/list']
+                }
             ]
         },
         {

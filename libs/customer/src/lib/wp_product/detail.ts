@@ -510,7 +510,6 @@ export class WpCategoryDetailComponent {
     onSiteChange() {}
 
     constructor() {
-        this.activeTab = "0";
         this.languageLService.loadList(0, 1000);
         this.siteLService.loadList(0, 1000);
         this.brandLService.loadList(0, 1000);
@@ -524,10 +523,11 @@ export class WpCategoryDetailComponent {
             this.generateProductSaleTypeOptions();
             this.generateStatusOptions();
         });
-        this.syncSite = null;
-        this.selectedLanguage = null;
-
         effect(() => {
+            this.activeTab = "0";
+            this.syncSite = null;
+            this.selectedLanguage = null;
+            this. selectedSite = null;
             const item = this.detailService.selectedItem();
             const languages = this.languageLService.items();
             const sites = this.siteLService.items();

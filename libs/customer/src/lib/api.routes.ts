@@ -3,9 +3,10 @@ export class apiRoutes {
     private crud(base: string) {
         return {
             list: `${base}/list`,
-            get: `${base}/detail`,
+            getd: `${base}/detail`,
             save: `${base}/save`,
-            delete: `${base}/delete`
+            delete: `${base}/delete`,
+            get: `${base}`,
         };
     }
 
@@ -154,6 +155,11 @@ export class apiRoutes {
     public readonly checkout = {
         recalculate_price: `${apiRoutes.checkout}/recalculate-price`,
         recalculate_price_custom_field: `${apiRoutes.checkout}/recalculate-price-custom-field-shipping-price`,
+    }
+
+    private static readonly schemeWpproduct = 'scheme_wp_product';
+    public readonly schemeWpproduct = {
+        ...this.crud(apiRoutes.schemeWpproduct),
     }
 
 }
