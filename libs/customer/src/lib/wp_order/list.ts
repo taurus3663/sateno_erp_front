@@ -616,7 +616,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
     onLazyLoad(event: any) {
         // 1. Вземаме филтрите от събитието на таблицата
-        const filters = { ...event.filters };
+        let filters = { ...event.filters };
 
         if (this.selectedStatus && !filters['status']) {
             filters['status'] = { value: this.selectedStatus, matchMode: 'equals' };
@@ -626,7 +626,9 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // 2. ПРОВЕРКА: Ако този конкретен компонент е отворен в диалог с телефон
         if (this.config?.data?.filterPhone) {
             // Налагаме филтъра по телефон, за да не го изгубим при смяна на страница
+            filters = [];
             filters['phone'] = { value: this.config.data.filterPhone, matchMode: 'equals' };
+
         }
 
         this.lastParams = {
