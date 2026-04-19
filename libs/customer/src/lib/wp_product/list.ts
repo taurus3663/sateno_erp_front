@@ -98,7 +98,7 @@ import { InputText } from 'primeng/inputtext';
                                 pInputText
                                 type="text"
                                 [(ngModel)]="searchValue"
-                                (input)="onSearch($event)"
+                                (keyup.enter)="onSearch($event)"
                                 [placeholder]="'Search_by_name_or_sku...' | translate"
                                 class="p-inputtext-sm w-full md:w-25rem border-round-xl shadow-1"
                             />
@@ -413,7 +413,7 @@ export class WpProductListComponent {
 
         this.searchTimeout = setTimeout(() => {
             // Копираме текущите филтри, за да не загубим избрания статус
-            const filters = { ...this.lastParams.filters };
+            let filters = { ...this.lastParams.filters };
 
             if (value && value.trim() !== '') {
                 // 'customer' е името на параметъра, който Java-та ще очаква

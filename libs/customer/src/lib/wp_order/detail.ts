@@ -567,8 +567,8 @@ import { ShipmentService } from './shipment.service';
 
             <ng-template #footer>
                 <span *ngIf="detailService.selectedItem()?.ordersToMerge?.length" class="mr-3 text-green-600 font-bold"> <i class="pi pi-info-circle"></i> Ще бъдат обединени {{ detailService.selectedItem()?.ordersToMerge?.length }} поръчки </span>
-                <p-button label="Отказ" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
-                <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"  (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                <p-button [label]="'Cancel' | translate" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
+                <p-button [label]="'Save' | translate" icon="pi pi-check" [loading]="detailService.isSaving()"  (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
             </ng-template>
         </p-dialog>
     `

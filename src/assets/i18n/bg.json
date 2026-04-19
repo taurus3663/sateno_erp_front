@@ -286,5 +286,8 @@
   "Global_Addon_Configuration": "Global Addon Configuration",
   "No_addons_configured": "No addons configured",
   "Delivered": "Доставен",
-  "Descriptions": "Описание"
+  "Descriptions": "Описание",
+  "of": "от",
+  "No_records_found": "Няма намерени записи",
+  "Scheme": "Шаблон"
 }

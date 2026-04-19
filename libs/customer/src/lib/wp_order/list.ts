@@ -93,7 +93,7 @@ import { Select } from 'primeng/select';
             <ng-template #end>
                 <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">
                     <p-inputicon styleClass="pi pi-search" />
-                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search_by_name_or_phone...' | translate" class="p-inputtext-sm w-full md:w-20rem" />
+                    <input pInputText type="text" [(ngModel)]="searchValue" (keyup.enter)="onSearch($event)" [placeholder]="'Search_by_name_or_phone...' | translate" class="p-inputtext-sm w-full md:w-20rem" />
                     <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
                 </p-iconfield>
             </ng-template>
@@ -931,6 +931,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
     onSearch(event: any) {
         // Взимаме стойността независимо дали е събитие или директен низ
         const value = event?.target?.value !== undefined ? event.target.value : event;
+        console.log(value);
         this.executeSearch(value);
     }
 
@@ -953,9 +954,10 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
         this.searchTimeout = setTimeout(() => {
             // Копираме текущите филтри, за да не загубим избрания статус
-            const filters = { ...this.lastParams.filters };
+            let filters = { ...this.lastParams.filters };
 
             if (value && value.trim() !== '') {
+                filters = {};
                 // 'customer' е името на параметъра, който Java-та ще очаква
                 filters['customer'] = { value: value.trim(), matchMode: 'contains' };
             } else {
@@ -968,7 +970,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
             this.listService.loadStatusStats();
 
             // Обновяваме локалното състояние
-            this.lastParams.filters = filters;
+            // this.lastParams.filters = filters;
+            this.lastParams.filters = {...this.lastParams.filters};
             this.lastParams.first = 0;
         }, 400); // 400ms е златната среда за изчакване
     }

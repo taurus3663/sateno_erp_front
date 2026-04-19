@@ -284,5 +284,8 @@
   "Global_Addon_Configuration": "Global Addon Configuration",
   "No_addons_configured": "No addons configured",
   "Delivered": "Delivered",
-  "Descriptions": "Descriptions"
+  "Descriptions": "Descriptions",
+  "of": "of",
+  "No_records_found": "No records found",
+  "Scheme": "Scheme"
 }
