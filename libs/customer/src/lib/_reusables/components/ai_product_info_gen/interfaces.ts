@@ -6,5 +6,5 @@ export interface IAIProductInfoGen {
     refinement: string;
     tempImages?: IWpImage[];
     productInfo?: IWpProduct;
-
+    responseAI?: string;
 }

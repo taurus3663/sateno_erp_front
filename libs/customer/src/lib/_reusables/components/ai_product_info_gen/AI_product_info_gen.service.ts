@@ -27,6 +27,6 @@ export class AIProductInfoGenService {
         payload.productInfo = this.wpProductDetailService.selectedItem()!;
 
 
-        return this.http.post<IAIProductInfoGen>(`${ROUTES}`, payload);
+        return this.http.post<IAIProductInfoGen>(`${ROUTES.wp_product.ai_gen}`, payload);
     }
 }

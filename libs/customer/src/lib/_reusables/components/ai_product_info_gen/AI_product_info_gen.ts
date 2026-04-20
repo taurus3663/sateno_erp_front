@@ -139,16 +139,20 @@ export class AIProductInfoGenComponent {
 
         this.aiProductDetailService.generateContent(payload)
             .subscribe(value => {
-                console.log(value);
+                console.log(value.responseAI);
+                this.aiResponse.set(value.responseAI!);
+                this.isGenerating.set(false);
+                this.showRefineArea.set(false);
+                this.userRefinement.set('');
             });
 
         // Симулация на AI отговор
-        setTimeout(() => {
-            this.aiResponse.set('Генериран текст от AI за стъпка ' + this.currentStep());
-            this.isGenerating.set(false);
-            this.showRefineArea.set(false);
-            this.userRefinement.set('');
-        }, 1500);
+        // setTimeout(() => {
+        //     this.aiResponse.set('Генериран текст от AI за стъпка ' + this.currentStep());
+        //     this.isGenerating.set(false);
+        //     this.showRefineArea.set(false);
+        //     this.userRefinement.set('');
+        // }, 1500);
     }
 
     applyAndContinue() {

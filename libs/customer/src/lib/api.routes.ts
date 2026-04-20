@@ -95,6 +95,7 @@ export class apiRoutes {
         get_selected_addon_values: `${apiRoutes.wpProductBase}/get_addon_values`,
         patch: `${apiRoutes.wpProductBase}/patch`,
         translateProductContent: `${apiRoutes.wpProductBase}/translate/content`,
+        ai_gen: `${apiRoutes.wpProductBase}/ai_product_gen`,
     }
 
     private static readonly wpBrandBase = 'wp_brand';
@@ -160,11 +161,6 @@ export class apiRoutes {
     private static readonly schemeWpproduct = 'scheme_wp_product';
     public readonly schemeWpproduct = {
         ...this.crud(apiRoutes.schemeWpproduct),
-    }
-
-    private static readonly aiProductInfoGen = 'ai_product_info_gen';
-    public readonly aiProductInfoGen = {
-        ...this.crud(apiRoutes.aiProductInfoGen),
     }
 
 }
