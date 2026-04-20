@@ -1,4 +1,4 @@
-import { Component, computed, effect, HostListener, inject, Signal, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, effect, HostListener, inject, Signal, signal } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -860,15 +860,29 @@ export class WpCategoryDetailComponent {
     }
 
     private dialogService = inject(DialogService);
+    private cdr = inject(ChangeDetectorRef);
     openAIProductInfoGen(product: IWpProduct) {
-        this.dialogService.open(AIProductInfoGenComponent, {
-            header: this.tr.instant('AI'), // Заглавие на прозореца
-            width: '650px',                          // Твърда ширина// Автоматична височина спрямо контента
-            contentStyle: { "overflow": "visible" }, // Позволява на Select и другите да не се режат
+        const ref = this.dialogService.open(AIProductInfoGenComponent, {
+            header: this.tr.instant('AI'),
+            width: '650px',
+            contentStyle: { "overflow": "visible" },
             baseZIndex: 10000,
-            maximizable: true,                      // Дали да може да се разпъва на цял екран
-            data: {
-                product: product                     // ТУК предаваме продукта, за да го ползваш в AI компонента
+            maximizable: true,
+            data: { product: product }
+        });
+
+        ref!.onClose.subscribe((generatedTexts: { [key: number]: string }) => {
+            if (generatedTexts) {
+                // ИЗПОЛЗВАМЕ setTimeout, за да избегнем NG0100
+                setTimeout(() => {
+                    const translation = product.translations[0];
+
+                    if (generatedTexts[1]) translation.name = generatedTexts[1];
+                    if (generatedTexts[2]) translation.shortDescription = generatedTexts[2];
+                    if (generatedTexts[3]) translation.description = generatedTexts[3];
+
+                    this.cdr.detectChanges();
+                });
             }
         });
     }

@@ -43,7 +43,7 @@ import { IAIProductInfoGen } from './interfaces';
                             <span class="text-gray-500 italic">{{ 'AI_is_thinking' | translate }}...</span>
                         </div>
 
-                        <div *ngIf="!isGenerating()" class="text-900 line-height-3">
+                        <div *ngIf="!isGenerating()" class="text-900 line-height-3" style="white-space: pre-wrap;">
                             <i class="pi pi-android mr-2 text-primary font-bold"></i>
                             {{ aiResponse() }}
                         </div>
@@ -96,6 +96,8 @@ export class AIProductInfoGenComponent {
     showRefineArea = signal(false);
     userRefinement = signal('');
 
+    private generatedTexts: { [key: number]: string } = {};
+
     constructor() {
         // Зареждаме шаблоните (указанията) при старт
         this.schemeService.loadList(0, 1000);
@@ -111,7 +113,7 @@ export class AIProductInfoGenComponent {
             this.currentStep.update((s) => s + 1);
             this.generateAI();
         } else {
-            this.ref.close(); // Финал
+            this.ref.close(this.generatedTexts);
         }
     }
 
@@ -156,12 +158,19 @@ export class AIProductInfoGenComponent {
     }
 
     applyAndContinue() {
-        const result = {
-            step: this.currentStep(),
-            text: this.aiResponse()
-        };
-        // Можеш да ползваш callback или да записваш в обекта директно през сервиз
-        console.log('Applying text to field...', result);
+        if (this.aiResponse()) {
+            // Запаметяваме текста за текущата стъпка
+            this.generatedTexts[this.currentStep()] = this.aiResponse();
+        }
+
+        console.log(`Saved text for step ${this.currentStep()}:`, this.aiResponse());
         this.next();
+        // const result = {
+        //     step: this.currentStep(),
+        //     text: this.aiResponse()
+        // };
+        // // Можеш да ползваш callback или да записваш в обекта директно през сервиз
+        // console.log('Applying text to field...', result);
+        // this.next();
     }
 }
