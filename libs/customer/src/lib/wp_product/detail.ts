@@ -29,6 +29,8 @@ import { WpAddonListService } from '../wp_addon/list.service';
 import { XL_AUTH_CONFIG } from 'xl-auth';
 import { ILanguage } from '../language/interfaces';
 import { readonly } from '@angular/forms/signals';
+import { DialogService } from 'primeng/dynamicdialog';
+import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_info_gen/AI_product_info_gen';
 
 @Component({
     selector: 'wp_product-detail',
@@ -216,6 +218,16 @@ import { readonly } from '@angular/forms/signals';
                                                     <label class="font-bold">
                                                         {{ 'Product_Name' | translate }}
                                                     </label>
+
+                                                    <p-button
+                                                        [label]="'Gen_by_AI' | translate"
+                                                        icon="pi pi-android"
+                                                        severity="help"
+                                                        [outlined]="true"
+                                                        size="small"
+                                                        (onClick)="openAIProductInfoGen(item)"
+                                                        >
+                                                    </p-button>
 
                                                     <p-button
                                                         [label]="'Auto_Translate_To_Other_Languages' | translate"
@@ -845,6 +857,20 @@ export class WpCategoryDetailComponent {
         }
 
         this.detailService.saveItem(item);
+    }
+
+    private dialogService = inject(DialogService);
+    openAIProductInfoGen(product: IWpProduct) {
+        this.dialogService.open(AIProductInfoGenComponent, {
+            header: this.tr.instant('AI'), // Заглавие на прозореца
+            width: '650px',                          // Твърда ширина// Автоматична височина спрямо контента
+            contentStyle: { "overflow": "visible" }, // Позволява на Select и другите да не се режат
+            baseZIndex: 10000,
+            maximizable: true,                      // Дали да може да се разпъва на цял екран
+            data: {
+                product: product                     // ТУК предаваме продукта, за да го ползваш в AI компонента
+            }
+        });
     }
 
 }

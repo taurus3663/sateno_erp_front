@@ -162,6 +162,11 @@ export class apiRoutes {
         ...this.crud(apiRoutes.schemeWpproduct),
     }
 
+    private static readonly aiProductInfoGen = 'ai_product_info_gen';
+    public readonly aiProductInfoGen = {
+        ...this.crud(apiRoutes.aiProductInfoGen),
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

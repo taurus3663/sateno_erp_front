@@ -287,5 +287,16 @@
   "Descriptions": "Descriptions",
   "of": "of",
   "No_records_found": "No records found",
-  "Scheme": "Scheme"
+  "Scheme": "Scheme",
+  "Instruction": "Instruction",
+  "Gen_by_AI": "Gen by AI",
+  "Choose_AI_Instruction_Template": "Choose AI Instruction Template",
+  "AI_is_thinking": "AI is thinking",
+  "Refine": "Refine",
+  "Apply_&_Next": "Apply & Next",
+  "Add_specific_instruction": "Add specific instruction",
+  "Send": "Send",
+  "Back": "Back",
+  "Next": "Next",
+  "Select_scheme": "Select scheme"
 }
