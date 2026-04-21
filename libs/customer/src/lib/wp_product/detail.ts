@@ -31,6 +31,7 @@ import { ILanguage } from '../language/interfaces';
 import { readonly } from '@angular/forms/signals';
 import { DialogService } from 'primeng/dynamicdialog';
 import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_info_gen/AI_product_info_gen';
+import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 
 @Component({
     selector: 'wp_product-detail',
@@ -57,9 +58,10 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                     <p-tabs [value]="activeTab" (valueChange)="activeTab = $event">
                         <p-tablist>
                             <p-tab value="0"><i class="pi pi-info-circle mr-2"></i>{{ 'Main' | translate }}</p-tab>
-                            <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
-                            <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
                             <p-tab value="3" [disabled]="isNewProduct() && activeTab !== '3'"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
+                            <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
+                            <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
+
                         </p-tablist>
 
                         <p-tabpanels>
@@ -452,6 +454,7 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                                   (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език"
                                   [style]="{ width: '220px' }"
                                   [hidden]="this.isNewProduct()"
+                                  [disabled]="!isNewProduct() && !allProducts"
                         ></p-select>
 
                         <p-select *ngIf="activeTab === '2'"
@@ -464,6 +467,7 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                             [style]="{ width: '220px' }"
                             [showClear]="true"
                             [hidden]="this.isNewProduct()"
+                            [disabled]="!isNewProduct() && !allProducts"
                         >
                         </p-select>
 
@@ -476,7 +480,7 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                                   [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
                                   [style]="{ width: '220px' }"
                                   [showClear]="true"
-                                  [disabled]="!detailService.selectedItem()?.id"
+                                  [disabled]="!detailService.selectedItem()?.id || !isNewProduct() && !allProducts"
                                   [hidden]="!detailService.selectedItem()?.id"
                         >
                         </p-select>
@@ -521,6 +525,7 @@ export class WpCategoryDetailComponent {
     selectedLanguage: any = null;
     selectedSite: any = null;
     syncSite: any = null;
+    allProducts: boolean = false;
 
     activeTab: string | undefined | number = '0';
 
@@ -581,6 +586,52 @@ export class WpCategoryDetailComponent {
                     this.selectedSite = sites.find(value => value.url.includes('sateno.bg'));
                 }
 
+        });
+
+        this.allProducts = false;
+        effect(() => {
+            const item = this.detailService.selectedItem();
+            const isVisible = this.detailService.isVisible();
+
+            if (isVisible && item?.id && item.id !== 0) {
+                setTimeout(() => {
+                    const sites = this.siteLService.items();
+                    if (sites.length > 0) {
+
+                        const ref = this.dialogService.open(SiteSelectorComponent, {
+                            header: this.tr.instant('Choose'),
+                            width: '450px',
+                            data: { label: ' ', sites: sites } // Подаваме сайтовете, ако компонента ги очаква
+                        });
+
+                        ref?.onClose.subscribe((site: any) => {
+                            // Проверяваме дали е върнат обект или ID (зависи какво връща SiteSelectorComponent)
+                            if (site) {
+                                // Тъй като вече имаме избрания обект/ID, го сетваме директно
+                                this.selectedSite = sites[site];
+                                this.syncSite = sites[site];
+
+                                // Автоматично избираме Български език
+                                const languages = this.languageLService.items();
+                                this.selectedLanguage = languages.find(l => l.code === 'bg');
+
+                                // Извикваме логиката за промяна на език
+                                this.onLanguageChange();
+
+                                this.allProducts = false;
+                            } else {
+                                this.allProducts = true;
+                            }
+                            // Ръчно казваме на Angular да отрази промените и да заключи селектите
+                            this.cdr.detectChanges();
+                        });
+                    }
+                }, 100);
+            }
+
+            if (isVisible && (!item?.id || item.id === 0)) {
+                this.activeTab = "0";
+            }
         });
     }
 
