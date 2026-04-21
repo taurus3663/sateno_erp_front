@@ -298,5 +298,7 @@
   "Send": "Send",
   "Back": "Back",
   "Next": "Next",
-  "Select_scheme": "Select scheme"
+  "Select_scheme": "Select scheme",
+  "Title": "Title",
+  "Short": "Short"
 }

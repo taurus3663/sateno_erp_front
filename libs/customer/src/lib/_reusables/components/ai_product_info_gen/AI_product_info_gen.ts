@@ -141,7 +141,6 @@ export class AIProductInfoGenComponent {
 
         this.aiProductDetailService.generateContent(payload)
             .subscribe(value => {
-                console.log(value.responseAI);
                 this.aiResponse.set(value.responseAI!);
                 this.isGenerating.set(false);
                 this.showRefineArea.set(false);
@@ -162,8 +161,6 @@ export class AIProductInfoGenComponent {
             // Запаметяваме текста за текущата стъпка
             this.generatedTexts[this.currentStep()] = this.aiResponse();
         }
-
-        console.log(`Saved text for step ${this.currentStep()}:`, this.aiResponse());
         this.next();
         // const result = {
         //     step: this.currentStep(),

@@ -35,7 +35,7 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, Editor, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox],
     template: `
         <p-dialog [visible]="detailService.isVisible()"
                   (visibleChange)="detailService.closeDetail()" [modal]="true"
@@ -57,9 +57,9 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                     <p-tabs [value]="activeTab" (valueChange)="activeTab = $event">
                         <p-tablist>
                             <p-tab value="0"><i class="pi pi-info-circle mr-2"></i>{{ 'Main' | translate }}</p-tab>
-                            <p-tab value="1"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
-                            <p-tab value="2"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
-                            <p-tab value="3"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
+                            <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
+                            <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
+                            <p-tab value="3" [disabled]="isNewProduct() && activeTab !== '3'"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
                         </p-tablist>
 
                         <p-tabpanels>
@@ -263,8 +263,15 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                                                     </p-button>
                                                 </div>
 
-                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"
-                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>
+<!--                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"-->
+<!--                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>-->
+
+                                                <textarea
+                                                    [style]="{ height: '70vh', 'max-width': 'auto' }"
+                                                    class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.shortDescription"
+                                                >
+
+                                                </textarea>
                                             </div>
 
                                             <div class="col-span-12">
@@ -286,8 +293,16 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                                                 </div>
 
 
-                                                <p-editor [style]="{ height: '70vh', 'max-width': 'auto' }"
-                                                          class="w-full" [(ngModel)]="lang.description"></p-editor>
+<!--                                                <p-editor [style]="{ height: '70vh', 'max-width': 'auto' }"-->
+<!--                                                          class="w-full" [(ngModel)]="lang.description"></p-editor>-->
+                                                <textarea
+                                                    [style]="{ height: '70vh', 'max-width': 'auto' }"
+                                                    class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.description"
+                                                >
+
+                                                </textarea>
+
+
                                             </div>
                                         </div>
                                     </ng-container>
@@ -468,16 +483,30 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
                     </div>
 
                     <div class="flex gap-2 items-end">
-                        <p-button label="Отказ" severity="secondary" [text]="true"
-                                  (onClick)="detailService.closeDetail()" />
-
-                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"
-                                  (onClick)="triggerSave()" />
+<!--                        <p-button label="Отказ" severity="secondary" [text]="true"-->
+<!--                                  (onClick)="detailService.closeDetail()" />-->
+                        <p-button [label]="'Cancel' | translate" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()"></p-button>
+<!--                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"-->
+<!--                                  (onClick)="triggerSave()" />-->
+                        <p-button
+                            [label]="(shouldShowNextButton() ? 'Next' : 'Save') | translate"
+                            [icon]="shouldShowNextButton() ? 'pi pi-chevron-right' : 'pi pi-check'"
+                            [iconPos]="shouldShowNextButton() ? 'right' : 'left'"
+                            [loading]="detailService.isSaving()"
+                            (onClick)="handleMainAction()">
+                        </p-button>
                     </div>
                 </div>
             </ng-template>
         </p-dialog>
-    `
+    `,
+    styles: [
+        `
+            :host ::ng-deep .p-textarea {
+                border: 1px solid #d1d5db !important; /* Стандартен сив бордер */
+                border-radius: 6px;
+            }`
+    ]
 })
 export class WpCategoryDetailComponent {
     protected detailService = inject(WpProductDetailService);
@@ -873,11 +902,25 @@ export class WpCategoryDetailComponent {
 
         ref!.onClose.subscribe((generatedTexts: { [key: number]: string }) => {
             if (generatedTexts) {
-                // ИЗПОЛЗВАМЕ setTimeout, за да избегнем NG0100
                 setTimeout(() => {
                     const translation = product.translations[0];
 
-                    if (generatedTexts[1]) translation.name = generatedTexts[1];
+                    // Функцията, която превръща чистия текст в HTML за p-editor
+                    // const formatForEditor = (text: string) => {
+                    //     if (!text) return '';
+                    //
+                    //     // 1. Изчистваме евентуални ескейпнати символи
+                    //     const cleanText = text.replace(/\\n/g, '\n').trim();
+                    //
+                    //     // 2. Разделяме текста на параграфи по двойните нови редове
+                    //     // и ги обвиваме в <p> тагове
+                    //     return cleanText
+                    //         .split(/\n\s*\n/) // разделя при празен ред
+                    //         .map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`) // превръща единичен Enter в <br>
+                    //         .join('');
+                    // };
+
+                    if (generatedTexts[1]) translation.name = generatedTexts[1]; // Името обикновено е чист текст
                     if (generatedTexts[2]) translation.shortDescription = generatedTexts[2];
                     if (generatedTexts[3]) translation.description = generatedTexts[3];
 
@@ -885,6 +928,61 @@ export class WpCategoryDetailComponent {
                 });
             }
         });
+    }
+
+
+
+
+//
+    shouldShowNextButton(): boolean {
+        // Показваме "Напред" само ако е нов продукт И не сме на последната стъпка
+        return this.isNewProduct() && this.activeTab !== '1';
+    }
+
+    handleMainAction() {
+        if (this.isNewProduct()) {
+            this.runWizardLogic();
+        } else {
+            this.triggerSave(); // При редакция записваме директно от всякакъв таб
+        }
+    }
+
+    private runWizardLogic() {
+        const item = this.detailService.selectedItem();
+        if (!item) return;
+
+        // СТЪПКА 0: НАЧАЛО
+        if (this.activeTab === "0") {
+            const hasAddons = confirm("Има ли този продукт адони (опции)?");
+            this.activeTab = hasAddons ? "3" : "2";
+            return;
+        }
+
+        // СТЪПКА 3: АДОНИ
+        if (this.activeTab === "3") {
+            if (!item.addonConfigs || item.addonConfigs.length === 0) {
+                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Задължително добавете поне един адон.' });
+                return;
+            }
+            this.activeTab = "2"; // Към Цени
+            return;
+        }
+
+        // СТЪПКА 2: ЦЕНИ
+        if (this.activeTab === "2") {
+            const pricing = this.currentSitePricing;
+            if (!pricing || !pricing.regularPrice || pricing.regularPrice <= 0) {
+                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Нормалната цена трябва да е по-голяма от 0.' });
+                return;
+            }
+            this.activeTab = "1"; // Към Описание
+            return;
+        }
+
+        // ПОСЛЕДНА СТЪПКА: ЗАПИС
+        if (this.activeTab === "1") {
+            this.triggerSave();
+        }
     }
 
 }
