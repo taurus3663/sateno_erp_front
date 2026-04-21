@@ -17,7 +17,7 @@ import { WpBrandListService } from '../wp_brand/list.service';
 import { Editor } from 'primeng/editor';
 import { MultiSelect } from 'primeng/multiselect';
 import { TreeSelect } from 'primeng/treeselect';
-import { MessageService, PrimeTemplate } from 'primeng/api';
+import { ConfirmationService, MessageService, PrimeTemplate } from 'primeng/api';
 import { FileUpload } from 'primeng/fileupload';
 import { ROUTES } from '../api.routes';
 import { Tooltip } from 'primeng/tooltip';
@@ -32,16 +32,15 @@ import { readonly } from '@angular/forms/signals';
 import { DialogService } from 'primeng/dynamicdialog';
 import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_info_gen/AI_product_info_gen';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { forkJoin, tap } from 'rxjs';
 
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
     imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox],
     template: `
-        <p-dialog [visible]="detailService.isVisible()"
-                  (visibleChange)="detailService.closeDetail()" [modal]="true"
-                  [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }"
-        >
+        <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
 -->
             <ng-template #header>
@@ -61,7 +60,6 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                             <p-tab value="3" [disabled]="isNewProduct() && activeTab !== '3'"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
                             <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
                             <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
-
                         </p-tablist>
 
                         <p-tabpanels>
@@ -69,22 +67,18 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                 <div class="grid grid-cols-12 gap-4 pt-4">
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Status' | translate }}</label>
-                                        <p-select [options]="productStatus" [(ngModel)]="item.status"
-                                                  optionLabel="label" optionValue="value" class="w-full"></p-select>
+                                        <p-select [options]="productStatus" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full"></p-select>
                                     </div>
 
                                     <div class="col-span-2 ml-10">
                                         <label class="block font-bold mb-2">{{ 'SKU' | translate }}</label>
-                                        <input pInputText class="w-full" readonly [value]="item?.sku?? ''" />
+                                        <input pInputText class="w-full" readonly [value]="item?.sku ?? ''" />
                                     </div>
 
                                     <div class="col-span-12 mt-4">
-                                        <label class="block font-bold mb-2 text-900"> <i
-                                            class="pi pi-images mr-2 text-primary"></i>{{ 'Images' | translate }}
-                                        </label>
+                                        <label class="block font-bold mb-2 text-900"> <i class="pi pi-images mr-2 text-primary"></i>{{ 'Images' | translate }} </label>
 
-                                        <div
-                                            class="p-4 border-1 border-surface-200 border-round bg-surface-50 shadow-sm">
+                                        <div class="p-4 border-1 border-surface-200 border-round bg-surface-50 shadow-sm">
                                             <p-fileupload
                                                 name="file"
                                                 [url]="uploadUrl"
@@ -101,48 +95,41 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                             >
                                             </p-fileupload>
 
-<!--                                            <div class="grid grid-cols-12 gap-3" *ngIf="item?.images?.length">-->
-<!--                                                <div *ngFor="let img of item.images; let i = index"-->
-<!--                                                     class="col-span-4 md:col-span-2 relative group">-->
-<!--                                                    <div-->
-<!--                                                        class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"-->
-<!--                                                        [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">-->
-<!--                                                        <img [src]="baseUrl + img.localSrc"-->
-<!--                                                             style="width: 130px;height: auto;"-->
-<!--                                                             class="h-8rem object-cover block cursor-pointer"-->
-<!--                                                             alt="Product thumbnail" />-->
+                                            <!--                                            <div class="grid grid-cols-12 gap-3" *ngIf="item?.images?.length">-->
+                                            <!--                                                <div *ngFor="let img of item.images; let i = index"-->
+                                            <!--                                                     class="col-span-4 md:col-span-2 relative group">-->
+                                            <!--                                                    <div-->
+                                            <!--                                                        class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"-->
+                                            <!--                                                        [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">-->
+                                            <!--                                                        <img [src]="baseUrl + img.localSrc"-->
+                                            <!--                                                             style="width: 130px;height: auto;"-->
+                                            <!--                                                             class="h-8rem object-cover block cursor-pointer"-->
+                                            <!--                                                             alt="Product thumbnail" />-->
 
-<!--                                                        <span *ngIf="img.isTemp"-->
-<!--                                                              class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>-->
+                                            <!--                                                        <span *ngIf="img.isTemp"-->
+                                            <!--                                                              class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>-->
 
-<!--                                                        <div-->
-<!--                                                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">-->
-<!--                                                            <p-button icon="pi pi-trash" severity="danger"-->
-<!--                                                                      [rounded]="true" size="small"-->
-<!--                                                                      pTooltip="{{ 'Remove' | translate }}"-->
-<!--                                                                      (onClick)="removeImage(i)"></p-button>-->
-<!--                                                            <p-button icon="pi pi-search-plus" severity="secondary"-->
-<!--                                                                      [rounded]="true" size="small"-->
-<!--                                                                      (onClick)="viewImage(img.localSrc)"></p-button>-->
-<!--                                                        </div>-->
-<!--                                                    </div>-->
-<!--                                                </div>-->
-<!--                                            </div>-->
+                                            <!--                                                        <div-->
+                                            <!--                                                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">-->
+                                            <!--                                                            <p-button icon="pi pi-trash" severity="danger"-->
+                                            <!--                                                                      [rounded]="true" size="small"-->
+                                            <!--                                                                      pTooltip="{{ 'Remove' | translate }}"-->
+                                            <!--                                                                      (onClick)="removeImage(i)"></p-button>-->
+                                            <!--                                                            <p-button icon="pi pi-search-plus" severity="secondary"-->
+                                            <!--                                                                      [rounded]="true" size="small"-->
+                                            <!--                                                                      (onClick)="viewImage(img.localSrc)"></p-button>-->
+                                            <!--                                                        </div>-->
+                                            <!--                                                    </div>-->
+                                            <!--                                                </div>-->
+                                            <!--                                            </div>-->
                                             <div class="grid grid-cols-12 gap-3" *ngIf="filteredImages.length">
-                                                <div *ngFor="let img of filteredImages; let i = index"
-                                                     class="col-span-4 md:col-span-2 relative group">
-                                                    <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"
-                                                         [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
-
-                                                        <img [src]="baseUrl + img.localSrc"
-                                                             style="width: 130px;height: auto;"
-                                                             class="h-8rem object-cover block cursor-pointer" />
+                                                <div *ngFor="let img of filteredImages; let i = index" class="col-span-4 md:col-span-2 relative group">
+                                                    <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4" [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
+                                                        <img [src]="baseUrl + img.localSrc" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" />
 
                                                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small"
-                                                                      (onClick)="removeImage(i)"></p-button>
-                                                            <p-button icon="pi pi-search-plus" severity="secondary" [rounded]="true" size="small"
-                                                                      (onClick)="viewImage(img.localSrc)"></p-button>
+                                                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small" (onClick)="removeImage(i)"></p-button>
+                                                            <p-button icon="pi pi-search-plus" severity="secondary" [rounded]="true" size="small" (onClick)="viewImage(img.localSrc)"></p-button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -152,20 +139,12 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 
                                     <div class="col-span-3" *ngIf="productSaleType.length > 0">
                                         <label class="block font-bold mb-2">{{ 'Limited' | translate }}</label>
-                                        <p-select
-                                            [options]="productSaleType"
-                                            [(ngModel)]="item.saleType"
-                                            optionLabel="label"
-                                            optionValue="value"
-                                            placeholder="Select Type"
-                                            class="w-full">
-                                        </p-select>
+                                        <p-select [options]="productSaleType" [(ngModel)]="item.saleType" optionLabel="label" optionValue="value" placeholder="Select Type" class="w-full"> </p-select>
                                     </div>
 
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Quantity' | translate }}</label>
-                                        <p-inputNumber [(ngModel)]="item.stockQuantity" class="w-full"
-                                                       styleClass="w-full"></p-inputNumber>
+                                        <p-inputNumber [(ngModel)]="item.stockQuantity" class="w-full" styleClass="w-full"></p-inputNumber>
                                     </div>
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Weight' | translate }}</label>
@@ -174,8 +153,7 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 
                                     <div class="col-span-12 mt-3">
                                         <label class="block font-bold mb-2">{{ 'Brand' | translate }}</label>
-                                        <p-select [options]="brandLService.items()" [(ngModel)]="item.brand"
-                                                  optionLabel="name" class="w-full"></p-select>
+                                        <p-select [options]="brandLService.items()" [(ngModel)]="item.brand" optionLabel="name" class="w-full"></p-select>
                                     </div>
 
                                     <div class="col-span-12 mt-3">
@@ -196,14 +174,11 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                             <ng-template pTemplate="value" let-value>
                                                 <div class="flex items-center gap-1" *ngIf="value && value.length > 0">
                                                     <ng-container *ngFor="let node of value | slice: 0 : 2">
-                                                        <span
-                                                            class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm border border-blue-200">
+                                                        <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-sm border border-blue-200">
                                                             {{ $any(node).label }}
                                                         </span>
                                                     </ng-container>
-                                                    <span *ngIf="value.length > 2"
-                                                          class="text-sm font-bold text-gray-500 ml-1"> + {{ value.length - 2 }}
-                                                        още </span>
+                                                    <span *ngIf="value.length > 2" class="text-sm font-bold text-gray-500 ml-1"> + {{ value.length - 2 }} още </span>
                                                 </div>
                                             </ng-template>
                                         </p-treeSelect>
@@ -213,23 +188,14 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                             <p-tabpanel value="1">
                                 <div class="pt-4">
                                     <ng-container *ngFor="let lang of item.translations">
-                                        <div class="grid grid-cols-12 gap-4"
-                                             *ngIf="lang.language.id === selectedLanguage?.id">
+                                        <div class="grid grid-cols-12 gap-4" *ngIf="lang.language.id === selectedLanguage?.id">
                                             <div class="col-span-12">
                                                 <div class="flex justify-between items-center mb-2">
                                                     <label class="font-bold">
                                                         {{ 'Product_Name' | translate }}
                                                     </label>
 
-                                                    <p-button
-                                                        [label]="'Gen_by_AI' | translate"
-                                                        icon="pi pi-android"
-                                                        severity="help"
-                                                        [outlined]="true"
-                                                        size="small"
-                                                        (onClick)="openAIProductInfoGen(item)"
-                                                        >
-                                                    </p-button>
+                                                    <p-button [label]="'Gen_by_AI' | translate" icon="pi pi-android" severity="help" [outlined]="true" size="small" (onClick)="openAIProductInfoGen(item)"> </p-button>
 
                                                     <p-button
                                                         [label]="'Auto_Translate_To_Other_Languages' | translate"
@@ -240,18 +206,16 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                                         [loading]="isTranslatingTitle()"
                                                         (onClick)="translateProductContent(lang, isTranslatingTitle, 1)"
                                                         [hidden]="this.isNewProduct()"
-                                                       >
+                                                    >
                                                     </p-button>
                                                 </div>
 
-                                                <input pInputText class="w-full" [(ngModel)]="lang.name" />
+                                                <input pInputText class="w-full" [(ngModel)]="lang.name" (ngModelChange)="markAsEdited(1)" />
                                             </div>
 
                                             <div class="col-span-12">
                                                 <div class="flex justify-between items-center mb-2">
-                                                    <label
-                                                        class="block font-bold mb-2">{{ 'Short_Description' | translate }}
-                                                    </label>
+                                                    <label class="block font-bold mb-2">{{ 'Short_Description' | translate }} </label>
                                                     <p-button
                                                         [label]="'Auto_Translate_To_Other_Languages' | translate"
                                                         icon="pi pi-sparkles"
@@ -265,22 +229,15 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                                     </p-button>
                                                 </div>
 
-<!--                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"-->
-<!--                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>-->
+                                                <!--                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"-->
+                                                <!--                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>-->
 
-                                                <textarea
-                                                    [style]="{ height: '70vh', 'max-width': 'auto' }"
-                                                    class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.shortDescription"
-                                                >
-
-                                                </textarea>
+                                                <textarea [style]="{ height: '70vh', 'max-width': 'auto' }" class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.shortDescription" (ngModelChange)="markAsEdited(2)"> </textarea>
                                             </div>
 
                                             <div class="col-span-12">
                                                 <div class="flex justify-between items-center mb-2">
-                                                    <label
-                                                        class="block font-bold mb-2">{{ 'Description' | translate }}
-                                                    </label>
+                                                    <label class="block font-bold mb-2">{{ 'Description' | translate }} </label>
                                                     <p-button
                                                         [label]="'Auto_Translate_To_Other_Languages' | translate"
                                                         icon="pi pi-sparkles"
@@ -294,63 +251,38 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                                     </p-button>
                                                 </div>
 
-
-<!--                                                <p-editor [style]="{ height: '70vh', 'max-width': 'auto' }"-->
-<!--                                                          class="w-full" [(ngModel)]="lang.description"></p-editor>-->
-                                                <textarea
-                                                    [style]="{ height: '70vh', 'max-width': 'auto' }"
-                                                    class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.description"
-                                                >
-
-                                                </textarea>
-
-
+                                                <!--                                                <p-editor [style]="{ height: '70vh', 'max-width': 'auto' }"-->
+                                                <!--                                                          class="w-full" [(ngModel)]="lang.description"></p-editor>-->
+                                                <textarea [style]="{ height: '70vh', 'max-width': 'auto' }" class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.description" (ngModelChange)="markAsEdited(3)"> </textarea>
                                             </div>
                                         </div>
                                     </ng-container>
                                 </div>
-                                <div *ngIf="!selectedLanguage"
-                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                <div *ngIf="!selectedLanguage" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
                                     <i class="pi pi-language text-4xl mb-3"></i>
-                                    <span
-                                        class="text-xl font-medium">{{ 'Please_select_a_language_to_view_or_add_a_translation.' | translate }}</span>
+                                    <span class="text-xl font-medium">{{ 'Please_select_a_language_to_view_or_add_a_translation.' | translate }}</span>
                                 </div>
                             </p-tabpanel>
                             <p-tabpanel value="2">
                                 <div class="pt-4" *ngIf="selectedSite && currentSitePricing">
                                     <div class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
                                         <div class="col-span-12">
-                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2">
-                                                <i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}: {{ selectedSite.name }}
-                                            </h3>
+                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2"><i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}: {{ selectedSite.name }}</h3>
                                         </div>
 
                                         <div class="col-span-4">
                                             <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }}</label>
-                                            <p-inputNumber
-                                                [(ngModel)]="currentSitePricing.regularPrice"
-                                                mode="currency"
-                                                [currency]="selectedSite.currency?.code || 'BGN'"
-                                                class="w-full"
-                                                styleClass="w-full">
-                                            </p-inputNumber>
+                                            <p-inputNumber [(ngModel)]="currentSitePricing.regularPrice" mode="currency" [currency]="selectedSite.currency?.code || 'BGN'" class="w-full" styleClass="w-full"> </p-inputNumber>
                                         </div>
 
                                         <div class="col-span-4">
                                             <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }}</label>
-                                            <p-inputNumber
-                                                [(ngModel)]="currentSitePricing.price"
-                                                mode="currency"
-                                                [currency]="selectedSite.currency?.code || 'BGN'"
-                                                class="w-full"
-                                                styleClass="w-full">
-                                            </p-inputNumber>
+                                            <p-inputNumber [(ngModel)]="currentSitePricing.price" mode="currency" [currency]="selectedSite.currency?.code || 'BGN'" class="w-full" styleClass="w-full"> </p-inputNumber>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div *ngIf="!selectedSite"
-                                     class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
+                                <div *ngIf="!selectedSite" class="flex flex-column align-items-center justify-content-center p-8 text-gray-400 border-2 border-dashed border-round surface-50">
                                     <span class="text-xl font-medium">{{ 'Please_select_a_site_to_view' | translate }}</span>
                                 </div>
                             </p-tabpanel>
@@ -366,7 +298,8 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                                 optionLabel="slug"
                                                 [disabled]="this.detailService.isLoadingAddonValues()"
                                                 [style]="{ width: '100%' }"
-                                                [listStyle]="{ 'max-height': '200px' }">
+                                                [listStyle]="{ 'max-height': '200px' }"
+                                            >
                                                 <ng-template pTemplate="item" let-addon>
                                                     <span [pTooltip]="addon.names" class="text-sm">{{ addon.names }}</span>
                                                 </ng-template>
@@ -387,15 +320,16 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                                     size="small"
                                                     severity="secondary"
                                                     icon="pi pi-plus"
-                                                    (onClick)="addValueToSite(val)">
+                                                    (onClick)="addValueToSite(val)"
+                                                >
                                                 </p-button>
                                             </div>
                                         </div>
 
                                         <div class="col-span-12 mt-4">
-<!--                                            <div class="flex justify-between items-center mb-2">-->
-<!--                                                <span class="font-bold text-lg"><i class="pi pi-table mr-2"></i>{{ 'Global_Addon_Configuration' | translate }}</span>-->
-<!--                                            </div>-->
+                                            <!--                                            <div class="flex justify-between items-center mb-2">-->
+                                            <!--                                                <span class="font-bold text-lg"><i class="pi pi-table mr-2"></i>{{ 'Global_Addon_Configuration' | translate }}</span>-->
+                                            <!--                                            </div>-->
 
                                             <p-table [value]="currentAddonConfigs" [scrollable]="true" scrollHeight="300px" styleClass="p-datatable-sm shadow-1 border-round overflow-hidden">
                                                 <ng-template pTemplate="header">
@@ -422,7 +356,8 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                                                                 incrementButtonIcon="pi pi-plus"
                                                                 decrementButtonIcon="pi pi-minus"
                                                                 [minFractionDigits]="2"
-                                                                styleClass="w-full">
+                                                                styleClass="w-full"
+                                                            >
                                                             </p-inputNumber>
                                                         </td>
                                                         <td>
@@ -450,14 +385,21 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
             <ng-template #footer>
                 <div class="flex justify-content-between align-items-center w-full p-2 justify-between">
                     <div class="flex flex-col gap-5">
-                        <p-select *ngIf="activeTab === '1'" appendTo="body" [options]="languageLService.items()" [(ngModel)]="selectedLanguage"
-                                  (onChange)="onLanguageChange()" optionLabel="name" placeholder="Избери език"
-                                  [style]="{ width: '220px' }"
-                                  [hidden]="this.isNewProduct()"
-                                  [disabled]="!isNewProduct() && !allProducts"
+                        <p-select
+                            *ngIf="activeTab === '1'"
+                            appendTo="body"
+                            [options]="languageLService.items()"
+                            [(ngModel)]="selectedLanguage"
+                            (onChange)="onLanguageChange()"
+                            optionLabel="name"
+                            placeholder="Избери език"
+                            [style]="{ width: '220px' }"
+                            [hidden]="this.isNewProduct()"
+                            [disabled]="!isNewProduct() && !allProducts"
                         ></p-select>
 
-                        <p-select *ngIf="activeTab === '2'"
+                        <p-select
+                            *ngIf="activeTab === '2'"
                             appendTo="body"
                             [options]="siteLService.items()"
                             [(ngModel)]="selectedSite"
@@ -471,33 +413,38 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
                         >
                         </p-select>
 
-                        <p-select *ngIf="activeTab === '0'"
-                                  appendTo="body"
-                                  [options]="siteLService.items()"
-                                  [(ngModel)]="syncSite"
-                                  (onChange)="onSiteChange()"
-                                  optionLabel="name"
-                                  [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
-                                  [style]="{ width: '220px' }"
-                                  [showClear]="true"
-                                  [disabled]="!detailService.selectedItem()?.id || !isNewProduct() && !allProducts"
-                                  [hidden]="!detailService.selectedItem()?.id"
+                        <p-select
+                            *ngIf="activeTab === '0'"
+                            appendTo="body"
+                            [options]="siteLService.items()"
+                            [(ngModel)]="syncSite"
+                            (onChange)="onSiteChange()"
+                            optionLabel="name"
+                            [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
+                            [style]="{ width: '220px' }"
+                            [showClear]="true"
+                            [disabled]="!detailService.selectedItem()?.id || (!isNewProduct() && !allProducts)"
+                            [hidden]="!detailService.selectedItem()?.id"
                         >
                         </p-select>
                     </div>
 
                     <div class="flex gap-2 items-end">
-<!--                        <p-button label="Отказ" severity="secondary" [text]="true"-->
-<!--                                  (onClick)="detailService.closeDetail()" />-->
+                        <!--                        <p-button label="Отказ" severity="secondary" [text]="true"-->
+                        <!--                                  (onClick)="detailService.closeDetail()" />-->
                         <p-button [label]="'Cancel' | translate" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()"></p-button>
-<!--                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"-->
-<!--                                  (onClick)="triggerSave()" />-->
+                        <!--                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"-->
+                        <!--                                  (onClick)="triggerSave()" />-->
+
+                        <p-button *ngIf="isNewProduct() && activeTab !== '0'" [label]="'Back' | translate" icon="pi pi-chevron-left" [text]="true" severity="secondary" (onClick)="goBack()"> </p-button>
+
                         <p-button
                             [label]="(shouldShowNextButton() ? 'Next' : 'Save') | translate"
                             [icon]="shouldShowNextButton() ? 'pi pi-chevron-right' : 'pi pi-check'"
                             [iconPos]="shouldShowNextButton() ? 'right' : 'left'"
                             [loading]="detailService.isSaving()"
-                            (onClick)="handleMainAction()">
+                            (onClick)="handleMainAction()"
+                        >
                         </p-button>
                     </div>
                 </div>
@@ -509,7 +456,8 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
             :host ::ng-deep .p-textarea {
                 border: 1px solid #d1d5db !important; /* Стандартен сив бордер */
                 border-radius: 6px;
-            }`
+            }
+        `
     ]
 })
 export class WpCategoryDetailComponent {
@@ -521,6 +469,7 @@ export class WpCategoryDetailComponent {
     protected tr = inject(TranslateService);
     private authConfig = inject(XL_AUTH_CONFIG);
     protected readonly baseUrl = this.authConfig.apiUrl;
+    private confirmationService = inject(ConfirmationService);
 
     selectedLanguage: any = null;
     selectedSite: any = null;
@@ -528,6 +477,8 @@ export class WpCategoryDetailComponent {
     allProducts: boolean = false;
 
     activeTab: string | undefined | number = '0';
+
+
 
     // currentTranslation: IWpProductTranslation | null = null;
 
@@ -570,22 +521,21 @@ export class WpCategoryDetailComponent {
             this.generateStatusOptions();
         });
         effect(() => {
-            this.activeTab = "0";
+            this.activeTab = '0';
             this.syncSite = null;
             this.selectedLanguage = null;
-            this. selectedSite = null;
+            this.selectedSite = null;
             const item = this.detailService.selectedItem();
             const languages = this.languageLService.items();
             const sites = this.siteLService.items();
-                if(!item?.id) {
-                    const bgLang = languages.find(l => l.code === 'bg');
-                    if (bgLang) {
-                        this.selectedLanguage = bgLang;
-                        this.onLanguageChange();
-                    }
-                    this.selectedSite = sites.find(value => value.url.includes('sateno.bg'));
+            if (!item?.id) {
+                const bgLang = languages.find((l) => l.code === 'bg');
+                if (bgLang) {
+                    this.selectedLanguage = bgLang;
+                    this.onLanguageChange();
                 }
-
+                this.selectedSite = sites.find((value) => value.url.includes('sateno.bg'));
+            }
         });
 
         this.allProducts = false;
@@ -597,7 +547,6 @@ export class WpCategoryDetailComponent {
                 setTimeout(() => {
                     const sites = this.siteLService.items();
                     if (sites.length > 0) {
-
                         const ref = this.dialogService.open(SiteSelectorComponent, {
                             header: this.tr.instant('Choose'),
                             width: '450px',
@@ -613,7 +562,7 @@ export class WpCategoryDetailComponent {
 
                                 // Автоматично избираме Български език
                                 const languages = this.languageLService.items();
-                                this.selectedLanguage = languages.find(l => l.code === 'bg');
+                                this.selectedLanguage = languages.find((l) => l.code === 'bg');
 
                                 // Извикваме логиката за промяна на език
                                 this.onLanguageChange();
@@ -630,9 +579,12 @@ export class WpCategoryDetailComponent {
             }
 
             if (isVisible && (!item?.id || item.id === 0)) {
-                this.activeTab = "0";
+                this.activeTab = '0';
             }
         });
+        this.isTitleEdited = false;
+        this.isShortDescriptionEdited = false;
+        this.isDescriptionEdited = false;
     }
 
     protected productSaleType: any[] = [];
@@ -725,7 +677,6 @@ export class WpCategoryDetailComponent {
         this.totalSizePercent = (total / 5000000) * 100; // спрямо 5MB лимит
     }
 
-
     // В detail.ts намери проблемния участък
     // get currentAddonConfigs() {
     //     const item = this.detailService.selectedItem();
@@ -774,17 +725,14 @@ export class WpCategoryDetailComponent {
 
         // ВАРИАНТ Б: Ако е Масив [{ language: { code: 'bg' }, label: '...' }]
         if (Array.isArray(translations)) {
-            const trans = translations.find((t: any) =>
-                t.language?.id === this.selectedLanguage?.id ||
-                t.language?.code === this.selectedLanguage?.code
-            );
+            const trans = translations.find((t: any) => t.language?.id === this.selectedLanguage?.id || t.language?.code === this.selectedLanguage?.code);
             return trans ? trans.label : addonValue.slug;
         }
 
         return addonValue.slug || '';
     }
 
-// Метод за изтриване на конфигурация
+    // Метод за изтриване на конфигурация
     removeConfig(index: number) {
         const product = this.detailService.selectedItem();
         if (product && product.addonConfigs) {
@@ -804,7 +752,7 @@ export class WpCategoryDetailComponent {
         }
 
         // Търсим дали вече има конфигурация за този сайт
-        let config = item.siteConfig.find(c => c.site.id === this.selectedSite.id);
+        let config = item.siteConfig.find((c) => c.site.id === this.selectedSite.id);
 
         // Ако няма, създаваме нов обект
         if (!config) {
@@ -826,31 +774,28 @@ export class WpCategoryDetailComponent {
     protected isTranslatingInformation = signal(false);
     protected ms = inject(MessageService);
 
+// Променяме метода да връща Observable
     protected translateProductContent(item: IWpProductTranslation, signalM: any, type: number) {
         signalM.set(true);
         const payload = {
-          item: item,
-          type: type,
-          productId: this.detailService.selectedItem()?.id,
+            item: item,
+            type: type,
+            productId: this.detailService.selectedItem()?.id
         };
-        this.detailService.translateProductContent(payload)
-            .subscribe({
-                next: (e) => {
-                    this.ms.add({severity:'success', summary:'Преведен'});
-                    signalM.set(false);
-                    this.detailService.loadData(this.detailService.selectedItem()?.id);
-                },
-                error: (e) => {
+
+        // Връщаме потока, за да можем да го чакаме
+        return this.detailService.translateProductContent(payload).pipe(
+            tap({
+                next: () => {
+                    this.ms.add({ severity: 'success', summary: 'Преведен тип ' + type });
                     signalM.set(false);
                 },
-                complete: () => {
-                    signalM.set(false);
-                }
-            });
+                error: () => signalM.set(false)
+            })
+        );
     }
 
-
-//     ----------------
+    //     ----------------
     // 1. Гетър за снимките спрямо избрания сайт
     get filteredImages(): IWpImage[] {
         const item = this.detailService.selectedItem();
@@ -859,15 +804,19 @@ export class WpCategoryDetailComponent {
         if (!item.id || item.id === 0) return item.images;
 
         if (this.syncSite) {
-            return item.images.filter(img => {
+            return item.images.filter((img) => {
                 if (img.isTemp) return true;
 
                 // Ако масивът е празен (както в твоя JSON), тук ще върне false
-                return img.siteMappings && img.siteMappings.length > 0 && img.siteMappings.some(m => {
-                    // Проверяваме всички възможни пътища до ID-то на сайта
-                    const mSiteId = (m as any).siteId || (m as any).site?.id;
-                    return mSiteId == this.syncSite.id;
-                });
+                return (
+                    img.siteMappings &&
+                    img.siteMappings.length > 0 &&
+                    img.siteMappings.some((m) => {
+                        // Проверяваме всички възможни пътища до ID-то на сайта
+                        const mSiteId = (m as any).siteId || (m as any).site?.id;
+                        return mSiteId == this.syncSite.id;
+                    })
+                );
             });
         }
 
@@ -904,39 +853,81 @@ export class WpCategoryDetailComponent {
         item.images.push(newImage);
     }
 
-// 4. Getter за адоните (вече в таб 3)
+    // 4. Getter за адоните (вече в таб 3)
     get currentAddonConfigs() {
         const item = this.detailService.selectedItem();
         return item?.addonConfigs || [];
     }
 
-// 5. Прехвърляне на ID-то на избрания сайт при запис
+    // 5. Прехвърляне на ID-то на избрания сайт при запис
     triggerSave() {
         const item = this.detailService.selectedItem();
         if (!item) return;
 
+        // Питанка за превод само ако редактираме на Български
+        if (!this.isNewProduct() && (this.isTitleEdited || this.isShortDescriptionEdited || this.isDescriptionEdited)) {
+            this.confirmationService.confirm({
+                header: this.tr.instant('Auto_Translate_To_Other_Languages'),
+                acceptLabel: this.tr.instant('Yes'),
+                rejectLabel: this.tr.instant('No'),
+                accept: () => {
+                    const bgTrans = item.translations.find((t) => t.language.code === 'bg');
+                    const translationRequests = [];
+                    if (bgTrans) {
+                        if (this.isTitleEdited)
+                            translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingTitle, 1));
+                        if (this.isShortDescriptionEdited)
+                            translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingShortInformation, 2));
+                        if (this.isDescriptionEdited)
+                            translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingInformation, 3));
+                    }
+                    if (translationRequests.length > 0) {
+                        this.ms.add({ severity: 'info', summary: 'AI', detail: 'Моля изчакайте преводите...' });
+
+                        // forkJoin чака ВСИЧКИ Observable в масива да приключат
+                        forkJoin(translationRequests).subscribe(() => {
+                            this.resetEditFlags();
+                            // Едва тук викаме финалния запис
+                            this.detailService.loadData(item.id); // Опресняваме локалните данни
+                            this.executeFinalSave(item);
+                        });
+                    }else {
+                        this.executeFinalSave(item);
+                    }
+                },
+                reject: () => {
+                    this.resetEditFlags();
+                    this.executeFinalSave(item);
+                }
+            });
+
+            return;
+        }
+
+        this.executeFinalSave(item);
+    }
+
+    private executeFinalSave(item: IWpProduct) {
         item.lastEditedSiteId = this.syncSite?.id;
 
-        // При нов продукт — добави конфигурация за ВСИЧКИ сайтове с 0
+        // Логика за нови сайтове при нов продукт
         if (!item.id || item.id === 0) {
             const allSites = this.siteLService.items();
-
+            if (!item.siteConfig) item.siteConfig = [];
             for (const site of allSites) {
-                const exists = item.siteConfig?.find(c => c.site?.id === site.id);
-                if (!exists) {
-                    if (!item.siteConfig) item.siteConfig = [];
-                    item.siteConfig.push({
-                        id: -1,
-                        site: { ...site },
-                        price: 0,
-                        regularPrice: 0,
-                        slug: ''
-                    });
+                if (!item.siteConfig.find((c) => c.site?.id === site.id)) {
+                    item.siteConfig.push({ id: -1, site: { ...site }, price: 0, regularPrice: 0, slug: '' });
                 }
             }
         }
 
         this.detailService.saveItem(item);
+    }
+
+    private resetEditFlags() {
+        this.isTitleEdited = false;
+        this.isShortDescriptionEdited = false;
+        this.isDescriptionEdited = false;
     }
 
     private dialogService = inject(DialogService);
@@ -945,7 +936,7 @@ export class WpCategoryDetailComponent {
         const ref = this.dialogService.open(AIProductInfoGenComponent, {
             header: this.tr.instant('AI'),
             width: '650px',
-            contentStyle: { "overflow": "visible" },
+            contentStyle: { overflow: 'visible' },
             baseZIndex: 10000,
             maximizable: true,
             data: { product: product }
@@ -981,10 +972,7 @@ export class WpCategoryDetailComponent {
         });
     }
 
-
-
-
-//
+    //
     shouldShowNextButton(): boolean {
         // Показваме "Напред" само ако е нов продукт И не сме на последната стъпка
         return this.isNewProduct() && this.activeTab !== '1';
@@ -1004,36 +992,104 @@ export class WpCategoryDetailComponent {
 
         // СТЪПКА 0: НАЧАЛО
         if (this.activeTab === "0") {
-            const hasAddons = confirm("Има ли този продукт адони (опции)?");
-            this.activeTab = hasAddons ? "3" : "2";
+            if (!this.isMainInfoValid()) return; // Твоята проверка за задължителни полета
+
+            this.confirmationService.confirm({
+                header: this.tr.instant('Addons_Question'), // Заглавие
+                message: this.tr.instant('Does_this_product_have_addons?'), // Съобщение
+                icon: 'pi pi-question-circle',
+                acceptLabel: this.tr.instant('Yes'), // Бутон ДА
+                rejectLabel: this.tr.instant('No'),  // Бутон НЕ
+                acceptButtonStyleClass: 'p-button-success',
+                rejectButtonStyleClass: 'p-button-secondary',
+                accept: () => {
+                    // Потребителят натисна ДА
+                    this.activeTab = "3"; // Към Адони
+                    this.cdr.detectChanges();
+                },
+                reject: () => {
+                    // Потребителят натисна НЕ
+                    // item.addonConfigs = [];
+                    this.activeTab = "2"; // Директно към Цени
+                    this.cdr.detectChanges();
+                }
+            });
             return;
         }
 
         // СТЪПКА 3: АДОНИ
-        if (this.activeTab === "3") {
+        if (this.activeTab === '3') {
             if (!item.addonConfigs || item.addonConfigs.length === 0) {
-                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Задължително добавете поне един адон.' });
+                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Тъй като избрахте, че има адони, трябва да добавите поне един.' });
                 return;
             }
-            this.activeTab = "2"; // Към Цени
+            this.activeTab = '2';
             return;
         }
 
         // СТЪПКА 2: ЦЕНИ
-        if (this.activeTab === "2") {
+        if (this.activeTab === '2') {
             const pricing = this.currentSitePricing;
             if (!pricing || !pricing.regularPrice || pricing.regularPrice <= 0) {
-                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Нормалната цена трябва да е по-голяма от 0.' });
+                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Въведете валидна цена (по-голяма от 0).' });
                 return;
             }
-            this.activeTab = "1"; // Към Описание
+            this.activeTab = '1';
             return;
         }
 
         // ПОСЛЕДНА СТЪПКА: ЗАПИС
-        if (this.activeTab === "1") {
+        if (this.activeTab === '1') {
             this.triggerSave();
         }
     }
 
+    goBack() {
+        if (this.activeTab === '3' || this.activeTab === '2') {
+            this.activeTab = '0';
+        } else if (this.activeTab === '1') {
+            const item = this.detailService.selectedItem();
+            // Ако сме имали адони, се връщаме там, иначе към цени
+            this.activeTab = (item?.addonConfigs?.length ?? 0) > 0 ? '3' : '2';
+        }
+    }
+
+    private isMainInfoValid(): boolean {
+        const item = this.detailService.selectedItem();
+        if (!item) return false;
+
+        // Проверка за Бранд, Статус и Категории (задължителни в Начало)
+        const hasBrand = !!item.brand;
+        const hasCategories = this.detailService.selectedNodesArray()?.length > 0;
+        const hasStatus = item.status !== null && item.status !== undefined;
+        const hasLimit = item.saleType !== null && item.saleType !== undefined;
+        const weight = item.weight !== undefined && true;
+        const img = item.images.length > 0 ? item.images[0] : undefined;
+
+        if (!hasBrand || !hasCategories || !hasStatus || !hasLimit || !weight || !img) {
+            this.ms.add({
+                severity: 'warn',
+                summary: 'Внимание',
+                detail: 'Моля, попълнете Всички полета!'
+            });
+            return false;
+        }
+        return true;
+    }
+
+    isTitleEdited: boolean = false;
+    isShortDescriptionEdited: boolean = false;
+    isDescriptionEdited: boolean = false;
+
+    protected markAsEdited(type: number) {
+        if(this.selectedLanguage?.code === 'bg') {
+            if(type === 1) {
+                this.isTitleEdited = true;
+            } else if (type === 2) {
+                this.isShortDescriptionEdited = true;
+            } else if (type === 3) {
+                this.isDescriptionEdited = true;
+            }
+        }
+    }
 }

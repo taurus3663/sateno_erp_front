@@ -300,5 +300,7 @@
   "Next": "Next",
   "Select_scheme": "Select scheme",
   "Title": "Title",
-  "Short": "Short"
+  "Short": "Short",
+  "Does_this_product_have_addons?": "Does this product have addons?",
+  "Addons_Question": "Addons Question"
 }

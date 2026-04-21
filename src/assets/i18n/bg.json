@@ -302,5 +302,7 @@
   "Next": "Следващ",
   "Select_scheme": "Избери шаблон",
   "Title": "Заглавие",
-  "Short": "Къса"
+  "Short": "Къса",
+  "Does_this_product_have_addons?": "Продукта има ли адони?",
+  "Addons_Question": "Въпрос относно адони"
 }
