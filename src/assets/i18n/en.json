@@ -302,5 +302,6 @@
   "Title": "Title",
   "Short": "Short",
   "Does_this_product_have_addons?": "Does this product have addons?",
-  "Addons_Question": "Addons Question"
+  "Addons_Question": "Addons Question",
+  "Set_as_Primary": "Set as Primary"
 }

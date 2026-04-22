@@ -7,4 +7,5 @@ export interface IAIProductInfoGen {
     tempImages?: IWpImage[];
     productInfo?: IWpProduct;
     responseAI?: string;
+    previousTexts: {};
 }

@@ -31,12 +31,12 @@ import { FormsModule } from '@angular/forms';
 
                 <div class="col-span-12 mt-3">
                     <label class="block font-bold mb-2">{{ 'Instruction' | translate }} {{'Title' | translate}}</label>
-                    <textarea pTextarea class="w-full" [(ngModel)]="item.title" rows="5" [autoResize]="true" style="max-height: 10vh"></textarea>
+                    <textarea pTextarea class="w-full" [(ngModel)]="item.title" rows="35" [autoResize]="true" style="max-height: 10vh"></textarea>
                 </div>
 
                 <div class="col-span-12 mt-3">
                     <label class="block font-bold mb-2">{{ 'Instruction' | translate }} {{'Short' | translate}}</label>
-                    <textarea pTextarea class="w-full" [(ngModel)]="item.shortDescription" rows="10" [autoResize]="true" style="max-height: 15vh"></textarea>
+                    <textarea pTextarea class="w-full" [(ngModel)]="item.shortDescription" rows="35" [autoResize]="true" style="max-height: 15vh"></textarea>
                 </div>
 
                 <div class="col-span-12 mt-3">

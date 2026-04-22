@@ -94,38 +94,28 @@ import { forkJoin, tap } from 'rxjs';
                                                 [cancelLabel]="'Cancel' | translate"
                                             >
                                             </p-fileupload>
-
-                                            <!--                                            <div class="grid grid-cols-12 gap-3" *ngIf="item?.images?.length">-->
-                                            <!--                                                <div *ngFor="let img of item.images; let i = index"-->
-                                            <!--                                                     class="col-span-4 md:col-span-2 relative group">-->
-                                            <!--                                                    <div-->
-                                            <!--                                                        class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"-->
-                                            <!--                                                        [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">-->
-                                            <!--                                                        <img [src]="baseUrl + img.localSrc"-->
-                                            <!--                                                             style="width: 130px;height: auto;"-->
-                                            <!--                                                             class="h-8rem object-cover block cursor-pointer"-->
-                                            <!--                                                             alt="Product thumbnail" />-->
-
-                                            <!--                                                        <span *ngIf="img.isTemp"-->
-                                            <!--                                                              class="absolute top-0 right-0 bg-primary text-white text-[10px] font-bold px-1.5 py-0.5 border-bottom-left-round shadow-1"> {{ 'NEW' | translate }} </span>-->
-
-                                            <!--                                                        <div-->
-                                            <!--                                                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">-->
-                                            <!--                                                            <p-button icon="pi pi-trash" severity="danger"-->
-                                            <!--                                                                      [rounded]="true" size="small"-->
-                                            <!--                                                                      pTooltip="{{ 'Remove' | translate }}"-->
-                                            <!--                                                                      (onClick)="removeImage(i)"></p-button>-->
-                                            <!--                                                            <p-button icon="pi pi-search-plus" severity="secondary"-->
-                                            <!--                                                                      [rounded]="true" size="small"-->
-                                            <!--                                                                      (onClick)="viewImage(img.localSrc)"></p-button>-->
-                                            <!--                                                        </div>-->
-                                            <!--                                                    </div>-->
-                                            <!--                                                </div>-->
-                                            <!--                                            </div>-->
                                             <div class="grid grid-cols-12 gap-3" *ngIf="filteredImages.length">
                                                 <div *ngFor="let img of filteredImages; let i = index" class="col-span-4 md:col-span-2 relative group">
                                                     <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4" [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
                                                         <img [src]="baseUrl + img.localSrc" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" />
+
+
+                                                        <div class="absolute top-1 left-1 z-20">
+                                                            <p-button
+                                                                [icon]="img.isPrimary ? 'pi pi-star-fill' : 'pi pi-star'"
+                                                                [severity]="img.isPrimary ? 'warn' : 'secondary'"
+                                                                [rounded]="true"
+                                                                size="small"
+                                                                [style]="{
+                    'background': img.isPrimary ? '#f59e0b' : 'rgba(255,255,255,0.8)',
+                    'border': 'none',
+                    'color': img.isPrimary ? 'white' : '#666',
+                    'box-shadow': '0 2px 4px rgba(0,0,0,0.3)'
+                }"
+                                                                pTooltip="{{ 'Set_as_Primary' | translate }}"
+                                                                (onClick)="setPrimaryImage(img)">
+                                                            </p-button>
+                                                        </div>
 
                                                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                                             <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small" (onClick)="removeImage(i)"></p-button>
@@ -555,14 +545,16 @@ export class WpCategoryDetailComponent {
 
                         ref?.onClose.subscribe((site: any) => {
                             // Проверяваме дали е върнат обект или ID (зависи какво връща SiteSelectorComponent)
+                            console.log(site);
                             if (site) {
                                 // Тъй като вече имаме избрания обект/ID, го сетваме директно
-                                this.selectedSite = sites[site];
-                                this.syncSite = sites[site];
-
+                                this.selectedSite = sites.find(value => value.id === site);
+                                this.syncSite = sites.find((value) => value.id === site);
+                                console.log(this.syncSite);
                                 // Автоматично избираме Български език
                                 const languages = this.languageLService.items();
-                                this.selectedLanguage = languages.find((l) => l.code === 'bg');
+                                // this.selectedLanguage = languages.find((l) => l.code === 'bg');
+                                this.selectedLanguage = languages.find((l) => l.id === this.syncSite.language.id);
 
                                 // Извикваме логиката за промяна на език
                                 this.onLanguageChange();
@@ -841,12 +833,16 @@ export class WpCategoryDetailComponent {
 
     // 3. Добавяне на снимка (isTemp)
     private addImageToModel(item: IWpProduct, res: any) {
+
+        const hasPrimary = item.images?.some(img => img.isPrimary);
+
         const newImage: IWpImage = {
             id: 0,
             localSrc: res.url,
             tempName: res.fileName,
             isTemp: true,
-            siteMappings: []
+            siteMappings: [],
+            isPrimary: !hasPrimary
         };
 
         if (!item.images) item.images = [];
@@ -1074,6 +1070,21 @@ export class WpCategoryDetailComponent {
             });
             return false;
         }
+
+        const hasPrimary = item.images.some(img => img.isPrimary);
+
+        if (!hasBrand || !hasCategories || !hasStatus || !hasLimit || !weight || item.images.length === 0) {
+            this.ms.add({ severity: 'warn', summary: 'Внимание', detail: 'Моля, попълнете Всички полета!' });
+            return false;
+        }
+
+        if (!hasPrimary && item.images.length > 0) {
+            this.ms.add({ severity: 'warn', summary: 'Внимание', detail: 'Моля, изберете главна снимка (звезда)!' });
+            return false;
+        }
+
+
+
         return true;
     }
 
@@ -1092,4 +1103,18 @@ export class WpCategoryDetailComponent {
             }
         }
     }
+
+    // Метод за задаване на главна снимка
+    setPrimaryImage(selectedImg: IWpImage) {
+        const item = this.detailService.selectedItem();
+        if (!item || !item.images) return;
+
+        item.images.forEach(img => {
+            // Ако кликнем върху вече избрана звезда, може да я деактивираме (опционално)
+            // Тук логиката е: винаги прави избраната True, а другите False
+            img.isPrimary = (img === selectedImg);
+        });
+    }
+
+
 }

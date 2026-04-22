@@ -93,6 +93,7 @@ export interface IWpImage {
     siteMappings: IWpImageSiteMapping[];
     tempName: string;
     isTemp: boolean;
+    isPrimary: boolean;
 }
 export interface IWpImageSiteMapping {
     id: number;

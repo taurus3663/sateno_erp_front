@@ -18,8 +18,8 @@ import { IAIProductInfoGen } from './interfaces';
     standalone: true,
     imports: [CommonModule, Button, TranslatePipe, Textarea, FormsModule, Select, ProgressBar],
     template: `
-        <div class="flex flex-col h-full" style="min-height: 450px;">
-            <div class="mb-4">
+        <div class="flex flex-col h-full overflow-hidden" style="max-height: 85vh;">
+            <div class="mb-4 flex-shrink-0">
                 <div class="flex justify-between mb-2 text-sm font-bold text-primary">
                     <span>{{ stepTitle | translate }}</span>
                     <span>{{ currentStep() + 1 }} / 4</span>
@@ -27,7 +27,8 @@ import { IAIProductInfoGen } from './interfaces';
                 <p-progressBar [value]="(currentStep() + 1) * 25" [showValue]="false" styleClass="h-2"></p-progressBar>
             </div>
 
-            <div class="flex-grow py-4">
+            <div class="flex-grow overflow-y-auto pr-2 custom-scroll" style="min-height: 300px;">
+
                 <div *ngIf="currentStep() === 0" class="flex flex-col gap-3">
                     <label class="font-bold text-900">{{ 'Choose_AI_Instruction_Template' | translate }}</label>
                     <p-select [options]="schemeService.items()" [(ngModel)]="selectedScheme" optionLabel="name" [filter]="true" class="w-full" placeholder="---"> </p-select>
@@ -37,8 +38,10 @@ import { IAIProductInfoGen } from './interfaces';
                 </div>
 
                 <div *ngIf="currentStep() > 0" class="flex flex-col h-full">
-                    <div class="flex-grow p-4 border-round bg-surface-50 border-1 border-surface-200 mb-4 overflow-auto relative" style="min-height: 200px;">
-                        <div *ngIf="isGenerating()" class="flex flex-col items-center justify-center h-full gap-3">
+                    <div class="flex-grow p-4 border-round bg-surface-50 border-1 border-surface-200 mb-4 overflow-y-auto relative shadow-inner"
+                         style="max-height: 400px; min-height: 250px;">
+
+                        <div *ngIf="isGenerating()" class="flex flex-col items-center justify-center h-full gap-3 py-8">
                             <i class="pi pi-android pi-spin text-4xl text-primary"></i>
                             <span class="text-gray-500 italic">{{ 'AI_is_thinking' | translate }}...</span>
                         </div>
@@ -49,29 +52,25 @@ import { IAIProductInfoGen } from './interfaces';
                         </div>
                     </div>
 
-                    <div class="flex gap-2 justify-center" *ngIf="!isGenerating() && !showRefineArea()">
-                        <p-button [label]="'Refine' | translate" icon="pi pi-refresh" severity="help" [outlined]="true" (onClick)="showRefineArea.set(true)"></p-button>
-                        <p-button [label]="'Apply_&_Next' | translate" icon="pi pi-check" severity="success" (onClick)="applyAndContinue()"></p-button>
-                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="flex gap-2 justify-center mb-2" *ngIf="!isGenerating() && !showRefineArea()">
+                            <p-button [label]="'Refine' | translate" icon="pi pi-refresh" severity="help" [outlined]="true" (onClick)="showRefineArea.set(true)"></p-button>
+                            <p-button [label]="'Apply_&_Next' | translate" icon="pi pi-check" severity="success" (onClick)="applyAndContinue()"></p-button>
+                        </div>
 
-                    <div *ngIf="showRefineArea()" class="flex flex-col gap-2 mt-2 animate-fade-in">
-                        <textarea pTextarea [(ngModel)]="userRefinement" rows="3" class="w-full" [placeholder]="'Add_specific_instruction' | translate"></textarea>
-                        <div class="flex justify-end gap-2">
-                            <p-button [label]="'Cancel' | translate" [text]="true" severity="secondary" (onClick)="showRefineArea.set(false)"></p-button>
-                            <p-button [label]="'Send' | translate" icon="pi pi-send" (onClick)="generateAI()"></p-button>
+                        <div *ngIf="showRefineArea()" class="flex flex-col gap-2 mt-2 p-2 border-round bg-yellow-50 border-1 border-yellow-100 animate-fade-in">
+                            <textarea pTextarea [(ngModel)]="userRefinement" rows="3" class="w-full" [placeholder]="'Add_specific_instruction' | translate"></textarea>
+                            <div class="flex justify-end gap-2">
+                                <p-button [label]="'Cancel' | translate" [text]="true" severity="secondary" (onClick)="showRefineArea.set(false)"></p-button>
+                                <p-button [label]="'Send' | translate" icon="pi pi-send" (onClick)="generateAI()"></p-button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-between border-t pt-4 mt-auto">
-
-                <p-button
-                    [label]="'Cancel' | translate"
-                    severity="danger"
-                    [text]="true"
-                    (onClick)="ref.close()">
-                </p-button>
+            <div class="flex justify-between border-t pt-4 mt-4 flex-shrink-0 bg-white">
+                <p-button [label]="'Cancel' | translate" severity="danger" [text]="true" (onClick)="ref.close()"></p-button>
                 <p-button [label]="'Back' | translate" icon="pi pi-chevron-left" [text]="true" (onClick)="currentStep.set(currentStep() - 1)" *ngIf="currentStep() > 0"></p-button>
                 <div class="flex-grow"></div>
                 <p-button [label]="'Next' | translate" icon="pi pi-chevron-right" iconPos="right" (onClick)="next()" *ngIf="currentStep() === 0" [disabled]="!selectedScheme()"></p-button>
@@ -117,25 +116,15 @@ export class AIProductInfoGenComponent {
         }
     }
 
-    private pushInfo() {
-
-    }
-
     generateAI() {
         this.isGenerating.set(true);
         this.aiResponse.set('');
 
-        // Тук викаш твоя бекенд
-        // const payload = {
-        //    schemeId: this.selectedScheme().id,
-        //    step: this.currentStep(),
-        //    refinement: this.userRefinement()
-        // };
-
         const payload: IAIProductInfoGen = {
            schemeId: this.selectedScheme().id,
            step: this.currentStep(),
-           refinement: this.userRefinement()
+           refinement: this.userRefinement(),
+           previousTexts: this.generatedTexts
         };
 
 
@@ -146,14 +135,6 @@ export class AIProductInfoGenComponent {
                 this.showRefineArea.set(false);
                 this.userRefinement.set('');
             });
-
-        // Симулация на AI отговор
-        // setTimeout(() => {
-        //     this.aiResponse.set('Генериран текст от AI за стъпка ' + this.currentStep());
-        //     this.isGenerating.set(false);
-        //     this.showRefineArea.set(false);
-        //     this.userRefinement.set('');
-        // }, 1500);
     }
 
     applyAndContinue() {
@@ -162,12 +143,5 @@ export class AIProductInfoGenComponent {
             this.generatedTexts[this.currentStep()] = this.aiResponse();
         }
         this.next();
-        // const result = {
-        //     step: this.currentStep(),
-        //     text: this.aiResponse()
-        // };
-        // // Можеш да ползваш callback или да записваш в обекта директно през сервиз
-        // console.log('Applying text to field...', result);
-        // this.next();
     }
 }
