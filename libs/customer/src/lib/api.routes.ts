@@ -96,6 +96,7 @@ export class apiRoutes {
         patch: `${apiRoutes.wpProductBase}/patch`,
         translateProductContent: `${apiRoutes.wpProductBase}/translate/content`,
         ai_gen: `${apiRoutes.wpProductBase}/ai_product_gen`,
+        currency_calc: `${apiRoutes.wpProductBase}/calc_currency`,
     }
 
     private static readonly wpBrandBase = 'wp_brand';

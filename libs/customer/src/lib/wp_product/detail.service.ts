@@ -1,6 +1,6 @@
 import { effect, Injectable, signal } from '@angular/core';
 import { BaseDetailCrud } from 'xl-util';
-import { ICategoryNode, IWpProduct } from './interfaces';
+import { CurrencyCalc, ICategoryNode, IWpProduct } from './interfaces';
 import { ROUTES } from '../api.routes';
 import { IWpCategory } from '../wp_category/interfaces';
 import { IWpAddon, IWpAddonDetailDto } from '../wp_addon/interfaces';
@@ -238,5 +238,9 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
     translateProductContent(item: any) {
 
        return this.http.post(ROUTES.wp_product.translateProductContent, item);
+    }
+
+    convertCurrency(cl: CurrencyCalc) {
+        return this.http.post<number>(`${ROUTES.wp_product.currency_calc}`, cl);
     }
 }

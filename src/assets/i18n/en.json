@@ -303,5 +303,6 @@
   "Short": "Short",
   "Does_this_product_have_addons?": "Does this product have addons?",
   "Addons_Question": "Addons Question",
-  "Set_as_Primary": "Set as Primary"
+  "Set_as_Primary": "Set as Primary",
+  "Calculate_from_EUR": "Calculate from EUR"
 }

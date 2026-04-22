@@ -12,11 +12,13 @@ import { ProgressBar } from 'primeng/progressbar';
 import { WpProductDetailService } from '../../../wp_product/detail.service';
 import { AIProductInfoGenService } from './AI_product_info_gen.service';
 import { IAIProductInfoGen } from './interfaces';
+import { SchemeWpProductDetailService } from '../../../wp_product_scheme/detail.service';
+import { SchemeWpProductDetailComponent } from '../../../wp_product_scheme/detail';
 
 @Component({
     selector: 'ai_product_info_gen',
     standalone: true,
-    imports: [CommonModule, Button, TranslatePipe, Textarea, FormsModule, Select, ProgressBar],
+    imports: [CommonModule, Button, TranslatePipe, Textarea, FormsModule, Select, ProgressBar, SchemeWpProductDetailComponent],
     template: `
         <div class="flex flex-col h-full overflow-hidden" style="max-height: 85vh;">
             <div class="mb-4 flex-shrink-0">
@@ -32,8 +34,21 @@ import { IAIProductInfoGen } from './interfaces';
                 <div *ngIf="currentStep() === 0" class="flex flex-col gap-3">
                     <label class="font-bold text-900">{{ 'Choose_AI_Instruction_Template' | translate }}</label>
                     <p-select [options]="schemeService.items()" [(ngModel)]="selectedScheme" optionLabel="name" [filter]="true" class="w-full" placeholder="---"> </p-select>
-                    <div *ngIf="selectedScheme()" class="p-3 bg-blue-50 border-round border-left-3 border-blue-500 italic text-sm">
-                        {{ selectedScheme().instruction }}
+                    <div *ngIf="selectedScheme()" class="animate-fade-in">
+                        <div class="p-3 bg-blue-50 border-round border-left-3 border-blue-500 italic text-sm mb-2">
+                            {{ selectedScheme().instruction }}
+                        </div>
+
+                        <div class="flex justify-end">
+                            <p-button
+                                [label]="('Edit' | translate) + ' ' + ('Scheme' | translate)"
+                                icon="pi pi-pencil"
+                                [text]="true"
+                                size="small"
+                                severity="primary"
+                                (onClick)="openSchemeDetail()">
+                            </p-button>
+                        </div>
                     </div>
                 </div>
 
@@ -76,6 +91,8 @@ import { IAIProductInfoGen } from './interfaces';
                 <p-button [label]="'Next' | translate" icon="pi pi-chevron-right" iconPos="right" (onClick)="next()" *ngIf="currentStep() === 0" [disabled]="!selectedScheme()"></p-button>
             </div>
         </div>
+
+        <scheme_wp_product-detail></scheme_wp_product-detail>
     `
 })
 export class AIProductInfoGenComponent {
@@ -94,6 +111,8 @@ export class AIProductInfoGenComponent {
     // За малкия прозорец/секция за уточнение
     showRefineArea = signal(false);
     userRefinement = signal('');
+
+    protected schemeDetailService = inject(SchemeWpProductDetailService); // Добавете това
 
     private generatedTexts: { [key: number]: string } = {};
 
@@ -121,20 +140,18 @@ export class AIProductInfoGenComponent {
         this.aiResponse.set('');
 
         const payload: IAIProductInfoGen = {
-           schemeId: this.selectedScheme().id,
-           step: this.currentStep(),
-           refinement: this.userRefinement(),
-           previousTexts: this.generatedTexts
+            schemeId: this.selectedScheme().id,
+            step: this.currentStep(),
+            refinement: this.userRefinement(),
+            previousTexts: this.generatedTexts
         };
 
-
-        this.aiProductDetailService.generateContent(payload)
-            .subscribe(value => {
-                this.aiResponse.set(value.responseAI!);
-                this.isGenerating.set(false);
-                this.showRefineArea.set(false);
-                this.userRefinement.set('');
-            });
+        this.aiProductDetailService.generateContent(payload).subscribe((value) => {
+            this.aiResponse.set(value.responseAI!);
+            this.isGenerating.set(false);
+            this.showRefineArea.set(false);
+            this.userRefinement.set('');
+        });
     }
 
     applyAndContinue() {
@@ -143,5 +160,13 @@ export class AIProductInfoGenComponent {
             this.generatedTexts[this.currentStep()] = this.aiResponse();
         }
         this.next();
+    }
+
+    openSchemeDetail() {
+        const selected = this.selectedScheme();
+        if (selected) {
+            this.schemeDetailService.openEditDialog(selected);
+            // this.schemeDetailService.openDetail(selected);
+        }
     }
 }

@@ -305,5 +305,6 @@
   "Short": "Къса",
   "Does_this_product_have_addons?": "Продукта има ли адони?",
   "Addons_Question": "Въпрос относно адони",
-  "Set_as_Primary": "Направи основна"
+  "Set_as_Primary": "Направи основна",
+  "Calculate_from_EUR": "Калкулиране от ЕВРО"
 }

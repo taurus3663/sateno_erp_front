@@ -111,3 +111,10 @@ export interface IWpProductSiteConfig {
     site: ISite;
 }
 
+export interface CurrencyCalc {
+    fromAmount: number;
+    fromCode: string;
+    toCode: string;
+    rsAmount?: number;
+}
+
