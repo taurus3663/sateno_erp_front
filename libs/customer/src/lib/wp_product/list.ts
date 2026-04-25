@@ -24,6 +24,7 @@ import { WpBrandListService } from '../wp_brand/list.service';
 import { InputNumber } from 'primeng/inputnumber';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'wp_product-list',
@@ -33,7 +34,7 @@ import { InputText } from 'primeng/inputtext';
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
-                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined />
+                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined (onClick)="questRemove(selectedItem)" [disabled]="!selectedItem || !selectedItem.length" />
                 <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
 
@@ -295,7 +296,7 @@ import { InputText } from 'primeng/inputtext';
                     <td>
                         <div class="flex gap-2" *ngIf="config?.data?.mode !== 'lookup'">
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
-                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="this.listService.deleteItem(item.id)"></p-button>
+                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="questRemove(item.id)"></p-button>
                         </div>
                     </td>
                 </tr>
@@ -583,4 +584,42 @@ export class WpProductListComponent {
         }
     }
     protected rows = 200;
+
+    private confirmationService = inject(ConfirmationService);
+
+    protected questRemove(target: any) {
+        let idsToDelete: any[];
+
+        // Проверяваме дали target е масив (bulk delete) или единично ID/Обект
+        if (Array.isArray(target)) {
+            // Ако е масив от обекти (от тикчетата)
+            idsToDelete = target.map(item => item.id);
+        } else if (target && typeof target === 'object' && target.id) {
+            // Ако е подаден цял обект (например от реда)
+            idsToDelete = [target.id];
+        } else {
+            // Ако е подадено директно ID
+            idsToDelete = [target];
+        }
+
+        if (idsToDelete.length === 0) return;
+
+        this.confirmationService.confirm({
+            header: this.tr.instant('Are_you_sure?'),
+            message: idsToDelete.length > 1
+                ? `${this.tr.instant('Delete')} ${idsToDelete.length} ${this.tr.instant('Product')}?`
+                : undefined,
+            acceptLabel: this.tr.instant('Yes'),
+            rejectLabel: this.tr.instant('No'),
+            accept: () => {
+                // ПРАВИЛНОТО ИЗВИКВАНЕ: Подаваме масива с ID-та
+                this.listService.deleteItem(idsToDelete);
+
+                // Нулираме селекцията, ако сме трили масово
+                if (Array.isArray(target)) {
+                    this.selectedItem = [];
+                }
+            }
+        });
+    }
 }

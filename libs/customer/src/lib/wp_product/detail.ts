@@ -1094,11 +1094,11 @@ export class WpCategoryDetailComponent {
         const weight = item.weight !== undefined && true;
         const img = item.images.length > 0 ? item.images[0] : undefined;
 
-        if ( !hasCategories || !hasStatus || !hasLimit || !weight || !img) {
+        if ( !hasCategories || !hasStatus || !hasLimit || !weight || !img || !this.isWeightInvalid) {
             this.ms.add({
                 severity: 'warn',
                 summary: 'Внимание',
-                detail: 'Моля, попълнете Всички полета!'
+                detail: 'Моля, попълнете Всички полета правилно!'
             });
             return false;
         }
