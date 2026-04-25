@@ -837,6 +837,8 @@ export class OrderDetailComponent {
                     this.addProductToOrder(product, selectedAddon);
                 });
             } else if (fullProduct) {
+                // console.log(fullProduct);
+                // console.log(product);
                 // Ако няма адони, добавяме продукта директно
                 this.addProductToOrder(product);
             }
@@ -885,8 +887,15 @@ export class OrderDetailComponent {
         const item = this.detailService.selectedItem();
         if (!item) return;
 
+        //  this.selectedSiteName.set(site.url);
+        const siteId = this.detailService.selectedItem()!.site.id;
+
+        let bPrice = product.siteConfig.find((c: { site: { id: number } }) => c.site.id === siteId);
+
+
         // 1. Първо вземаме базовата цена от конфигурацията на сайта
-        let basePrice = parseFloat(product.siteConfig?.[0]?.price || 0);
+        // let basePrice = parseFloat(product.siteConfig?.[0]?.price || 0);
+        let basePrice = parseFloat(bPrice.regularPrice > 0? bPrice.regularPrice: bPrice.price);
         let finalPrice = basePrice;
         let paoValues: any[] = [];
 

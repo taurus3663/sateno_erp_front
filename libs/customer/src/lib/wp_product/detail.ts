@@ -138,7 +138,7 @@ import { forkJoin, tap } from 'rxjs';
                                     </div>
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Weight' | translate }}</label>
-                                        <input pInputText [(ngModel)]="item.weight" class="w-full" />
+                                        <input pInputText [(ngModel)]="item.weight" class="w-full" [ngClass]="{'ng-invalid ng-dirty': isWeightInvalid}"/>
                                     </div>
 
                                     <div class="col-span-12 mt-3">
@@ -194,7 +194,7 @@ import { forkJoin, tap } from 'rxjs';
                                                         [outlined]="true"
                                                         size="small"
                                                         [loading]="isTranslatingTitle()"
-                                                        (onClick)="translateProductContent(lang, isTranslatingTitle, 1)"
+                                                        (onClick)="translateProductContent(lang, isTranslatingTitle, 1).subscribe()"
                                                         [hidden]="this.isNewProduct()"
                                                     >
                                                     </p-button>
@@ -213,7 +213,7 @@ import { forkJoin, tap } from 'rxjs';
                                                         [outlined]="true"
                                                         size="small"
                                                         [loading]="isTranslatingShortInformation()"
-                                                        (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2)"
+                                                        (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2).subscribe()"
                                                         [hidden]="this.isNewProduct()"
                                                     >
                                                     </p-button>
@@ -235,7 +235,7 @@ import { forkJoin, tap } from 'rxjs';
                                                         [outlined]="true"
                                                         size="small"
                                                         [loading]="isTranslatingInformation()"
-                                                        (onClick)="translateProductContent(lang, isTranslatingInformation, 3)"
+                                                        (onClick)="translateProductContent(lang, isTranslatingInformation, 3).subscribe()"
                                                         [hidden]="this.isNewProduct()"
                                                     >
                                                     </p-button>
@@ -1235,6 +1235,41 @@ export class WpCategoryDetailComponent {
         if (this.activeTab === '2' || this.activeTab === 2) {
             this.loadEuroPrices();
         }
+    }
+
+    get isWeightInvalid(): boolean {
+        const val = this.detailService.selectedItem()?.weight?.toString().trim();
+
+        // 1. Ако е празно, не е грешка
+        if (!val) return false;
+
+        // 2. Проверка за "0": ако започва с 0, следващият символ МОЖЕ да е само разделител
+        // Позволява "0", но забранява "06", "055"
+        if (val.startsWith('0') && val.length > 1 && val[1] !== '.' && val[1] !== ',') {
+            return true;
+        }
+
+        // 3. Ако е чисто число (без точка/запетая), проверяваме дължината
+        if (!val.includes('.') && !val.includes(',')) {
+            // Позволява "1" и "11", но забранява "111", "1111" и т.н.
+            return val.length > 2;
+        }
+
+        // 4. Ако има разделител, проверяваме позицията му
+        // Трябва да е след 1-вата или 2-рата цифра (индекс 1 или 2)
+        const separatorIndex = val.indexOf('.') !== -1 ? val.indexOf('.') : val.indexOf(',');
+
+        if (separatorIndex > 2 || separatorIndex === 0) {
+            return true;
+        }
+
+        // 5. Проверка дали има цифра след разделителя (ако потребителят е сложил такъв)
+        // Ако завършва на '.' или ',', го считаме за временно невалидно
+        if (val.endsWith('.') || val.endsWith(',')) {
+            return true;
+        }
+
+        return false;
     }
 
 

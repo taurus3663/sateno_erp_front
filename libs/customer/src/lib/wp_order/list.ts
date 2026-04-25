@@ -503,27 +503,28 @@ import { Select } from 'primeng/select';
                             <i
                                 *ngIf="order.courierHistory?.length"
                                 class="pi pi-history text-blue-500 cursor-pointer hover:text-blue-800 transition-colors"
-                                (mouseenter)="opHistory.show($event)"
-                                (mouseleave)="opHistory.hide()"
+
                                 (click)="$event.stopPropagation(); opHistory.toggle($event)"
                             >
                             </i>
 
-                            <p-popover #opHistory>
-                                <div class="p-3" style="min-width: 300px">
-                                    <div class="flex align-items-center gap-2 border-bottom-1 surface-border pb-2 mb-3">
-                                        <i class="pi pi-truck text-primary"></i>
-                                        <span class="font-bold text-900">Хронология на доставката</span>
+                            <p-popover #opHistory styleClass="centered-popover">
+                                <div class="popover-content-scroll">
+                                    <div class="flex align-items-center justify-content-between border-bottom-1 surface-border pb-2 mb-3">
+                                        <div class="flex align-items-center gap-2">
+                                            <i class="pi pi-truck text-primary"></i>
+                                            <span class="font-bold text-900">Хронология на доставката</span>
+                                        </div>
+                                        <i class="pi pi-times cursor-pointer text-500 hover:text-900" (click)="opHistory.hide()"></i>
                                     </div>
 
                                     <p-timeline [value]="order.courierHistory" layout="vertical" styleClass="history-timeline">
                                         <ng-template pTemplate="marker" let-event>
-                                            <span
-                                                class="border-circle flex align-items-center justify-content-center shadow-1"
-                                                [style.background-color]="getTimelineColor(event.statusDescription)"
-                                                style="width: 12px; height: 12px; border: 2px solid white;"
-                                            >
-                                            </span>
+                <span
+                    class="border-circle flex align-items-center justify-content-center shadow-1"
+                    [style.background-color]="getTimelineColor(event.statusDescription)"
+                    style="width: 12px; height: 12px; border: 2px solid white;"
+                ></span>
                                         </ng-template>
 
                                         <ng-template pTemplate="content" let-event>
@@ -577,6 +578,42 @@ import { Select } from 'primeng/select';
         </p-blockUI>
 
         <style>
+            /* 1. Скрол в съдържанието */
+            .popover-content-scroll {
+                max-height: 80vh; /* По-гъвкаво спрямо екрана */
+                overflow-y: auto;
+                min-width: 420px;
+                padding-right: 10px; /* Място за скролбара */
+            }
+
+            /* 2. Центриране и Модален ефект */
+            ::ng-deep .centered-popover.p-popover {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                margin: 0 !important;
+                border: none !important;
+                box-shadow: 0 0 0 100vw rgba(0, 0, 0, 0.5) !important; /* По-плътно затъмняване */
+                z-index: 1102 !important; /* Над стандартните елементи */
+            }
+
+            /* Премахваме стрелката */
+            ::ng-deep .centered-popover.p-popover::before,
+            ::ng-deep .centered-popover.p-popover::after {
+                display: none !important;
+            }
+
+            /* Скролбар стилизация */
+            .popover-content-scroll::-webkit-scrollbar {
+                width: 6px;
+            }
+            .popover-content-scroll::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 10px;
+            }
+
+
             ::ng-deep .history-timeline {
                 .p-timeline-event-opposite {
                     display: none !important; /* Спестява място */
