@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WpProductListService } from './list.service';
 import { WpProductDetailService } from './detail.service';
@@ -30,6 +30,7 @@ import { ConfirmationService } from 'primeng/api';
     selector: 'wp_product-list',
     standalone: true,
     imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, IconField, Select, FormsModule, Image, OverlayBadge, InputNumber, InputIcon, InputText],
+    // changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -56,7 +57,7 @@ import { ConfirmationService } from 'primeng/api';
             [rows]=rows
             [totalRecords]="listService.totalRecords()"
             [loading]="listService.loading()"
-            [rowsPerPageOptions]="[10, 20, 50, 200]"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
             [tableStyle]="{ 'min-width': '50rem' }"
             [(selection)]="selectedItem"
             [rowHover]="true"
@@ -230,7 +231,7 @@ import { ConfirmationService } from 'primeng/api';
                     <td>
                         <div class="flex justify-content-center">
                             <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
-                                <p-image *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
+                                <p-image loading="lazy" *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
                             </p-overlay-badge>
                         </div>
                     </td>
@@ -312,7 +313,7 @@ import { ConfirmationService } from 'primeng/api';
     right: 5px;"
         >
             <div class="flex align-items-center gap-3 ml-4">
-                <i class="pi pi-exclamation-circle text-orange-500 text-xl"></i>
+                <i class="pi pi-exclamation-circle text-orange-100 text-xl"></i>
                 <span class="font-medium"> {{ 'Have' | translate }} {{ listService.pendingChanges().length }} {{ 'not_saved_records' | translate }} </span>
             </div>
             <div class="flex gap-2 mr-4">
@@ -583,7 +584,7 @@ export class WpProductListComponent {
             }
         }
     }
-    protected rows = 200;
+    protected rows = 100;
 
     private confirmationService = inject(ConfirmationService);
 
