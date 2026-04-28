@@ -834,13 +834,13 @@ export class OrderDetailComponent {
                 // Отваряме конфигуратора и чакаме той да върне ИЗБРАНИЯ адон
                 this.openAddonConfigurator(fullProduct, (selectedAddon) => {
                     // Когато потребителят потвърди адона, добавяме продукта с него
-                    this.addProductToOrder(product, selectedAddon);
+                    this.addProductToOrder(fullProduct, selectedAddon);
                 });
             } else if (fullProduct) {
                 // console.log(fullProduct);
                 // console.log(product);
                 // Ако няма адони, добавяме продукта директно
-                this.addProductToOrder(product);
+                this.addProductToOrder(fullProduct);
             }
         });
     }
@@ -889,7 +889,6 @@ export class OrderDetailComponent {
 
         //  this.selectedSiteName.set(site.url);
         const siteId = this.detailService.selectedItem()!.site.id;
-
         let bPrice = product.siteConfig.find((c: { site: { id: number } }) => c.site.id === siteId);
 
 
@@ -925,6 +924,18 @@ export class OrderDetailComponent {
                 }
             ];
         }
+        let foundPath = '';
+        if (product.images && product.images.length > 0) {
+            // Търсим първо основната снимка
+            const primaryImg = product.images.find((img: any) => img.isPrimary === true);
+
+            if (primaryImg && primaryImg.localSrc) {
+                foundPath = primaryImg.localSrc;
+            } else {
+                // Ако няма основна, вземаме първата налична
+                foundPath = product.images[0]?.localSrc || '';
+            }
+        }
         // 3. Сглобяваме новия ред (NewLine)
         const newLine: IOrderLineItem = {
             productName: product.name || product.productName || product.names,
@@ -934,7 +945,7 @@ export class OrderDetailComponent {
             totalPrice: finalPrice, // Цена за 1 бройка
             weight: product.weight || '0.5',
             image: {
-                src: this.baseUrl + product.m_image,
+                src: foundPath? (this.baseUrl + foundPath): '',
                 id: 0
             },
             orderId: item.wpOrderId,
@@ -943,6 +954,8 @@ export class OrderDetailComponent {
             productId: product.id,
             wpOrderId: item.wpOrderId
         };
+
+        console.log(newLine);
 
         // 4. Обновяваме UI-то
         setTimeout(() => {

@@ -56,9 +56,8 @@ import { ConfirmationService } from 'primeng/api';
             [paginator]="true"
             [rows]=rows
             [totalRecords]="listService.totalRecords()"
-            [loading]="listService.loading()"
-            [rowsPerPageOptions]="[10, 20, 50, 100]"
-            [tableStyle]="{ 'min-width': '50rem' }"
+            [rowsPerPageOptions]="[10, 20, 50, 200]"
+            [tableStyle]="{ 'min-width': '80rem' }"
             [(selection)]="selectedItem"
             [rowHover]="true"
             dataKey="id"
@@ -66,6 +65,10 @@ import { ConfirmationService } from 'primeng/api';
             paginatorPosition="both"
             [showCurrentPageReport]="true"
             currentPageReportTemplate="Показани: {{ listService.items().length }} от {totalRecords} записа"
+            [virtualScroll]="true"
+            [virtualScrollItemSize]="103"
+            scrollHeight="600px"
+            [rowTrackBy]="trackByProductId"
         >
             <!--            <ng-template pTemplate="paginatorleft" style="text-align: center;">-->
             <!--                <div class="flex align-items-center px-3 py-1 border-round bg-gray-100 text-sm font-medium text-600 shadow-sm">-->
@@ -116,23 +119,23 @@ import { ConfirmationService } from 'primeng/api';
 
             <ng-template pTemplate="header">
                 <tr>
-                    <th>
+                    <th style="width: 3rem">
                         <p-tableHeaderCheckbox />
                     </th>
-                    <th style="width: 5rem">{{ 'Image' | translate }}</th>
-                    <th >
+                    <th style="width: 7rem">{{ 'Image' | translate }}</th>
+                    <th style="width: 10rem">
                         <div class="flex items-center justify-between">
                             {{ 'SKU' | translate }}
 <!--                            <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
-                    <th >
+                    <th style="width: 25rem">
                         <div class="flex items-center justify-between">
                             {{ 'Name' | translate }}
 <!--                            <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
-                    <th >
+                    <th style="width: 10rem">
                         <div class="flex items-center justify-between">
                             {{ 'Brand' | translate }}
                             <p-columnFilter field="brand" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
@@ -159,14 +162,14 @@ import { ConfirmationService } from 'primeng/api';
                             </p-columnFilter>
                         </div>
                     </th>
-                    <th pSortableColumn="stockQuantity">
+                    <th style="width: 8rem" pSortableColumn="stockQuantity">
                         <div class="flex items-center justify-between">
                             {{ 'Quantity' | translate }}
                             <p-sortIcon field="stockQuantity"></p-sortIcon>
                         </div>
                         <p-columnFilter type="text" field="quantity" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>
                     </th>
-                    <th >
+                    <th style="width: 12rem">
                         <div class="flex items-center justify-between">
                             {{ 'Categories' | translate }}
                             <p-columnFilter field="category" display="menu" matchMode="contains" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
@@ -203,7 +206,7 @@ import { ConfirmationService } from 'primeng/api';
                     <!--                                </p-select> </ng-template-->
                     <!--                        ></p-columnFilter>-->
                     <!--                    </th>-->
-                    <th pSortableColumn="saleType">
+                    <th style="width: 10rem" pSortableColumn="saleType">
                         <div class="flex items-center justify-between">
                             {{ 'Limited' | translate }}
                             <p-columnFilter type="text" field="saleType" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
@@ -218,12 +221,12 @@ import { ConfirmationService } from 'primeng/api';
                             </p-columnFilter>
                         </div>
                     </th>
-                    <th style="width: 8rem"></th>
+                    <th style="width: 5rem"></th>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-item>
-                <tr [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }" (click)="onRowClick(item)">
+                <tr style="height: 103px; min-height: 103px" [ngClass]="{ 'cursor-pointer hover:bg-blue-50': this.config?.data?.mode === 'lookup' }" (click)="onRowClick(item)">
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
@@ -231,7 +234,7 @@ import { ConfirmationService } from 'primeng/api';
                     <td>
                         <div class="flex justify-content-center">
                             <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
-                                <p-image loading="lazy" *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
+                                <p-image style="height: 85px;max-height: 85px" height="auto"  loading="lazy" *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
                             </p-overlay-badge>
                         </div>
                     </td>
@@ -268,17 +271,17 @@ import { ConfirmationService } from 'primeng/api';
                     </td>
 
                     <td>
-                        <div class="flex flex-col gap-1 w-70">
-                            <p-tag *ngFor="let cat of item.categories" [value]="cat.name" severity="secondary"></p-tag>
+                        <div class="categories-container">
+                            <div class="flex flex-wrap gap-1">
+                                <p-tag
+                                    *ngFor="let cat of item.categories"
+                                    [value]="cat.name"
+                                    severity="secondary"
+                                    styleClass="text-xs">
+                                </p-tag>
+                            </div>
                         </div>
                     </td>
-
-                    <!--                    <td>-->
-                    <!--                        <p-tag severity="info" [value]="item.unit | unitLabel"> </p-tag>-->
-                    <!--                    </td>-->
-                    <!--                    <td>-->
-                    <!--                        <p-tag [severity]="getStatusSeverity(item.status)" [value]="item.status | statusLabel"> </p-tag>-->
-                    <!--                    </td>-->
 
                     <td>
                         <p-select styleClass="table-status-select" [(ngModel)]="item.saleType" [options]="productSaleType" (onChange)="listService.updateProductField(item)" variant="filled" class="w-full">
@@ -358,6 +361,40 @@ import { ConfirmationService } from 'primeng/api';
                 width: 3.5rem !important;
                 min-width: 0 !important;
             }
+            /* 1. Фиксираме височината на самия ред */
+            :host ::ng-deep .p-datatable-tbody > tr {
+                height: 103px !important;
+            }
+
+            /* 2. Пречим на клетките да се раздуват */
+            :host ::ng-deep .p-datatable-tbody > tr > td {
+                height: 103px !important;
+                padding: 0 0.5rem !important;
+                border-bottom: 1px solid #f1f1f1;
+            }
+
+            /* 3. Вътрешен контейнер за контрол на съдържанието */
+            .fixed-cell {
+                height: 103px;
+                display: flex;
+                align-items: center;
+                overflow: hidden;
+            }
+
+            /* 4. Текстът не трябва да минава на нов ред */
+            .text-truncate {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                display: block;
+                width: 100%;
+            }
+
+            /* 5. Фиксираме снимките */
+            .fixed-img {
+                width: 75px;
+                height: 75px;
+                object-fit: cover;
+            }
         </style>
     `
 })
@@ -374,7 +411,12 @@ export class WpProductListComponent {
     selectedItem!: IWpProduct[] | null;
 
     onLazyLoad(event: any) {
+        if(event.rows < 200) event.rows = 200;
         this.listService.loadList(event.first, event.rows, event.filters, event.sortField, event.sortOrder);
+    }
+
+    trackByProductId(index: number, item: IWpProduct) {
+        return item.id;
     }
 
     constructor() {
@@ -406,7 +448,7 @@ export class WpProductListComponent {
 
     protected searchValue: string = '';
     private searchTimeout: any;
-    private lastParams: any = { first: 0, rows: 100, filters: {} };
+    private lastParams: any = { first: 0, rows: 200, filters: {} };
 
     private executeSearch(value: string) {
         if (this.searchTimeout) {
@@ -584,7 +626,7 @@ export class WpProductListComponent {
             }
         }
     }
-    protected rows = 100;
+    protected rows = 200;
 
     private confirmationService = inject(ConfirmationService);
 
