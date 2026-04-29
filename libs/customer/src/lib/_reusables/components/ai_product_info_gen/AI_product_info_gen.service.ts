@@ -23,8 +23,11 @@ export class AIProductInfoGenService {
         //         productInfo: this.wpProductDetailService.selectedItem(),
         // };
 
+        const clonedItem = structuredClone(this.wpProductDetailService.selectedItem()!);
+        clonedItem.translations = [];
+        clonedItem.addonConfigs = [];
         payload.tempImages = this.wpProductDetailService.selectedItem()?.images?? [];
-        payload.productInfo = this.wpProductDetailService.selectedItem()!;
+        payload.productInfo = clonedItem;
 
 
         return this.http.post<IAIProductInfoGen>(`${ROUTES.wp_product.ai_gen}`, payload);
