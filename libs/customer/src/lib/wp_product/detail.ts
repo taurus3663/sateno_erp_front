@@ -350,7 +350,7 @@ import { forkJoin, tap } from 'rxjs';
                                             <!--                                                <span class="font-bold text-lg"><i class="pi pi-table mr-2"></i>{{ 'Global_Addon_Configuration' | translate }}</span>-->
                                             <!--                                            </div>-->
 
-                                            <p-table [value]="currentAddonConfigs" [scrollable]="true" scrollHeight="300px" styleClass="p-datatable-sm shadow-1 border-round overflow-hidden">
+                                            <p-table [value]="currentAddonConfigs" [scrollable]="true" scrollHeight="300px" styleClass="p-datatable-sm shadow-1 border-round overflow-hidden" style="overflow: auto;">
                                                 <ng-template pTemplate="header">
                                                     <tr>
                                                         <th>{{ 'Addon' | translate }}</th>
@@ -476,6 +476,7 @@ import { forkJoin, tap } from 'rxjs';
                 border: 1px solid #d1d5db !important; /* Стандартен сив бордер */
                 border-radius: 6px;
             }
+
         `
     ]
 })

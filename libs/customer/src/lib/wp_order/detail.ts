@@ -891,7 +891,6 @@ export class OrderDetailComponent {
         const siteId = this.detailService.selectedItem()!.site.id;
         let bPrice = product.siteConfig.find((c: { site: { id: number } }) => c.site.id === siteId);
 
-
         // 1. Първо вземаме базовата цена от конфигурацията на сайта
         // let basePrice = parseFloat(product.siteConfig?.[0]?.price || 0);
         let basePrice = parseFloat(bPrice.regularPrice > 0? bPrice.regularPrice: bPrice.price);
@@ -936,9 +935,12 @@ export class OrderDetailComponent {
                 foundPath = product.images[0]?.localSrc || '';
             }
         }
+
+        let langCode = this.detailService.selectedItem()!.site.language as any;
+        const dd = product.translations.find((en: any) => en.language.code === langCode.code);
         // 3. Сглобяваме новия ред (NewLine)
         const newLine: IOrderLineItem = {
-            productName: product.name || product.productName || product.names,
+            productName: product.name || product.productName || product.names || dd.name,
             sku: product.sku,
             quantity: 1,
             price: finalPrice, // Вече включва адона
