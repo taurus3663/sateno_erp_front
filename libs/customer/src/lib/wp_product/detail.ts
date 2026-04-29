@@ -526,89 +526,89 @@ export class WpCategoryDetailComponent {
     onSiteChange() {}
 
     constructor() {
-        this.languageLService.loadList(0, 1000);
-        this.siteLService.loadList(0, 1000);
-        this.brandLService.loadList(0, 1000);
-        this.detailService.loadAllCategories();
-        this.addonService.loadList(0, 1000);
+           this.languageLService.loadList(0, 1000);
+           this.siteLService.loadList(0, 1000);
+           this.brandLService.loadList(0, 1000);
+           this.detailService.loadAllCategories();
+           this.addonService.loadList(0, 1000);
 
-        this.generateProductSaleTypeOptions();
-        this.generateStatusOptions();
+           this.generateProductSaleTypeOptions();
+           this.generateStatusOptions();
 
-        this.tr.onLangChange.subscribe((lang) => {
-            this.generateProductSaleTypeOptions();
-            this.generateStatusOptions();
-        });
-        effect(() => {
-            this.activeTab = '0';
-            this.syncSite = null;
-            this.selectedLanguage = null;
-            this.selectedSite = null;
-            const item = this.detailService.selectedItem();
-            const languages = this.languageLService.items();
-            const sites = this.siteLService.items();
-            if (!item?.id) {
-                const bgLang = languages.find((l) => l.code === 'bg');
-                if (bgLang) {
-                    this.selectedLanguage = bgLang;
-                    this.onLanguageChange();
-                }
-                this.selectedSite = sites.find((value) => value.url.includes('sateno.bg'));
-            }
-        });
+           this.tr.onLangChange.subscribe((lang) => {
+               this.generateProductSaleTypeOptions();
+               this.generateStatusOptions();
+           });
+           effect(() => {
+               this.activeTab = '0';
+               this.syncSite = null;
+               this.selectedLanguage = null;
+               this.selectedSite = null;
+               const item = this.detailService.selectedItem();
+               const languages = this.languageLService.items();
+               const sites = this.siteLService.items();
+               if (!item?.id) {
+                   const bgLang = languages.find((l) => l.code === 'bg');
+                   if (bgLang) {
+                       this.selectedLanguage = bgLang;
+                       this.onLanguageChange();
+                   }
+                   this.selectedSite = sites.find((value) => value.url.includes('sateno.bg'));
+               }
+           });
 
-        this.allProducts = false;
-        effect(() => {
-            const item = this.detailService.selectedItem();
-            const isVisible = this.detailService.isVisible();
+           this.allProducts = false;
+           effect(() => {
+               const item = this.detailService.selectedItem();
+               const isVisible = this.detailService.isVisible();
 
-            if (isVisible && item?.id && item.id !== 0) {
-                setTimeout(() => {
-                    const sites = this.siteLService.items();
-                    if (sites.length > 0) {
-                        const ref = this.dialogService.open(SiteSelectorComponent, {
-                            header: this.tr.instant('Choose'),
-                            width: '450px',
-                            data: { label: ' ', sites: sites } // Подаваме сайтовете, ако компонента ги очаква
-                        });
+               if (isVisible && item?.id && item.id !== 0) {
+                   setTimeout(() => {
+                       const sites = this.siteLService.items();
+                       if (sites.length > 0) {
+                           const ref = this.dialogService.open(SiteSelectorComponent, {
+                               header: this.tr.instant('Choose'),
+                               width: '450px',
+                               data: { label: ' ', sites: sites } // Подаваме сайтовете, ако компонента ги очаква
+                           });
 
-                        ref?.onClose.subscribe((site: any) => {
-                            // Проверяваме дали е върнат обект или ID (зависи какво връща SiteSelectorComponent)
-                            console.log(site);
-                            if (site) {
-                                // Тъй като вече имаме избрания обект/ID, го сетваме директно
-                                this.selectedSite = sites.find(value => value.id === site);
-                                this.syncSite = sites.find((value) => value.id === site);
-                                console.log(this.syncSite);
-                                // Автоматично избираме Български език
-                                const languages = this.languageLService.items();
-                                // this.selectedLanguage = languages.find((l) => l.code === 'bg');
-                                this.selectedLanguage = languages.find((l) => l.id === this.syncSite.language.id);
+                           ref?.onClose.subscribe((site: any) => {
+                               // Проверяваме дали е върнат обект или ID (зависи какво връща SiteSelectorComponent)
+                               console.log(site);
+                               if (site) {
+                                   // Тъй като вече имаме избрания обект/ID, го сетваме директно
+                                   this.selectedSite = sites.find(value => value.id === site);
+                                   this.syncSite = sites.find((value) => value.id === site);
+                                   console.log(this.syncSite);
+                                   // Автоматично избираме Български език
+                                   const languages = this.languageLService.items();
+                                   // this.selectedLanguage = languages.find((l) => l.code === 'bg');
+                                   this.selectedLanguage = languages.find((l) => l.id === this.syncSite.language.id);
 
-                                // Извикваме логиката за промяна на език
-                                this.onLanguageChange();
-                                this.loadEuroPrices();
+                                   // Извикваме логиката за промяна на език
+                                   this.onLanguageChange();
+                                   this.loadEuroPrices();
 
-                                this.allProducts = false;
-                            } else {
-                                this.allProducts = true;
-                            }
-                            // Ръчно казваме на Angular да отрази промените и да заключи селектите
-                            this.cdr.detectChanges();
-                        });
-                    }
-                }, 100);
-            }
+                                   this.allProducts = false;
+                               } else {
+                                   this.allProducts = true;
+                               }
+                               // Ръчно казваме на Angular да отрази промените и да заключи селектите
+                               this.cdr.detectChanges();
+                           });
+                       }
+                   }, 100);
+               }
 
-            if (isVisible && (!item?.id || item.id === 0)) {
-                this.activeTab = '0';
-            }
-        });
-        this.isTitleEdited = false;
-        this.isShortDescriptionEdited = false;
-        this.isDescriptionEdited = false;
-        this.euroRegularPrice.set(0);
-        this.euroSalePrice.set(0);
+               if (isVisible && (!item?.id || item.id === 0)) {
+                   this.activeTab = '0';
+               }
+           });
+           this.isTitleEdited = false;
+           this.isShortDescriptionEdited = false;
+           this.isDescriptionEdited = false;
+           this.euroRegularPrice.set(0);
+           this.euroSalePrice.set(0);
     }
 
     protected productSaleType: any[] = [];
@@ -806,13 +806,32 @@ export class WpCategoryDetailComponent {
             type: type,
             productId: this.detailService.selectedItem()?.id
         };
-
         // Връщаме потока, за да можем да го чакаме
         return this.detailService.translateProductContent(payload).pipe(
             tap({
-                next: () => {
+                next: (response: any[]) => {
                     this.ms.add({ severity: 'success', summary: 'Преведен тип ' + type });
                     signalM.set(false);
+
+                    const item = this.detailService.selectedItem();
+                    if (item && response) {
+                        // Обхождаме всеки превод от масива
+                        response.forEach(res => {
+                            // Намираме съответния език в локалния обект
+                            const translation = item.translations.find(t => t.language.id === res.languageId);
+
+                            if (translation) {
+                                // Обновяваме конкретното поле според типа
+                                if (type === 1) translation.name = res.translatedText;
+                                if (type === 2) translation.shortDescription = res.translatedText;
+                                if (type === 3) translation.description = res.translatedText;
+                            }
+                        });
+
+                        // Тъй като променяме свойства на обекта, а не самия обект,
+                        // викаме detectChanges, за да се обновят полетата в HTML веднага.
+                        this.cdr.detectChanges();
+                    }
                 },
                 error: () => signalM.set(false)
             })
@@ -915,8 +934,6 @@ export class WpCategoryDetailComponent {
                         // forkJoin чака ВСИЧКИ Observable в масива да приключат
                         forkJoin(translationRequests).subscribe(() => {
                             this.resetEditFlags();
-                            // Едва тук викаме финалния запис
-                            this.detailService.loadData(item.id); // Опресняваме локалните данни
                             this.executeFinalSave(item);
                         });
                     }else {

@@ -237,7 +237,7 @@ export class WpProductDetailService extends BaseDetailCrud<IWpProduct> {
 
     translateProductContent(item: any) {
 
-       return this.http.post(ROUTES.wp_product.translateProductContent, item);
+       return this.http.post<any[]>(ROUTES.wp_product.translateProductContent, item);
     }
 
     convertCurrency(cl: CurrencyCalc) {
