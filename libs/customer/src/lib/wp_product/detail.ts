@@ -1093,12 +1093,27 @@ export class WpCategoryDetailComponent {
         const hasLimit = item.saleType !== null && item.saleType !== undefined;
         const weight = item.weight !== undefined && true;
         const img = item.images.length > 0 ? item.images[0] : undefined;
+        const isWeightMissing = !weight || weight.toString().trim() === ''; // Проверка за празно
+// Дефинираме списък с полетата и техните условия за валидност
+        const fields = [
+            { valid: hasCategories, name: 'Категории' },
+            { valid: hasStatus, name: 'Статус' },
+            { valid: hasLimit, name: 'Лимит' },
+            { valid: !isWeightMissing && !this.isWeightInvalid, name: 'Тегло' },
+            { valid: img, name: 'Изображение' }
+        ];
 
-        if ( !hasCategories || !hasStatus || !hasLimit || !weight || !img || !this.isWeightInvalid) {
+// Филтрираме само тези, които НЕ са валидни
+        const invalidFieldNames = fields
+            .filter(f => !f.valid)
+            .map(f => f.name);
+
+        if (invalidFieldNames.length > 0) {
             this.ms.add({
                 severity: 'warn',
                 summary: 'Внимание',
-                detail: 'Моля, попълнете Всички полета правилно!'
+                // Използваме join, за да изброим имената със запетая
+                detail: `Моля, попълнете правилно следните полета: ${invalidFieldNames.join(', ')}!`
             });
             return false;
         }

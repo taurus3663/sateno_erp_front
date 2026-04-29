@@ -118,7 +118,7 @@ import { Select } from 'primeng/select';
             [lazy]="true"
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
-            [rows]="100"
+            [rows]="this.lastParams.rows"
             [totalRecords]="listService.totalRecords()"
             [loading]="listService.loading()"
             [rowsPerPageOptions]="[10, 20, 50, 100, 200, 500]"
@@ -641,8 +641,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
     private tr = inject(TranslateService);
     protected config = inject(DynamicDialogConfig, { optional: true });
 
+
+    rows = 50;
+
     selectedItem!: IOrder[] | null;
-    private lastParams: any = { first: 0, rows: 100, filters: {} };
+    protected lastParams: any = { first: 0, rows: this.rows, filters: {} };
 
     // onLazyLoad(event: any) {
     //     const filters = { ...event.filters };
@@ -652,34 +655,21 @@ export class OrderListComponent implements OnInit, OnDestroy {
     // }
 
     onLazyLoad(event: any) {
-        // 1. Вземаме филтрите от събитието на таблицата
         let filters = { ...event.filters };
 
+        // Прилагаме филтъра за статус
         if (this.selectedStatus && !filters['status']) {
             filters['status'] = { value: this.selectedStatus, matchMode: 'equals' };
         }
 
+        // Важно: Подаваме новия размер към сървиса
+        this.listService.loadList(event.first, this.lastParams.rows, filters);
 
-        // 2. ПРОВЕРКА: Ако този конкретен компонент е отворен в диалог с телефон
-        if (this.config?.data?.filterPhone) {
-            // Налагаме филтъра по телефон, за да не го изгубим при смяна на страница
-            filters = [];
-            filters['phone'] = { value: this.config.data.filterPhone, matchMode: 'equals' };
-
-        }
-
-        this.lastParams = {
-            first: event.first,
-            rows: event.rows,
-            filters: filters
-        };
-
-        // 3. Извикваме ЛОКАЛНАТА инстанция на сървиса
-        this.listService.loadList(event.first, event.rows, filters);
-
-        // 4. Запазваме параметрите ЛОКАЛНО за този компонент
-        // this.lastParams = { first: event.first, rows: event.rows, filters: filters };
+        this.lastParams.first = event.first;
+        this.lastParams.filters = filters;
         this.listService.loadStatusStats();
+
+        this.cdr.detectChanges(); // Форсираме UI да види новия брой редове
     }
 
     onDelete(id: any) {
@@ -873,13 +863,23 @@ export class OrderListComponent implements OnInit, OnDestroy {
         const previous = items[index - 1];
 
         const getDeliveryDate = (order: IOrder) => {
+            // 1. ЗАЩИТА: Ако по някаква причина поръчката липсва, връщаме празна дата
+            if (!order) return '';
+
+            // 2. Проверка на историята с Optional Chaining (?.)
             if (order.courierHistory && order.courierHistory.length > 0) {
-                // Вземаме ПОСЛЕДНИЯ запис (индекс length - 1)
                 const lastIndex = order.courierHistory.length - 1;
-                return new Date(order.courierHistory[lastIndex].eventTime).toDateString();
+                const lastEvent = order.courierHistory[lastIndex];
+
+                // Проверка дали самият запис в историята има време
+                if (lastEvent && lastEvent.eventTime) {
+                    return new Date(lastEvent.eventTime).toDateString();
+                }
             }
-            // Fallback към updateTime, ако историята липсва
-            return order.updateTime ? new Date(order.updateTime).toDateString() : new Date(order.wpOrderTime).toDateString();
+
+            // 3. Fallback към updateTime или wpOrderTime
+            const fallbackDate = order.updateTime || order.wpOrderTime;
+            return fallbackDate ? new Date(fallbackDate).toDateString() : '';
         };
 
         return getDeliveryDate(current) !== getDeliveryDate(previous);
@@ -903,6 +903,14 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // Връщаме на първа страница при смяна на филтър
         this.lastParams.first = 0;
         this.lastParams.filters = newFilters;
+
+        const smallPageStatuses = [OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.ABANDONED];
+
+        if (this.selectedStatus === null || smallPageStatuses.includes(this.selectedStatus as OrderStatus)) {
+            this.lastParams.rows = 20;
+        } else {
+            this.lastParams.rows = 50; // Връщаме на 50 за останалите
+        }
 
         this.listService.loadList(0, this.lastParams.rows, newFilters);
         this.listService.loadStatusStats();

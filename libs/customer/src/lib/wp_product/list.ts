@@ -31,6 +31,77 @@ import { ConfirmationService } from 'primeng/api';
     standalone: true,
     imports: [CommonModule, TableModule, ButtonModule, TagModule, Toolbar, WpCategoryDetailComponent, TranslatePipe, TreeTableModule, Tooltip, IconField, Select, FormsModule, Image, OverlayBadge, InputNumber, InputIcon, InputText],
     // changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: [
+        `
+            /* Влияе само на p-select, който има клас 'table-status-select' */
+            :host ::ng-deep .table-status-select {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                width: auto !important; /* Свиваме го до размера на тага */
+                min-width: 0 !important;
+            }
+
+            /* Премахваме фона на лейбъла само за този селект */
+            :host ::ng-deep .table-status-select .p-select-label {
+                background: transparent !important;
+                padding: 0 !important;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Скриваме стрелката само за този селект */
+            :host ::ng-deep .table-status-select .p-select-dropdown {
+                display: none !important;
+            }
+
+            /* Премахваме фокуса само за този селект */
+            :host ::ng-deep .table-status-select.p-focus {
+                box-shadow: none !important;
+                outline: none !important;
+            }
+
+            /* Стилизация за InputNumber (Quantity) */
+            :host ::ng-deep .compact-input .p-inputnumber-input {
+                width: 3.5rem !important;
+                min-width: 0 !important;
+            }
+            /* 1. Фиксираме височината на самия ред */
+            :host ::ng-deep .p-datatable-tbody > tr {
+                height: 103px !important;
+            }
+
+            /* 2. Пречим на клетките да се раздуват */
+            :host ::ng-deep .p-datatable-tbody > tr > td {
+                height: 103px !important;
+                padding: 0 0.5rem !important;
+                border-bottom: 1px solid #f1f1f1;
+            }
+
+            /* 3. Вътрешен контейнер за контрол на съдържанието */
+            .fixed-cell {
+                height: 103px;
+                display: flex;
+                align-items: center;
+                overflow: hidden;
+            }
+
+            /* 4. Текстът не трябва да минава на нов ред */
+            .text-truncate {
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                display: block;
+                width: 100%;
+            }
+
+            /* 5. Фиксираме снимките */
+            .fixed-img {
+                width: 75px;
+                height: 75px;
+                object-fit: cover;
+            }`
+    ],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
             <ng-template #start>
@@ -55,6 +126,7 @@ import { ConfirmationService } from 'primeng/api';
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
             [rows]=rows
+            [loading]="listService.loading()"
             [totalRecords]="listService.totalRecords()"
             [rowsPerPageOptions]="[10, 20, 50, 200]"
             [tableStyle]="{ 'min-width': '80rem' }"
@@ -65,9 +137,6 @@ import { ConfirmationService } from 'primeng/api';
             paginatorPosition="both"
             [showCurrentPageReport]="true"
             currentPageReportTemplate="Показани: {{ listService.items().length }} от {totalRecords} записа"
-            [virtualScroll]="true"
-            [virtualScrollItemSize]="103"
-            scrollHeight="600px"
             [rowTrackBy]="trackByProductId"
         >
             <!--            <ng-template pTemplate="paginatorleft" style="text-align: center;">-->
@@ -326,76 +395,6 @@ import { ConfirmationService } from 'primeng/api';
         </div>
 
         <wp_product-detail *ngIf="config?.data?.mode !== 'lookup'"></wp_product-detail>
-        <style>
-            /* Влияе само на p-select, който има клас 'table-status-select' */
-            :host ::ng-deep .table-status-select {
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-                width: auto !important; /* Свиваме го до размера на тага */
-                min-width: 0 !important;
-            }
-
-            /* Премахваме фона на лейбъла само за този селект */
-            :host ::ng-deep .table-status-select .p-select-label {
-                background: transparent !important;
-                padding: 0 !important;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            /* Скриваме стрелката само за този селект */
-            :host ::ng-deep .table-status-select .p-select-dropdown {
-                display: none !important;
-            }
-
-            /* Премахваме фокуса само за този селект */
-            :host ::ng-deep .table-status-select.p-focus {
-                box-shadow: none !important;
-                outline: none !important;
-            }
-
-            /* Стилизация за InputNumber (Quantity) */
-            :host ::ng-deep .compact-input .p-inputnumber-input {
-                width: 3.5rem !important;
-                min-width: 0 !important;
-            }
-            /* 1. Фиксираме височината на самия ред */
-            :host ::ng-deep .p-datatable-tbody > tr {
-                height: 103px !important;
-            }
-
-            /* 2. Пречим на клетките да се раздуват */
-            :host ::ng-deep .p-datatable-tbody > tr > td {
-                height: 103px !important;
-                padding: 0 0.5rem !important;
-                border-bottom: 1px solid #f1f1f1;
-            }
-
-            /* 3. Вътрешен контейнер за контрол на съдържанието */
-            .fixed-cell {
-                height: 103px;
-                display: flex;
-                align-items: center;
-                overflow: hidden;
-            }
-
-            /* 4. Текстът не трябва да минава на нов ред */
-            .text-truncate {
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                display: block;
-                width: 100%;
-            }
-
-            /* 5. Фиксираме снимките */
-            .fixed-img {
-                width: 75px;
-                height: 75px;
-                object-fit: cover;
-            }
-        </style>
     `
 })
 export class WpProductListComponent {
@@ -410,9 +409,30 @@ export class WpProductListComponent {
 
     selectedItem!: IWpProduct[] | null;
 
+    private lastRequestTime: number = 0;
+    private readonly COOLDOWN_MS = 500;
+
     onLazyLoad(event: any) {
-        if(event.rows < 200) event.rows = 200;
-        this.listService.loadList(event.first, event.rows, event.filters, event.sortField, event.sortOrder);
+        const currentTime = Date.now();
+
+        // Проверяваме дали са минали 5 секунди от последната заявка
+        if (currentTime - this.lastRequestTime < this.COOLDOWN_MS) {
+            console.warn(`Заявката е блокирана. Моля изчакайте ${((this.COOLDOWN_MS - (currentTime - this.lastRequestTime)) / 1000).toFixed(1)} сек.`);
+            return;
+        }
+
+        // Обновяваме времето на последната заявка
+        this.lastRequestTime = currentTime;
+
+        // Изпълняваме стандартната логика
+        console.log('Изпълнявам Lazy Load:', event.first);
+        this.listService.loadList(
+            event.first,
+            event.rows,
+            event.filters,
+            event.sortField,
+            event.sortOrder
+        );
     }
 
     trackByProductId(index: number, item: IWpProduct) {
@@ -626,7 +646,7 @@ export class WpProductListComponent {
             }
         }
     }
-    protected rows = 200;
+    protected rows = 50;
 
     private confirmationService = inject(ConfirmationService);
 
