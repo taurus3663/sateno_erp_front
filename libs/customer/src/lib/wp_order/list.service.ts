@@ -33,6 +33,7 @@ export class OrderListService extends BaseListCrud<IOrder> {
     }
 
     public getCourierType(order: IOrder) {
+        console.log(order.wpOrderId);
         let courierName: string | undefined;
         let mode: string | undefined;
 
@@ -50,7 +51,7 @@ export class OrderListService extends BaseListCrud<IOrder> {
         else if (match) {
             // Проверка кой Regex е съвпаднал (Regex1 започва с '[')
             if (match[0].startsWith('[')) {
-                // mode = match[1].toUpperCase();
+                mode = match[1].toUpperCase();
                 // rawText = match[2].trim();
                 // officeId = match[3];
                 courierName = match[4].toUpperCase();
