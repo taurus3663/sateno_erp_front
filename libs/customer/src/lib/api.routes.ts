@@ -164,6 +164,11 @@ export class apiRoutes {
         ...this.crud(apiRoutes.schemeWpproduct),
     }
 
+    private static readonly discountPhone = 'discount';
+    public readonly discountPhone = {
+        ...this.crud(apiRoutes.discountPhone),
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

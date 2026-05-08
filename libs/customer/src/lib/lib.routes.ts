@@ -63,6 +63,10 @@ registerRoute([
     {
         path: 'scheme_wp_product/list',
         loadComponent: () => import('./wp_product_scheme/list').then(c => c.WpProductSchemeListComponent)
+    },
+    {
+        path: 'discount/list',
+        loadComponent: () => import('./discount_phone/list').then(c => c.DiscountPhoneListComponent)
     }
 ]);
     registerMenu([
@@ -91,6 +95,11 @@ registerRoute([
                     label: "Шаблон за продукти",
                     icon: PrimeIcons.DISCORD,
                     routerLink: ['/scheme_wp_product/list']
+                },
+                {
+                    label: "Промоционални номера",
+                    icon: PrimeIcons.MEGAPHONE,
+                    routerLink: ['/discount/list']
                 }
             ]
         },

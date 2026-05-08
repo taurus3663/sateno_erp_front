@@ -78,9 +78,9 @@ import { Select } from 'primeng/select';
         }
 
         /* Ако искаш да скриеш иконата на стрелката по-чисто */
-        .table-status-select .p-select-dropdown {
-            display: none !important;
-        }
+        /*.table-status-select .p-select-dropdown {*/
+        /*    display: none !important;*/
+        /*}*/
     `],
     template: `
         <p-toolbar class="mb-6">
@@ -660,6 +660,13 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // Прилагаме филтъра за статус
         if (this.selectedStatus && !filters['status']) {
             filters['status'] = { value: this.selectedStatus, matchMode: 'equals' };
+        }
+
+        if (this.config?.data?.filterPhone) {
+            // Налагаме филтъра по телефон, за да не го изгубим при смяна на страница
+            filters = [];
+            filters['phone'] = { value: this.config.data.filterPhone, matchMode: 'equals' };
+
         }
 
         // Важно: Подаваме новия размер към сървиса
