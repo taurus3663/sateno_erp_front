@@ -60,6 +60,9 @@ import { forkJoin, tap } from 'rxjs';
                             <p-tab value="3" [disabled]="isNewProduct() && activeTab !== '3'"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
                             <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
                             <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
+                            <p-tab value="4" [disabled]="isNewProduct()">
+                                <i class="pi pi-history mr-2"></i>{{ 'History' | translate }}
+                            </p-tab>
                         </p-tablist>
 
                         <p-tabpanels>
@@ -203,27 +206,27 @@ import { forkJoin, tap } from 'rxjs';
                                                 <input pInputText class="w-full" [(ngModel)]="lang.name" (ngModelChange)="markAsEdited(1)" />
                                             </div>
 
-                                            <div class="col-span-12">
-                                                <div class="flex justify-between items-center mb-2">
-                                                    <label class="block font-bold mb-2">{{ 'Short_Description' | translate }} </label>
-                                                    <p-button
-                                                        [label]="'Auto_Translate_To_Other_Languages' | translate"
-                                                        icon="pi pi-sparkles"
-                                                        severity="help"
-                                                        [outlined]="true"
-                                                        size="small"
-                                                        [loading]="isTranslatingShortInformation()"
-                                                        (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2).subscribe()"
-                                                        [hidden]="this.isNewProduct()"
-                                                    >
-                                                    </p-button>
-                                                </div>
+<!--                                            <div class="col-span-12">-->
+<!--                                                <div class="flex justify-between items-center mb-2">-->
+<!--                                                    <label class="block font-bold mb-2">{{ 'Short_Description' | translate }} </label>-->
+<!--                                                    <p-button-->
+<!--                                                        [label]="'Auto_Translate_To_Other_Languages' | translate"-->
+<!--                                                        icon="pi pi-sparkles"-->
+<!--                                                        severity="help"-->
+<!--                                                        [outlined]="true"-->
+<!--                                                        size="small"-->
+<!--                                                        [loading]="isTranslatingShortInformation()"-->
+<!--                                                        (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2).subscribe()"-->
+<!--                                                        [hidden]="this.isNewProduct()"-->
+<!--                                                    >-->
+<!--                                                    </p-button>-->
+<!--                                                </div>-->
 
-                                                <!--                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"-->
-                                                <!--                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>-->
+<!--                                                &lt;!&ndash;                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"&ndash;&gt;-->
+<!--                                                &lt;!&ndash;                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>&ndash;&gt;-->
 
-                                                <textarea [style]="{ height: '70vh', 'max-width': 'auto' }" class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.shortDescription" (ngModelChange)="markAsEdited(2)"> </textarea>
-                                            </div>
+<!--                                                <textarea [style]="{ height: '70vh', 'max-width': 'auto' }" class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.shortDescription" (ngModelChange)="markAsEdited(2)"> </textarea>-->
+<!--                                            </div>-->
 
                                             <div class="col-span-12">
                                                 <div class="flex justify-between items-center mb-2">
@@ -394,6 +397,73 @@ import { forkJoin, tap } from 'rxjs';
                                             </p-table>
                                         </div>
                                     </div>
+                                </div>
+                            </p-tabpanel>
+                            <p-tabpanel value="4">
+                                <div class="pt-4">
+                                    <p-table
+                                        [value]="item.history || []"
+                                        [paginator]="true"
+                                        [rows]="10"
+                                        styleClass="p-datatable-sm shadow-1 border-round overflow-hidden"
+                                        [rowHover]="true"
+                                    >
+                                        <ng-template pTemplate="header">
+                                            <tr>
+                                                <th style="width: 20%">{{ 'Created' | translate }}</th>
+                                                <th style="width: 15%">{{ 'Quantity' | translate }}</th>
+                                                <th style="width: 45%">{{ 'Reason' | translate }}</th>
+                                                <th style="width: 20%">{{ 'Order' | translate }}</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="body" let-hist>
+                                            <tr>
+                                                <td>{{ hist.createTime | date:'dd.MM.yyyy HH:mm' }}</td>
+
+                                                <td>
+                        <span [ngClass]="hist.quantity > 0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold'">
+                            {{ hist.quantity > 0 ? '-' : '' }}{{ hist.quantity }}
+                        </span>
+                                                </td>
+
+                                                <td>{{ hist.reason }}</td>
+
+                                                <td>
+                                                    <div class="flex flex-col gap-1.5">
+                                                        <div *ngIf="hist.orderId" class="flex items-center gap-2 text-blue-600 font-medium text-sm" pTooltip="Системна поръчка">
+                                                            <i class="pi pi-shopping-cart text-xs"></i>
+                                                            <span>#{{ hist.orderId }}</span>
+                                                        </div>
+
+                                                        <div *ngIf="hist.wpOrderId" class="flex items-center gap-2 text-purple-600 font-medium text-sm" pTooltip="WP Поръчка">
+                                                            <i class="pi pi-shopping-bag text-xs"></i>
+                                                            <span>WP: #{{ hist.wpOrderId }}</span>
+                                                        </div>
+
+                                                        <div *ngIf="hist.productId" class="flex items-center gap-2 text-gray-600 font-medium text-sm" pTooltip="ID на продукта">
+                                                            <i class="pi pi-box text-xs"></i>
+                                                            <span>ID: {{ hist.productId }}</span>
+                                                        </div>
+
+                                                        <div *ngIf="hist.productSku" class="flex items-center gap-2 text-teal-600 font-medium text-sm" pTooltip="Артикулен номер (SKU)">
+                                                            <i class="pi pi-barcode text-xs"></i>
+                                                            <span>SKU: {{ hist.productSku }}</span>
+                                                        </div>
+
+                                                        <span *ngIf="!hist.orderId && !hist.wpOrderId && !hist.productId && !hist.productSku" class="text-gray-400">-</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template pTemplate="emptymessage">
+                                            <tr>
+                                                <td colspan="4" class="text-center p-6 text-gray-400">
+                                                    <i class="pi pi-inbox text-3xl mb-2 block"></i>
+                                                    {{ 'No_records_found' | translate }}
+                                                </td>
+                                            </tr>
+                                        </ng-template>
+                                    </p-table>
                                 </div>
                             </p-tabpanel>
                         </p-tabpanels>
@@ -924,8 +994,8 @@ export class WpCategoryDetailComponent {
                     if (bgTrans) {
                         if (this.isTitleEdited)
                             translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingTitle, 1));
-                        if (this.isShortDescriptionEdited)
-                            translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingShortInformation, 2));
+                        // if (this.isShortDescriptionEdited)
+                        //     translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingShortInformation, 2));
                         if (this.isDescriptionEdited)
                             translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingInformation, 3));
                     }
@@ -1009,8 +1079,8 @@ export class WpCategoryDetailComponent {
                     // };
 
                     if (generatedTexts[1]) translation.name = generatedTexts[1]; // Името обикновено е чист текст
-                    if (generatedTexts[2]) translation.shortDescription = generatedTexts[2];
-                    if (generatedTexts[3]) translation.description = generatedTexts[3];
+                    if (generatedTexts[2]) translation.description = generatedTexts[2];
+                    // if (generatedTexts[3]) translation.description = generatedTexts[3];
 
                     this.cdr.detectChanges();
                 });

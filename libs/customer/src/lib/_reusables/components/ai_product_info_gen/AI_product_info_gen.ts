@@ -24,9 +24,9 @@ import { SchemeWpProductDetailComponent } from '../../../wp_product_scheme/detai
             <div class="mb-4 flex-shrink-0">
                 <div class="flex justify-between mb-2 text-sm font-bold text-primary">
                     <span>{{ stepTitle | translate }}</span>
-                    <span>{{ currentStep() + 1 }} / 4</span>
+                    <span>{{ currentStep() + 1 }} / 3</span>
                 </div>
-                <p-progressBar [value]="(currentStep() + 1) * 25" [showValue]="false" styleClass="h-2"></p-progressBar>
+                <p-progressBar [value]="(currentStep() + 1) * 33.33" [showValue]="false" styleClass="h-2"></p-progressBar>
             </div>
 
             <div class="flex-grow overflow-y-auto pr-2 custom-scroll" style="min-height: 300px;">
@@ -122,12 +122,12 @@ export class AIProductInfoGenComponent {
     }
 
     get stepTitle(): string {
-        const steps = ['Select_scheme', 'Product_Name', 'Short_Description', 'Description'];
+        const steps = ['Select_scheme', 'Product_Name', 'Description'];
         return steps[this.currentStep()];
     }
 
     next() {
-        if (this.currentStep() < 3) {
+        if (this.currentStep() < 2) {
             this.currentStep.update((s) => s + 1);
             this.generateAI();
         } else {
