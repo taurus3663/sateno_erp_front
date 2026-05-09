@@ -144,6 +144,19 @@ import { forkJoin, tap } from 'rxjs';
                                         <input pInputText [(ngModel)]="item.weight" class="w-full" [ngClass]="{'ng-invalid ng-dirty': isWeightInvalid}"/>
                                     </div>
 
+                                    <div class="col-span-4">
+                                        <label class="block font-bold mb-2 ">{{ 'Buy_price' | translate }} </label>
+                                        <p-inputNumber [(ngModel)]="item.buyPrice"
+                                                       mode="currency" currency="EUR"
+                                                       class="w-full" styleClass="w-full"></p-inputNumber>
+                                    </div>
+                                    <div class="col-span-4">
+                                        <label class="block font-bold mb-2">{{ 'Transport_price' | translate }} </label>
+                                        <p-inputNumber [(ngModel)]="item.transportPrice"
+                                                       mode="currency" currency="EUR"
+                                                       class="w-full" styleClass="w-full"></p-inputNumber>
+                                    </div>
+
                                     <div class="col-span-12 mt-3">
                                         <label class="block font-bold mb-2">{{ 'Brand' | translate }}</label>
                                         <p-select [options]="brandLService.items()" [(ngModel)]="item.brand" optionLabel="name" class="w-full"></p-select>

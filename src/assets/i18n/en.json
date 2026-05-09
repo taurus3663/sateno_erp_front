@@ -308,5 +308,7 @@
   "Delete_failed": "Delete failed",
   "Deleted": "Deleted",
   "Time": "Time",
-  "Reason": "Reason"
+  "Reason": "Reason",
+  "Buy_price": "Buy price",
+  "Transport_price": "Transport price"
 }

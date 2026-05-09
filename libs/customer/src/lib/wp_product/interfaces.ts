@@ -11,6 +11,7 @@ export interface IWpProduct {
     // unit: ProductUnit;
     weight: string;
     buyPrice: number;
+    transportPrice: number;
     translations: IWpProductTranslation[];
     // addonValuePrices: IWpProductAddonValuePrice[];
     brand: IWpBrand;
