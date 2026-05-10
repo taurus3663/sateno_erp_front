@@ -45,6 +45,10 @@ registerRoute([
         loadComponent: () => import("./wp_order/list").then(c => c.OrderListComponent)
     },
     {
+        path: '',
+        loadComponent: () => import("./wp_order/list").then(c => c.OrderListComponent)
+    },
+    {
         path: 'courier/list',
         loadComponent: () => import('./courier/list').then(c => c.CourierListComponent)
     },
