@@ -169,6 +169,11 @@ export class apiRoutes {
         ...this.crud(apiRoutes.discountPhone),
     }
 
+    private static readonly wpProductHistory = 'wp_product_history';
+    public readonly productHistory = {
+        ...this.crud(apiRoutes.wpProductHistory)
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

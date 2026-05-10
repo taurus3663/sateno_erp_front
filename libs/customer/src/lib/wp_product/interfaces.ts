@@ -3,6 +3,7 @@ import { IWpBrand } from '../wp_brand/interfaces';
 import { IWpCategory } from '../wp_category/interfaces';
 import { ISite } from '../site/interfaces';
 import { IWpAddonValue } from '../wp_addon_value/interfaces';
+import { IWpProductHistory } from '../product_history/interface';
 
 export interface IWpProduct {
     id: number;
@@ -119,14 +120,5 @@ export interface CurrencyCalc {
     toCode: string;
     rsAmount?: number;
 }
-export interface IWpProductHistory {
-    id: number;
-    createTime: string;
-    quantity: number;
-    reason: string;
-    orderId: number;
-    productId: number;
-    wpOrderId: number;
-    productSku: string;
-}
+
 

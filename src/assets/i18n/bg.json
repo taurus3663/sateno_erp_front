@@ -312,5 +312,8 @@
   "Time": "Време",
   "Reason": "Причина",
   "Buy_price": "Доставена цена",
-  "Transport_price": "Транспортна цена"
+  "Transport_price": "Транспортна цена",
+  "Old_quantity": "Стара стойност",
+  "New_quantity": "Нова стойност",
+  "Changed_by": "Променен от"
 }

@@ -310,5 +310,8 @@
   "Time": "Time",
   "Reason": "Reason",
   "Buy_price": "Buy price",
-  "Transport_price": "Transport price"
+  "Transport_price": "Transport price",
+  "Old_quantity": "Old quantity",
+  "New_quantity": "New quantity",
+  "Changed_by": "Changed by"
 }

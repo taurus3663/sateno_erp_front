@@ -424,8 +424,11 @@ import { forkJoin, tap } from 'rxjs';
                                         <ng-template pTemplate="header">
                                             <tr>
                                                 <th style="width: 20%">{{ 'Created' | translate }}</th>
+                                                <th style="width: 20%">{{ 'Old_quantity' | translate }}</th>
+                                                <th style="width: 20%">{{ 'New_quantity' | translate }}</th>
                                                 <th style="width: 15%">{{ 'Quantity' | translate }}</th>
-                                                <th style="width: 45%">{{ 'Reason' | translate }}</th>
+                                                <th style="width: 10%">{{ 'Reason' | translate }}</th>
+                                                <th style="width: 10%">{{ 'Changed_by' | translate }}</th>
                                                 <th style="width: 20%">{{ 'Order' | translate }}</th>
                                             </tr>
                                         </ng-template>
@@ -433,13 +436,24 @@ import { forkJoin, tap } from 'rxjs';
                                             <tr>
                                                 <td>{{ hist.createTime | date:'dd.MM.yyyy HH:mm' }}</td>
 
+                                                <td>{{hist.oldQuantity}}</td>
+                                                <td>{{hist.newQuantity}}</td>
                                                 <td>
-                        <span [ngClass]="hist.quantity > 0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold'">
-                            {{ hist.quantity > 0 ? '-' : '' }}{{ hist.quantity }}
-                        </span>
+                     <span [ngClass]="{
+    'text-green-600 font-bold': hist.newQuantity > hist.oldQuantity,
+    'text-red-600 font-bold': hist.newQuantity < hist.oldQuantity,
+    'text-gray-600 font-bold': hist.newQuantity === hist.oldQuantity || hist.oldQuantity == null
+}">
+    <ng-container *ngIf="hist.oldQuantity != null && hist.newQuantity != null && hist.oldQuantity !== hist.newQuantity">
+        {{ hist.newQuantity > hist.oldQuantity ? '+' : '-' }}
+    </ng-container>
+
+                         {{ hist.quantity }}
+</span>
                                                 </td>
 
                                                 <td>{{ hist.reason }}</td>
+                                                <td>{{hist.changerName}}</td>
 
                                                 <td>
                                                     <div class="flex flex-col gap-1.5">
