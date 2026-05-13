@@ -71,6 +71,14 @@ registerRoute([
     {
         path: 'discount/list',
         loadComponent: () => import('./discount_phone/list').then(c => c.DiscountPhoneListComponent)
+    },
+    {
+        path: 'product_history/list',
+        loadComponent: () => import('./product_history/list').then(c => c.WpProductHistoryListComponent)
+    },
+    {
+        path: 'product_order/list',
+        loadComponent: () => import('./product_menu_order/list').then(c => c.ProductMenuOrderListComponent)
     }
 ]);
     registerMenu([
@@ -104,6 +112,16 @@ registerRoute([
                     label: "Промоционални номера",
                     icon: PrimeIcons.MEGAPHONE,
                     routerLink: ['/discount/list']
+                },
+                {   label: "Хронология за продукти",
+                    icon: PrimeIcons.HISTORY,
+                    routerLink: ['product_history/list']
+
+                },
+                {
+                    label: "Подреждане на продукти",
+                    icon: PrimeIcons.SORT,
+                    routerLink: ['product_order/list']
                 }
             ]
         },

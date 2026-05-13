@@ -128,7 +128,7 @@ export class SiteListComponent {
     onRowClick(category: any) {
         if (this.config?.data?.mode === 'lookup') {
             // Затваряме диалога и връщаме избраната категория на предишния прозорец
-            console.log(category.toString());
+            // console.log(category.toString());
             if (this.ref) {
                 this.ref.close(category);
             }

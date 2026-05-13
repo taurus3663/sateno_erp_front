@@ -174,6 +174,11 @@ export class apiRoutes {
         ...this.crud(apiRoutes.wpProductHistory)
     }
 
+    private static readonly wpProductOrder = 'wp_product_order';
+    public readonly wpProductOrder = {
+        ...this.crud(apiRoutes.wpProductOrder)
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

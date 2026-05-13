@@ -138,6 +138,7 @@ import { ConfirmationService } from 'primeng/api';
             [showCurrentPageReport]="true"
             currentPageReportTemplate="Показани: {{ listService.items().length }} от {totalRecords} записа"
             [rowTrackBy]="trackByProductId"
+            [filters]="this.lastParams.filters"
         >
             <!--            <ng-template pTemplate="paginatorleft" style="text-align: center;">-->
             <!--                <div class="flex align-items-center px-3 py-1 border-round bg-gray-100 text-sm font-medium text-600 shadow-sm">-->
@@ -454,6 +455,12 @@ export class WpProductListComponent {
         if(this.config?.data.rows != null) {
             this.rows = this.config?.data.rows;
         }
+        if(this.config?.data.category_id) {
+            const catId = this.config.data.category_id;
+            this.lastParams.filters = {
+                category: { value: catId, matchMode: 'contains' }
+            };
+        }
     }
 
     // protected productStatus: any[] = [];
@@ -468,7 +475,7 @@ export class WpProductListComponent {
 
     protected searchValue: string = '';
     private searchTimeout: any;
-    private lastParams: any = { first: 0, rows: 200, filters: {} };
+    protected lastParams: any = { first: 0, rows: 200, filters: {} };
 
     private executeSearch(value: string) {
         if (this.searchTimeout) {

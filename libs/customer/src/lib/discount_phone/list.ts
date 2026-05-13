@@ -25,6 +25,7 @@ import { Toolbar } from 'primeng/toolbar';
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
             [rows]="50"
+            [totalRecords]="listService.totalRecords()"
             [rowsPerPageOptions]="[10, 20, 50, 200]"
             [loading]="listService.loading()"
             [tableStyle]="{ 'min-width': '50rem' }"

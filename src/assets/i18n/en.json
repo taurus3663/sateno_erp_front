@@ -313,5 +313,6 @@
   "Transport_price": "Transport price",
   "Old_quantity": "Old quantity",
   "New_quantity": "New quantity",
-  "Changed_by": "Changed by"
+  "Changed_by": "Changed by",
+  "add_order_new_produt": "add order new produt"
 }
