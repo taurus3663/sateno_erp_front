@@ -24,4 +24,5 @@ export class ProductMenuOrderListService extends BaseListCrud<IProductMenuOrder>
         })
     }
 
+
 }

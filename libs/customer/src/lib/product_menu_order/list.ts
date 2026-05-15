@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductMenuOrderListService } from './list.service';
 import { Toolbar } from 'primeng/toolbar';
@@ -44,7 +44,7 @@ import { WpProductListComponent } from '../wp_product/list';
         </p-toolbar>
 
         <p-table
-            [value]="listService.items()"
+            [value]="tableData()"
             [lazy]="true"
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
@@ -108,6 +108,28 @@ export class ProductMenuOrderListComponent {
 
     public selectedCategory: any = null;
 
+
+    protected tableData = computed(() => {
+        const items = this.listService.items();
+        const flat: any[] = [];
+
+        items.forEach(order => {
+            // Ако order.products е масив (както в JSON-а от бекенда)
+            if (Array.isArray(order.products)) {
+                order.products.forEach(p => {
+                    flat.push({
+                        categoryName: order.categoryName,
+                        products: p // Така шаблона {{ item.products.names }} ще работи!
+                    });
+                });
+            } else {
+                // За случаите, когато добавяш ръчно от openProductSelector
+                flat.push(order);
+            }
+        });
+        return flat;
+    });
+
     // public currentCategoryProducts: any[] = [];
 
     onCategoryChange(category: any) {
@@ -135,29 +157,54 @@ export class ProductMenuOrderListComponent {
     }
 
     saveChanges() {
-        // Тук пращаш целия списък (текущи + нови) към бекенда
+        // 1. Събираме всички ID-та от всички възможни структури
+        const allProductIds: any[] = [];
+
+        this.listService.items().forEach(item => {
+            // Ако products е масив (от бекенда)
+            if (Array.isArray(item.products)) {
+                item.products.forEach((p: any) => allProductIds.push(p.id));
+            }
+            // Ако products е единичен обект (добавен ръчно)
+            else if (item.products && item.products.id) {
+                allProductIds.push(item.products.id);
+            }
+        });
+
         const payload = {
             category: this.selectedCategory.id,
-            products: this.listService.items()
+            productIds: allProductIds // Вече имаш чист масив от ID-та
         };
-        // Извикваш сървиса за запис
+
+        console.log("Payload за запис:", payload);
         this.listService.updateList(payload);
     }
 
     removeItem(itemToRemove: any) {
-        this.listService.items.update(currentItems =>
-            currentItems.filter(item => item !== itemToRemove)
-        );
+        this.listService.items.update(currentItems => {
+            // Тъй като 'itemToRemove' е обект от плоския списък,
+            // трябва да намерим съответната поръчка и да премахнем продукта от нея
+            return currentItems.map(order => {
+                if (Array.isArray(order.products)) {
+                    return {
+                        ...order,
+                        products: order.products.filter(p => p.id !== itemToRemove.products.id)
+                    };
+                }
+                return order;
+            }).filter(order => Array.isArray(order.products) ? order.products.length > 0 : true);
+        });
     }
 
     openProductSelector() {
+        const cleanCategoryName = this.selectedCategory.name.split('|')[0].trim();
         const ref = this.dialogService.open(WpProductListComponent, {
             header: this.tr.instant('Product'),
             width: '100%',
             height: '100%',
             closeOnEscape: true,
             closable: true,
-            data: { mode: 'lookup', category_id: this.selectedCategory.name }
+            data: { mode: 'lookup', category_id: cleanCategoryName }
         });
 
         ref?.onClose.subscribe(async (product: any) => {
