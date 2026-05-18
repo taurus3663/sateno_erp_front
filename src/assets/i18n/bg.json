@@ -316,5 +316,8 @@
   "Old_quantity": "Стара стойност",
   "New_quantity": "Нова стойност",
   "Changed_by": "Променен от",
-  "add_order_new_produt": "Добави продукт за подреждане"
+  "add_order_new_produt": "Добави продукт за подреждане",
+  "Attach_video_to_img": "Прикачи видео към снимка",
+  "Colors": "Цветове",
+  "Select_Colors": "Избери цветове"
 }

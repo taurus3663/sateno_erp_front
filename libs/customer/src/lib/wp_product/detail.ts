@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, effect, HostListener, inject, Signal, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, effect, ElementRef, inject, signal, ViewChild } from '@angular/core';
 import { Dialog } from 'primeng/dialog';
 import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
@@ -8,37 +8,38 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Select } from 'primeng/select';
 import { LanguageListService } from '../language/list.service';
 import { WpProductDetailService } from './detail.service';
-import { CurrencyCalc, IWpImage, IWpProduct, IWpProductTranslation, ProductSaleType, ProductStatus, ProductUnit } from './interfaces';
+import {
+    CurrencyCalc,
+    IWpImage,
+    IWpProduct,
+    IWpProductTranslation,
+    ProductSaleType,
+    ProductStatus
+} from './interfaces';
 import { InputNumber } from 'primeng/inputnumber';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
-import { Textarea } from 'primeng/textarea';
 import { SiteListService } from '../site/list.service';
 import { WpBrandListService } from '../wp_brand/list.service';
-import { Editor } from 'primeng/editor';
 import { MultiSelect } from 'primeng/multiselect';
 import { TreeSelect } from 'primeng/treeselect';
 import { ConfirmationService, MessageService, PrimeTemplate } from 'primeng/api';
 import { FileUpload } from 'primeng/fileupload';
 import { ROUTES } from '../api.routes';
 import { Tooltip } from 'primeng/tooltip';
-import { ProgressBar } from 'primeng/progressbar';
-import { IWpAddonValue } from '../wp_addon_value/interfaces';
 import { TableModule } from 'primeng/table';
 import { Listbox } from 'primeng/listbox';
 import { WpAddonListService } from '../wp_addon/list.service';
 import { XL_AUTH_CONFIG } from 'xl-auth';
-import { ILanguage } from '../language/interfaces';
-import { readonly } from '@angular/forms/signals';
 import { DialogService } from 'primeng/dynamicdialog';
 import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_info_gen/AI_product_info_gen';
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
-import { ConfirmDialog } from 'primeng/confirmdialog';
 import { forkJoin, tap } from 'rxjs';
+import { Image } from 'primeng/image';
 
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox, MultiSelect, Image],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -57,12 +58,10 @@ import { forkJoin, tap } from 'rxjs';
                     <p-tabs [value]="activeTab" (valueChange)="onTabChange($event)">
                         <p-tablist>
                             <p-tab value="0"><i class="pi pi-info-circle mr-2"></i>{{ 'Main' | translate }}</p-tab>
-                            <p-tab value="3" [disabled]="isNewProduct() && activeTab !== '3'"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }}</p-tab>
-                            <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }}</p-tab>
-                            <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }}</p-tab>
-                            <p-tab value="4" [disabled]="isNewProduct()">
-                                <i class="pi pi-history mr-2"></i>{{ 'History' | translate }}
-                            </p-tab>
+                            <p-tab value="3" [disabled]="isNewProduct() && activeTab !== '3'"><i class="pi pi-money-bill mr-2"></i>{{ 'Addons' | translate }} </p-tab>
+                            <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }} </p-tab>
+                            <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }} </p-tab>
+                            <p-tab value="4" [disabled]="isNewProduct()"><i class="pi pi-history mr-2"></i>{{ 'History' | translate }} </p-tab>
                         </p-tablist>
 
                         <p-tabpanels>
@@ -99,30 +98,98 @@ import { forkJoin, tap } from 'rxjs';
                                             </p-fileupload>
                                             <div class="grid grid-cols-12 gap-3" *ngIf="filteredImages.length">
                                                 <div *ngFor="let img of filteredImages; let i = index" class="col-span-4 md:col-span-2 relative group">
-                                                    <div class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4" [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'">
-                                                        <img [src]="baseUrl + img.localSrc" style="width: 130px;height: auto;" class="h-8rem object-cover block cursor-pointer" />
+                                                    <div
+                                                        style="width: 200px; height: auto;"
+                                                        class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"
+                                                        [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'"
+                                                    >
+                                                        <p-image
+                                                            alt="Image" width="250"
+                                                            [src]="this.baseUrl + img.localSrc"
+                                                            [preview]="true"
+                                                            loading="lazy"
+                                                            [style]="{'object-fit': 'contain', width: '100%', height: '100%' }"
+                                                            imageClass="w-full h-full object-cover block cursor-pointer"
 
-
-                                                        <div class="absolute top-1 left-1 z-20">
+                                                        >
+                                                            <ng-template #indicator>
+                                                                <i
+                                                                    class="pi pi-search text-lg text-white"
+                                                                    style="position: absolute; top: 8px; left: 50%; transform: translateX(-50%); margin: 0; padding: 0;"
+                                                                ></i>
+                                                            </ng-template>
+                                                        </p-image>                                                        <div class="absolute top-1 left-1 z-20">
                                                             <p-button
                                                                 [icon]="img.isPrimary ? 'pi pi-star-fill' : 'pi pi-star'"
                                                                 [severity]="img.isPrimary ? 'warn' : 'secondary'"
                                                                 [rounded]="true"
                                                                 size="small"
                                                                 [style]="{
-                    'background': img.isPrimary ? '#f59e0b' : 'rgba(255,255,255,0.8)',
-                    'border': 'none',
-                    'color': img.isPrimary ? 'white' : '#666',
-                    'box-shadow': '0 2px 4px rgba(0,0,0,0.3)'
-                }"
+                                                                    background: img.isPrimary ? '#f59e0b' : 'rgba(255,255,255,0.8)',
+                                                                    border: 'none',
+                                                                    color: img.isPrimary ? 'white' : '#666',
+                                                                    'box-shadow': '0 2px 4px rgba(0,0,0,0.3)'
+                                                                }"
                                                                 pTooltip="{{ 'Set_as_Primary' | translate }}"
-                                                                (onClick)="setPrimaryImage(img)">
+                                                                (onClick)="setPrimaryImage(img)"
+                                                            >
+                                                            </p-button>
+                                                        </div>
+
+                                                        <div class="absolute top-1 right-1 z-20" *ngIf="$any(img).hasVideo">
+                                                            <p-button
+                                                                icon="pi pi-play-circle"
+                                                                severity="success"
+                                                                [rounded]="true"
+                                                                size="small"
+                                                                [style]="{
+                                                                    background: '#22c55e',
+                                                                    border: 'none',
+                                                                    color: 'white',
+                                                                    'box-shadow': '0 2px 4px rgba(0,0,0,0.3)'
+                                                                }"
+                                                                pTooltip="{{ 'Watch_Video' | translate }}"
+                                                                (onClick)="playVideo($any(img).videoSrc)"
+                                                            >
                                                             </p-button>
                                                         </div>
 
                                                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small" (onClick)="removeImage(i)"></p-button>
+                                                            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" size="small" pTooltip="{{ 'Delete_Image' | translate }}" (onClick)="removeImage(i)"></p-button>
                                                             <p-button icon="pi pi-search-plus" severity="secondary" [rounded]="true" size="small" (onClick)="viewImage(img.localSrc)"></p-button>
+
+                                                            <p-button
+                                                                *ngIf="$any(img).hasVideo"
+                                                                icon="pi pi-video"
+                                                                severity="danger"
+                                                                [outlined]="true"
+                                                                [rounded]="true"
+                                                                size="small"
+                                                                styleClass="p-button-danger"
+                                                                [style]="{ background: '#ef4444', color: '#fff', border: 'none' }"
+                                                                pTooltip="{{ 'Remove_Video_Only' | translate }}"
+                                                                (onClick)="removeVideo(img)"
+                                                            >
+                                                                <i class="pi pi-trash text-xs absolute -bottom-1 -right-1 bg-red-700 rounded-full p-0.5 text-white scale-75"></i>
+                                                            </p-button>
+
+                                                            <p-fileupload
+                                                                *ngIf="img.id && !$any(img).hasVideo"
+                                                                mode="basic"
+                                                                name="file"
+                                                                [url]="uploadUrl"
+                                                                (onUpload)="onVideoUpload($event, img)"
+                                                                accept="video/*"
+                                                                [auto]="true"
+                                                                [multiple]="false"
+                                                                chooseIcon="pi pi-video"
+                                                                chooseLabel=" "
+                                                                class="video-icon-only"
+                                                                pTooltip="{{ 'Attach_video_to_img' | translate }}"
+                                                                tooltipPosition="top"
+                                                                [style]="{ 'border-radius': '30px', width: '30px', 'padding-right': '3px' }"
+                                                            >
+                                                            </p-fileupload>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -132,7 +199,7 @@ import { forkJoin, tap } from 'rxjs';
 
                                     <div class="col-span-3" *ngIf="productSaleType.length > 0">
                                         <label class="block font-bold mb-2">{{ 'Limited' | translate }}</label>
-                                        <p-select [options]="productSaleType" [(ngModel)]="item.saleType" optionLabel="label" optionValue="value" placeholder="Select Type" class="w-full"> </p-select>
+                                        <p-select [options]="productSaleType" [(ngModel)]="item.saleType" optionLabel="label" optionValue="value" placeholder="Select Type" class="w-full"></p-select>
                                     </div>
 
                                     <div class="col-span-3">
@@ -141,20 +208,53 @@ import { forkJoin, tap } from 'rxjs';
                                     </div>
                                     <div class="col-span-3">
                                         <label class="block font-bold mb-2">{{ 'Weight' | translate }}</label>
-                                        <input pInputText [(ngModel)]="item.weight" class="w-full" [ngClass]="{'ng-invalid ng-dirty': isWeightInvalid}"/>
+                                        <input pInputText [(ngModel)]="item.weight" class="w-full" [ngClass]="{ 'ng-invalid ng-dirty': isWeightInvalid }" />
                                     </div>
 
                                     <div class="col-span-4">
                                         <label class="block font-bold mb-2 ">{{ 'Buy_price' | translate }} </label>
-                                        <p-inputNumber [(ngModel)]="item.buyPrice"
-                                                       mode="currency" currency="EUR"
-                                                       class="w-full" styleClass="w-full"></p-inputNumber>
+                                        <p-inputNumber [(ngModel)]="item.buyPrice" mode="currency" currency="EUR" class="w-full" styleClass="w-full"></p-inputNumber>
                                     </div>
                                     <div class="col-span-4">
                                         <label class="block font-bold mb-2">{{ 'Transport_price' | translate }} </label>
-                                        <p-inputNumber [(ngModel)]="item.transportPrice"
-                                                       mode="currency" currency="EUR"
-                                                       class="w-full" styleClass="w-full"></p-inputNumber>
+                                        <p-inputNumber [(ngModel)]="item.transportPrice" mode="currency" currency="EUR" class="w-full" styleClass="w-full"></p-inputNumber>
+                                    </div>
+
+                                    <div class="col-span-12 mt-3">
+                                        <label class="block font-bold mb-2"> <i class="pi pi-palette mr-2 text-primary"></i>{{ 'Colors' | translate }} </label>
+                                        <p-multiSelect
+                                            [options]="this.availableColors"
+                                            appendTo="body"
+                                            optionLabel="label"
+                                            optionValue="name"
+                                            [filter]="true"
+                                            filterBy="label"
+                                            placeholder="{{ 'Select_Colors' | translate }}"
+                                            class="w-full"
+                                            styleClass="w-full"
+                                        >
+                                            <!-- Шаблон за това как изглеждат цветовете в списъка за избор -->
+                                            <ng-template pTemplate="item" let-color>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="inline-block w-4 h-4 rounded-full border border-surface-300" [style.backgroundColor]="color.hex"></span>
+                                                    <span>{{ color.label }}</span>
+                                                </div>
+                                            </ng-template>
+
+                                            <!-- Шаблон за избраните чипове/значки в самото поле -->
+                                            <ng-template pTemplate="selectedItems" let-colors>
+                                                <div class="flex items-center gap-1 flex-wrap" *ngIf="colors && colors.length > 0">
+                                                    <div *ngFor="let col of colors | slice: 0 : 3" class="flex items-center gap-1 bg-surface-100 text-surface-800 px-2 py-0.5 rounded text-sm border border-surface-200">
+                                                        <span class="inline-block w-2 h-2 rounded-full" [style.backgroundColor]="getColorHex($any(col))"></span>
+                                                        <span>{{ getColorLabel($any(col)) }}</span>
+                                                    </div>
+                                                    <span *ngIf="colors.length > 3" class="text-xs font-bold text-gray-500 ml-1"> +{{ colors.length - 3 }} {{ 'more' | translate }} </span>
+                                                </div>
+                                                <span *ngIf="!colors || colors.length === 0">
+                                                    {{ 'Select_Colors' | translate }}
+                                                </span>
+                                            </ng-template>
+                                        </p-multiSelect>
                                     </div>
 
                                     <div class="col-span-12 mt-3">
@@ -201,7 +301,7 @@ import { forkJoin, tap } from 'rxjs';
                                                         {{ 'Product_Name' | translate }}
                                                     </label>
 
-                                                    <p-button [label]="'Gen_by_AI' | translate" icon="pi pi-android" severity="help" [outlined]="true" size="small" (onClick)="openAIProductInfoGen(item)"> </p-button>
+                                                    <p-button [label]="'Gen_by_AI' | translate" icon="pi pi-android" severity="help" [outlined]="true" size="small" (onClick)="openAIProductInfoGen(item)"></p-button>
 
                                                     <p-button
                                                         [label]="'Auto_Translate_To_Other_Languages' | translate"
@@ -219,27 +319,27 @@ import { forkJoin, tap } from 'rxjs';
                                                 <input pInputText class="w-full" [(ngModel)]="lang.name" (ngModelChange)="markAsEdited(1)" />
                                             </div>
 
-<!--                                            <div class="col-span-12">-->
-<!--                                                <div class="flex justify-between items-center mb-2">-->
-<!--                                                    <label class="block font-bold mb-2">{{ 'Short_Description' | translate }} </label>-->
-<!--                                                    <p-button-->
-<!--                                                        [label]="'Auto_Translate_To_Other_Languages' | translate"-->
-<!--                                                        icon="pi pi-sparkles"-->
-<!--                                                        severity="help"-->
-<!--                                                        [outlined]="true"-->
-<!--                                                        size="small"-->
-<!--                                                        [loading]="isTranslatingShortInformation()"-->
-<!--                                                        (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2).subscribe()"-->
-<!--                                                        [hidden]="this.isNewProduct()"-->
-<!--                                                    >-->
-<!--                                                    </p-button>-->
-<!--                                                </div>-->
+                                            <!--                                            <div class="col-span-12">-->
+                                            <!--                                                <div class="flex justify-between items-center mb-2">-->
+                                            <!--                                                    <label class="block font-bold mb-2">{{ 'Short_Description' | translate }} </label>-->
+                                            <!--                                                    <p-button-->
+                                            <!--                                                        [label]="'Auto_Translate_To_Other_Languages' | translate"-->
+                                            <!--                                                        icon="pi pi-sparkles"-->
+                                            <!--                                                        severity="help"-->
+                                            <!--                                                        [outlined]="true"-->
+                                            <!--                                                        size="small"-->
+                                            <!--                                                        [loading]="isTranslatingShortInformation()"-->
+                                            <!--                                                        (onClick)="translateProductContent(lang, isTranslatingShortInformation, 2).subscribe()"-->
+                                            <!--                                                        [hidden]="this.isNewProduct()"-->
+                                            <!--                                                    >-->
+                                            <!--                                                    </p-button>-->
+                                            <!--                                                </div>-->
 
-<!--                                                &lt;!&ndash;                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"&ndash;&gt;-->
-<!--                                                &lt;!&ndash;                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>&ndash;&gt;-->
+                                            <!--                                                &lt;!&ndash;                                                <p-editor [style]="{ height: '40vh', 'max-width': 'auto' }"&ndash;&gt;-->
+                                            <!--                                                &lt;!&ndash;                                                          class="w-full" [(ngModel)]="lang.shortDescription"></p-editor>&ndash;&gt;-->
 
-<!--                                                <textarea [style]="{ height: '70vh', 'max-width': 'auto' }" class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.shortDescription" (ngModelChange)="markAsEdited(2)"> </textarea>-->
-<!--                                            </div>-->
+                                            <!--                                                <textarea [style]="{ height: '70vh', 'max-width': 'auto' }" class="w-full border-1 border-surface-300 border-solid" [(ngModel)]="lang.shortDescription" (ngModelChange)="markAsEdited(2)"> </textarea>-->
+                                            <!--                                            </div>-->
 
                                             <div class="col-span-12">
                                                 <div class="flex justify-between items-center mb-2">
@@ -272,51 +372,43 @@ import { forkJoin, tap } from 'rxjs';
                             <p-tabpanel value="2">
                                 <div class="pt-4" *ngIf="selectedSite && currentSitePricing">
                                     <div class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
-
                                         <ng-container *ngIf="isNotEuro()">
                                             <div class="col-span-12">
-                                                <h3 class="text-xs font-bold text-gray-500 uppercase mb-2">
-                                                    <i class="pi pi-sync mr-1"></i> {{ 'Calculate_from_EUR' | translate }}
-                                                </h3>
+                                                <h3 class="text-xs font-bold text-gray-500 uppercase mb-2"><i class="pi pi-sync mr-1"></i> {{ 'Calculate_from_EUR' | translate }}</h3>
                                             </div>
                                             <div class="col-span-4">
-                                                <label class="block font-bold mb-2 text-xs text-blue-600">{{'Price' | translate}} (EUR)</label>
-                                                <p-inputNumber [(ngModel)]="euroRegularPrice"
-                                                               [placeholder]="isConverting() ? 'Calculating...' : '0.00'"
-                                                               mode="currency" currency="EUR"
-                                                               (onBlur)="convertFromEuro('regular')"
-                                                               class="w-full" styleClass="w-full"></p-inputNumber>
+                                                <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Price' | translate }} (EUR)</label>
+                                                <p-inputNumber
+                                                    [(ngModel)]="euroRegularPrice"
+                                                    [placeholder]="isConverting() ? 'Calculating...' : '0.00'"
+                                                    mode="currency"
+                                                    currency="EUR"
+                                                    (onBlur)="convertFromEuro('regular')"
+                                                    class="w-full"
+                                                    styleClass="w-full"
+                                                ></p-inputNumber>
                                             </div>
                                             <div class="col-span-4">
-                                                <label class="block font-bold mb-2 text-xs text-blue-600">{{'Sale_Price' | translate}} (EUR)</label>
-                                                <p-inputNumber [(ngModel)]="euroSalePrice"
-                                                               mode="currency" currency="EUR"
-                                                               (onBlur)="convertFromEuro('sale')"
-                                                               class="w-full" styleClass="w-full"></p-inputNumber>
+                                                <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Sale_Price' | translate }} (EUR)</label>
+                                                <p-inputNumber [(ngModel)]="euroSalePrice" mode="currency" currency="EUR" (onBlur)="convertFromEuro('sale')" class="w-full" styleClass="w-full"></p-inputNumber>
                                             </div>
-                                            <div class="col-span-12"><hr class="my-3 border-gray-200"></div>
+                                            <div class="col-span-12">
+                                                <hr class="my-3 border-gray-200" />
+                                            </div>
                                         </ng-container>
 
                                         <div class="col-span-12">
-                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2">
-                                                <i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }}: {{ selectedSite.name }}
-                                            </h3>
+                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2"><i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }} : {{ selectedSite.name }}</h3>
                                         </div>
 
                                         <div class="col-span-4">
-                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }} ({{selectedSite.currency?.code}})</label>
-                                            <p-inputNumber [(ngModel)]="currentSitePricing.regularPrice"
-                                                           [disabled]="isConverting()"
-                                                           mode="currency" [currency]="selectedSite.currency?.code || 'BGN'"
-                                                           class="w-full" styleClass="w-full"></p-inputNumber>
+                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }} ({{ selectedSite.currency?.code }})</label>
+                                            <p-inputNumber [(ngModel)]="currentSitePricing.regularPrice" [disabled]="isConverting()" mode="currency" [currency]="selectedSite.currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
                                         </div>
 
                                         <div class="col-span-4">
-                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }} ({{selectedSite.currency?.code}})</label>
-                                            <p-inputNumber [(ngModel)]="currentSitePricing.price"
-                                                           [disabled]="isConverting()"
-                                                           mode="currency" [currency]="selectedSite.currency?.code || 'BGN'"
-                                                           class="w-full" styleClass="w-full"></p-inputNumber>
+                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }} ({{ selectedSite.currency?.code }})</label>
+                                            <p-inputNumber [(ngModel)]="currentSitePricing.price" [disabled]="isConverting()" mode="currency" [currency]="selectedSite.currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
                                         </div>
                                     </div>
                                 </div>
@@ -414,13 +506,7 @@ import { forkJoin, tap } from 'rxjs';
                             </p-tabpanel>
                             <p-tabpanel value="4">
                                 <div class="pt-4">
-                                    <p-table
-                                        [value]="item.history || []"
-                                        [paginator]="true"
-                                        [rows]="10"
-                                        styleClass="p-datatable-sm shadow-1 border-round overflow-hidden"
-                                        [rowHover]="true"
-                                    >
+                                    <p-table [value]="item.history || []" [paginator]="true" [rows]="10" styleClass="p-datatable-sm shadow-1 border-round overflow-hidden" [rowHover]="true">
                                         <ng-template pTemplate="header">
                                             <tr>
                                                 <th style="width: 20%">{{ 'Created' | translate }}</th>
@@ -434,26 +520,28 @@ import { forkJoin, tap } from 'rxjs';
                                         </ng-template>
                                         <ng-template pTemplate="body" let-hist>
                                             <tr>
-                                                <td>{{ hist.createTime | date:'dd.MM.yyyy HH:mm' }}</td>
+                                                <td>{{ hist.createTime | date: 'dd.MM.yyyy HH:mm' }}</td>
 
-                                                <td>{{hist.oldQuantity}}</td>
-                                                <td>{{hist.newQuantity}}</td>
+                                                <td>{{ hist.oldQuantity }}</td>
+                                                <td>{{ hist.newQuantity }}</td>
                                                 <td>
-                     <span [ngClass]="{
-    'text-green-600 font-bold': hist.newQuantity > hist.oldQuantity,
-    'text-red-600 font-bold': hist.newQuantity < hist.oldQuantity,
-    'text-gray-600 font-bold': hist.newQuantity === hist.oldQuantity || hist.oldQuantity == null
-}">
-    <ng-container *ngIf="hist.oldQuantity != null && hist.newQuantity != null && hist.oldQuantity !== hist.newQuantity">
-        {{ hist.newQuantity > hist.oldQuantity ? '+' : '-' }}
-    </ng-container>
+                                                    <span
+                                                        [ngClass]="{
+                                                            'text-green-600 font-bold': hist.newQuantity > hist.oldQuantity,
+                                                            'text-red-600 font-bold': hist.newQuantity < hist.oldQuantity,
+                                                            'text-gray-600 font-bold': hist.newQuantity === hist.oldQuantity || hist.oldQuantity == null
+                                                        }"
+                                                    >
+                                                        <ng-container *ngIf="hist.oldQuantity != null && hist.newQuantity != null && hist.oldQuantity !== hist.newQuantity">
+                                                            {{ hist.newQuantity > hist.oldQuantity ? '+' : '-' }}
+                                                        </ng-container>
 
-                         {{ hist.quantity }}
-</span>
+                                                        {{ hist.quantity }}
+                                                    </span>
                                                 </td>
 
                                                 <td>{{ hist.reason }}</td>
-                                                <td>{{hist.changerName}}</td>
+                                                <td>{{ hist.changerName }}</td>
 
                                                 <td>
                                                     <div class="flex flex-col gap-1.5">
@@ -552,7 +640,7 @@ import { forkJoin, tap } from 'rxjs';
                         <!--                        <p-button label="Запис" icon="pi pi-check" [loading]="detailService.isSaving()"-->
                         <!--                                  (onClick)="triggerSave()" />-->
 
-                        <p-button *ngIf="isNewProduct() && activeTab !== '0'" [label]="'Back' | translate" icon="pi pi-chevron-left" [text]="true" severity="secondary" (onClick)="goBack()"> </p-button>
+                        <p-button *ngIf="isNewProduct() && activeTab !== '0'" [label]="'Back' | translate" icon="pi pi-chevron-left" [text]="true" severity="secondary" (onClick)="goBack()"></p-button>
 
                         <p-button
                             [label]="(shouldShowNextButton() ? 'Next' : 'Save') | translate"
@@ -573,7 +661,6 @@ import { forkJoin, tap } from 'rxjs';
                 border: 1px solid #d1d5db !important; /* Стандартен сив бордер */
                 border-radius: 6px;
             }
-
         `
     ]
 })
@@ -594,9 +681,6 @@ export class WpCategoryDetailComponent {
     allProducts: boolean = false;
 
     activeTab: string | undefined | number = '0';
-
-
-
     // currentTranslation: IWpProductTranslation | null = null;
 
     onLanguageChange() {
@@ -624,89 +708,89 @@ export class WpCategoryDetailComponent {
     onSiteChange() {}
 
     constructor() {
-           this.languageLService.loadList(0, 1000);
-           this.siteLService.loadList(0, 1000);
-           this.brandLService.loadList(0, 1000);
-           this.detailService.loadAllCategories();
-           this.addonService.loadList(0, 1000);
+        this.languageLService.loadList(0, 1000);
+        this.siteLService.loadList(0, 1000);
+        this.brandLService.loadList(0, 1000);
+        this.detailService.loadAllCategories();
+        this.addonService.loadList(0, 1000);
 
-           this.generateProductSaleTypeOptions();
-           this.generateStatusOptions();
+        this.generateProductSaleTypeOptions();
+        this.generateStatusOptions();
 
-           this.tr.onLangChange.subscribe((lang) => {
-               this.generateProductSaleTypeOptions();
-               this.generateStatusOptions();
-           });
-           effect(() => {
-               this.activeTab = '0';
-               this.syncSite = null;
-               this.selectedLanguage = null;
-               this.selectedSite = null;
-               const item = this.detailService.selectedItem();
-               const languages = this.languageLService.items();
-               const sites = this.siteLService.items();
-               if (!item?.id) {
-                   const bgLang = languages.find((l) => l.code === 'bg');
-                   if (bgLang) {
-                       this.selectedLanguage = bgLang;
-                       this.onLanguageChange();
-                   }
-                   this.selectedSite = sites.find((value) => value.url.includes('sateno.bg'));
-               }
-           });
+        this.tr.onLangChange.subscribe((lang) => {
+            this.generateProductSaleTypeOptions();
+            this.generateStatusOptions();
+        });
+        effect(() => {
+            this.activeTab = '0';
+            this.syncSite = null;
+            this.selectedLanguage = null;
+            this.selectedSite = null;
+            const item = this.detailService.selectedItem();
+            const languages = this.languageLService.items();
+            const sites = this.siteLService.items();
+            if (!item?.id) {
+                const bgLang = languages.find((l) => l.code === 'bg');
+                if (bgLang) {
+                    this.selectedLanguage = bgLang;
+                    this.onLanguageChange();
+                }
+                this.selectedSite = sites.find((value) => value.url.includes('sateno.bg'));
+            }
+        });
 
-           this.allProducts = false;
-           effect(() => {
-               const item = this.detailService.selectedItem();
-               const isVisible = this.detailService.isVisible();
+        this.allProducts = false;
+        effect(() => {
+            const item = this.detailService.selectedItem();
+            const isVisible = this.detailService.isVisible();
 
-               if (isVisible && item?.id && item.id !== 0) {
-                   setTimeout(() => {
-                       const sites = this.siteLService.items();
-                       if (sites.length > 0) {
-                           const ref = this.dialogService.open(SiteSelectorComponent, {
-                               header: this.tr.instant('Choose'),
-                               width: '450px',
-                               data: { label: ' ', sites: sites } // Подаваме сайтовете, ако компонента ги очаква
-                           });
+            if (isVisible && item?.id && item.id !== 0) {
+                setTimeout(() => {
+                    const sites = this.siteLService.items();
+                    if (sites.length > 0) {
+                        const ref = this.dialogService.open(SiteSelectorComponent, {
+                            header: this.tr.instant('Choose'),
+                            width: '450px',
+                            data: { label: ' ', sites: sites } // Подаваме сайтовете, ако компонента ги очаква
+                        });
 
-                           ref?.onClose.subscribe((site: any) => {
-                               // Проверяваме дали е върнат обект или ID (зависи какво връща SiteSelectorComponent)
-                               console.log(site);
-                               if (site) {
-                                   // Тъй като вече имаме избрания обект/ID, го сетваме директно
-                                   this.selectedSite = sites.find(value => value.id === site);
-                                   this.syncSite = sites.find((value) => value.id === site);
-                                   console.log(this.syncSite);
-                                   // Автоматично избираме Български език
-                                   const languages = this.languageLService.items();
-                                   // this.selectedLanguage = languages.find((l) => l.code === 'bg');
-                                   this.selectedLanguage = languages.find((l) => l.id === this.syncSite.language.id);
+                        ref?.onClose.subscribe((site: any) => {
+                            // Проверяваме дали е върнат обект или ID (зависи какво връща SiteSelectorComponent)
+                            console.log(site);
+                            if (site) {
+                                // Тъй като вече имаме избрания обект/ID, го сетваме директно
+                                this.selectedSite = sites.find((value) => value.id === site);
+                                this.syncSite = sites.find((value) => value.id === site);
+                                console.log(this.syncSite);
+                                // Автоматично избираме Български език
+                                const languages = this.languageLService.items();
+                                // this.selectedLanguage = languages.find((l) => l.code === 'bg');
+                                this.selectedLanguage = languages.find((l) => l.id === this.syncSite.language.id);
 
-                                   // Извикваме логиката за промяна на език
-                                   this.onLanguageChange();
-                                   this.loadEuroPrices();
+                                // Извикваме логиката за промяна на език
+                                this.onLanguageChange();
+                                this.loadEuroPrices();
 
-                                   this.allProducts = false;
-                               } else {
-                                   this.allProducts = true;
-                               }
-                               // Ръчно казваме на Angular да отрази промените и да заключи селектите
-                               this.cdr.detectChanges();
-                           });
-                       }
-                   }, 100);
-               }
+                                this.allProducts = false;
+                            } else {
+                                this.allProducts = true;
+                            }
+                            // Ръчно казваме на Angular да отрази промените и да заключи селектите
+                            this.cdr.detectChanges();
+                        });
+                    }
+                }, 100);
+            }
 
-               if (isVisible && (!item?.id || item.id === 0)) {
-                   this.activeTab = '0';
-               }
-           });
-           this.isTitleEdited = false;
-           this.isShortDescriptionEdited = false;
-           this.isDescriptionEdited = false;
-           this.euroRegularPrice.set(0);
-           this.euroSalePrice.set(0);
+            if (isVisible && (!item?.id || item.id === 0)) {
+                this.activeTab = '0';
+            }
+        });
+        this.isTitleEdited = false;
+        this.isShortDescriptionEdited = false;
+        this.isDescriptionEdited = false;
+        this.euroRegularPrice.set(0);
+        this.euroSalePrice.set(0);
     }
 
     protected productSaleType: any[] = [];
@@ -768,24 +852,18 @@ export class WpCategoryDetailComponent {
         }
     }
 
-    // private addImageToModel(item: IWpProduct, res: any) {
-    //     const newImage: IWpImage = {
-    //         id: 0, // Нова снимка, още няма ID в базата
-    //         localSrc: res.url, // URL към временната папка за визуализация
-    //         tempName: res.fileName, // Името, по което Java ще намери файла в temp/
-    //         isTemp: true, // Маркер за бекенда, че трябва да мести файл
-    //         siteMappings: [] // Празно, защото още не е синхронизирана с WP
-    //     };
-    //
-    //     item.images.push(newImage);
-    // }
+    onVideoUpload(event: any, img: any) {
+        const item = this.detailService.selectedItem();
+        if (!item) return;
 
-    // removeImage(index: number) {
-    //     const item = this.detailService.selectedItem();
-    //     if (item && item.images) {
-    //         item.images.splice(index, 1);
-    //     }
-    // }
+        const response = event.originalEvent.body[0];
+        console.log(response);
+
+        response['parent'] = img;
+        response['isVideo'] = true;
+
+        this.addImageToModel(item, response);
+    }
 
     viewImage(src: string) {
         window.open(src, '_blank');
@@ -896,7 +974,7 @@ export class WpCategoryDetailComponent {
     protected isTranslatingInformation = signal(false);
     protected ms = inject(MessageService);
 
-// Променяме метода да връща Observable
+    // Променяме метода да връща Observable
     protected translateProductContent(item: IWpProductTranslation, signalM: any, type: number) {
         signalM.set(true);
         const payload = {
@@ -914,9 +992,9 @@ export class WpCategoryDetailComponent {
                     const item = this.detailService.selectedItem();
                     if (item && response) {
                         // Обхождаме всеки превод от масива
-                        response.forEach(res => {
+                        response.forEach((res) => {
                             // Намираме съответния език в локалния обект
-                            const translation = item.translations.find(t => t.language.id === res.languageId);
+                            const translation = item.translations.find((t) => t.language.id === res.languageId);
 
                             if (translation) {
                                 // Обновяваме конкретното поле според типа
@@ -942,18 +1020,19 @@ export class WpCategoryDetailComponent {
         const item = this.detailService.selectedItem();
         if (!item || !item.images) return [];
 
-        if (!item.id || item.id === 0) return item.images;
+        // 1. Изолираме всички записани видеа, които имат валиден parent
+        const videos = item.images.filter((img) => img.isVideo && img.parent && img.parent.id);
 
-        if (this.syncSite) {
-            return item.images.filter((img) => {
+        // 2. Взимаме само чистите снимки (или temp файлове, които не са маркирани като видео)
+        let images = item.images.filter((img) => !img.isVideo);
+
+        if (this.syncSite && item.id && item.id !== 0) {
+            images = images.filter((img) => {
                 if (img.isTemp) return true;
-
-                // Ако масивът е празен (както в твоя JSON), тук ще върне false
                 return (
                     img.siteMappings &&
                     img.siteMappings.length > 0 &&
                     img.siteMappings.some((m) => {
-                        // Проверяваме всички възможни пътища до ID-то на сайта
                         const mSiteId = (m as any).siteId || (m as any).site?.id;
                         return mSiteId == this.syncSite.id;
                     })
@@ -961,8 +1040,67 @@ export class WpCategoryDetailComponent {
             });
         }
 
-        return item.images;
+        // 3. СВЪРЗВАНЕ: Закачаме линка на видеото директно върху обекта на неговата снимка-родител
+        images.forEach((img: any) => {
+            const associatedVideo = videos.find((v) => v.parent?.id === img.id);
+            if (associatedVideo) {
+                img.videoSrc = associatedVideo.localSrc; // Предаваме пътя на видеото (.mkv/.mp4)
+                img.hasVideo = true; // Светваме флага, за да знае HTML-а
+            }
+        });
+
+        return images;
     }
+
+    // get filteredImages(): IWpImage[] {
+    //
+    // const item = this.detailService.selectedItem();
+    //
+    // if (!item || !item.images) return [];
+    //
+    //
+    //
+    // if (!item.id || item.id === 0) return item.images;
+    //
+    //
+    //
+    // if (this.syncSite) {
+    //
+    // return item.images.filter((img) => {
+    //
+    // if (img.isTemp) return true;
+    //
+    //
+    //
+    // // Ако масивът е празен (както в твоя JSON), тук ще върне false
+    //
+    // return (
+    //
+    // img.siteMappings &&
+    //
+    // img.siteMappings.length > 0 &&
+    //
+    // img.siteMappings.some((m) => {
+    //
+    // // Проверяваме всички възможни пътища до ID-то на сайта
+    //
+    // const mSiteId = (m as any).siteId || (m as any).site?.id;
+    //
+    // return mSiteId == this.syncSite.id;
+    //
+    // })
+    //
+    // );
+    //
+    // });
+    //
+    // }
+    //
+    //
+    //
+    // return item.images;
+    //
+    // }
 
     // 2. Метод за изтриване на снимка (премахва от основния масив)
     removeImage(index: number) {
@@ -980,10 +1118,29 @@ export class WpCategoryDetailComponent {
         }
     }
 
+    removeVideo(parentImg: any) {
+        const item = this.detailService.selectedItem();
+        if (!item || !item.images || !parentImg) return;
+
+        // Намираме индекса на видеото, чийто родител съвпада с текущата снимка
+        const videoIndex = item.images.findIndex((img) => img.isVideo && img.parent?.id === parentImg.id);
+
+        if (videoIndex > -1) {
+            // Премахваме видеото от оригиналния масив
+            item.images.splice(videoIndex, 1);
+
+            // Нулираме локалните флагове на снимката, за да се обнови интерфейса веднага
+            parentImg.hasVideo = false;
+            parentImg.videoSrc = null;
+
+            this.ms.add({ severity: 'info', summary: 'Изтрито', detail: 'Видеото е премахнато от списъка.' });
+            this.cdr.detectChanges();
+        }
+    }
+
     // 3. Добавяне на снимка (isTemp)
     private addImageToModel(item: IWpProduct, res: any) {
-
-        const hasPrimary = item.images?.some(img => img.isPrimary);
+        const hasPrimary = item.images?.some((img) => img.isPrimary);
 
         const newImage: IWpImage = {
             id: 0,
@@ -991,7 +1148,9 @@ export class WpCategoryDetailComponent {
             tempName: res.fileName,
             isTemp: true,
             siteMappings: [],
-            isPrimary: !hasPrimary
+            isPrimary: !hasPrimary,
+            isVideo: res.isVideo || false,
+            parent: res.parent
         };
 
         if (!item.images) item.images = [];
@@ -1019,12 +1178,10 @@ export class WpCategoryDetailComponent {
                     const bgTrans = item.translations.find((t) => t.language.code === 'bg');
                     const translationRequests = [];
                     if (bgTrans) {
-                        if (this.isTitleEdited)
-                            translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingTitle, 1));
+                        if (this.isTitleEdited) translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingTitle, 1));
                         // if (this.isShortDescriptionEdited)
                         //     translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingShortInformation, 2));
-                        if (this.isDescriptionEdited)
-                            translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingInformation, 3));
+                        if (this.isDescriptionEdited) translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingInformation, 3));
                     }
                     if (translationRequests.length > 0) {
                         this.ms.add({ severity: 'info', summary: 'AI', detail: 'Моля изчакайте преводите...' });
@@ -1034,7 +1191,7 @@ export class WpCategoryDetailComponent {
                             this.resetEditFlags();
                             this.executeFinalSave(item);
                         });
-                    }else {
+                    } else {
                         this.executeFinalSave(item);
                     }
                 },
@@ -1134,7 +1291,7 @@ export class WpCategoryDetailComponent {
         if (!item) return;
 
         // СТЪПКА 0: НАЧАЛО
-        if (this.activeTab === "0") {
+        if (this.activeTab === '0') {
             if (!this.isMainInfoValid()) return; // Твоята проверка за задължителни полета
 
             this.confirmationService.confirm({
@@ -1142,18 +1299,18 @@ export class WpCategoryDetailComponent {
                 message: this.tr.instant('Does_this_product_have_addons?'), // Съобщение
                 icon: 'pi pi-question-circle',
                 acceptLabel: this.tr.instant('Yes'), // Бутон ДА
-                rejectLabel: this.tr.instant('No'),  // Бутон НЕ
+                rejectLabel: this.tr.instant('No'), // Бутон НЕ
                 acceptButtonStyleClass: 'p-button-success',
                 rejectButtonStyleClass: 'p-button-secondary',
                 accept: () => {
                     // Потребителят натисна ДА
-                    this.activeTab = "3"; // Към Адони
+                    this.activeTab = '3'; // Към Адони
                     this.cdr.detectChanges();
                 },
                 reject: () => {
                     // Потребителят натисна НЕ
                     // item.addonConfigs = [];
-                    this.activeTab = "2"; // Директно към Цени
+                    this.activeTab = '2'; // Директно към Цени
                     this.cdr.detectChanges();
                 }
             });
@@ -1209,7 +1366,7 @@ export class WpCategoryDetailComponent {
         const weight = item.weight !== undefined && true;
         const img = item.images.length > 0 ? item.images[0] : undefined;
         const isWeightMissing = !weight || weight.toString().trim() === ''; // Проверка за празно
-// Дефинираме списък с полетата и техните условия за валидност
+        // Дефинираме списък с полетата и техните условия за валидност
         const fields = [
             { valid: hasCategories, name: 'Категории' },
             { valid: hasStatus, name: 'Статус' },
@@ -1218,10 +1375,8 @@ export class WpCategoryDetailComponent {
             { valid: img, name: 'Изображение' }
         ];
 
-// Филтрираме само тези, които НЕ са валидни
-        const invalidFieldNames = fields
-            .filter(f => !f.valid)
-            .map(f => f.name);
+        // Филтрираме само тези, които НЕ са валидни
+        const invalidFieldNames = fields.filter((f) => !f.valid).map((f) => f.name);
 
         if (invalidFieldNames.length > 0) {
             this.ms.add({
@@ -1233,9 +1388,9 @@ export class WpCategoryDetailComponent {
             return false;
         }
 
-        const hasPrimary = item.images.some(img => img.isPrimary);
+        const hasPrimary = item.images.some((img) => img.isPrimary);
 
-        if ( !hasCategories || !hasStatus || !hasLimit || !weight || item.images.length === 0) {
+        if (!hasCategories || !hasStatus || !hasLimit || !weight || item.images.length === 0) {
             this.ms.add({ severity: 'warn', summary: 'Внимание', detail: 'Моля, попълнете Всички полета!' });
             return false;
         }
@@ -1245,8 +1400,6 @@ export class WpCategoryDetailComponent {
             return false;
         }
 
-
-
         return true;
     }
 
@@ -1255,8 +1408,8 @@ export class WpCategoryDetailComponent {
     isDescriptionEdited: boolean = false;
 
     protected markAsEdited(type: number) {
-        if(this.selectedLanguage?.code === 'bg') {
-            if(type === 1) {
+        if (this.selectedLanguage?.code === 'bg') {
+            if (type === 1) {
                 this.isTitleEdited = true;
             } else if (type === 2) {
                 this.isShortDescriptionEdited = true;
@@ -1271,10 +1424,10 @@ export class WpCategoryDetailComponent {
         const item = this.detailService.selectedItem();
         if (!item || !item.images) return;
 
-        item.images.forEach(img => {
+        item.images.forEach((img) => {
             // Ако кликнем върху вече избрана звезда, може да я деактивираме (опционално)
             // Тук логиката е: винаги прави избраната True, а другите False
-            img.isPrimary = (img === selectedImg);
+            img.isPrimary = img === selectedImg;
         });
     }
 
@@ -1282,7 +1435,7 @@ export class WpCategoryDetailComponent {
     euroSalePrice = signal<number | null>(null);
     isConverting = signal(false);
 
-// Проверка дали избраната валута е различна от EUR
+    // Проверка дали избраната валута е различна от EUR
     isNotEuro(): boolean {
         return this.selectedSite?.currency?.code !== 'EUR';
     }
@@ -1295,7 +1448,7 @@ export class WpCategoryDetailComponent {
 
         this.isConverting.set(true);
 
-        let g : CurrencyCalc = {
+        let g: CurrencyCalc = {
             fromAmount: amount,
             fromCode: 'EUR',
             toCode: targetCurrency
@@ -1335,19 +1488,27 @@ export class WpCategoryDetailComponent {
             const tasks = [];
 
             if (pricing.regularPrice > 0) {
-                tasks.push(this.detailService.convertCurrency({
-                    fromAmount: pricing.regularPrice,
-                    fromCode: targetCurrency,
-                    toCode: 'EUR'
-                }).pipe(tap(res => this.euroRegularPrice.set(res))));
+                tasks.push(
+                    this.detailService
+                        .convertCurrency({
+                            fromAmount: pricing.regularPrice,
+                            fromCode: targetCurrency,
+                            toCode: 'EUR'
+                        })
+                        .pipe(tap((res) => this.euroRegularPrice.set(res)))
+                );
             }
 
             if (pricing.price > 0) {
-                tasks.push(this.detailService.convertCurrency({
-                    fromAmount: pricing.price,
-                    fromCode: targetCurrency,
-                    toCode: 'EUR'
-                }).pipe(tap(res => this.euroSalePrice.set(res))));
+                tasks.push(
+                    this.detailService
+                        .convertCurrency({
+                            fromAmount: pricing.price,
+                            fromCode: targetCurrency,
+                            toCode: 'EUR'
+                        })
+                        .pipe(tap((res) => this.euroSalePrice.set(res)))
+                );
             }
 
             forkJoin(tasks).subscribe({
@@ -1402,5 +1563,41 @@ export class WpCategoryDetailComponent {
         return false;
     }
 
+    // 1. Дефинираме наличните цветове (сложи го под activeTab например)
+    protected availableColors: any[] = [
+        { name: 'white', label: 'Бял', hex: '#ffffff' },
+        { name: 'black', label: 'Черен', hex: '#1a1a1a' },
+        { name: 'red', label: 'Червен', hex: '#ff0000' }
+    ];
+    // 2. Помощен метод за вземане на HEX кода при визуализация на избраното
+    getColorHex(colorName: string): string {
+        const color = this.availableColors.find((c) => c.name === colorName);
+        return color ? color.hex : '#ccc';
+    }
 
+    // 3. Помощен метод за вземане на етикета на български
+    getColorLabel(colorName: string): string {
+        const color = this.availableColors.find((c) => c.name === colorName);
+        return color ? color.label : colorName;
+    }
+
+    // Добави тези променливи в класа на компонента
+
+    playVideo(videoSrc: string) {
+        if (!videoSrc) {
+            console.error('Липсва видео линк!');
+            return;
+        }
+
+        // 1. Поправяме пътя до видеото
+        const fullUrl = this.baseUrl + videoSrc;
+        console.log('Зареждане на видео от:', fullUrl);
+        window.open(fullUrl, '_blank');
+
+        this.ms.add({
+            severity: 'success',
+            summary: 'Успех',
+            detail: 'Видео файлът (.mp4) се сваля.'
+        });
+    }
 }

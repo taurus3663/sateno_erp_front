@@ -97,6 +97,8 @@ export interface IWpImage {
     tempName: string;
     isTemp: boolean;
     isPrimary: boolean;
+    parent?: IWpImage;
+    isVideo?: boolean;
 }
 export interface IWpImageSiteMapping {
     id: number;
