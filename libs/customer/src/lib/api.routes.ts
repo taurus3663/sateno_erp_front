@@ -34,6 +34,7 @@ export class apiRoutes {
         get: `${apiRoutes.siteBase}/detail`,
         save: `${apiRoutes.siteBase}/save`,
         delete: `${apiRoutes.siteBase}/delete`,
+        default: `${apiRoutes.siteBase}/default`
     }
 
     private static readonly languageBase = 'language';

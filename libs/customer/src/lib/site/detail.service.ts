@@ -2,6 +2,7 @@ import { effect, Injectable } from '@angular/core';
 import { BaseDetailCrud } from 'xl-util';
 import { ISite } from './interfaces';
 import { ROUTES } from '../api.routes';
+import { Observable } from 'rxjs';
 
 
 @Injectable({ providedIn: 'root' })
@@ -28,5 +29,9 @@ export class SiteDetailService extends BaseDetailCrud<ISite> {
                 ...current,
             });
         }
+    }
+
+    public getDefaultSite(): Observable<ISite> {
+        return this.http.get<ISite>(`${ROUTES.site.default}`);
     }
 }

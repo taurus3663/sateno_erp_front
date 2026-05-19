@@ -32,6 +32,8 @@ import { CourierType } from '../courier/interfaces';
 import { Popover } from 'primeng/popover';
 import { Timeline } from 'primeng/timeline';
 import { ShipmentService } from './shipment.service';
+import { ISite } from '../site/interfaces';
+import { SiteDetailService } from '../site/detail.service';
 
 @Component({
     selector: 'site-detail',
@@ -249,7 +251,7 @@ import { ShipmentService } from './shipment.service';
                                     [pTooltip]="'Generate_Waybill' | translate"
                                     styleClass="p-button-raised p-button-lg shadow-3"
                                     [style]="{ width: '4.5rem', height: '4.5rem', 'font-size': '1.5rem' }"
-                                    [disabled]="isReadOnly"
+                                    [disabled]="!item.id || isReadOnly"
                                 >
                                 </p-button>
 
@@ -316,6 +318,13 @@ import { ShipmentService } from './shipment.service';
                                         </p-timeline>
                                     </div>
                                 </p-popover>
+                            </div>
+
+                            <div *ngIf="!item.id" class="flex align-items-center gap-2 mt-2 p-2 bg-orange-50 border-round border-1 border-orange-200 text-orange-700 w-fit">
+                                <i class="pi pi-exclamation-triangle font-bold"></i>
+                                <span class="text-xs font-semibold">
+            {{ 'You_must_first_save_the_order_so_you_can_generate_a_waybill' | translate }}
+        </span>
                             </div>
                         </div>
 
@@ -597,6 +606,7 @@ export class OrderDetailComponent {
     private tr = inject(TranslateService);
     private cdr = inject(ChangeDetectorRef);
     protected shipmentService = inject(ShipmentService);
+    protected siteService = inject(SiteDetailService);
 
     private authConfig = inject(XL_AUTH_CONFIG);
     protected readonly baseUrl = this.authConfig.apiUrl;
@@ -650,7 +660,16 @@ export class OrderDetailComponent {
                 const item = this.detailService.selectedItem();
                 if(!item) return;
 
-                if(!item.id) item.status = OrderStatus.PROCESSING;
+                if(!item.id) {
+                    item.status = OrderStatus.PROCESSING;
+                    this.siteService.getDefaultSite().subscribe(value => {
+                        if(value){
+                            this.selectedSiteName.set(value.url);
+                            this.detailService.selectedItem()!.site = value;
+                        }
+                    });
+
+                }
 
                 if (!item.billing) {
                     item.billing = {
