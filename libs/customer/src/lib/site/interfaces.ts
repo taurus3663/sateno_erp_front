@@ -20,4 +20,5 @@ export interface ISite {
     secondOrderMessage: string;
     thirdOrderMessageTimer: number;
     thirdOrderMessage: string;
+    isDefault: boolean;
 }

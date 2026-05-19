@@ -71,10 +71,16 @@ import { Tag } from 'primeng/tag';
                                         <input pInputText [(ngModel)]="item.url" class="w-full" />
                                     </div>
 
-                                    <div class="col-span-4">
+                                    <div class="col-span-2">
                                         <label class="block font-bold mb-2">{{ 'Active' | translate }}</label>
                                         <!--                        <input pInputText [(ngModel)]="item.isActive" class="w-full" />-->
                                         <p-checkbox [(ngModel)]="item.active" [binary]="true"></p-checkbox>
+                                    </div>
+
+                                    <div class="col-span-2">
+                                        <label class="block font-bold mb-2">{{ 'Default' | translate }}</label>
+                                        <!--                        <input pInputText [(ngModel)]="item.isActive" class="w-full" />-->
+                                        <p-checkbox [(ngModel)]="item.isDefault" [binary]="true"></p-checkbox>
                                     </div>
 
                                     <div class="col-span-12">
