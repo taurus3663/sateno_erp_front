@@ -317,5 +317,9 @@
   "add_order_new_produt": "add order new produt",
   "Attach_video_to_img": "Attach video to img",
   "Colors": "Colors",
-  "Select_Colors": "Select Colors"
+  "Select_Colors": "Select Colors",
+  "Watch_Video": "Watch Video",
+  "Delete_Image": "Delete Image",
+  "Remove_Video_Only": "Remove Video Only",
+  "You_must_first_save_the_order_to_add_products.": "You must first save the order to add products."
 }

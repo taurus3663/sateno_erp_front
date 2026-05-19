@@ -1116,6 +1116,7 @@ export class WpCategoryDetailComponent {
         if (globalIndex > -1) {
             item.images.splice(globalIndex, 1);
         }
+        this.removeVideo(imgToRemove);
     }
 
     removeVideo(parentImg: any) {

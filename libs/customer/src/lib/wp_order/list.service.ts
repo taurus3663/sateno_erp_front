@@ -33,7 +33,6 @@ export class OrderListService extends BaseListCrud<IOrder> {
     }
 
     public getCourierType(order: IOrder) {
-        console.log(order.wpOrderId);
         let courierName: string | undefined;
         let mode: string | undefined;
 

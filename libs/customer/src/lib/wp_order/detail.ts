@@ -457,8 +457,24 @@ import { ShipmentService } from './shipment.service';
                                 </table>
                             </div>
 
-                            <p-button (onClick)="this.openProductSelector()" [label]="'Add_Product' | translate" icon="pi pi-plus" severity="success" [text]="true" size="small"> </p-button>
+                            <div class="flex align-items-center gap-2 mt-2">
+                                <!-- Бутонът се деактивира, ако !item.id -->
+                                <p-button
+                                    (onClick)="this.openProductSelector()"
+                                    [label]="'Add_Product' | translate"
+                                    icon="pi pi-plus"
+                                    severity="success"
+                                    [text]="true"
+                                    size="small"
+                                    [disabled]="!item.id"
+                                > </p-button>
 
+                                <!-- Текстът се показва САМО ако поръчката няма ID (нова поръчка) -->
+                                <span *ngIf="!item.id" class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-1 border-round border-1 border-orange-200">
+        <i class="pi pi-exclamation-triangle mr-1"></i>
+                                    {{ 'You_must_first_save_the_order_to_add_products.' | translate }}
+    </span>
+                            </div>
                             <div class="col-span-12 mt-5" *ngIf="groupedOtherOrders().length">
                                 <h5 class="text-orange-600 font-bold mb-4 flex align-items-center gap-2 border-bottom-1 pb-2">
                                     <i class="pi pi-clone"></i>
@@ -593,7 +609,6 @@ export class OrderDetailComponent {
     get isReadOnly(): boolean {
         const item = this.detailService.selectedItem();
         if (!item) return false;
-
         // Списък със статуси, които позволяват редактиране
         const allowedStatuses = ['processing', 'approved', 'pending'];
 
@@ -623,7 +638,8 @@ export class OrderDetailComponent {
                 if (!this.originalStatus) {
                     this.originalStatus = item.status;
                 }
-            } else if (!this.detailService.isVisible()) {
+            }
+            else if (!this.detailService.isVisible()) {
                 // Когато затворим диалога, чистим оригиналния статус
                 this.originalStatus = null;
             }
@@ -633,6 +649,9 @@ export class OrderDetailComponent {
             () => {
                 const item = this.detailService.selectedItem();
                 if(!item) return;
+
+                if(!item.id) item.status = OrderStatus.PROCESSING;
+
                 if (!item.billing) {
                     item.billing = {
                         address_1: '',

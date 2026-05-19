@@ -319,5 +319,9 @@
   "add_order_new_produt": "Добави продукт за подреждане",
   "Attach_video_to_img": "Прикачи видео към снимка",
   "Colors": "Цветове",
-  "Select_Colors": "Избери цветове"
+  "Select_Colors": "Избери цветове",
+  "Watch_Video": "Гледай видео",
+  "Delete_Image": "Изтрий снимка",
+  "Remove_Video_Only": "Изтрий само видео",
+  "You_must_first_save_the_order_to_add_products.": "Първо трябва да запишете поръчката, за да добавяте продукти."
 }

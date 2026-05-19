@@ -983,7 +983,6 @@ export class OrderListComponent implements OnInit, OnDestroy {
     onSearch(event: any) {
         // Взимаме стойността независимо дали е събитие или директен низ
         const value = event?.target?.value !== undefined ? event.target.value : event;
-        console.log(value);
         this.executeSearch(value);
     }
 
