@@ -324,5 +324,6 @@
   "Delete_Image": "Изтрий снимка",
   "Remove_Video_Only": "Изтрий само видео",
   "You_must_first_save_the_order_to_add_products.": "Първо трябва да запишете поръчката, за да добавяте продукти.",
-  "You_must_first_save_the_order_so_you_can_generate_a_waybill": "Първо трябва да запаметите поръчката, за да можете да генерирате товарителница"
+  "You_must_first_save_the_order_so_you_can_generate_a_waybill": "Първо трябва да запаметите поръчката, за да можете да генерирате товарителница",
+  "Has_Order": "Поръчка"
 }

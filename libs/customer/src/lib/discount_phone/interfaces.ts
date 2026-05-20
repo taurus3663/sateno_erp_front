@@ -3,4 +3,5 @@ export interface IDiscountPhone {
     phone: string;
     site: string;
     created: string
+    hasOrder: boolean;
 }
