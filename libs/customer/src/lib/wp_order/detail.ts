@@ -172,7 +172,7 @@ import { SiteDetailService } from '../site/detail.service';
 
                         <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
                             <label class="block font-bold mb-2">{{ 'Status' | translate }} ({{ 'Order' | translate }})</label>
-                            <p-select [options]="orderStatus" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full mt-1 custom-status-select" appendTo="body">
+                            <p-select [options]="orderStatus()" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full mt-1 custom-status-select" appendTo="body">
                                 <ng-template #selectedItem let-selectedOption>
                                     <div class="flex align-items-center" *ngIf="selectedOption">
                                         <p-tag [value]="selectedOption.label" [rounded]="true" [style]="{ background: getStatusColor(selectedOption.value), color: '#ffffff' }"> </p-tag>
@@ -632,11 +632,11 @@ export class OrderDetailComponent {
     protected isManualShipping = false;
 
     constructor() {
-        this.generateStatusOptions();
+        // this.generateStatusOptions();
         this.generatePaymentMethodOptions();
-        this.tr.onLangChange.subscribe(() => {
-            this.generateStatusOptions();
-        });
+        // this.tr.onLangChange.subscribe(() => {
+        //     this.generateStatusOptions();
+        // });
 
         this.isManualShipping = false;
 
@@ -798,16 +798,43 @@ export class OrderDetailComponent {
         return this.statusColorMap[status] || '#94A3B8';
     }
 
-    protected orderStatus: any[] = [];
-    private generateStatusOptions() {
-        this.orderStatus = Object.keys(OrderStatus)
+    // Променяме го на изчисляем сигнал, който следи състоянието на поръчката в реално време
+    protected readonly orderStatus = computed(() => {
+        const item = this.detailService.selectedItem();
+        // Извикваме refreshTrigger, за да сме сигурни, че се преизчислява при всяка промяна на статус
+        this.refreshTrigger();
+
+        if (!item) return [];
+
+        // Глобалният списък с всички възможни статуси (без JOINT)
+        const allOptions = Object.keys(OrderStatus)
             .filter((key) => isNaN(Number(key)))
             .filter((key) => key !== 'JOINT')
             .map((key) => ({
                 label: this.tr.instant(`STATUS.${key}`),
                 value: OrderStatus[key as keyof typeof OrderStatus]
             }));
-    }
+
+        // === ТУК НАЛАГАМЕ ОГРАНИЧЕНИЕТО ЗА ОТКАЗАНА ПОРЪЧКА ===
+        if (item.status === 'cancelled') {
+            // Ако е отказана, връщаме само нея самата И опцията за Обработка (processing)
+            return allOptions.filter(opt =>
+                opt.value === 'processing' || opt.value === 'cancelled'
+            );
+        }
+
+        // Във всички останали случаи връщаме пълния списък
+        return allOptions;
+    });
+    // private generateStatusOptions() {
+    //     this.orderStatus = Object.keys(OrderStatus)
+    //         .filter((key) => isNaN(Number(key)))
+    //         .filter((key) => key !== 'JOINT')
+    //         .map((key) => ({
+    //             label: this.tr.instant(`STATUS.${key}`),
+    //             value: OrderStatus[key as keyof typeof OrderStatus]
+    //         }));
+    // }
 
     readonly groupedOtherOrders = computed(() => {
         const lines = this.detailService.selectedItem()?.orderLineOtherOrders || [];

@@ -35,11 +35,13 @@ import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_i
 import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { forkJoin, tap } from 'rxjs';
 import { Image } from 'primeng/image';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox, MultiSelect, Image],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox, MultiSelect, Image, CdkDropList,
+        CdkDrag],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -96,10 +98,15 @@ import { Image } from 'primeng/image';
                                                 [cancelLabel]="'Cancel' | translate"
                                             >
                                             </p-fileupload>
-                                            <div class="grid grid-cols-12 gap-3" *ngIf="filteredImages.length">
-                                                <div *ngFor="let img of filteredImages; let i = index" class="col-span-4 md:col-span-2 relative group">
+                                            <div class="grid grid-cols-12 gap-3" *ngIf="filteredImages.length" cdkDropList
+                                                 cdkDropListOrientation="horizontal"
+                                                 (cdkDropListDropped)="onImageDrop($event)">
+                                                <div cdkDrag *ngFor="let img of filteredImages; let i = index" class="col-span-4 md:col-span-2 relative group cursor-move">
+
+                                                    <!-- Плейсхолдър (показва се докато влачиш) -->
+                                                    <div class="cdk-drag-placeholder opacity-30 border-2 border-dashed border-primary bg-surface-100 rounded-md absolute inset-0 z-50"></div>
+
                                                     <div
-                                                        style="width: 200px; height: auto;"
                                                         class="border-2 border-round overflow-hidden shadow-1 bg-white relative transition-all duration-200 hover:shadow-4"
                                                         [ngClass]="img.isTemp ? 'border-primary' : 'border-transparent'"
                                                     >
@@ -1600,5 +1607,29 @@ export class WpCategoryDetailComponent {
             summary: 'Успех',
             detail: 'Видео файлът (.mp4) се сваля.'
         });
+    }
+
+    onImageDrop(event: CdkDragDrop<IWpImage[]>) {
+        const item = this.detailService.selectedItem();
+        if (!item || !item.images) return;
+
+        // Взимаме филтрирания списък, който потребителят реално вижда и размества
+        const currentFiltered = [...this.filteredImages];
+
+        // Намираме кой елемент местим и къде отива
+        const elementMoved = currentFiltered[event.previousIndex];
+        const targetElement = currentFiltered[event.currentIndex];
+
+        // Намираме техните индекси в ГЛОБАЛНИЯ масив на продукта
+        const globalPreviousIndex = item.images.indexOf(elementMoved);
+        const globalCurrentIndex = item.images.indexOf(targetElement);
+
+        if (globalPreviousIndex > -1 && globalCurrentIndex > -1) {
+            // Разместваме ги в глобалния масив, за да се запазят при Save
+            moveItemInArray(item.images, globalPreviousIndex, globalCurrentIndex);
+
+            this.ms.add({ severity: 'info', summary: 'Нареждане', detail: 'Снимките бяха пренаредени.' });
+            this.cdr.detectChanges();
+        }
     }
 }
