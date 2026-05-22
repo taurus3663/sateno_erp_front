@@ -10,11 +10,13 @@ import { WpCategoryListService } from '../wp_category/list.service';
 import { Select } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { WpProductListComponent } from '../wp_product/list';
+import { XL_AUTH_CONFIG } from 'xl-auth';
+import { Image } from 'primeng/image';
 
 @Component({
     selector: 'product-menu-order-list',
     standalone: true,
-    imports: [CommonModule, Toolbar, Button, TranslatePipe, TableModule, Select, FormsModule],
+    imports: [CommonModule, Toolbar, Button, TranslatePipe, TableModule, Select, FormsModule, Image],
     template: `
         <p-toolbar>
             <ng-template #start>
@@ -42,16 +44,7 @@ import { WpProductListComponent } from '../wp_product/list';
             </ng-template>
         </p-toolbar>
 
-        <p-table
-            [value]="draggableItems"
-            [paginator]="true"
-            [rows]="10"
-            [rowsPerPageOptions]="[10, 20, 50, 100]"
-            [tableStyle]="{ 'min-width': '50rem' }"
-            [rowHover]="true"
-            dataKey="products.id"
-            (onRowReorder)="onRowReorder($event)"
-        >
+        <p-table [value]="draggableItems" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 20, 50, 100]" [tableStyle]="{ 'min-width': '50rem' }" [rowHover]="true" dataKey="products.id" (onRowReorder)="onRowReorder($event)">
             <ng-template pTemplate="header">
                 <tr>
                     <!-- Празно поле за иконката за влачене -->
@@ -79,7 +72,29 @@ import { WpProductListComponent } from '../wp_product/list';
 
                     <td>{{ item.categoryName }}</td>
 
-                    <td class="font-bold text-900">{{ item.products.names }}</td>
+                    <td>
+                        <div class="flex align-items-center gap-3">
+                            <!-- Снимката -->
+                            <!-- ЗАБЕЛЕЖКА: Смени 'image' с точното име на полето, което идва от твоя бекенд (напр. image_url, photo, thumbnail) -->
+                            <!--                            <img-->
+                            <!--                                [src]="item.products.m_image"-->
+                            <!--                                [alt]="item.products.names"-->
+                            <!--                                style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"-->
+                            <!--                            />-->
+                            <p-image
+                                style="height: 85px;max-height: 85px"
+                                height="auto"
+
+                                [src]="this.baseUrl + item.products.m_image"
+                                width="85"
+                                [preview]="true"
+                                imageClass="border-circle shadow-1"
+                            ></p-image>
+
+                            <!-- Името на продукта -->
+                            <span class="font-bold text-900">{{ item.products.names }}</span>
+                        </div>
+                    </td>
 
                     <td>
                         <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="removeItem(item)"></p-button>
@@ -98,6 +113,8 @@ export class ProductMenuOrderListComponent {
 
     public listService = inject(ProductMenuOrderListService);
     public categoryListService = inject(WpCategoryListService);
+    private authConfig = inject(XL_AUTH_CONFIG);
+    protected readonly baseUrl = this.authConfig.apiUrl;
 
     public selectedCategory: any = null;
 
@@ -109,24 +126,27 @@ export class ProductMenuOrderListComponent {
         this.categoryListService.loadList(0, 1000);
 
         // 2. EFFECT: Пълним локалния масив, само когато данните се заредят от бекенда
-        effect(() => {
-            const items = this.listService.items();
-            const flat: any[] = [];
+        effect(
+            () => {
+                const items = this.listService.items();
+                const flat: any[] = [];
 
-            items.forEach(order => {
-                if (Array.isArray(order.products)) {
-                    order.products.forEach(p => {
-                        flat.push({
-                            categoryName: order.categoryName,
-                            products: p
+                items.forEach((order) => {
+                    if (Array.isArray(order.products)) {
+                        order.products.forEach((p) => {
+                            flat.push({
+                                categoryName: order.categoryName,
+                                products: p
+                            });
                         });
-                    });
-                } else if (order.products) {
-                    flat.push(order);
-                }
-            });
-            this.draggableItems = flat;
-        }, { allowSignalWrites: true });
+                    } else if (order.products) {
+                        flat.push(order);
+                    }
+                });
+                this.draggableItems = flat;
+            },
+            { allowSignalWrites: true }
+        );
     }
 
     onCategoryChange(category: any) {
@@ -150,20 +170,20 @@ export class ProductMenuOrderListComponent {
 
     saveChanges() {
         // Взимаме ID-тата директно от подредения локален масив!
-        const allProductIds = this.draggableItems.map(item => item.products.id);
+        const allProductIds = this.draggableItems.map((item) => item.products.id);
 
         const payload = {
             category: this.selectedCategory.id,
             productIds: allProductIds
         };
 
-        console.log("Payload за запис:", payload);
+        console.log('Payload за запис:', payload);
         this.listService.updateList(payload);
     }
 
     removeItem(itemToRemove: any) {
         // Премахваме директно от локалния масив
-        this.draggableItems = this.draggableItems.filter(item => item.products.id !== itemToRemove.products.id);
+        this.draggableItems = this.draggableItems.filter((item) => item.products.id !== itemToRemove.products.id);
         this.cdr.detectChanges();
     }
 
@@ -180,7 +200,7 @@ export class ProductMenuOrderListComponent {
 
         ref?.onClose.subscribe(async (product: any) => {
             if (product) {
-                const newItem: { categoryName: any; products: { names: any, id: any } } = {
+                const newItem: { categoryName: any; products: { names: any; id: any } } = {
                     categoryName: cleanCategoryName,
                     products: {
                         names: product.names,
