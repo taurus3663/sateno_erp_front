@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductMenuOrderListService } from './list.service';
 import { Toolbar } from 'primeng/toolbar';
@@ -39,54 +39,47 @@ import { WpProductListComponent } from '../wp_product/list';
                 </p-select>
 
                 <p-button (onClick)="this.saveChanges()" [disabled]="!this.selectedCategory" [label]="'Save' | translate" icon="pi pi-save" severity="primary" class="mr-2 ml-2"></p-button>
-
             </ng-template>
         </p-toolbar>
 
         <p-table
-            [value]="tableData()"
-            [lazy]="true"
-            (onLazyLoad)="onLazyLoad($event)"
+            [value]="draggableItems"
             [paginator]="true"
             [rows]="10"
-            [totalRecords]="listService.totalRecords()"
-            [loading]="listService.loading()"
-            [rowsPerPageOptions]="[10, 20, 50]"
+            [rowsPerPageOptions]="[10, 20, 50, 100]"
             [tableStyle]="{ 'min-width': '50rem' }"
             [rowHover]="true"
-            dataKey="id"
+            dataKey="products.id"
+            (onRowReorder)="onRowReorder($event)"
         >
             <ng-template pTemplate="header">
                 <tr>
-                    <th>
+                    <!-- Празно поле за иконката за влачене -->
+                    <th style="width: 3rem"></th>
+                    <th style="width: 3rem">
                         <p-tableHeaderCheckbox />
                     </th>
-
-                    <th>
-                        {{ 'Category' | translate }}
-                    </th>
-
-                    <th>
-                        {{ 'Name' | translate }}
-                    </th>
-
+                    <th>{{ 'Category' | translate }}</th>
+                    <th>{{ 'Name' | translate }}</th>
                     <th style="width: 8rem"></th>
                 </tr>
             </ng-template>
 
-            <ng-template pTemplate="body" let-item>
-                <tr>
+            <!-- Добавяме let-index="rowIndex", за да знаем кой ред влачим -->
+            <ng-template pTemplate="body" let-item let-index="rowIndex">
+                <tr [pReorderableRow]="index" class="cursor-move">
+                    <!-- Иконката за влачене -->
+                    <td>
+                        <i class="pi pi-bars text-primary" pReorderableRowHandle style="cursor: grab; font-size: 1.2rem;"></i>
+                    </td>
+
                     <td (click)="$event.stopPropagation()">
                         <p-tableCheckbox [value]="item"></p-tableCheckbox>
                     </td>
 
-                    <td>
-                        {{ item.categoryName }}
-                    </td>
+                    <td>{{ item.categoryName }}</td>
 
-                    <td>
-                        {{ item.products.names }}
-                    </td>
+                    <td class="font-bold text-900">{{ item.products.names }}</td>
 
                     <td>
                         <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="removeItem(item)"></p-button>
@@ -108,72 +101,60 @@ export class ProductMenuOrderListComponent {
 
     public selectedCategory: any = null;
 
+    // 1. ЛОКАЛЕН МАСИВ ЗА ВЛАЧЕНЕ (вместо read-only computed)
+    public draggableItems: any[] = [];
+    protected lastParams: any = { first: 0, rows: 1000, filters: {} };
 
-    protected tableData = computed(() => {
-        const items = this.listService.items();
-        const flat: any[] = [];
+    constructor() {
+        this.categoryListService.loadList(0, 1000);
 
-        items.forEach(order => {
-            // Ако order.products е масив (както в JSON-а от бекенда)
-            if (Array.isArray(order.products)) {
-                order.products.forEach(p => {
-                    flat.push({
-                        categoryName: order.categoryName,
-                        products: p // Така шаблона {{ item.products.names }} ще работи!
+        // 2. EFFECT: Пълним локалния масив, само когато данните се заредят от бекенда
+        effect(() => {
+            const items = this.listService.items();
+            const flat: any[] = [];
+
+            items.forEach(order => {
+                if (Array.isArray(order.products)) {
+                    order.products.forEach(p => {
+                        flat.push({
+                            categoryName: order.categoryName,
+                            products: p
+                        });
                     });
-                });
-            } else {
-                // За случаите, когато добавяш ръчно от openProductSelector
-                flat.push(order);
-            }
-        });
-        return flat;
-    });
-
-    // public currentCategoryProducts: any[] = [];
+                } else if (order.products) {
+                    flat.push(order);
+                }
+            });
+            this.draggableItems = flat;
+        }, { allowSignalWrites: true });
+    }
 
     onCategoryChange(category: any) {
         if (!category) return;
 
         const categoryId = category.id;
-        // 1. Обновяваме глобалния обект с параметри
         this.lastParams.filters = {
             category_id: { value: categoryId, matchMode: 'equals' }
         };
 
-        // 3. Извикваме зареждането
+        // Зареждаме достатъчно голям брой (напр. 1000), за да влачим свободно без мързеливо зареждане
         this.listService.loadList(0, this.lastParams.rows, this.lastParams.filters);
     }
 
-    protected lastParams: any = { first: 0, rows: 200, filters: {} };
-
-
-    onLazyLoad(event: any) {
-        if(!this.lastParams.filters) return;
-        this.listService.loadList(event.first, event.rows, this.lastParams.filters);
-    }
-    constructor() {
-        this.categoryListService.loadList(0, 1000);
+    // 3. Събитие при пускане на реда след влачене
+    onRowReorder(event: any) {
+        // PrimeNG автоматично е пренаредил масива this.draggableItems!
+        // Тук само казваме на Angular да обнови изгледа
+        this.cdr.detectChanges();
     }
 
     saveChanges() {
-        // 1. Събираме всички ID-та от всички възможни структури
-        const allProductIds: any[] = [];
-
-        this.listService.items().forEach(item => {
-            // Ако products е масив (от бекенда)
-            if (Array.isArray(item.products)) {
-                item.products.forEach((p: any) => allProductIds.push(p.id));
-            }
-            // Ако products е единичен обект (добавен ръчно)
-            else if (item.products && item.products.id) {
-                allProductIds.push(item.products.id);
-            }
-        });
+        // Взимаме ID-тата директно от подредения локален масив!
+        const allProductIds = this.draggableItems.map(item => item.products.id);
 
         const payload = {
             category: this.selectedCategory.id,
-            productIds: allProductIds // Вече имаш чист масив от ID-та
+            productIds: allProductIds
         };
 
         console.log("Payload за запис:", payload);
@@ -181,19 +162,9 @@ export class ProductMenuOrderListComponent {
     }
 
     removeItem(itemToRemove: any) {
-        this.listService.items.update(currentItems => {
-            // Тъй като 'itemToRemove' е обект от плоския списък,
-            // трябва да намерим съответната поръчка и да премахнем продукта от нея
-            return currentItems.map(order => {
-                if (Array.isArray(order.products)) {
-                    return {
-                        ...order,
-                        products: order.products.filter(p => p.id !== itemToRemove.products.id)
-                    };
-                }
-                return order;
-            }).filter(order => Array.isArray(order.products) ? order.products.length > 0 : true);
-        });
+        // Премахваме директно от локалния масив
+        this.draggableItems = this.draggableItems.filter(item => item.products.id !== itemToRemove.products.id);
+        this.cdr.detectChanges();
     }
 
     openProductSelector() {
@@ -209,21 +180,17 @@ export class ProductMenuOrderListComponent {
 
         ref?.onClose.subscribe(async (product: any) => {
             if (product) {
-                // 1. Създаваме нов обект, спазвайки структурата, която ти показваш в p-template
                 const newItem: { categoryName: any; products: { names: any, id: any } } = {
-                    categoryName: this.selectedCategory.name, // Избраната от потребителя категория
+                    categoryName: cleanCategoryName,
                     products: {
-                        names: product.names, // Това, което p-table очаква: item.products.names
+                        names: product.names,
                         id: product.id
                     }
                 };
 
-                // 2. Добавяме го чрез "Spread operator" (immutable начин), за да избегнем NG0100 грешката
-                // Това създава нов масив, вместо да мутира стария директно
-                // const currentList = this.listService.items();
-                this.listService.items.update(currentItems => [...currentItems, newItem]);
-                // Забележка: Ако listService.items е Signal, използвай:
-                // this.listService.items.set([...this.listService.items(), newItem]);
+                // Добавяме новия продукт най-отгоре (или най-отдолу, ако предпочиташ) в локалния масив
+                this.draggableItems = [newItem, ...this.draggableItems];
+                this.cdr.detectChanges();
             }
         });
     }

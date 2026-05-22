@@ -319,7 +319,8 @@ import { ConfirmationService } from 'primeng/api';
                             {{ item.names }}
                         </span>
                     </td>
-                    <td>{{ item.brand?.name ?? '' }}</td>
+<!--                    <td>{{ item.brand?.name ?? '' }}</td>-->
+                    <td>{{ item.brandName ?? '' }}</td>
 
                     <td>
                         <div (dblclick)="item._isEditing = true">
