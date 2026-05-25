@@ -742,7 +742,7 @@ export class WpCategoryDetailComponent {
                     this.selectedLanguage = bgLang;
                     this.onLanguageChange();
                 }
-                this.selectedSite = sites.find((value) => value.url.includes('sateno.bg'));
+                this.selectedSite = sites.find((value) => value?.url?.includes('sateno.bg'));
             }
         });
 
@@ -1023,22 +1023,57 @@ export class WpCategoryDetailComponent {
 
     //     ----------------
     // 1. Гетър за снимките спрямо избрания сайт
+    // get filteredImages(): IWpImage[] {
+    //     const item = this.detailService.selectedItem();
+    //     if (!item || !item.images) return [];
+    //
+    //     // 1. Изолираме всички записани видеа, които имат валиден parent
+    //     const videos = item.images.filter((img) => img.isVideo && img.parent && img.parent.id);
+    //
+    //     // 2. Взимаме само чистите снимки (или temp файлове, които не са маркирани като видео)
+    //     let images = item.images.filter((img) => !img.isVideo);
+    //
+    //     if (this.syncSite && item.id && item.id !== 0) {
+    //         images = images.filter((img) => {
+    //             if (img.isTemp) return true;
+    //             return (
+    //                 img.siteMappings &&
+    //                 img.siteMappings.length > 0 &&
+    //                 img.siteMappings.some((m) => {
+    //                     const mSiteId = (m as any).siteId || (m as any).site?.id;
+    //                     return mSiteId == this.syncSite.id;
+    //                 })
+    //             );
+    //         });
+    //     }
+    //
+    //     // 3. СВЪРЗВАНЕ: Закачаме линка на видеото директно върху обекта на неговата снимка-родител
+    //     images.forEach((img: any) => {
+    //         const associatedVideo = videos.find((v) => v.parent?.id === img.id);
+    //         if (associatedVideo) {
+    //             img.videoSrc = associatedVideo.localSrc; // Предаваме пътя на видеото (.mkv/.mp4)
+    //             img.hasVideo = true; // Светваме флага, за да знае HTML-а
+    //         }
+    //     });
+    //
+    //     return images;
+    // }
     get filteredImages(): IWpImage[] {
         const item = this.detailService.selectedItem();
         if (!item || !item.images) return [];
 
-        // 1. Изолираме всички записани видеа, които имат валиден parent
+        // 1. Изолираме видеата
         const videos = item.images.filter((img) => img.isVideo && img.parent && img.parent.id);
 
-        // 2. Взимаме само чистите снимки (или temp файлове, които не са маркирани като видео)
+        // 2. Взимаме само снимките
         let images = item.images.filter((img) => !img.isVideo);
 
+        // 3. Филтриране по сайт
         if (this.syncSite && item.id && item.id !== 0) {
             images = images.filter((img) => {
                 if (img.isTemp) return true;
                 return (
                     img.siteMappings &&
-                    img.siteMappings.length > 0 &&
                     img.siteMappings.some((m) => {
                         const mSiteId = (m as any).siteId || (m as any).site?.id;
                         return mSiteId == this.syncSite.id;
@@ -1047,18 +1082,45 @@ export class WpCategoryDetailComponent {
             });
         }
 
-        // 3. СВЪРЗВАНЕ: Закачаме линка на видеото директно върху обекта на неговата снимка-родител
+        // --- ТОВА Е ЛИПСВАЩАТА ЧАСТ: СОРТИРАНЕ ПРИ ЗАРЕЖДАНЕ ---
+        images.sort((a, b) => {
+            // 1. Primary винаги първа
+            if (a.isPrimary && !b.isPrimary) return -1;
+            if (!a.isPrimary && b.isPrimary) return 1;
+
+            // 2. Взимаме индекса за подредба
+            const getOrder = (img: IWpImage) => {
+                if (img.siteMappings && img.siteMappings.length > 0) {
+                    let mapping;
+
+                    if (this.syncSite) {
+                        // Ако има избран сайт, взимаме неговия
+                        mapping = img.siteMappings.find(m => ((m as any).siteId || (m as any).site?.id) == this.syncSite.id);
+                    } else {
+                        // Ако НЯМА избран сайт (Глобален режим), взимаме първия мапинг, който има индекс
+                        // Можеш да зададеш приоритет за определен siteId тук, ако искаш (напр. siteId === 1)
+                        mapping = img.siteMappings.find(m => (m as any).orderIndex !== null) || img.siteMappings[0];
+                    }
+
+                    return mapping && (mapping as any).orderIndex !== null ? (mapping as any).orderIndex : 9999;
+                }
+                return 9999;
+            };
+
+            return getOrder(a) - getOrder(b);
+        });
+
+        // 4. СВЪРЗВАНЕ на видеата
         images.forEach((img: any) => {
             const associatedVideo = videos.find((v) => v.parent?.id === img.id);
             if (associatedVideo) {
-                img.videoSrc = associatedVideo.localSrc; // Предаваме пътя на видеото (.mkv/.mp4)
-                img.hasVideo = true; // Светваме флага, за да знае HTML-а
+                img.videoSrc = associatedVideo.localSrc;
+                img.hasVideo = true;
             }
         });
 
         return images;
     }
-
     // get filteredImages(): IWpImage[] {
     //
     // const item = this.detailService.selectedItem();
@@ -1428,17 +1490,35 @@ export class WpCategoryDetailComponent {
     }
 
     // Метод за задаване на главна снимка
+    // setPrimaryImage(selectedImg: IWpImage) {
+    //     const item = this.detailService.selectedItem();
+    //     if (!item || !item.images) return;
+    //
+    //     item.images.forEach((img) => {
+    //         // Ако кликнем върху вече избрана звезда, може да я деактивираме (опционално)
+    //         // Тук логиката е: винаги прави избраната True, а другите False
+    //         img.isPrimary = img === selectedImg;
+    //     });
+    // }
     setPrimaryImage(selectedImg: IWpImage) {
         const item = this.detailService.selectedItem();
         if (!item || !item.images) return;
 
+        // 1. Нулираме всички и маркираме новата
         item.images.forEach((img) => {
-            // Ако кликнем върху вече избрана звезда, може да я деактивираме (опционално)
-            // Тук логиката е: винаги прави избраната True, а другите False
-            img.isPrimary = img === selectedImg;
+            img.isPrimary = false;
         });
-    }
+        selectedImg.isPrimary = true;
 
+        // 2. Местим я физически на първо място (индекс 0) в глобалния масив
+        const index = item.images.indexOf(selectedImg);
+        if (index > -1) {
+            item.images.splice(index, 1);       // Изрязваме я от старата позиция
+            item.images.unshift(selectedImg);   // Слагаме я най-отпред
+        }
+
+        this.cdr.detectChanges();
+    }
     euroRegularPrice = signal<number | null>(null);
     euroSalePrice = signal<number | null>(null);
     isConverting = signal(false);
@@ -1609,27 +1689,52 @@ export class WpCategoryDetailComponent {
         });
     }
 
+    // onImageDrop(event: CdkDragDrop<IWpImage[]>) {
+    //     const item = this.detailService.selectedItem();
+    //     if (!item || !item.images) return;
+    //
+    //     // Взимаме филтрирания списък, който потребителят реално вижда и размества
+    //     const currentFiltered = [...this.filteredImages];
+    //
+    //     // Намираме кой елемент местим и къде отива
+    //     const elementMoved = currentFiltered[event.previousIndex];
+    //     const targetElement = currentFiltered[event.currentIndex];
+    //
+    //     // Намираме техните индекси в ГЛОБАЛНИЯ масив на продукта
+    //     const globalPreviousIndex = item.images.indexOf(elementMoved);
+    //     const globalCurrentIndex = item.images.indexOf(targetElement);
+    //
+    //     if (globalPreviousIndex > -1 && globalCurrentIndex > -1) {
+    //         // Разместваме ги в глобалния масив, за да се запазят при Save
+    //         moveItemInArray(item.images, globalPreviousIndex, globalCurrentIndex);
+    //
+    //         this.ms.add({ severity: 'info', summary: 'Нареждане', detail: 'Снимките бяха пренаредени.' });
+    //         this.cdr.detectChanges();
+    //     }
+    // }
     onImageDrop(event: CdkDragDrop<IWpImage[]>) {
         const item = this.detailService.selectedItem();
         if (!item || !item.images) return;
 
-        // Взимаме филтрирания списък, който потребителят реално вижда и размества
-        const currentFiltered = [...this.filteredImages];
+        // 1. Взимаме текущия визуален масив
+        const currentVisualArray = [...this.filteredImages];
 
-        // Намираме кой елемент местим и къде отива
-        const elementMoved = currentFiltered[event.previousIndex];
-        const targetElement = currentFiltered[event.currentIndex];
+        // 2. Разместваме елементите в него (Drag & Drop)
+        moveItemInArray(currentVisualArray, event.previousIndex, event.currentIndex);
 
-        // Намираме техните индекси в ГЛОБАЛНИЯ масив на продукта
-        const globalPreviousIndex = item.images.indexOf(elementMoved);
-        const globalCurrentIndex = item.images.indexOf(targetElement);
-
-        if (globalPreviousIndex > -1 && globalCurrentIndex > -1) {
-            // Разместваме ги в глобалния масив, за да се запазят при Save
-            moveItemInArray(item.images, globalPreviousIndex, globalCurrentIndex);
-
-            this.ms.add({ severity: 'info', summary: 'Нареждане', detail: 'Снимките бяха пренаредени.' });
-            this.cdr.detectChanges();
+        // 3. АВТОМАТИЗАЦИЯ: Която и снимка да попадне на първо място, става Primary!
+        if (currentVisualArray.length > 0) {
+            currentVisualArray.forEach(img => img.isPrimary = false);
+            currentVisualArray[0].isPrimary = true;
         }
+
+        // 4. Намираме всички "скрити" снимки (видеата и снимките за други сайтове)
+        const hiddenImages = item.images.filter(img => !currentVisualArray.includes(img));
+
+        // 5. ПРЕЗАПИСВАМЕ глобалния масив! Подредените + Скритите накрая.
+        // По този начин бекендът ще ги получи точно както ги виждаш ти.
+        item.images = [...currentVisualArray, ...hiddenImages];
+
+        this.cdr.detectChanges();
     }
 }

@@ -105,6 +105,7 @@ export interface IWpImageSiteMapping {
     siteId: number;
     wpMediaId: number;
     wpUrl: string;
+    orderIndex: number;
 }
 
 export interface IWpProductSiteConfig {
