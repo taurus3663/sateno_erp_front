@@ -3,4 +3,5 @@ export interface IMetaAds {
     adAccountId: string;
     accessToken: string;
     name: string;
+    active: boolean;
 }

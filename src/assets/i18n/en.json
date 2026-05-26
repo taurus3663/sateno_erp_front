@@ -323,5 +323,8 @@
   "Remove_Video_Only": "Remove Video Only",
   "You_must_first_save_the_order_to_add_products.": "You must first save the order to add products.",
   "You_must_first_save_the_order_so_you_can_generate_a_waybill": "You must first save the order so you can generate a waybill",
-  "Has_Order": "Has Order"
+  "Has_Order": "Has Order",
+  "Meta": "Meta",
+  "Account_Id": "Account Id",
+  "AccessToken": "AccessToken"
 }

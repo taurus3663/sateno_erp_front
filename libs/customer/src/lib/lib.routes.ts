@@ -79,6 +79,10 @@ registerRoute([
     {
         path: 'product_order/list',
         loadComponent: () => import('./product_menu_order/list').then(c => c.ProductMenuOrderListComponent)
+    },
+    {
+        path: 'meta/list',
+        loadComponent: () => import('./meta/list').then(c => c.MetaAdsListComponent)
     }
 ]);
     registerMenu([
@@ -167,6 +171,11 @@ registerRoute([
                             label: "КУРИЕР",
                             icon: PrimeIcons.PALETTE,
                             routerLink: ['/courier/list']
+                        },
+                        {
+                            label: "МЕТА",
+                            icon: PrimeIcons.FACEBOOK,
+                            routerLink: ['/meta/list']
                         }
                     ]
                 }
