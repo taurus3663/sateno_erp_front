@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, PLATFORM_ID, ChangeDetectorRef, signal, WritableSignal, effect } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
@@ -6,9 +6,14 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { ChartModule } from 'primeng/chart';
 import { ButtonDirective } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
+import { DialogService } from 'primeng/dynamicdialog';
+import { SiteObjectSelectorComponent } from '../_reusables/SiteObjectSelectorComponent';
+import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
+import { SiteListComponent } from 'customer';
+import { ISite } from '../site/interfaces';
 
 @Component({
     selector: 'app-ads-dashboard',
@@ -57,32 +62,32 @@ import { DatePicker } from 'primeng/datepicker';
 
                         <!-- Site Select -->
                         <div class="col-12 lg:col-4">
-                            <label class="block font-semibold mb-2 text-sm text-700">{{ 'select' | translate }}</label>
-                            <p-select [options]="[]" optionLabel="name" [placeholder]="'Select_Site' | translate" class="w-3xs"></p-select>
+                            <label class="block font-semibold mb-2 text-sm text-700">{{ 'Select_campaign' | translate }}</label>
+                            <p-select [options]="[]" optionLabel="name"  class="w-3xs"></p-select>
                         </div>
 
                         <!-- Dates (на един ред) -->
                         <div class="col-6 lg:col-2">
-                            <label class="block font-semibold mb-2 text-sm text-700">От дата</label>
-                            <p-datepicker
+                            <label class="block font-semibold mb-2 text-sm text-700">{{ 'from' | translate }}</label>
+                            <p-date-picker
                                 [(ngModel)]="dateFrom"
                                 [showIcon]="true"
                                 [showButtonBar]="true"
                                 [appendTo]="'body'"
                                 panelStyleClass="w-full md:w-[320px]"
                                 class="w-3xs">
-                            </p-datepicker>
+                            </p-date-picker>
                         </div>
                         <div class="col-6 lg:col-2">
-                            <label class="block font-semibold mb-2 text-sm text-700">От дата</label>
-                            <p-datepicker
+                            <label class="block font-semibold mb-2 text-sm text-700">{{ 'to' | translate }}</label>
+                            <p-date-picker
                                 [(ngModel)]="dateFrom"
                                 [showIcon]="true"
                                 [showButtonBar]="true"
                                 [appendTo]="'body'"
                                 panelStyleClass="w-full md:w-[320px]"
                                 class="w-3xs">
-                            </p-datepicker>
+                            </p-date-picker>
                         </div>
                     </div>
                 </div>
@@ -109,6 +114,9 @@ import { DatePicker } from 'primeng/datepicker';
 export class AdvertisementDetailComponent implements OnInit {
     private platformId = inject(PLATFORM_ID);
     private cd = inject(ChangeDetectorRef);
+    private dialogService = inject(DialogService);
+    private tr = inject(TranslateService);
+
 
     viewOptions = [{ label: 'Час', value: 'hour' }, { label: 'Ден', value: 'day' }, { label: 'Месец', value: 'month' }];
     selectedView: string = 'hour';
@@ -127,6 +135,14 @@ export class AdvertisementDetailComponent implements OnInit {
 
     data: any;
     options: any;
+
+    constructor() {
+        effect(() => {
+            if(this.selectedSite()) {
+
+            }
+        });
+    }
 
     ngOnInit() { this.initChart(); }
 
@@ -153,5 +169,21 @@ export class AdvertisementDetailComponent implements OnInit {
     }
 
     onViewChange(event: any) { console.log('Period:', event.value); }
-    protected selectMetaAds() { /* Логика за диалог */ }
+
+    readonly selectedSite: WritableSignal<ISite | null> = signal(null);
+    protected selectMetaAds() {
+        const ref = this.dialogService.open(SiteListComponent, {
+            header: this.tr.instant('Choose'),
+            width: '80%',
+            closable: true,
+            closeOnEscape: true,
+        data: {mode: 'lookup'}
+        });
+        ref?.onClose.subscribe(async (site: ISite) => {
+            console.log(site);
+            if (site) {
+            this.selectedSite.set(site);
+            }
+        });
+    }
 }
