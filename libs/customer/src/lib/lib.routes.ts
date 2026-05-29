@@ -83,6 +83,10 @@ registerRoute([
     {
         path: 'meta/list',
         loadComponent: () => import('./meta/list').then(c => c.MetaAdsListComponent)
+    },
+    {
+        path: 'advertisements/statistic',
+        loadComponent: () => import('./advertisements/detail').then(c => c.AdvertisementDetailComponent)
     }
 ]);
     registerMenu([
@@ -108,22 +112,18 @@ registerRoute([
                     routerLink: ['/wp_product/list']
                 },
                 {
-                    label: "Шаблон за продукти",
+                    label: 'Шаблон за продукти',
                     icon: PrimeIcons.DISCORD,
                     routerLink: ['/scheme_wp_product/list']
                 },
                 {
-                    label: "Промоционални номера",
+                    label: 'Промоционални номера',
                     icon: PrimeIcons.MEGAPHONE,
                     routerLink: ['/discount/list']
                 },
-                {   label: "Хронология за продукти",
-                    icon: PrimeIcons.HISTORY,
-                    routerLink: ['product_history/list']
-
-                },
+                { label: 'Хронология за продукти', icon: PrimeIcons.HISTORY, routerLink: ['product_history/list'] },
                 {
-                    label: "Подреждане на продукти",
+                    label: 'Подреждане на продукти',
                     icon: PrimeIcons.SORT,
                     routerLink: ['product_order/list']
                 }
@@ -163,17 +163,17 @@ registerRoute([
                             routerLink: ['/site/list']
                         },
                         {
-                            label: "Език-Сайт",
+                            label: 'Език-Сайт',
                             icon: PrimeIcons.LANGUAGE,
                             routerLink: ['/language/list']
                         },
                         {
-                            label: "КУРИЕР",
+                            label: 'КУРИЕР',
                             icon: PrimeIcons.PALETTE,
                             routerLink: ['/courier/list']
                         },
                         {
-                            label: "МЕТА",
+                            label: 'МЕТА',
                             icon: PrimeIcons.FACEBOOK,
                             routerLink: ['/meta/list']
                         }
@@ -236,6 +236,16 @@ registerRoute([
                         }
                     ]
                 }
+            ]
+        },
+        {
+            label: '',
+            items: [
+                {
+                    label: 'РЕКЛАМНА СТАТИСТИКА',
+                    icon: PrimeIcons.CHART_SCATTER,
+                    routerLink: ['/advertisements/statistic']
+                },
             ]
         }
     ]);
