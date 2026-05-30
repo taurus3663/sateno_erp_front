@@ -61,7 +61,7 @@ import { MetaAdsListComponent } from '../meta/list';
                         <!-- Site Select -->
                         <div class="col-12 lg:col-4">
                             <label class="block font-semibold mb-2 text-sm text-700">{{ 'Select_campaign' | translate }}</label>
-                            <p-select [options]="this.campaigns()" [disabled]="!this.selectedMetaAds()" optionLabel="name" optionValue="id"  class="w-3xs"></p-select>
+                            <p-select [options]="this.campaigns()" [(ngModel)]="selectedCampaign" [disabled]="!this.selectedMetaAds()" optionLabel="name" optionValue="id"  class="w-3xs"></p-select>
                         </div>
 
                         <!-- Dates (на един ред) -->
@@ -79,7 +79,7 @@ import { MetaAdsListComponent } from '../meta/list';
                         <div class="col-6 lg:col-2">
                             <label class="block font-semibold mb-2 text-sm text-700">{{ 'to' | translate }}</label>
                             <p-date-picker
-                                [(ngModel)]="dateFrom"
+                                [(ngModel)]="dateHasta"
                                 [showIcon]="true"
                                 [showButtonBar]="true"
                                 [appendTo]="'body'"
@@ -87,13 +87,24 @@ import { MetaAdsListComponent } from '../meta/list';
                                 class="w-3xs">
                             </p-date-picker>
                         </div>
+
+                        <div class="col-12 lg:col-2">
+                            <button pButton
+                                    label="Приложи"
+                                    icon="pi pi-check"
+                                    class="w-3xs mt-3"
+                                    (click)="submitQ()"
+                                    [disabled]="!this.selectedCampaign"
+                                  >
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- KPI Квадрати -->
                 <!-- Промененият грид -->
                 <div class="flex flex-wrap gap-2 mb-5">
-                    <div class="flex-auto p-2" *ngFor="let item of metrics">
+                    <div class="flex-auto p-2" *ngFor="let item of metrics()">
                         <div class="stat-box shadow-sm w-full">
                             <div class="text-secondary">{{ item.label }}</div>
                             <div class="val">{{ item.value }}</div>
@@ -123,20 +134,23 @@ export class AdvertisementDetailComponent implements OnInit {
     dateFrom: Date | undefined;
     dateHasta: Date | undefined;
 
-    metrics = [
-        { label: 'Spend', value: '€ 1,240.50' },
-        { label: 'Clicks', value: '3,450' },
-        { label: 'Impressions', value: '45,200' },
-        { label: 'CTR', value: '2.4%' },
-        { label: 'CPC', value: '€ 0.36' },
-        { label: 'CPM', value: '€ 27.45' }
-    ];
+    // metrics = [
+    //     { label: 'Spend', value: '€ 1,240.50' },
+    //     { label: 'Clicks', value: '3,450' },
+    //     { label: 'Impressions', value: '45,200' },
+    //     { label: 'CTR', value: '2.4%' },
+    //     { label: 'CPC', value: '€ 0.36' },
+    //     { label: 'CPM', value: '€ 27.45' }
+    // ];
+    // Замени статичния `metrics` с това:
+    metrics = signal<any[]>([]);
 
     data: any;
     options: any;
 
     readonly selectedMetaAds: WritableSignal<any> = signal(null);
     readonly campaigns: WritableSignal<any> = signal(null);
+    selectedCampaign: any;
 
 
     constructor() {
@@ -156,8 +170,8 @@ export class AdvertisementDetailComponent implements OnInit {
             this.data = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                 datasets: [
-                    { label: 'Spend (€)', backgroundColor: '#3b82f6', data: [65, 59, 80, 81, 56, 55, 40] },
-                    { label: 'Clicks', backgroundColor: '#64748b', data: [28, 48, 40, 19, 86, 27, 90] }
+                    // { label: 'Spend (€)', backgroundColor: '#3b82f6', data: [65, 59, 80, 81, 56, 55, 40] },
+                    // { label: 'Clicks', backgroundColor: '#64748b', data: [28, 48, 40, 19, 86, 27, 90] }
                 ]
             };
             this.options = {
@@ -188,5 +202,74 @@ export class AdvertisementDetailComponent implements OnInit {
             this.selectedMetaAds.set(metaAds);
             }
         });
+    }
+
+    protected submitQ() {
+        // Внимавай: dateFrom и dateHasta идват от DatePicker като Date обекти,
+        // но трябва да ги подадеш като ISO стрингове за бекенда
+        this.detailService.getAdsRecord({
+            id: this.selectedCampaign,
+            from: this.dateFrom,
+            to: this.dateHasta
+        })
+            .subscribe((data: any) => {
+                // 1. Обновяваме KPI квадратите
+                this.calculateMetrics(data);
+
+                // 2. Обновяваме графиката
+                this.updateChart(data);
+            });
+    }
+
+    private updateChart(data: any) {
+        const documentStyle = getComputedStyle(document.documentElement);
+        const labels = Object.keys(data);
+
+        // Функция за сумиране на конкретно поле
+        const getSum = (key: string, field: string) =>
+            data[key].reduce((acc: number, r: any) => acc + (r[field] || 0), 0);
+
+        this.data = {
+            labels: labels,
+            datasets: [
+                { label: this.tr.instant('SPEND'), backgroundColor: '#3b82f6', data: labels.map(k => getSum(k, 'spend')) },
+                { label: this.tr.instant('CLICKS'), backgroundColor: '#64748b', data: labels.map(k => getSum(k, 'clicks')) },
+                { label: this.tr.instant('IMPRESSIONS'), backgroundColor: '#ef4444', data: labels.map(k => getSum(k, 'impressions')) },
+                { label: this.tr.instant('CTR'), backgroundColor: '#f59e0b', data: labels.map(k => getSum(k, 'ctr')) },
+                { label: this.tr.instant('CPC'), backgroundColor: '#10b981', data: labels.map(k => getSum(k, 'cpc')) },
+                { label: this.tr.instant('CPM'), backgroundColor: '#8b5cf6', data: labels.map(k => getSum(k, 'cpm')) }
+            ]
+        };
+
+        this.data = { ...this.data };
+        this.cd.markForCheck();
+    }
+
+    private calculateMetrics(data: any) {
+        let totalSpend = 0;
+        let totalClicks = 0;
+        let totalImpressions = 0;
+
+        Object.values(data).forEach((records: any) => {
+            records.forEach((r: any) => {
+                totalSpend += r.spend || 0;
+                totalClicks += r.clicks || 0;
+                totalImpressions += r.impressions || 0;
+            });
+        });
+
+        const ctr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
+        const cpc = totalClicks > 0 ? (totalSpend / totalClicks) : 0;
+        const cpm = totalImpressions > 0 ? (totalSpend / totalImpressions) * 1000 : 0;
+
+        // Използваме this.tr.instant() за всеки етикет
+        this.metrics.set([
+            { label: this.tr.instant('SPEND'), value: `€ ${totalSpend.toFixed(2)}` },
+            { label: this.tr.instant('CLICKS'), value: totalClicks.toLocaleString() },
+            { label: this.tr.instant('IMPRESSIONS'), value: totalImpressions.toLocaleString() },
+            { label: this.tr.instant('CTR'), value: `${ctr.toFixed(2)}%` },
+            { label: this.tr.instant('CPC'), value: `€ ${cpc.toFixed(2)}` },
+            { label: this.tr.instant('CPM'), value: `€ ${cpm.toFixed(2)}` }
+        ]);
     }
 }

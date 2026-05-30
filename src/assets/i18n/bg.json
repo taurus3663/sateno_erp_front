@@ -328,5 +328,15 @@
   "Has_Order": "Поръчка",
   "Meta": "Мета",
   "Account_Id": "Account Id",
-  "AccessToken": "AccessToken"
+  "AccessToken": "AccessToken",
+  "Select_meta_ads": "Избери мета реклами",
+  "Select_campaign": "Избери кампания",
+  "from": "от",
+  "to": "до",
+    "SPEND": "Разходи",
+    "CLICKS": "Кликове",
+    "IMPRESSIONS": "Импресии",
+    "CTR": "CTR",
+    "CPC": "CPC",
+    "CPM": "CPM"
 }

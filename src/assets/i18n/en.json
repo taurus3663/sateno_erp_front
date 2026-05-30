@@ -326,5 +326,15 @@
   "Has_Order": "Has Order",
   "Meta": "Meta",
   "Account_Id": "Account Id",
-  "AccessToken": "AccessToken"
+  "AccessToken": "AccessToken",
+  "Select_meta_ads": "Select meta ads",
+  "Select_campaign": "Select campaign",
+  "from": "from",
+  "to": "to",
+    "SPEND": "Spend",
+    "CLICKS": "Clicks",
+    "IMPRESSIONS": "Impressions",
+    "CTR": "CTR",
+    "CPC": "CPC",
+    "CPM": "CPM"
 }
