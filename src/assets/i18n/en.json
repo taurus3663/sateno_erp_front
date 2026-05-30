@@ -331,10 +331,12 @@
   "Select_campaign": "Select campaign",
   "from": "from",
   "to": "to",
-    "SPEND": "Spend",
-    "CLICKS": "Clicks",
-    "IMPRESSIONS": "Impressions",
-    "CTR": "CTR",
-    "CPC": "CPC",
-    "CPM": "CPM"
+  "SPEND": "Spend",
+  "CLICKS": "Clicks",
+  "IMPRESSIONS": "Impressions",
+  "CTR": "CTR",
+  "CPC": "CPC",
+  "CPM": "CPM",
+  "Select_all": "Select all",
+  "Clear_all": "Clear all"
 }

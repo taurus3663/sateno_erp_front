@@ -333,10 +333,12 @@
   "Select_campaign": "Избери кампания",
   "from": "от",
   "to": "до",
-    "SPEND": "Разходи",
-    "CLICKS": "Кликове",
-    "IMPRESSIONS": "Импресии",
-    "CTR": "CTR",
-    "CPC": "CPC",
-    "CPM": "CPM"
+  "SPEND": "Разходи",
+  "CLICKS": "Кликове",
+  "IMPRESSIONS": "Импресии",
+  "CTR": "CTR",
+  "CPC": "CPC",
+  "CPM": "CPM",
+  "Select_all": "Избери всички",
+  "Clear_all": "Изчисти всички"
 }

@@ -13,8 +13,10 @@ export class AdvertisementsDetailService {
        return this.http.get(`/ads/meta/campaign/${siteId}`);
     }
 
-    public getAdsRecord(data: { id: any, from?: string, to?: string }) {        let params = new HttpParams()
-            .set('id', data.id);
+    public getAdsRecord(data: { ids: any, from?: string, to?: string, timeZone: string }) {
+        let params = new HttpParams()
+            .set('ids', data.ids)
+            .set('timeZone', data.timeZone);
 
         if (data.from) params = params.set('from', data.from);
         if (data.to) params = params.set('to', data.to);
