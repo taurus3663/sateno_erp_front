@@ -205,18 +205,23 @@ export class AdvertisementDetailComponent implements OnInit {
     }
 
     protected submitQ() {
-        // Внимавай: dateFrom и dateHasta идват от DatePicker като Date обекти,
-        // но трябва да ги подадеш като ISO стрингове за бекенда
+        // Помощна функция за форматиране на дата
+        const formatDate = (date: Date | undefined) => {
+            if (!date) return undefined;
+            // Взимаме годината, месеца и деня ръчно, без да ползваме toISOString()
+            const y = date.getFullYear();
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            const d = date.getDate().toString().padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+
         this.detailService.getAdsRecord({
             id: this.selectedCampaign,
-            from: this.dateFrom,
-            to: this.dateHasta
+            from: formatDate(this.dateFrom),
+            to: formatDate(this.dateHasta)
         })
             .subscribe((data: any) => {
-                // 1. Обновяваме KPI квадратите
                 this.calculateMetrics(data);
-
-                // 2. Обновяваме графиката
                 this.updateChart(data);
             });
     }

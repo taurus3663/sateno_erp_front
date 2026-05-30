@@ -13,12 +13,11 @@ export class AdvertisementsDetailService {
        return this.http.get(`/ads/meta/campaign/${siteId}`);
     }
 
-    public getAdsRecord(data: { id: any, from?: Date, to?: Date }) {
-        let params = new HttpParams()
+    public getAdsRecord(data: { id: any, from?: string, to?: string }) {        let params = new HttpParams()
             .set('id', data.id);
 
-        if (data.from) params = params.set('from', data.from.toISOString());
-        if (data.to) params = params.set('to', data.to.toISOString());
+        if (data.from) params = params.set('from', data.from);
+        if (data.to) params = params.set('to', data.to);
 
         return this.http.get(`/ads/meta/campaign/adsrecords`, { params });
     }
