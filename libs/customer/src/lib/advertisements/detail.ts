@@ -10,10 +10,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { DialogService } from 'primeng/dynamicdialog';
-import { SiteObjectSelectorComponent } from '../_reusables/SiteObjectSelectorComponent';
-import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
-import { SiteListComponent } from 'customer';
-import { ISite } from '../site/interfaces';
+import { AdvertisementsDetailService } from './detail.service';
+import { MetaAdsListComponent } from '../meta/list';
 
 @Component({
     selector: 'app-ads-dashboard',
@@ -55,7 +53,7 @@ import { ISite } from '../site/interfaces';
                         <div class="col-12 lg:col-6">
                             <label class="block font-semibold mb-2 text-sm text-700">{{ 'Select_meta_ads' | translate }}</label>
                             <div class="p-inputgroup">
-                                <input pInputText [readonly]="true" [placeholder]="'Empty' | translate" class="w-3x" />
+                                <input pInputText [readonly]="true" [value]="this.selectedMetaAds()?.name" [placeholder]="'Empty' | translate" class="w-3x" />
                                 <button type="button" pButton icon="pi pi-search" (click)="selectMetaAds()" severity="secondary"></button>
                             </div>
                         </div>
@@ -63,7 +61,7 @@ import { ISite } from '../site/interfaces';
                         <!-- Site Select -->
                         <div class="col-12 lg:col-4">
                             <label class="block font-semibold mb-2 text-sm text-700">{{ 'Select_campaign' | translate }}</label>
-                            <p-select [options]="[]" optionLabel="name"  class="w-3xs"></p-select>
+                            <p-select [options]="this.campaigns()" [disabled]="!this.selectedMetaAds()" optionLabel="name" optionValue="id"  class="w-3xs"></p-select>
                         </div>
 
                         <!-- Dates (на един ред) -->
@@ -116,6 +114,7 @@ export class AdvertisementDetailComponent implements OnInit {
     private cd = inject(ChangeDetectorRef);
     private dialogService = inject(DialogService);
     private tr = inject(TranslateService);
+    private detailService = inject(AdvertisementsDetailService);
 
 
     viewOptions = [{ label: 'Час', value: 'hour' }, { label: 'Ден', value: 'day' }, { label: 'Месец', value: 'month' }];
@@ -136,10 +135,15 @@ export class AdvertisementDetailComponent implements OnInit {
     data: any;
     options: any;
 
+    readonly selectedMetaAds: WritableSignal<any> = signal(null);
+    readonly campaigns: WritableSignal<any> = signal(null);
+
+
     constructor() {
         effect(() => {
-            if(this.selectedSite()) {
-
+            if(this.selectedMetaAds()) {
+            this.detailService.getCampaigns(this.selectedMetaAds()!.id)
+                .subscribe(value => this.campaigns.set(value));
             }
         });
     }
@@ -170,19 +174,18 @@ export class AdvertisementDetailComponent implements OnInit {
 
     onViewChange(event: any) { console.log('Period:', event.value); }
 
-    readonly selectedSite: WritableSignal<ISite | null> = signal(null);
     protected selectMetaAds() {
-        const ref = this.dialogService.open(SiteListComponent, {
+        const ref = this.dialogService.open(MetaAdsListComponent, {
             header: this.tr.instant('Choose'),
             width: '80%',
             closable: true,
             closeOnEscape: true,
         data: {mode: 'lookup'}
         });
-        ref?.onClose.subscribe(async (site: ISite) => {
-            console.log(site);
-            if (site) {
-            this.selectedSite.set(site);
+        ref?.onClose.subscribe(async (metaAds) => {
+            console.log(metaAds);
+            if (metaAds) {
+            this.selectedMetaAds.set(metaAds);
             }
         });
     }
