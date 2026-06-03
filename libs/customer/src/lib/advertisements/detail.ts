@@ -11,7 +11,7 @@ import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { DialogService } from 'primeng/dynamicdialog';
 import { AdvertisementsDetailService } from './detail.service';
-import { MetaAdsListComponent } from '../meta/list';
+import { MetaAdsListComponent } from '../meta_ads/list';
 import { MultiSelect } from 'primeng/multiselect';
 
 @Component({

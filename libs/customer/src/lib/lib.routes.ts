@@ -81,8 +81,8 @@ registerRoute([
         loadComponent: () => import('./product_menu_order/list').then(c => c.ProductMenuOrderListComponent)
     },
     {
-        path: 'meta/list',
-        loadComponent: () => import('./meta/list').then(c => c.MetaAdsListComponent)
+        path: 'meta_ads/list',
+        loadComponent: () => import('./meta_ads/list').then(c => c.MetaAdsListComponent)
     },
     {
         path: 'advertisements/statistic',
@@ -175,7 +175,7 @@ registerRoute([
                         {
                             label: 'МЕТА',
                             icon: PrimeIcons.FACEBOOK,
-                            routerLink: ['/meta/list']
+                            routerLink: ['/meta_ads/list']
                         }
                     ]
                 }

@@ -11,7 +11,7 @@ import { Select } from 'primeng/select';
 import { Tooltip } from 'primeng/tooltip';
 
 @Component({
-    selector: 'meta-detail',
+    selector: 'meta_ads-detail',
     standalone: true,
     imports: [Dialog, TranslatePipe, NgIf, Button, Checkbox, FormsModule, InputText, Tooltip],
     template: `

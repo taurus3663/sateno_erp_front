@@ -12,7 +12,7 @@ import { MetaAdsDetailComponent } from './detail';
 import { SiteDetailComponent } from '../site/detail';
 
 @Component({
-    selector: 'meta-list',
+    selector: 'meta_ads-list',
     standalone: true,
     imports: [Button, NgIf, Toolbar, TranslatePipe, TableModule, NgClass, MetaAdsDetailComponent],
     template: `

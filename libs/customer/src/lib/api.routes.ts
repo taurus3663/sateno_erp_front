@@ -180,9 +180,15 @@ export class apiRoutes {
         ...this.crud(apiRoutes.wpProductOrder)
     }
 
-    private static readonly metaAds = 'ads/meta';
+    private static readonly metaAds = 'ads/meta_ads';
     public readonly metaAds = {
         ...this.crud(apiRoutes.metaAds)
+    }
+
+    private static readonly googleAds = 'ads/google_ads';
+    public readonly googleAds = {
+        ...this.crud(apiRoutes.googleAds)
+
     }
 
 }
