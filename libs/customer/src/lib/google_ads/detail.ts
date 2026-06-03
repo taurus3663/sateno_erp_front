@@ -7,12 +7,13 @@ import { InputText } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { Dialog } from 'primeng/dialog';
 import { NgIf } from '@angular/common';
+import { Tooltip } from 'primeng/tooltip';
 
 
 @Component({
     selector: 'google_ads-detail',
     standalone: true,
-    imports: [Button, TranslatePipe, Checkbox, InputText, FormsModule, Dialog, NgIf],
+    imports: [Button, TranslatePipe, Checkbox, InputText, FormsModule, Dialog, NgIf, Tooltip],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '1000px', 'min-width': '1000px', 'min-height': '800px' }">
             <ng-template #header>
@@ -34,6 +35,33 @@ import { NgIf } from '@angular/common';
                         <div class="flex flex-col items-center">
                             <span class="text-[9px] uppercase font-bold text-gray-400 mb-1">{{ 'Active' | translate }}</span>
                             <p-checkbox [binary]="true" [(ngModel)]="item.active"></p-checkbox>
+                        </div>
+
+                        <div class="col-span-11">
+                            <label class="block font-bold mb-2">{{ 'Client_id' | translate }}</label>
+                            <input pInputText [(ngModel)]="item.clientId" class="w-full" />
+                        </div>
+
+                        <div class="col-span-11">
+                            <label class="block font-bold mb-2">{{ 'Client_secret' | translate }}</label>
+                            <input pInputText [(ngModel)]="item.clientSecret" class="w-full" />
+                        </div>
+
+                        <div class="col-span-11">
+                            <label class="block font-bold mb-2">{{ 'Login_customer_id' | translate }}</label>
+                            <input pInputText [(ngModel)]="item.loginCustomerId" class="w-full" />
+                        </div>
+
+                        <div class="col-span-11">
+                            <label class="block font-bold mb-2">{{ 'Refresh_token' | translate }}</label>
+                            <div class="flex gap-2">
+                                <input pInputText [(ngModel)]="item.refreshToken" class="w-full" disabled />
+                                <p-button
+                                    icon="pi pi-key"
+                                    severity="info"
+                                    pTooltip="Генерирай нов токен"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
