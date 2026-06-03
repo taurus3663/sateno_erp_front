@@ -87,6 +87,10 @@ registerRoute([
     {
         path: 'advertisements/statistic',
         loadComponent: () => import('./advertisements/detail').then(c => c.AdvertisementDetailComponent)
+    },
+    {
+        path: 'google_ads/list',
+        loadComponent: () => import('./google_ads/list').then(c => c.GoogleAdsListComponent)
     }
 ]);
     registerMenu([
@@ -176,6 +180,11 @@ registerRoute([
                             label: 'МЕТА',
                             icon: PrimeIcons.FACEBOOK,
                             routerLink: ['/meta_ads/list']
+                        },
+                        {
+                            label: 'ГУГЪЛ',
+                            icon: PrimeIcons.GOOGLE,
+                            routerLink: ['google_ads/list']
                         }
                     ]
                 }

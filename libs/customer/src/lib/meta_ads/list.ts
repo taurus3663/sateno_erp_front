@@ -9,7 +9,6 @@ import { MetaAdsDetailService } from './detail.service';
 import { IMetaAds } from './interface';
 import { TableModule } from 'primeng/table';
 import { MetaAdsDetailComponent } from './detail';
-import { SiteDetailComponent } from '../site/detail';
 
 @Component({
     selector: 'meta_ads-list',
@@ -69,7 +68,7 @@ import { SiteDetailComponent } from '../site/detail';
             </ng-template>
         </p-table>
 
-        <meta-detail *ngIf="config?.data?.mode !== 'lookup'"></meta-detail>
+        <meta_ads-detail *ngIf="config?.data?.mode !== 'lookup'"></meta_ads-detail>
     `
 })
 export class MetaAdsListComponent {
