@@ -60,6 +60,7 @@ import { Tooltip } from 'primeng/tooltip';
                                     icon="pi pi-key"
                                     severity="info"
                                     pTooltip="Генерирай нов токен"
+                                    (onClick)="onGenerateToken(item)"
                                 />
                             </div>
                         </div>
@@ -76,4 +77,22 @@ import { Tooltip } from 'primeng/tooltip';
 })
 export class GoogleAdsDetailComponent {
     protected detailService = inject(GoogleAdsDetailService);
+
+    protected onGenerateToken(item: any) {
+        if (!item.id) {
+            // Можеш да добавиш toast за предупреждение, че първо трябва да се запази профила
+            return;
+        }
+
+        // Викаме сервиза, за да получим URL-а
+        this.detailService.getGoogleAuthUrl(item.id).subscribe({
+            next: (url: string) => {
+                // Пренасочваме потребителя към Google
+                window.location.href = url;
+            },
+            error: (err) => {
+                console.error("Грешка при генериране на URL", err);
+            }
+        });
+    }
 }

@@ -187,7 +187,8 @@ export class apiRoutes {
 
     private static readonly googleAds = 'ads/google';
     public readonly googleAds = {
-        ...this.crud(apiRoutes.googleAds)
+        ...this.crud(apiRoutes.googleAds),
+        generateToken: (id: number | string) => `${apiRoutes.googleAds}/campaign/${id}/token`
 
     }
 
