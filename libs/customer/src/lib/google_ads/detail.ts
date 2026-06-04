@@ -87,8 +87,16 @@ export class GoogleAdsDetailComponent {
         // Викаме сервиза, за да получим URL-а
         this.detailService.getGoogleAuthUrl(item.id).subscribe({
             next: (url: string) => {
-                // Пренасочваме потребителя към Google
-                window.location.href = url;
+               const authW = window.open(url, '_blank', 'width=600,height=700');
+
+               if(authW) {
+                   const checkClosed = setInterval(() => {
+                       if (authW.closed) {
+                           clearInterval(checkClosed); // Спираме проверката
+                           this.detailService.loadData(item.id);
+                       }
+                   }, 1000); // Проверява всяка секунда
+               }
             },
             error: (err) => {
                 console.error("Грешка при генериране на URL", err);

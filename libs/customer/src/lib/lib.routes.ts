@@ -91,6 +91,11 @@ registerRoute([
     {
         path: 'google_ads/list',
         loadComponent: () => import('./google_ads/list').then(c => c.GoogleAdsListComponent)
+    },
+    // В app-routing.module.ts
+    {
+        path: 'api/ads/google/callback',
+        loadComponent: () => import('./google_ads/AuthCallBackComponent').then(c => c.AuthCallbackComponent) // Създай празен компонент, който не прави нищо
     }
 ]);
     registerMenu([
