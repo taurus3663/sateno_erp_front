@@ -53,6 +53,11 @@ import { Tooltip } from 'primeng/tooltip';
                         </div>
 
                         <div class="col-span-11">
+                            <label class="block font-bold mb-2">{{ 'Developer_token' | translate }}</label>
+                            <input pInputText [(ngModel)]="item.developerToken" class="w-full" />
+                        </div>
+
+                        <div class="col-span-11">
                             <label class="block font-bold mb-2">{{ 'Refresh_token' | translate }}</label>
                             <div class="flex gap-2">
                                 <input pInputText [(ngModel)]="item.refreshToken" class="w-full" disabled />

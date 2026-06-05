@@ -6,4 +6,5 @@ export interface IGoogleAds {
     clientSecret: string;
     refreshToken: string;
     loginCustomerId: string;
+    developerToken:string;
 }
