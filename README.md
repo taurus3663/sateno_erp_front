@@ -1,3 +1,4 @@
+./cl_update.sh root@62.138.14.35 -p 2022 -n sakai-ng
 # 🚀 Sateno Admin Panel (Sakai19 + Nx Monorepo)
 
 Това е административната система на **Sateno**, изградена с **Angular 20** и **Nx Monorepo**. Проектът използва модулна архитектура със Standalone компоненти.
