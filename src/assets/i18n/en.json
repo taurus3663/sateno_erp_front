@@ -338,5 +338,12 @@
   "CPC": "CPC",
   "CPM": "CPM",
   "Select_all": "Select all",
-  "Clear_all": "Clear all"
+  "Clear_all": "Clear all",
+  "Google": "Google",
+  "Client_id": "Client id",
+  "Client_secret": "Client secret",
+  "Login_customer_id": "Login customer id",
+  "Developer_token": "Developer token",
+  "Refresh_token": "Refresh token",
+  "Select_google_ads": "Select google ads"
 }

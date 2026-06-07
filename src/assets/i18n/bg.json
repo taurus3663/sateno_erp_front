@@ -327,8 +327,8 @@
   "You_must_first_save_the_order_so_you_can_generate_a_waybill": "Първо трябва да запаметите поръчката, за да можете да генерирате товарителница",
   "Has_Order": "Поръчка",
   "Meta": "Мета",
-  "Account_Id": "Account Id",
-  "AccessToken": "AccessToken",
+  "Account_Id": "ID на акаунт",
+  "AccessToken": "Токен за достъп",
   "Select_meta_ads": "Избери мета реклами",
   "Select_campaign": "Избери кампания",
   "from": "от",
@@ -340,5 +340,12 @@
   "CPC": "CPC",
   "CPM": "CPM",
   "Select_all": "Избери всички",
-  "Clear_all": "Изчисти всички"
+  "Clear_all": "Изчисти всички",
+  "Google": "Google",
+  "Client_id": "Клиентски ID",
+  "Client_secret": "Клиентски секретен ключ",
+  "Login_customer_id": "ID на клиент за вход",
+  "Developer_token": "Токен на разработчика",
+  "Refresh_token": "Токен за обновяване",
+  "Select_google_ads": "Избор на Google Ads акаунт"
 }
