@@ -252,35 +252,32 @@ export class AdvertisementDetailComponent implements OnInit {
     initChart() {
         if (isPlatformBrowser(this.platformId)) {
             const documentStyle = getComputedStyle(document.documentElement);
+            const textColor = documentStyle.getPropertyValue('--p-text-color').trim() || '#495057';
+            const borderColor = documentStyle.getPropertyValue('--p-content-border-color').trim() || '#dee2e6';
+
             this.googleData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                datasets: [
-                    // { label: 'Spend (€)', backgroundColor: '#3b82f6', data: [65, 59, 80, 81, 56, 55, 40] },
-                    // { label: 'Clicks', backgroundColor: '#64748b', data: [28, 48, 40, 19, 86, 27, 90] }
-                ]
+                datasets: []
             };
             this.metaData = {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                datasets: [
-                    // { label: 'Spend (€)', backgroundColor: '#3b82f6', data: [65, 59, 80, 81, 56, 55, 40] },
-                    // { label: 'Clicks', backgroundColor: '#64748b', data: [28, 48, 40, 19, 86, 27, 90] }
-                ]
+                datasets: []
             };
 
             this.metaOptions = {
                 maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: documentStyle.getPropertyValue('--p-text-color') } } },
+                plugins: { legend: { labels: { color: textColor } } },
                 scales: {
-                    x: { grid: { color: documentStyle.getPropertyValue('--p-content-border-color') } },
-                    y: { beginAtZero: true, grid: { color: documentStyle.getPropertyValue('--p-content-border-color') } }
+                    x: { grid: { color: borderColor } },
+                    y: { beginAtZero: true, grid: { color: borderColor } }
                 }
             };
             this.googleOptions = {
                 maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: documentStyle.getPropertyValue('--p-text-color') } } },
+                plugins: { legend: { labels: { color: textColor } } },
                 scales: {
-                    x: { grid: { color: documentStyle.getPropertyValue('--p-content-border-color') } },
-                    y: { beginAtZero: true, grid: { color: documentStyle.getPropertyValue('--p-content-border-color') } }
+                    x: { grid: { color: borderColor } },
+                    y: { beginAtZero: true, grid: { color: borderColor } }
                 }
             };
             this.cd.markForCheck();
@@ -370,13 +367,11 @@ export class AdvertisementDetailComponent implements OnInit {
     }
 
     private updateChart(data: any) {
-        const documentStyle = getComputedStyle(document.documentElement);
         const labels = Object.keys(data);
         console.log(labels);
-        // Функция за сумиране на конкретно поле
         const getSum = (key: string, field: string) => data[key].reduce((acc: number, r: any) => acc + (r[field] || 0), 0);
 
-        this.googleData = {
+        this.metaData = {
             labels: labels,
             datasets: [
                 { label: this.tr.instant('SPEND'), backgroundColor: '#3b82f6', data: labels.map((k) => getSum(k, 'spend')) },
