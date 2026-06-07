@@ -198,8 +198,8 @@ export class AdvertisementDetailComponent implements OnInit {
     private tr = inject(TranslateService);
     private detailService = inject(AdvertisementsDetailService);
 
-    metaDateFrom: Date | undefined;
-    metaDateHasta: Date | undefined;
+    metaDateFrom: Date | undefined = new Date();
+    metaDateHasta: Date | undefined = new Date();
     metaMetrics = signal<any[]>([]);
     metaData: any;
     metaOptions: any;
@@ -207,8 +207,8 @@ export class AdvertisementDetailComponent implements OnInit {
     readonly metaCampaigns: WritableSignal<any> = signal(null);
     selectedMetaCampaigns: any[] = [];
 
-    googleDateFrom: Date | undefined;
-    googleDateHasta: Date | undefined;
+    googleDateFrom: Date | undefined = new Date();
+    googleDateHasta: Date | undefined = new Date();
     googleMetrics = signal<any[]>([]);
     googleData: any;
     googleOptions: any;
@@ -237,10 +237,16 @@ export class AdvertisementDetailComponent implements OnInit {
     constructor() {
         effect(() => {
             if (this.selectedMetaAds()) {
-                this.detailService.getCampaigns(this.selectedMetaAds()!.id).subscribe((value) => this.metaCampaigns.set(value));
+                this.detailService.getCampaigns(this.selectedMetaAds()!.id).subscribe((value: any) => {
+                    this.metaCampaigns.set(value);
+                    this.selectedMetaCampaigns = value.map((c: any) => c.id);
+                });
             }
-            if(this.selectedGoogleAds()) {
-                this.detailService.getGoogleCampaigns(this.selectedGoogleAds()!.id).subscribe((value) => this.googleCampaigns.set(value));
+            if (this.selectedGoogleAds()) {
+                this.detailService.getGoogleCampaigns(this.selectedGoogleAds()!.id).subscribe((value: any) => {
+                    this.googleCampaigns.set(value);
+                    this.selectedGoogleCampaigns = value.map((c: any) => c.id);
+                });
             }
         });
     }
