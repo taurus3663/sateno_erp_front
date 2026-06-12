@@ -48,12 +48,17 @@ fi
 
 echo ">>> Намерен локален път: $LOCAL_DIST_DIR"
 
-# 3. CLEAN SERVER (трием само съдържанието, не папката)
-echo ">>> 2) Почистване на файловете на сървъра..."
-ssh -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" "rm -rf $SERVER_DIR/*"
+# 3. UPLOAD във временна папка (старото работи)
+echo ">>> 2) Качване в ${SERVER_DIR}.new..."
+ssh -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" "mkdir -p ${SERVER_DIR}.new && rm -rf ${SERVER_DIR}.new/*"
+scp -P "$SERVER_PORT" -r $LOCAL_DIST_DIR "$SERVER_USER@$SERVER_HOST:${SERVER_DIR}.new/" || exit 1
 
-# 4. UPLOAD
-echo ">>> 3) Качване на новите файлове..."
-scp -P "$SERVER_PORT" -r $LOCAL_DIST_DIR "$SERVER_USER@$SERVER_HOST:$SERVER_DIR/"
+# 4. АТОМАРНА ЗАМЯНА
+echo ">>> 3) Атомарна замяна на папките..."
+ssh -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" "
+  mv $SERVER_DIR ${SERVER_DIR}.old && \
+  mv ${SERVER_DIR}.new $SERVER_DIR && \
+  rm -rf ${SERVER_DIR}.old
+"
 
 echo ">>> Готово! Фронтендът на $PROJECT_NAME е обновен. ✅"
