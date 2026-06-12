@@ -24,7 +24,7 @@ import { InputText } from 'primeng/inputtext';
 import { ShipmentDetailComponent } from './shipment.detail';
 import { ShipmentService } from './shipment.service';
 import { CourierType } from '../courier/interfaces';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { BlockUI } from 'primeng/blockui';
 import { Popover } from 'primeng/popover';
 import { Textarea } from 'primeng/textarea';
@@ -405,6 +405,42 @@ import { Select } from 'primeng/select';
                                                 </div>
                                                 <div class="text-1xl mt-1 italic line-height-3">"{{ s.text }}"</div>
                                             </div>
+                                        </div>
+                                    </div>
+                                </p-popover>
+
+                                <i
+                                    *ngIf="order.status === OrderStatus.CANCELLED"
+                                    class="pi pi-thumbs-down-fill cursor-pointer p-1"
+                                    style="color: #f59e0b"
+                                    [pTooltip]="'Uncorrect_signal' | translate"
+                                    tooltipPosition="top"
+                                    (click)="$event.stopPropagation(); onSignalPopShow(); signalOp.toggle($event)"
+                                ></i>
+
+                                <p-popover #signalOp [style]="{ width: '380px' }">
+                                    <div class="p-3">
+                                        <div class="flex align-items-center justify-content-between border-bottom-1 pb-2 mb-3 surface-border">
+                                            <div class="flex align-items-center gap-2 font-bold" style="color: #f59e0b">
+                                                <i class="pi pi-thumbs-down-fill"></i>
+                                                <span>{{ 'Uncorrect_signal' | translate }}</span>
+                                            </div>
+                                            <i class="pi pi-times cursor-pointer text-500 hover:text-900" (click)="signalOp.hide()"></i>
+                                        </div>
+                                        <div class="mb-3">
+                                            <textarea
+                                                pInputTextarea
+                                                [(ngModel)]="signalText"
+                                                rows="4"
+                                                [autoResize]="false"
+                                                class="w-full p-2 border-round border-1 surface-border"
+                                                style="width: 100% !important; resize: none; box-sizing: border-box;"
+                                                [placeholder]="'Add_note...' | translate"
+                                            ></textarea>
+                                        </div>
+                                        <div class="flex justify-end gap-2">
+                                            <p-button [label]="'Cancel' | translate" [text]="true" severity="secondary" (onClick)="signalOp.hide()"></p-button>
+                                            <p-button [label]="'Send' | translate" icon="pi pi-send" [loading]="isSendingSignal" severity="warn" (onClick)="sendSignal(order, signalOp)"></p-button>
                                         </div>
                                     </div>
                                 </p-popover>
@@ -1108,6 +1144,29 @@ export class OrderListComponent implements OnInit, OnDestroy {
     // Помощни променливи за бърза редакция
     protected editableComment: string = '';
     protected isSavingComment: boolean = false;
+    protected signalText: string = '';
+    protected isSendingSignal: boolean = false;
+
+    onSignalPopShow() {
+        this.signalText = '';
+    }
+
+    private messageService = inject(MessageService);
+
+    sendSignal(order: IOrder, popover: any) {
+        if (!this.signalText.trim()) return;
+        this.isSendingSignal = true;
+        this.listService.sendCancelSignal(order.id, this.signalText).subscribe({
+            next: () => {
+                this.isSendingSignal = false;
+                popover.hide();
+                this.messageService.add({ severity: 'success', summary: this.tr.instant('Notification'), detail: this.tr.instant('Detected_signals') });
+            },
+            error: () => {
+                this.isSendingSignal = false;
+            }
+        });
+    }
 
     /**
      * При отваряне на попъвъра зареждаме текущия коментар в локалната променлива

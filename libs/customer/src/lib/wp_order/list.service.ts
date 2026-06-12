@@ -167,6 +167,12 @@ export class OrderListService extends BaseListCrud<IOrder> {
         })
     }
 
+    public sendCancelSignal(orderId: number, text: string) {
+        return this.http.post(ROUTES.wp_order.sendSignal(orderId), text, {
+            headers: { 'Content-Type': 'text/plain' }
+        });
+    }
+
     openViber(phone: string) {
         if (!phone) return;
 

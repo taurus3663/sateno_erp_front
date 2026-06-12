@@ -123,6 +123,7 @@ export class apiRoutes {
             `${apiRoutes.wpOrderBase}/generate/waybill/${orderId}/${waybillId}/${paperSize}`,
         cancelShipment: (orderId: number) => `${apiRoutes.wpOrderBase}/cancel-shipment/${orderId}`,
         getStatusStats: `${apiRoutes.wpOrderBase}/status/stats`,
+        sendSignal: (orderId: number) => `${apiRoutes.wpOrderBase}/signal/${orderId}`,
     }
 
     private static readonly courierBase = 'courier';
