@@ -410,7 +410,7 @@ import { Select } from 'primeng/select';
                                 </p-popover>
 
                                 <i
-                                    *ngIf="order.status === OrderStatus.CANCELLED"
+                                    *ngIf="order.status === OrderStatus.CANCELLED || order.status === OrderStatus.FAILED"
                                     class="pi pi-thumbs-down-fill cursor-pointer p-1"
                                     [style.color]="order.signalText ? '#22c55e' : '#f59e0b'"
                                     [pTooltip]="order.signalText ? order.signalText : ('Uncorrect_signal' | translate)"
