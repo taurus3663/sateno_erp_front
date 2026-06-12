@@ -347,5 +347,32 @@
   "Login_customer_id": "ID на клиент за вход",
   "Developer_token": "Токен на разработчика",
   "Refresh_token": "Токен за обновяване",
-  "Select_google_ads": "Избор на Google Ads акаунт"
+  "Select_google_ads": "Избор на Google Ads акаунт",
+  "menu": {
+    "Orders": "Поръчки",
+    "Products": "Продукти",
+    "Product_Scheme": "Шаблон за продукти",
+    "Promotional_Numbers": "Промоционални номера",
+    "Product_History": "Хронология за продукти",
+    "Product_Ordering": "Подреждане на продукти",
+    "Contractor": "Контрактор",
+    "Customers": "Клиенти",
+    "Settings": "Настройки",
+    "Currencies": "Валути",
+    "Sites": "Сайтове",
+    "Language_Site": "Език-Сайт",
+    "Courier": "Куриер",
+    "Meta": "Мета",
+    "Google": "Гугъл",
+    "Warehouse": "Склад",
+    "Category": "Категория",
+    "Addon": "Аддон",
+    "Addon_Value": "Аддон стойност",
+    "Brands": "Марки",
+    "Email": "Имейл",
+    "Profiles": "Профили",
+    "Sent": "Изпратени",
+    "Received": "Получени",
+    "Ad_Statistics": "Рекламна статистика"
+  }
 }

@@ -99,40 +99,32 @@ registerRoute([
     }
 ]);
     registerMenu([
-        // {
-        //   label: 'ПОРЪЧКИ ОТ СИСТЕМИ ',
-        //   items: [
-        //       {
-        //           label: 'Поръчки'
-        //       }
-        //   ]
-        // },
         {
             label: '',
             items: [
                 {
-                    label: 'Поръчки',
+                    label: 'menu.Orders',
                     icon: PrimeIcons.EURO,
                     routerLink: ['/wp_order/list']
                 },
                 {
-                    label: 'Продукти',
+                    label: 'menu.Products',
                     icon: PrimeIcons.PALETTE,
                     routerLink: ['/wp_product/list']
                 },
                 {
-                    label: 'Шаблон за продукти',
+                    label: 'menu.Product_Scheme',
                     icon: PrimeIcons.DISCORD,
                     routerLink: ['/scheme_wp_product/list']
                 },
                 {
-                    label: 'Промоционални номера',
+                    label: 'menu.Promotional_Numbers',
                     icon: PrimeIcons.MEGAPHONE,
                     routerLink: ['/discount/list']
                 },
-                { label: 'Хронология за продукти', icon: PrimeIcons.HISTORY, routerLink: ['product_history/list'] },
+                { label: 'menu.Product_History', icon: PrimeIcons.HISTORY, routerLink: ['product_history/list'] },
                 {
-                    label: 'Подреждане на продукти',
+                    label: 'menu.Product_Ordering',
                     icon: PrimeIcons.SORT,
                     routerLink: ['product_order/list']
                 }
@@ -142,11 +134,11 @@ registerRoute([
             label: '',
             items: [
                 {
-                    label: 'Kонтрактор',
+                    label: 'menu.Contractor',
                     icon: PrimeIcons.RECEIPT,
                     items: [
                         {
-                            label: 'Kлиенти',
+                            label: 'menu.Customers',
                             icon: PrimeIcons.USERS,
                             routerLink: ['/customer/list']
                         }
@@ -158,36 +150,36 @@ registerRoute([
             label: '',
             items: [
                 {
-                    label: 'Настройки',
+                    label: 'menu.Settings',
                     icon: PrimeIcons.SLIDERS_H,
                     items: [
                         {
-                            label: 'Валути',
+                            label: 'menu.Currencies',
                             icon: PrimeIcons.MONEY_BILL,
                             routerLink: ['/currency/list']
                         },
                         {
-                            label: 'Сайтове',
+                            label: 'menu.Sites',
                             icon: PrimeIcons.SITEMAP,
                             routerLink: ['/site/list']
                         },
                         {
-                            label: 'Език-Сайт',
+                            label: 'menu.Language_Site',
                             icon: PrimeIcons.LANGUAGE,
                             routerLink: ['/language/list']
                         },
                         {
-                            label: 'КУРИЕР',
+                            label: 'menu.Courier',
                             icon: PrimeIcons.PALETTE,
                             routerLink: ['/courier/list']
                         },
                         {
-                            label: 'МЕТА',
+                            label: 'menu.Meta',
                             icon: PrimeIcons.FACEBOOK,
                             routerLink: ['/meta_ads/list']
                         },
                         {
-                            label: 'ГУГЪЛ',
+                            label: 'menu.Google',
                             icon: PrimeIcons.GOOGLE,
                             routerLink: ['google_ads/list']
                         }
@@ -199,26 +191,26 @@ registerRoute([
             label: '',
             items: [
                 {
-                    label: 'Склад',
+                    label: 'menu.Warehouse',
                     icon: PrimeIcons.RECEIPT,
                     items: [
                         {
-                            label: 'Категория',
+                            label: 'menu.Category',
                             icon: PrimeIcons.CHART_SCATTER,
                             routerLink: ['/wp_category/list']
                         },
                         {
-                            label: 'Аддон',
+                            label: 'menu.Addon',
                             icon: PrimeIcons.LIST,
                             routerLink: ['/wp_addon/list']
                         },
                         {
-                            label: 'Аддон стойност',
+                            label: 'menu.Addon_Value',
                             icon: PrimeIcons.LIST_CHECK,
                             routerLink: ['/wp_addon_value/list']
                         },
                         {
-                            label: 'Марки',
+                            label: 'menu.Brands',
                             icon: PrimeIcons.BRIEFCASE,
                             routerLink: ['/wp_brand/list']
                         }
@@ -230,21 +222,21 @@ registerRoute([
             label: '',
             items: [
                 {
-                    label: 'Имейл',
+                    label: 'menu.Email',
                     icon: PrimeIcons.STAR,
                     items: [
                         {
-                            label: 'Профили',
+                            label: 'menu.Profiles',
                             icon: PrimeIcons.STOP,
                             routerLink: ['/email/list']
                         },
                         {
-                            label: 'Изпратени',
+                            label: 'menu.Sent',
                             icon: PrimeIcons.STOP,
                             routerLink: ['/email/send/list']
                         },
                         {
-                            label: 'Получени',
+                            label: 'menu.Received',
                             icon: PrimeIcons.STOP,
                             routerLink: ['/email/receive/list']
                         }
@@ -256,7 +248,7 @@ registerRoute([
             label: '',
             items: [
                 {
-                    label: 'РЕКЛАМНА СТАТИСТИКА',
+                    label: 'menu.Ad_Statistics',
                     icon: PrimeIcons.CHART_SCATTER,
                     routerLink: ['/advertisements/statistic']
                 },

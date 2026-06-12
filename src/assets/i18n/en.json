@@ -345,5 +345,32 @@
   "Login_customer_id": "Login customer id",
   "Developer_token": "Developer token",
   "Refresh_token": "Refresh token",
-  "Select_google_ads": "Select google ads"
+  "Select_google_ads": "Select google ads",
+  "menu": {
+    "Orders": "Orders",
+    "Products": "Products",
+    "Product_Scheme": "Product Scheme",
+    "Promotional_Numbers": "Promotional Numbers",
+    "Product_History": "Product History",
+    "Product_Ordering": "Product Ordering",
+    "Contractor": "Contractor",
+    "Customers": "Customers",
+    "Settings": "Settings",
+    "Currencies": "Currencies",
+    "Sites": "Sites",
+    "Language_Site": "Language-Site",
+    "Courier": "Courier",
+    "Meta": "Meta",
+    "Google": "Google",
+    "Warehouse": "Warehouse",
+    "Category": "Category",
+    "Addon": "Addon",
+    "Addon_Value": "Addon Value",
+    "Brands": "Brands",
+    "Email": "Email",
+    "Profiles": "Profiles",
+    "Sent": "Sent",
+    "Received": "Received",
+    "Ad_Statistics": "Ad Statistics"
+  }
 }
