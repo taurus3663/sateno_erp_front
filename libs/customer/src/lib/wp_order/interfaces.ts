@@ -58,6 +58,7 @@ export interface IOrder {
     courierId: number;
     signals: ISignalUser[];
     comment: string;
+    signalText: string;
     savedCourierBilling: OrderSavedCourierSettings;
     customShippingTotal: number;
     courierHistory: CourierHistory[];

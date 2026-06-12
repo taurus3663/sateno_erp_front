@@ -412,16 +412,16 @@ import { Select } from 'primeng/select';
                                 <i
                                     *ngIf="order.status === OrderStatus.CANCELLED"
                                     class="pi pi-thumbs-down-fill cursor-pointer p-1"
-                                    style="color: #f59e0b"
-                                    [pTooltip]="'Uncorrect_signal' | translate"
+                                    [style.color]="order.signalText ? '#22c55e' : '#f59e0b'"
+                                    [pTooltip]="order.signalText ? order.signalText : ('Uncorrect_signal' | translate)"
                                     tooltipPosition="top"
-                                    (click)="$event.stopPropagation(); onSignalPopShow(); signalOp.toggle($event)"
+                                    (click)="$event.stopPropagation(); onSignalPopShow(order); signalOp.toggle($event)"
                                 ></i>
 
                                 <p-popover #signalOp [style]="{ width: '380px' }">
                                     <div class="p-3">
                                         <div class="flex align-items-center justify-content-between border-bottom-1 pb-2 mb-3 surface-border">
-                                            <div class="flex align-items-center gap-2 font-bold" style="color: #f59e0b">
+                                            <div class="flex align-items-center gap-2 font-bold" [style.color]="order.signalText ? '#22c55e' : '#f59e0b'">
                                                 <i class="pi pi-thumbs-down-fill"></i>
                                                 <span>{{ 'Uncorrect_signal' | translate }}</span>
                                             </div>
@@ -433,6 +433,7 @@ import { Select } from 'primeng/select';
                                                 [(ngModel)]="signalText"
                                                 rows="4"
                                                 [autoResize]="false"
+                                                [disabled]="!!order.signalText"
                                                 class="w-full p-2 border-round border-1 surface-border"
                                                 style="width: 100% !important; resize: none; box-sizing: border-box;"
                                                 [placeholder]="'Add_note...' | translate"
@@ -440,7 +441,7 @@ import { Select } from 'primeng/select';
                                         </div>
                                         <div class="flex justify-end gap-2">
                                             <p-button [label]="'Cancel' | translate" [text]="true" severity="secondary" (onClick)="signalOp.hide()"></p-button>
-                                            <p-button [label]="'Send' | translate" icon="pi pi-send" [loading]="isSendingSignal" severity="warn" (onClick)="sendSignal(order, signalOp)"></p-button>
+                                            <p-button *ngIf="!order.signalText" [label]="'Send' | translate" icon="pi pi-send" [loading]="isSendingSignal" severity="warn" (onClick)="sendSignal(order, signalOp)"></p-button>
                                         </div>
                                     </div>
                                 </p-popover>
@@ -1147,8 +1148,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
     protected signalText: string = '';
     protected isSendingSignal: boolean = false;
 
-    onSignalPopShow() {
-        this.signalText = '';
+    onSignalPopShow(order: IOrder) {
+        this.signalText = order.signalText || '';
     }
 
     private messageService = inject(MessageService);
@@ -1158,6 +1159,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         this.isSendingSignal = true;
         this.listService.sendCancelSignal(order.id, this.signalText).subscribe({
             next: () => {
+                order.signalText = this.signalText;
                 this.isSendingSignal = false;
                 popover.hide();
                 this.messageService.add({ severity: 'success', summary: this.tr.instant('Notification'), detail: this.tr.instant('Detected_signals') });
