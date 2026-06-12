@@ -100,7 +100,8 @@ import { ConfirmationService } from 'primeng/api';
                 width: 75px;
                 height: 75px;
                 object-fit: cover;
-            }`
+            }
+        `
     ],
     template: `
         <p-toolbar class="mb-6" *ngIf="config?.data?.mode !== 'lookup'">
@@ -110,13 +111,13 @@ import { ConfirmationService } from 'primeng/api';
                 <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
             </ng-template>
 
-<!--            <ng-template #center>-->
-<!--                <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">-->
-<!--                    <p-inputicon styleClass="pi pi-search" />-->
-<!--                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search_by_name_or_sku...' | translate" class="p-inputtext-sm w-full md:w-20rem" />-->
-<!--                    <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />-->
-<!--                </p-iconfield>-->
-<!--            </ng-template>-->
+            <!--            <ng-template #center>-->
+            <!--                <p-iconfield *ngIf="config?.data?.mode !== 'lookup'" iconPosition="left">-->
+            <!--                    <p-inputicon styleClass="pi pi-search" />-->
+            <!--                    <input pInputText type="text" [(ngModel)]="searchValue" (input)="onSearch($event)" [placeholder]="'Search_by_name_or_sku...' | translate" class="p-inputtext-sm w-full md:w-20rem" />-->
+            <!--                    <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />-->
+            <!--                </p-iconfield>-->
+            <!--            </ng-template>-->
         </p-toolbar>
 
         <p-table
@@ -125,7 +126,7 @@ import { ConfirmationService } from 'primeng/api';
             [lazy]="true"
             (onLazyLoad)="onLazyLoad($event)"
             [paginator]="true"
-            [rows]=rows
+            [rows]="rows"
             [loading]="listService.loading()"
             [totalRecords]="listService.totalRecords()"
             [rowsPerPageOptions]="[10, 20, 50, 200]"
@@ -150,7 +151,6 @@ import { ConfirmationService } from 'primeng/api';
             <!--            </ng-template>-->
             <ng-template #caption>
                 <div class="flex flex-wrap align-items-center justify-content-between gap-3 w-full">
-
                     <div class="flex align-items-center gap-3 flex-1">
                         <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="dt.clear()" size="small" />
 
@@ -167,23 +167,14 @@ import { ConfirmationService } from 'primeng/api';
                     </div>
 
                     <div class="flex-1 flex justify-content-center">
-                        <p-iconfield  iconPosition="left">
+                        <p-iconfield iconPosition="left">
                             <p-inputicon styleClass="pi pi-search" />
-                            <input
-                                pInputText
-                                type="text"
-                                [(ngModel)]="searchValue"
-                                (keyup.enter)="onSearch($event)"
-                                [placeholder]="'Search_by_name_or_sku...' | translate"
-                                class="p-inputtext-sm w-full md:w-25rem border-round-xl shadow-1"
-                            />
+                            <input pInputText type="text" [(ngModel)]="searchValue" (keyup.enter)="onSearch($event)" [placeholder]="'Search_by_name_or_sku...' | translate" class="p-inputtext-sm w-full md:w-25rem border-round-xl shadow-1" />
                             <p-inputicon *ngIf="searchValue" styleClass="pi pi-times cursor-pointer" (click)="clearSearch()" />
                         </p-iconfield>
                     </div>
 
-                    <div class="flex-1 flex justify-content-end">
-                    </div>
-
+                    <div class="flex-1 flex justify-content-end"></div>
                 </div>
             </ng-template>
 
@@ -196,13 +187,13 @@ import { ConfirmationService } from 'primeng/api';
                     <th style="width: 10rem">
                         <div class="flex items-center justify-between">
                             {{ 'SKU' | translate }}
-<!--                            <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
+                            <!--                            <p-columnFilter type="text" field="sku" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
                     <th style="width: 25rem">
                         <div class="flex items-center justify-between">
                             {{ 'Name' | translate }}
-<!--                            <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
+                            <!--                            <p-columnFilter type="text" field="name" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false"></p-columnFilter>-->
                         </div>
                     </th>
                     <th style="width: 10rem">
@@ -304,7 +295,18 @@ import { ConfirmationService } from 'primeng/api';
                     <td>
                         <div class="flex justify-content-center">
                             <p-overlay-badge [severity]="isSelling(item) ? 'success' : 'danger'" badgeSize="small" styleClass="p-badge-dot">
-                                <p-image style="height: 85px;max-height: 85px" height="auto"  loading="lazy" *ngIf="item.m_image" [src]="this.baseUrl + item.m_image" [alt]="item.names" width="85" [preview]="true" imageClass="border-circle shadow-1" (onImageError)="item.m_image = null"></p-image>
+                                <p-image
+                                    style="height: 85px;max-height: 85px"
+                                    height="auto"
+                                    loading="lazy"
+                                    *ngIf="item.m_image"
+                                    [src]="this.baseUrl + item.m_image"
+                                    [alt]="item.names"
+                                    width="85"
+                                    [preview]="true"
+                                    imageClass="border-circle shadow-1"
+                                    (onImageError)="item.m_image = null"
+                                ></p-image>
                             </p-overlay-badge>
                         </div>
                     </td>
@@ -316,10 +318,10 @@ import { ConfirmationService } from 'primeng/api';
 
                     <td>
                         <span [pTooltip]="item.names" tooltipPosition="top" class="cursor-help">
-                            {{ item.names }}
+                            {{ item.names.split('|')[0].trim() }}
                         </span>
                     </td>
-<!--                    <td>{{ item.brand?.name ?? '' }}</td>-->
+                    <!--                    <td>{{ item.brand?.name ?? '' }}</td>-->
                     <td>{{ item.brandName ?? '' }}</td>
 
                     <td>
@@ -344,12 +346,7 @@ import { ConfirmationService } from 'primeng/api';
                     <td>
                         <div class="categories-container">
                             <div class="flex flex-wrap gap-1">
-                                <p-tag
-                                    *ngFor="let cat of item.categories"
-                                    [value]="cat.name"
-                                    severity="secondary"
-                                    styleClass="text-xs">
-                                </p-tag>
+                                <p-tag *ngFor="let cat of item.categories" [value]="cat.name" severity="secondary" styleClass="text-xs"> </p-tag>
                             </div>
                         </div>
                     </td>
@@ -428,13 +425,7 @@ export class WpProductListComponent {
 
         // Изпълняваме стандартната логика
         console.log('Изпълнявам Lazy Load:', event.first);
-        this.listService.loadList(
-            event.first,
-            event.rows,
-            event.filters,
-            event.sortField,
-            event.sortOrder
-        );
+        this.listService.loadList(event.first, event.rows, event.filters, event.sortField, event.sortOrder);
     }
 
     trackByProductId(index: number, item: IWpProduct) {
@@ -453,10 +444,10 @@ export class WpProductListComponent {
             this.generateProductSaleType();
         });
 
-        if(this.config?.data.rows != null) {
+        if (this.config?.data.rows != null) {
             this.rows = this.config?.data.rows;
         }
-        if(this.config?.data.category_id) {
+        if (this.config?.data.category_id) {
             const catId = this.config.data.category_id;
             this.lastParams.filters = {
                 category: { value: catId, matchMode: 'contains' }
@@ -515,9 +506,6 @@ export class WpProductListComponent {
         this.searchValue = '';
         this.executeSearch('');
     }
-
-
-
 
     protected productSaleType: any[] = [];
     private generateProductSaleType() {
@@ -664,7 +652,7 @@ export class WpProductListComponent {
         // Проверяваме дали target е масив (bulk delete) или единично ID/Обект
         if (Array.isArray(target)) {
             // Ако е масив от обекти (от тикчетата)
-            idsToDelete = target.map(item => item.id);
+            idsToDelete = target.map((item) => item.id);
         } else if (target && typeof target === 'object' && target.id) {
             // Ако е подаден цял обект (например от реда)
             idsToDelete = [target.id];
@@ -677,9 +665,7 @@ export class WpProductListComponent {
 
         this.confirmationService.confirm({
             header: this.tr.instant('Are_you_sure?'),
-            message: idsToDelete.length > 1
-                ? `${this.tr.instant('Delete')} ${idsToDelete.length} ${this.tr.instant('Product')}?`
-                : undefined,
+            message: idsToDelete.length > 1 ? `${this.tr.instant('Delete')} ${idsToDelete.length} ${this.tr.instant('Product')}?` : undefined,
             acceptLabel: this.tr.instant('Yes'),
             rejectLabel: this.tr.instant('No'),
             accept: () => {
