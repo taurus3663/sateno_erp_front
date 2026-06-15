@@ -133,6 +133,7 @@ export class apiRoutes {
         save: `${apiRoutes.courierBase}/save`,
         delete: `${apiRoutes.courierBase}/delete`,
         test_connection: `${apiRoutes.courierBase}/test-connection`,
+        requestEcontPickup: (siteId: number) => `${apiRoutes.courierBase}/request-pickup/econt/${siteId}`,
     }
 
     private static readonly emailBase = 'email';

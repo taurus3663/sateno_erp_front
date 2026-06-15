@@ -173,6 +173,10 @@ export class OrderListService extends BaseListCrud<IOrder> {
         });
     }
 
+    public requestEcontPickup(siteId: number) {
+        return this.http.post(ROUTES.courier.requestEcontPickup(siteId), {});
+    }
+
     openViber(phone: string) {
         if (!phone) return;
 

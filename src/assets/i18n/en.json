@@ -59,6 +59,8 @@
   "Cancel": "Cancel",
   "Confirm": "Confirm",
   "Sync_From_Which_Site": "Sync From Which Site",
+  "Call_Econt_For_Which_Site": "Call Econt Courier For Which Site",
+  "Call_Econt_Courier": "Call Econt Courier",
   "Choose": "Choose",
   "PRODUCT_STATUS": {
     "DRAFT": "DRAFT",

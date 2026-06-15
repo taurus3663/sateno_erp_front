@@ -88,6 +88,7 @@ import { Select } from 'primeng/select';
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
                 <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
+                <p-button (onClick)="openEcontPickupDialog()" class="ml-2" severity="success" [label]="'Call_Econt_Courier' | translate" icon="pi pi-truck" outlined [loading]="isRequestingPickup"></p-button>
             </ng-template>
 
             <ng-template #end>
@@ -607,7 +608,7 @@ import { Select } from 'primeng/select';
         <site-detail *ngIf="config?.data?.mode !== 'lookup'"></site-detail>
         <!--        <shipment-detail></shipment-detail>-->
         <shipment-detail *ngIf="config?.data?.mode !== 'lookup'"></shipment-detail>
-        <p-blockUI [blocked]="listService.blockUI">
+        <p-blockUI *ngIf="listService.blockUI">
             <div class="flex flex-column align-items-center" style="position:absolute; top:50%; left:50%; transform: translate(-50%, -50%)">
                 <i class="pi pi-spin pi-spinner text-6xl text-white"></i>
                 <span class="text-white mt-2 font-bold">Синхронизиране...</span>
@@ -776,6 +777,29 @@ export class OrderListComponent implements OnInit, OnDestroy {
     protected http = inject(HttpClient);
 
     private dialogService = inject(DialogService);
+    openEcontPickupDialog() {
+        const ref = this.dialogService.open(SiteSelectorComponent, {
+            header: this.tr.instant('Choose'),
+            width: '450px',
+            data: { label: 'Call_Econt_For_Which_Site' }
+        });
+        ref?.onClose.subscribe((siteId: number) => {
+            if (siteId) {
+                this.isRequestingPickup = true;
+                this.listService.requestEcontPickup(siteId).subscribe({
+                    next: () => {
+                        this.isRequestingPickup = false;
+                        this.messageService.add({ severity: 'success', summary: 'Успех', detail: 'Еконт куриерът е извикан успешно' });
+                    },
+                    error: () => {
+                        this.isRequestingPickup = false;
+                        this.messageService.add({ severity: 'error', summary: 'Грешка', detail: 'Неуспешно извикване на куриер' });
+                    }
+                });
+            }
+        });
+    }
+
     openSyncDialog() {
         const ref = this.dialogService.open(SiteSelectorComponent, {
             header: this.tr.instant('Choose'),
@@ -1147,6 +1171,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
     protected isSavingComment: boolean = false;
     protected signalText: string = '';
     protected isSendingSignal: boolean = false;
+    protected isRequestingPickup: boolean = false;
 
     onSignalPopShow(order: IOrder) {
         this.signalText = order.signalText || '';
