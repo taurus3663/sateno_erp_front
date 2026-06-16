@@ -791,7 +791,8 @@ export class OrderDetailComponent {
         [OrderStatus.CANCELLED]: '#000000',
         [OrderStatus.APPROVED]: '#3a9d00',
         [OrderStatus.JOINT]: '#e6ef61',
-        [OrderStatus.FAILED]: '#ff0000'
+        [OrderStatus.FAILED]: '#ff0000',
+        [OrderStatus.REFUSED_AFTER_REVIEW]: '#8b0000',
     };
 
     public getStatusColor(status: string): string {

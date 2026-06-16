@@ -29,6 +29,8 @@ import { Tooltip } from 'primeng/tooltip';
 import { TableModule } from 'primeng/table';
 import { Listbox } from 'primeng/listbox';
 import { WpAddonListService } from '../wp_addon/list.service';
+import { WpAttributeListService } from '../wp_attribute/list.service';
+import { IWpAttributeType } from '../wp_attribute/interfaces';
 import { XL_AUTH_CONFIG } from 'xl-auth';
 import { DialogService } from 'primeng/dynamicdialog';
 import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_info_gen/AI_product_info_gen';
@@ -40,8 +42,7 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
 @Component({
     selector: 'wp_product-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox, MultiSelect, Image, CdkDropList,
-        CdkDrag],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Select, InputText, InputNumber, TabPanel, TabPanels, Tabs, TabList, Tab, TreeSelect, PrimeTemplate, FileUpload, Tooltip, TableModule, Listbox, MultiSelect, Image, CdkDropList, CdkDrag],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ 'min-width': '1000px', 'min-height': '100vh', width: '100%' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -64,6 +65,7 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                             <p-tab value="2" [disabled]="isNewProduct() && activeTab !== '2'"><i class="pi pi-money-bill mr-2"></i>{{ 'Prices' | translate }} </p-tab>
                             <p-tab value="1" [disabled]="isNewProduct() && activeTab !== '1'"><i class="pi pi-language mr-2"></i>{{ 'Descriptions' | translate }} </p-tab>
                             <p-tab value="4" [disabled]="isNewProduct()"><i class="pi pi-history mr-2"></i>{{ 'History' | translate }} </p-tab>
+                            <p-tab value="5" [disabled]="isNewProduct()"><i class="pi pi-tag mr-2"></i>{{ 'Attributes' | translate }} </p-tab>
                         </p-tablist>
 
                         <p-tabpanels>
@@ -588,6 +590,41 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                                     </p-table>
                                 </div>
                             </p-tabpanel>
+
+                            <p-tabpanel value="5">
+                                <div class="pt-4" *ngIf="attributeTypes().length > 0; else noTypes">
+                                    <div class="grid grid-cols-12 gap-4">
+                                        <ng-container *ngFor="let type of attributeTypes()">
+                                            <div class="col-span-12 md:col-span-6">
+                                                <label class="block font-bold mb-2">{{ type.label }}</label>
+                                                <p-multiSelect *ngIf="type.multipleValues"
+                                                    [options]="type.values || []"
+                                                    [(ngModel)]="selectedAttributeMap[type.id!]"
+                                                    optionLabel="label"
+                                                    optionValue="id"
+                                                    [placeholder]="'Choose' | translate"
+                                                    class="w-full"
+                                                    (onChange)="syncAttributeValueIds(item)"
+                                                ></p-multiSelect>
+                                                <p-select *ngIf="!type.multipleValues"
+                                                    [options]="type.values || []"
+                                                    [(ngModel)]="selectedAttributeMap[type.id!]"
+                                                    optionLabel="label"
+                                                    optionValue="id"
+                                                    [placeholder]="'Choose' | translate"
+                                                    [showClear]="true"
+                                                    class="w-full"
+                                                    (onChange)="syncAttributeValueIds(item)"
+                                                ></p-select>
+                                            </div>
+                                        </ng-container>
+                                    </div>
+                                </div>
+                                <ng-template #noTypes>
+                                    <div class="text-center p-6 text-color-secondary">{{ 'No_records_found' | translate }}</div>
+                                </ng-template>
+                            </p-tabpanel>
+
                         </p-tabpanels>
                     </p-tabs>
                 </div>
@@ -677,7 +714,11 @@ export class WpCategoryDetailComponent {
     protected siteLService = inject(SiteListService);
     protected brandLService = inject(WpBrandListService);
     protected addonService = inject(WpAddonListService);
+    protected attributeService = inject(WpAttributeListService);
     protected tr = inject(TranslateService);
+
+    attributeTypes = signal<IWpAttributeType[]>([]);
+    selectedAttributeMap: Record<number, number | number[]> = {};
     private authConfig = inject(XL_AUTH_CONFIG);
     protected readonly baseUrl = this.authConfig.apiUrl;
     private confirmationService = inject(ConfirmationService);
@@ -720,6 +761,9 @@ export class WpCategoryDetailComponent {
         this.brandLService.loadList(0, 1000);
         this.detailService.loadAllCategories();
         this.addonService.loadList(0, 1000);
+        this.attributeService.loadTypesWithValues().subscribe(types => {
+            this.attributeTypes.set(types);
+        });
 
         this.generateProductSaleTypeOptions();
         this.generateStatusOptions();
@@ -733,9 +777,13 @@ export class WpCategoryDetailComponent {
             this.syncSite = null;
             this.selectedLanguage = null;
             this.selectedSite = null;
+            this.selectedAttributeMap = {};
             const item = this.detailService.selectedItem();
             const languages = this.languageLService.items();
             const sites = this.siteLService.items();
+            if (item?.attributeValueIds?.length) {
+                this.initAttributeMap(item.attributeValueIds);
+            }
             if (!item?.id) {
                 const bgLang = languages.find((l) => l.code === 'bg');
                 if (bgLang) {
@@ -1237,6 +1285,7 @@ export class WpCategoryDetailComponent {
     triggerSave() {
         const item = this.detailService.selectedItem();
         if (!item) return;
+        this.syncAttributeValueIds(item);
 
         // Питанка за превод само ако редактираме на Български
         if (!this.isNewProduct() && (this.isTitleEdited || this.isShortDescriptionEdited || this.isDescriptionEdited)) {
@@ -1412,6 +1461,34 @@ export class WpCategoryDetailComponent {
         if (this.activeTab === '1') {
             this.triggerSave();
         }
+    }
+
+    initAttributeMap(valueIds: number[]) {
+        const map: Record<number, number | number[]> = {};
+        const types = this.attributeTypes();
+        for (const type of types) {
+            const typeValueIds = (type.values || [])
+                .filter(v => valueIds.includes(v.id!))
+                .map(v => v.id!);
+            if (type.multipleValues) {
+                map[type.id!] = typeValueIds;
+            } else {
+                map[type.id!] = typeValueIds[0] ?? null as any;
+            }
+        }
+        this.selectedAttributeMap = map;
+    }
+
+    syncAttributeValueIds(item: any) {
+        const ids: number[] = [];
+        for (const [typeId, val] of Object.entries(this.selectedAttributeMap)) {
+            if (Array.isArray(val)) {
+                ids.push(...val);
+            } else if (val != null) {
+                ids.push(val as number);
+            }
+        }
+        item.attributeValueIds = ids;
     }
 
     goBack() {

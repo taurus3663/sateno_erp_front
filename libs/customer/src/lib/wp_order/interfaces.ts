@@ -182,6 +182,7 @@ export enum OrderStatus {
     COMPLETED = 'completed',
     JOINT = 'joint',
     FAILED = 'failed',
+    REFUSED_AFTER_REVIEW = 'refused_after_review',
 }
 export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.PROCESSING]: 'STATUS.PROCESSING',
@@ -193,5 +194,6 @@ export const OrderStatusLabels: Record<OrderStatus, string> = {
     [OrderStatus.JOINT]: 'STATUS.JOINT',
     [OrderStatus.WAITING]: 'STATUS.WAITING',
     [OrderStatus.FAILED]: 'STATUS.FAILED',
+    [OrderStatus.REFUSED_AFTER_REVIEW]: 'STATUS.REFUSED_AFTER_REVIEW',
 };
 

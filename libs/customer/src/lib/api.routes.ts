@@ -191,7 +191,19 @@ export class apiRoutes {
     public readonly googleAds = {
         ...this.crud(apiRoutes.googleAds),
         generateToken: (id: number | string) => `${apiRoutes.googleAds}/campaign/${id}/token`
+    }
 
+    private static readonly wpAttributeBase = 'wp_attribute';
+    public readonly wp_attribute = {
+        type_list: `${apiRoutes.wpAttributeBase}/type/list`,
+        type_list_with_values: `${apiRoutes.wpAttributeBase}/type/list-with-values`,
+        type_get: (id: number) => `${apiRoutes.wpAttributeBase}/type/${id}`,
+        type_save: `${apiRoutes.wpAttributeBase}/type/save`,
+        type_delete: (id: number) => `${apiRoutes.wpAttributeBase}/type/${id}`,
+        value_by_type: (typeId: number) => `${apiRoutes.wpAttributeBase}/value/by-type/${typeId}`,
+        value_get: (id: number) => `${apiRoutes.wpAttributeBase}/value/${id}`,
+        value_save: `${apiRoutes.wpAttributeBase}/value/save`,
+        value_delete: (id: number) => `${apiRoutes.wpAttributeBase}/value/${id}`,
     }
 
 }

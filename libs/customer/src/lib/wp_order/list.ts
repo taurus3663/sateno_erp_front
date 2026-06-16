@@ -840,6 +840,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
             // case OrderStatus.REFUNDED:  return 'danger';    // Червено
             case OrderStatus.CANCELLED:
                 return 'contrast'; // Черно
+            case OrderStatus.REFUSED_AFTER_REVIEW:
+                return 'danger';
             case OrderStatus.FAILED:
                 return 'danger';
             default:
@@ -1006,7 +1008,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
         // [OrderStatus.REFUNDED]: '#d90000',   // Върната - Червено
         [OrderStatus.CANCELLED]: '#000000', // Отказана - Черно
         [OrderStatus.JOINT]: '#e6ef61',
-        [OrderStatus.FAILED]: '#ff0000'
+        [OrderStatus.FAILED]: '#ff0000',
+        [OrderStatus.REFUSED_AFTER_REVIEW]: '#8b0000', // Отказ след преглед - Тъмно червено
     };
 
     public totalAmount = computed(() => {

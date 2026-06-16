@@ -96,6 +96,10 @@ registerRoute([
     {
         path: 'api/ads/google/callback',
         loadComponent: () => import('./google_ads/AuthCallBackComponent').then(c => c.AuthCallbackComponent) // Създай празен компонент, който не прави нищо
+    },
+    {
+        path: 'wp_attribute/list',
+        loadComponent: () => import('./wp_attribute/list').then(c => c.WpAttributeListComponent)
     }
 ]);
     registerMenu([
@@ -213,6 +217,11 @@ registerRoute([
                             label: 'menu.Brands',
                             icon: PrimeIcons.BRIEFCASE,
                             routerLink: ['/wp_brand/list']
+                        },
+                        {
+                            label: 'menu.Attributes',
+                            icon: PrimeIcons.TAG,
+                            routerLink: ['/wp_attribute/list']
                         }
                     ]
                 }

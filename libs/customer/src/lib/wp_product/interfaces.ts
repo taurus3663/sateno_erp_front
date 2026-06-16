@@ -27,6 +27,7 @@ export interface IWpProduct {
     sku: string;
     lastEditedSiteId?: number;
     history: IWpProductHistory[];
+    attributeValueIds: number[];
 }
 export enum ProductSaleType {
     LIMITED = 0,
