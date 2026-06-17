@@ -588,6 +588,10 @@ import { Select } from 'primeng/select';
                     </td>
                     <td>
                         <p-tag severity="success" value="{{ order.totalPrice }} {{ order.currency }}" />
+                        <div *ngIf="order.freeDelivery" class="flex align-items-center gap-1 mt-1" style="color: #16a34a; font-size: 11px; font-weight: 700; white-space: nowrap;">
+                            <i class="pi pi-truck" style="font-size: 13px;"></i>
+                            <span>{{ 'Free_Delivery' | translate }}</span>
+                        </div>
                     </td>
 
                     <td>

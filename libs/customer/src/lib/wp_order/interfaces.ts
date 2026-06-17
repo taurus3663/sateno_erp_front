@@ -63,6 +63,7 @@ export interface IOrder {
     customShippingTotal: number;
     courierHistory: CourierHistory[];
     totalPriceFCoutier: number;
+    freeDelivery: boolean;
 }
 export interface IOrderStatusStats {
     orderStatusMap: Record<string, number>;
