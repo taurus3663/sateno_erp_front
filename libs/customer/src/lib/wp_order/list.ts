@@ -766,6 +766,19 @@ export class OrderListComponent implements OnInit, OnDestroy {
                     }, 2000);
                 });
             });
+
+        // При реконект зареждаме списъка за да наваксаме пропуснатите обновявания
+        let everConnected = false;
+        this.wsService.connected$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(isConnected => {
+                if (isConnected) {
+                    if (everConnected) {
+                        this.reload();
+                    }
+                    everConnected = true;
+                }
+            });
     }
 
     public reload() {
