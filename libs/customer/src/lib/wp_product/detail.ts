@@ -34,7 +34,7 @@ import { IWpAttributeType } from '../wp_attribute/interfaces';
 import { XL_AUTH_CONFIG } from 'xl-auth';
 import { DialogService } from 'primeng/dynamicdialog';
 import { AIProductInfoGenComponent } from '../_reusables/components/ai_product_info_gen/AI_product_info_gen';
-import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
+
 import { forkJoin, tap } from 'rxjs';
 import { Image } from 'primeng/image';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -379,47 +379,40 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                                 </div>
                             </p-tabpanel>
                             <p-tabpanel value="2">
-                                <div class="pt-4" *ngIf="selectedSite && currentSitePricing">
-                                    <div class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
-                                        <ng-container *ngIf="isNotEuro()">
+                                <div class="pt-4">
+                                    <ng-container *ngFor="let site of siteLService.items()">
+                                        <div *ngIf="site.active" class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
                                             <div class="col-span-12">
-                                                <h3 class="text-xs font-bold text-gray-500 uppercase mb-2"><i class="pi pi-sync mr-1"></i> {{ 'Calculate_from_EUR' | translate }}</h3>
+                                                <h3 class="text-sm font-bold uppercase text-blue-700 mb-2"><i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }} : {{ site.name }}</h3>
+                                            </div>
+
+                                            <ng-container *ngIf="$any(site).currency?.code !== 'EUR'">
+                                                <div class="col-span-12">
+                                                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2"><i class="pi pi-sync mr-1"></i> {{ 'Calculate_from_EUR' | translate }}</h3>
+                                                </div>
+                                                <div class="col-span-4">
+                                                    <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Price' | translate }} (EUR)</label>
+                                                    <p-inputNumber [(ngModel)]="euroRegularPrices[site.id]" mode="currency" currency="EUR" [placeholder]="isConverting() ? 'Calculating...' : '0.00'" (onBlur)="convertFromEuroForSite(site, 'regular')" class="w-full" styleClass="w-full"></p-inputNumber>
+                                                </div>
+                                                <div class="col-span-4">
+                                                    <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Sale_Price' | translate }} (EUR)</label>
+                                                    <p-inputNumber [(ngModel)]="euroSalePrices[site.id]" mode="currency" currency="EUR" (onBlur)="convertFromEuroForSite(site, 'sale')" class="w-full" styleClass="w-full"></p-inputNumber>
+                                                </div>
+                                                <div class="col-span-12">
+                                                    <hr class="my-1 border-gray-200" />
+                                                </div>
+                                            </ng-container>
+
+                                            <div class="col-span-4">
+                                                <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }} ({{ $any(site).currency?.code }})</label>
+                                                <p-inputNumber [(ngModel)]="getSiteConfig(site).regularPrice" [disabled]="isConverting()" mode="currency" [currency]="$any(site).currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
                                             </div>
                                             <div class="col-span-4">
-                                                <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Price' | translate }} (EUR)</label>
-                                                <p-inputNumber
-                                                    [(ngModel)]="euroRegularPrice"
-                                                    [placeholder]="isConverting() ? 'Calculating...' : '0.00'"
-                                                    mode="currency"
-                                                    currency="EUR"
-                                                    (onBlur)="convertFromEuro('regular')"
-                                                    class="w-full"
-                                                    styleClass="w-full"
-                                                ></p-inputNumber>
+                                                <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }} ({{ $any(site).currency?.code }})</label>
+                                                <p-inputNumber [(ngModel)]="getSiteConfig(site).price" [disabled]="isConverting()" mode="currency" [currency]="$any(site).currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
                                             </div>
-                                            <div class="col-span-4">
-                                                <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Sale_Price' | translate }} (EUR)</label>
-                                                <p-inputNumber [(ngModel)]="euroSalePrice" mode="currency" currency="EUR" (onBlur)="convertFromEuro('sale')" class="w-full" styleClass="w-full"></p-inputNumber>
-                                            </div>
-                                            <div class="col-span-12">
-                                                <hr class="my-3 border-gray-200" />
-                                            </div>
-                                        </ng-container>
-
-                                        <div class="col-span-12">
-                                            <h3 class="text-sm font-bold uppercase text-blue-700 mb-2"><i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }} : {{ selectedSite.name }}</h3>
                                         </div>
-
-                                        <div class="col-span-4">
-                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }} ({{ selectedSite.currency?.code }})</label>
-                                            <p-inputNumber [(ngModel)]="currentSitePricing.regularPrice" [disabled]="isConverting()" mode="currency" [currency]="selectedSite.currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
-                                        </div>
-
-                                        <div class="col-span-4">
-                                            <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }} ({{ selectedSite.currency?.code }})</label>
-                                            <p-inputNumber [(ngModel)]="currentSitePricing.price" [disabled]="isConverting()" mode="currency" [currency]="selectedSite.currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
-                                        </div>
-                                    </div>
+                                    </ng-container>
                                 </div>
                             </p-tabpanel>
                             <p-tabpanel value="3">
@@ -647,21 +640,6 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                         ></p-select>
 
                         <p-select
-                            *ngIf="activeTab === '2'"
-                            appendTo="body"
-                            [options]="siteLService.items()"
-                            [(ngModel)]="selectedSite"
-                            (onChange)="onSiteChange()"
-                            optionLabel="name"
-                            [placeholder]="('Choose' | translate) + ' ' + ('Site' | translate)"
-                            [style]="{ width: '220px' }"
-                            [showClear]="true"
-                            [hidden]="this.isNewProduct()"
-                            [disabled]="!isNewProduct() && !allProducts"
-                        >
-                        </p-select>
-
-                        <p-select
                             *ngIf="activeTab === '0'"
                             appendTo="body"
                             [options]="siteLService.items()"
@@ -778,6 +756,8 @@ export class WpCategoryDetailComponent {
             this.selectedLanguage = null;
             this.selectedSite = null;
             this.selectedAttributeMap = {};
+            this.euroRegularPrices = {};
+            this.euroSalePrices = {};
             const item = this.detailService.selectedItem();
             const languages = this.languageLService.items();
             const sites = this.siteLService.items();
@@ -794,48 +774,10 @@ export class WpCategoryDetailComponent {
             }
         });
 
-        this.allProducts = false;
+        this.allProducts = true;
         effect(() => {
             const item = this.detailService.selectedItem();
             const isVisible = this.detailService.isVisible();
-
-            if (isVisible && item?.id && item.id !== 0) {
-                setTimeout(() => {
-                    const sites = this.siteLService.items();
-                    if (sites.length > 0) {
-                        const ref = this.dialogService.open(SiteSelectorComponent, {
-                            header: this.tr.instant('Choose'),
-                            width: '450px',
-                            data: { label: ' ', sites: sites } // Подаваме сайтовете, ако компонента ги очаква
-                        });
-
-                        ref?.onClose.subscribe((site: any) => {
-                            // Проверяваме дали е върнат обект или ID (зависи какво връща SiteSelectorComponent)
-                            console.log(site);
-                            if (site) {
-                                // Тъй като вече имаме избрания обект/ID, го сетваме директно
-                                this.selectedSite = sites.find((value) => value.id === site);
-                                this.syncSite = sites.find((value) => value.id === site);
-                                console.log(this.syncSite);
-                                // Автоматично избираме Български език
-                                const languages = this.languageLService.items();
-                                // this.selectedLanguage = languages.find((l) => l.code === 'bg');
-                                this.selectedLanguage = languages.find((l) => l.id === this.syncSite.language.id);
-
-                                // Извикваме логиката за промяна на език
-                                this.onLanguageChange();
-                                this.loadEuroPrices();
-
-                                this.allProducts = false;
-                            } else {
-                                this.allProducts = true;
-                            }
-                            // Ръчно казваме на Angular да отрази промените и да заключи селектите
-                            this.cdr.detectChanges();
-                        });
-                    }
-                }, 100);
-            }
 
             if (isVisible && (!item?.id || item.id === 0)) {
                 this.activeTab = '0';
@@ -1021,6 +963,20 @@ export class WpCategoryDetailComponent {
             item.siteConfig.push(config);
         }
 
+        return config;
+    }
+
+    getSiteConfig(site: any): any {
+        const item = this.detailService.selectedItem();
+        if (!item) return { regularPrice: 0, price: 0 };
+
+        if (!item.siteConfig) item.siteConfig = [];
+
+        let config = item.siteConfig.find((c: any) => c.site.id === site.id);
+        if (!config) {
+            config = { id: -1, site: { ...site }, price: 0, regularPrice: 0, slug: '' };
+            item.siteConfig.push(config);
+        }
         return config;
     }
 
@@ -1448,9 +1404,10 @@ export class WpCategoryDetailComponent {
 
         // СТЪПКА 2: ЦЕНИ
         if (this.activeTab === '2') {
-            const pricing = this.currentSitePricing;
-            if (!pricing || !pricing.regularPrice || pricing.regularPrice <= 0) {
-                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Въведете валидна цена (по-голяма от 0).' });
+            const item = this.detailService.selectedItem();
+            const hasPrice = item?.siteConfig?.some((c: any) => c.regularPrice > 0);
+            if (!hasPrice) {
+                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Въведете валидна цена (по-голяма от 0) за поне един сайт.' });
                 return;
             }
             this.activeTab = '1';
@@ -1598,7 +1555,28 @@ export class WpCategoryDetailComponent {
     }
     euroRegularPrice = signal<number | null>(null);
     euroSalePrice = signal<number | null>(null);
+    euroRegularPrices: Record<number, number | null> = {};
+    euroSalePrices: Record<number, number | null> = {};
     isConverting = signal(false);
+
+    convertFromEuroForSite(site: any, target: 'regular' | 'sale') {
+        const amount = target === 'regular' ? this.euroRegularPrices[site.id] : this.euroSalePrices[site.id];
+        const targetCurrency = site.currency?.code;
+
+        if (!amount || !targetCurrency || targetCurrency === 'EUR') return;
+
+        this.isConverting.set(true);
+        this.detailService.convertCurrency({ fromAmount: amount, fromCode: 'EUR', toCode: targetCurrency }).subscribe({
+            next: (result: number) => {
+                const config = this.getSiteConfig(site);
+                if (target === 'regular') config.regularPrice = result;
+                else config.price = result;
+                this.isConverting.set(false);
+                this.cdr.detectChanges();
+            },
+            error: () => this.isConverting.set(false)
+        });
+    }
 
     // Проверка дали избраната валута е различна от EUR
     isNotEuro(): boolean {
@@ -1686,10 +1664,37 @@ export class WpCategoryDetailComponent {
         }
     }
 
+    loadEuroPricesForAllSites() {
+        const sites = this.siteLService.items();
+        for (const site of sites) {
+            if (!site.active) continue;
+            const currency = (site as any).currency?.code;
+            if (!currency || currency === 'EUR') continue;
+
+            const config = this.getSiteConfig(site);
+
+            if (config.regularPrice > 0) {
+                this.detailService.convertCurrency({ fromAmount: config.regularPrice, fromCode: currency, toCode: 'EUR' })
+                    .subscribe(result => {
+                        this.euroRegularPrices[site.id] = result;
+                        this.cdr.detectChanges();
+                    });
+            }
+
+            if (config.price > 0) {
+                this.detailService.convertCurrency({ fromAmount: config.price, fromCode: currency, toCode: 'EUR' })
+                    .subscribe(result => {
+                        this.euroSalePrices[site.id] = result;
+                        this.cdr.detectChanges();
+                    });
+            }
+        }
+    }
+
     onTabChange(event: any) {
         this.activeTab = event;
         if (this.activeTab === '2' || this.activeTab === 2) {
-            this.loadEuroPrices();
+            this.loadEuroPricesForAllSites();
         }
     }
 
