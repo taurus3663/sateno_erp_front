@@ -255,6 +255,10 @@ import { TabsModule } from 'primeng/tabs';
                                             <label class="block text-sm font-bold mb-1">Адрес (улица/номер)</label>
                                             <input pInputText [(ngModel)]="item.config.address" class="w-full" />
                                         </div>
+                                        <div class="col-span-12 md:col-span-6">
+                                            <label class="block text-sm font-bold mb-1">Код на договор (cdPayOptionsTemplate)</label>
+                                            <input pInputText [(ngModel)]="item.config.cdPayOptionsTemplate" class="w-full" placeholder="напр. CD257894" />
+                                        </div>
                                     </div>
 
                                     <div *ngIf="item.courierType === CourierType.SPEEDY" class="grid grid-cols-12 gap-4 animate-fadein bg-surface-50 p-4 border-round-xl border border-surface-200">
@@ -330,6 +334,7 @@ export class CourierDetailComponent {
                 item.config.mail = item.config.mail ?? '';
                 item.config.phoneNumber = item.config.phoneNumber ?? '';
                 item.config.postalCode = item.config.postalCode ?? '';
+                item.config.cdPayOptionsTemplate = item.config.cdPayOptionsTemplate ?? '';
             }
         });
     }

@@ -51,6 +51,7 @@ export interface ICourier {
     postalCode: string;
     address: string;
     mail: string;
+    cdPayOptionsTemplate?: string;
  }
 
 

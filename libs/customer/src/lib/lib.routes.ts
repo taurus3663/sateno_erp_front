@@ -100,6 +100,10 @@ registerRoute([
     {
         path: 'wp_attribute/list',
         loadComponent: () => import('./wp_attribute/list').then(c => c.WpAttributeListComponent)
+    },
+    {
+        path: 'ai_settings/chatgpt',
+        loadComponent: () => import('./ai_settings/chatgpt').then(c => c.ChatGptSettingsComponent)
     }
 ]);
     registerMenu([
@@ -186,6 +190,11 @@ registerRoute([
                             label: 'menu.Google',
                             icon: PrimeIcons.GOOGLE,
                             routerLink: ['google_ads/list']
+                        },
+                        {
+                            label: 'menu.ChatGPT',
+                            icon: PrimeIcons.SPARKLES,
+                            routerLink: ['/ai_settings/chatgpt']
                         }
                     ]
                 }

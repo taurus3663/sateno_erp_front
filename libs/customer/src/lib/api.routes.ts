@@ -193,6 +193,12 @@ export class apiRoutes {
         generateToken: (id: number | string) => `${apiRoutes.googleAds}/campaign/${id}/token`
     }
 
+    private static readonly chatgptBase = 'settings/chatgpt';
+    public readonly chatgpt = {
+        get: `${apiRoutes.chatgptBase}`,
+        save: `${apiRoutes.chatgptBase}`,
+    }
+
     private static readonly wpAttributeBase = 'wp_attribute';
     public readonly wp_attribute = {
         type_list: `${apiRoutes.wpAttributeBase}/type/list`,
