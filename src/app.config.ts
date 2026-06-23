@@ -27,9 +27,10 @@ const finalRoutes: Routes = [
         loadComponent: () => import('./app/pages/notfound/notfound').then(value => value.Notfound)
     }
 ];
-// const API_URL = 'http://192.168.31.232:9494';
-// const API_URL = 'https://erp.sateno.bg';
-const API_URL = environment.apiUrl;
+
+// Runtime config от /assets/config.json (генериран от docker-entrypoint.sh)
+// Fallback към environment.ts при локална разработка
+const API_URL: string = (window as any).__APP_CONFIG__?.apiUrl ?? environment.apiUrl;
 export const appConfig: ApplicationConfig = {
     providers: [
         DialogService,
