@@ -19,6 +19,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Clone xl-auth library
+        run: git clone --depth 1 https://github.com/taurus366/xl-auth.git libs/xl-auth
+
+      - name: Clone xl-util library
+        run: git clone --depth 1 https://github.com/taurus366/xl-util.git libs/xl-util
+
+      - name: Clone xl-layout library
+        run: git clone --depth 1 https://github.com/taurus366/xl-layout.git libs/xl-layout
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
