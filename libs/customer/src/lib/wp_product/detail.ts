@@ -379,37 +379,77 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                                 </div>
                             </p-tabpanel>
                             <p-tabpanel value="2">
-                                <div class="pt-4">
-                                    <ng-container *ngFor="let site of siteLService.items()">
-                                        <div *ngIf="site.active" class="grid grid-cols-12 gap-4 mb-6 p-4 bg-blue-50/30 border-round border-1 border-blue-100">
-                                            <div class="col-span-12">
-                                                <h3 class="text-sm font-bold uppercase text-blue-700 mb-2"><i class="pi pi-tag mr-2"></i>{{ 'Main_Pricing_for' | translate }} : {{ site.name }}</h3>
+                                <div class="pt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    <ng-container *ngFor="let site of sortedActiveSites">
+                                        <div class="border-1 border-surface-200 border-round-lg overflow-hidden shadow-1 flex flex-col">
+
+                                            <!-- Header -->
+                                            <div class="flex items-center gap-2 px-3 py-2"
+                                                 [ngClass]="$any(site).currency?.code === 'EUR' ? 'bg-green-600' : 'bg-blue-600'">
+                                                <i class="pi pi-globe text-white text-xs" style="opacity:0.8"></i>
+                                                <span class="font-bold text-xs text-white truncate">{{ site.name }}</span>
+                                                <span class="ml-auto text-xs px-1.5 py-0.5 border-round font-mono text-white shrink-0"
+                                                      [ngClass]="$any(site).currency?.code === 'EUR' ? 'bg-green-500' : 'bg-blue-500'">
+                                                    {{ $any(site).currency?.code }}
+                                                </span>
                                             </div>
 
-                                            <ng-container *ngIf="$any(site).currency?.code !== 'EUR'">
-                                                <div class="col-span-12">
-                                                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-2"><i class="pi pi-sync mr-1"></i> {{ 'Calculate_from_EUR' | translate }}</h3>
-                                                </div>
-                                                <div class="col-span-4">
-                                                    <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Price' | translate }} (EUR)</label>
-                                                    <p-inputNumber [(ngModel)]="euroRegularPrices[site.id]" mode="currency" currency="EUR" [placeholder]="isConverting() ? 'Calculating...' : '0.00'" (onBlur)="convertFromEuroForSite(site, 'regular')" class="w-full" styleClass="w-full"></p-inputNumber>
-                                                </div>
-                                                <div class="col-span-4">
-                                                    <label class="block font-bold mb-2 text-xs text-blue-600">{{ 'Sale_Price' | translate }} (EUR)</label>
-                                                    <p-inputNumber [(ngModel)]="euroSalePrices[site.id]" mode="currency" currency="EUR" (onBlur)="convertFromEuroForSite(site, 'sale')" class="w-full" styleClass="w-full"></p-inputNumber>
-                                                </div>
-                                                <div class="col-span-12">
-                                                    <hr class="my-1 border-gray-200" />
-                                                </div>
-                                            </ng-container>
+                                            <!-- Body -->
+                                            <div class="p-3 bg-white flex flex-col gap-2 flex-1">
 
-                                            <div class="col-span-4">
-                                                <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Price' | translate }} ({{ $any(site).currency?.code }})</label>
-                                                <p-inputNumber [(ngModel)]="getSiteConfig(site).regularPrice" [disabled]="isConverting()" mode="currency" [currency]="$any(site).currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
-                                            </div>
-                                            <div class="col-span-4">
-                                                <label class="block font-bold mb-2 text-xs text-gray-600">{{ 'Sale_Price' | translate }} ({{ $any(site).currency?.code }})</label>
-                                                <p-inputNumber [(ngModel)]="getSiteConfig(site).price" [disabled]="isConverting()" mode="currency" [currency]="$any(site).currency?.code || 'BGN'" class="w-full" styleClass="w-full"></p-inputNumber>
+                                                <!-- EUR сайт -->
+                                                <ng-container *ngIf="$any(site).currency?.code === 'EUR'">
+                                                    <div>
+                                                        <label class="block text-xs text-gray-500 mb-1">{{ 'Price' | translate }}</label>
+                                                        <p-inputNumber [(ngModel)]="getSiteConfig(site).regularPrice"
+                                                            mode="currency" currency="EUR" styleClass="w-full">
+                                                        </p-inputNumber>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-xs text-gray-500 mb-1">{{ 'Sale_Price' | translate }}</label>
+                                                        <p-inputNumber [(ngModel)]="getSiteConfig(site).price"
+                                                            mode="currency" currency="EUR" styleClass="w-full">
+                                                        </p-inputNumber>
+                                                    </div>
+                                                </ng-container>
+
+                                                <!-- Не-EUR сайт -->
+                                                <ng-container *ngIf="$any(site).currency?.code !== 'EUR'">
+                                                    <div>
+                                                        <label class="block text-xs text-gray-500 mb-1">{{ 'Price' | translate }}</label>
+                                                        <div class="flex items-center gap-1">
+                                                            <p-inputNumber [(ngModel)]="euroRegularPrices[site.id]"
+                                                                mode="currency" currency="EUR"
+                                                                [placeholder]="isConverting() ? '...' : ''"
+                                                                (ngModelChange)="scheduleConvert(site, 'regular')"
+                                                                styleClass="w-full">
+                                                            </p-inputNumber>
+                                                            <i class="pi pi-arrow-right text-gray-300 text-xs shrink-0"></i>
+                                                            <p-inputNumber [(ngModel)]="getSiteConfig(site).regularPrice"
+                                                                [disabled]="true"
+                                                                mode="currency" [currency]="$any(site).currency?.code || 'BGN'"
+                                                                styleClass="w-full">
+                                                            </p-inputNumber>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-xs text-gray-500 mb-1">{{ 'Sale_Price' | translate }}</label>
+                                                        <div class="flex items-center gap-1">
+                                                            <p-inputNumber [(ngModel)]="euroSalePrices[site.id]"
+                                                                mode="currency" currency="EUR"
+                                                                (ngModelChange)="scheduleConvert(site, 'sale')"
+                                                                styleClass="w-full">
+                                                            </p-inputNumber>
+                                                            <i class="pi pi-arrow-right text-gray-300 text-xs shrink-0"></i>
+                                                            <p-inputNumber [(ngModel)]="getSiteConfig(site).price"
+                                                                [disabled]="true"
+                                                                mode="currency" [currency]="$any(site).currency?.code || 'BGN'"
+                                                                styleClass="w-full">
+                                                            </p-inputNumber>
+                                                        </div>
+                                                    </div>
+                                                </ng-container>
+
                                             </div>
                                         </div>
                                     </ng-container>
@@ -964,6 +1004,16 @@ export class WpCategoryDetailComponent {
         }
 
         return config;
+    }
+
+    get sortedActiveSites() {
+        return this.siteLService.items()
+            .filter(s => s.active)
+            .sort((a, b) => {
+                const aEur = (a as any).currency?.code === 'EUR' ? 0 : 1;
+                const bEur = (b as any).currency?.code === 'EUR' ? 0 : 1;
+                return aEur - bEur;
+            });
     }
 
     getSiteConfig(site: any): any {
@@ -1558,17 +1608,34 @@ export class WpCategoryDetailComponent {
     euroRegularPrices: Record<number, number | null> = {};
     euroSalePrices: Record<number, number | null> = {};
     isConverting = signal(false);
+    private convertTimeouts: Record<string, any> = {};
+
+    scheduleConvert(site: any, target: 'regular' | 'sale') {
+        const key = `${site.id}_${target}`;
+        clearTimeout(this.convertTimeouts[key]);
+        this.convertTimeouts[key] = setTimeout(() => {
+            this.convertFromEuroForSite(site, target);
+        }, 1000);
+    }
 
     convertFromEuroForSite(site: any, target: 'regular' | 'sale') {
         const amount = target === 'regular' ? this.euroRegularPrices[site.id] : this.euroSalePrices[site.id];
         const targetCurrency = site.currency?.code;
+        const config = this.getSiteConfig(site);
 
-        if (!amount || !targetCurrency || targetCurrency === 'EUR') return;
+        if (!targetCurrency || targetCurrency === 'EUR') return;
+
+        // Ако е изтрито или 0 → ресетваме и локалната цена
+        if (!amount || amount <= 0) {
+            if (target === 'regular') config.regularPrice = 0;
+            else config.price = 0;
+            this.cdr.detectChanges();
+            return;
+        }
 
         this.isConverting.set(true);
         this.detailService.convertCurrency({ fromAmount: amount, fromCode: 'EUR', toCode: targetCurrency }).subscribe({
             next: (result: number) => {
-                const config = this.getSiteConfig(site);
                 if (target === 'regular') config.regularPrice = result;
                 else config.price = result;
                 this.isConverting.set(false);
