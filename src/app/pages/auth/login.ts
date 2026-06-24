@@ -8,12 +8,11 @@ import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from 'xl-layout';
 import {AuthService} from 'xl-auth';
-import { NgOptimizedImage } from '@angular/common';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator, NgOptimizedImage],
+    imports: [ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
     template: `
         <app-floating-configurator />
         <div class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-screen overflow-hidden">
@@ -21,7 +20,7 @@ import { NgOptimizedImage } from '@angular/common';
                 <div style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
                     <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
                         <div class="text-center mb-8">
-                            <img ngSrc="../../../assets/img/sateno.png" alt="" height="355" width="703" style="text-align: center;width: 100%;" />
+                            <img src="assets/img/erp-logo.svg" alt="ERP" style="text-align: center;width: 100%; max-height: 160px; object-fit: contain;" />
                             <!--                            <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="mb-8 w-16 shrink-0 mx-auto">-->
                             <!--                                <path-->
                             <!--                                    fill-rule="evenodd"-->

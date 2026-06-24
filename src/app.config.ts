@@ -56,8 +56,8 @@ export const appConfig: ApplicationConfig = {
             provide: XL_TOPBAR_CONFIG,
             useValue: {
                 name: '',
-                logoUrl: 'assets/img/sateno.png',
-                logoStyle: { width: '100%', height: '110px' },
+                logoUrl: 'assets/img/erp-logo.svg',
+                logoStyle: { height: '52px', width: 'auto' },
                 clickUrl: 'wp_order/list'
             }
         },
