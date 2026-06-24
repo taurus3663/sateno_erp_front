@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 220" fill="none">
+
+  <!-- Icon background circle -->
+  <circle cx="90" cy="90" r="78" fill="#eff6ff"/>
+
+  <!-- 2x2 module grid -->
+  <rect x="44" y="44" width="38" height="38" rx="8" fill="#1d4ed8"/>
+  <rect x="90" y="44" width="38" height="38" rx="8" fill="#3b82f6"/>
+  <rect x="44" y="90" width="38" height="38" rx="8" fill="#3b82f6"/>
+  <rect x="90" y="90" width="38" height="38" rx="8" fill="#1e40af"/>
+
+  <!-- Top-left square: bar chart -->
+  <rect x="51" y="68" width="5" height="10" rx="1" fill="white"/>
+  <rect x="59" y="62" width="5" height="16" rx="1" fill="white"/>
+  <rect x="67" y="56" width="5" height="22" rx="1" fill="white"/>
+
+  <!-- Top-right square: people icon -->
+  <circle cx="103" cy="55" r="6" fill="white"/>
+  <path d="M94 73 Q103 66 112 73" fill="white"/>
+  <circle cx="118" cy="59" r="4" fill="white" opacity="0.75"/>
+
+  <!-- Bottom-left square: document lines -->
+  <rect x="51" y="96" width="24" height="26" rx="3" fill="white"/>
+  <rect x="55" y="101" width="15" height="2.5" rx="1" fill="#3b82f6"/>
+  <rect x="55" y="107" width="15" height="2.5" rx="1" fill="#3b82f6"/>
+  <rect x="55" y="113" width="10" height="2.5" rx="1" fill="#3b82f6"/>
+
+  <!-- Bottom-right square: gear -->
+  <circle cx="109" cy="109" r="9" fill="white"/>
+  <circle cx="109" cy="109" r="4.5" fill="#1e40af"/>
+  <rect x="107.5" y="97" width="3" height="6" rx="1.5" fill="white"/>
+  <rect x="107.5" y="115" width="3" height="6" rx="1.5" fill="white"/>
+  <rect x="97" y="107.5" width="6" height="3" rx="1.5" fill="white"/>
+  <rect x="115" y="107.5" width="6" height="3" rx="1.5" fill="white"/>
+
+  <!-- Vertical divider -->
+  <line x1="190" y1="22" x2="190" y2="158" stroke="#cbd5e1" stroke-width="1.5"/>
+
+  <!-- Main title -->
+  <text x="210" y="90" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="56" font-weight="800" fill="#1e3a5f" letter-spacing="-1">ERP</text>
+
+  <!-- Subtitle line 1 -->
+  <text x="212" y="135" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="40" font-weight="700" fill="#2563eb">Бизнес система</text>
+
+  <!-- Subtitle line 2 -->
+  <text x="212" y="182" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+        font-size="40" font-weight="400" fill="#64748b">за управление</text>
+
+</svg>
