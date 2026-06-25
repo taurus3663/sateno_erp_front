@@ -15,7 +15,7 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { Tooltip } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { SelectButton } from 'primeng/selectbutton';
-import { WebSocketService } from 'xl-util';
+import { SoundService, WebSocketService } from 'xl-util';
 import { Subject, takeUntil } from 'rxjs';
 import { Badge } from 'primeng/badge';
 import { IconField } from 'primeng/iconfield';
@@ -733,6 +733,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
     }
 
     private wsService = inject(WebSocketService);
+    private soundService = inject(SoundService);
     private destroy$ = new Subject<void>();
     ngOnDestroy(): void {
         this.destroy$.next();
@@ -749,22 +750,14 @@ export class OrderListComponent implements OnInit, OnDestroy {
             .listen('orders')
             .pipe(takeUntil(this.destroy$))
             .subscribe((msg) => {
-                // 1. Използваме setTimeout, за да излезем от текущия цикъл на проверка
-                setTimeout(() => {
-                    // Проверяваме логиката - заключваме само ако прозорецът е отворен (според твоите изисквания)
-                    if (this.shipmentService.visible) {
-                        this.listService.blockUI = true;
-                        // 2. Насилствено караме Angular да отрази промяната веднага
-                        this.cdr.detectChanges();
-                    }
-
-                    // 3. Изчакваме 2 секунди и рефрешваме
-                    setTimeout(() => {
-                        this.reload();
-                        this.listService.blockUI = false;
-                        this.cdr.detectChanges();
-                    }, 2000);
-                });
+                this.soundService.play('double-ding');
+                if (this.shipmentService.visible) {
+                    this.listService.blockUI = true;
+                    this.cdr.detectChanges();
+                }
+                this.reload();
+                this.listService.blockUI = false;
+                this.cdr.detectChanges();
             });
 
         // При реконект зареждаме списъка за да наваксаме пропуснатите обновявания
@@ -790,6 +783,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         );
         this.listService.loadStatusStats();
     }
+
 
     protected http = inject(HttpClient);
 
