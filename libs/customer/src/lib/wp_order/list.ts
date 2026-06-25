@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderListService } from './list.service';
 import { OrderDetailService } from './detail.service';
@@ -15,7 +15,7 @@ import { SiteSelectorComponent } from '../_reusables/SiteSelectorComponent';
 import { Tooltip } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { SelectButton } from 'primeng/selectbutton';
-import { WebSocketService } from 'xl-util';
+import { SoundService, WebSocketService } from 'xl-util';
 import { Subject, takeUntil } from 'rxjs';
 import { Badge } from 'primeng/badge';
 import { IconField } from 'primeng/iconfield';
@@ -88,7 +88,7 @@ import { Select } from 'primeng/select';
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
                 <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
-                <p-button (onClick)="openEcontPickupDialog()" class="ml-2" severity="success" [label]="'Call_Econt_Courier' | translate" icon="pi pi-truck" outlined [loading]="isRequestingPickup"></p-button>
+                <p-button (onClick)="openEcontPickupDialog()" class="ml-2" severity="success" [style]="{ color: '#000000' }" [label]="'Call_Econt_Courier' | translate" icon="pi pi-truck" outlined [loading]="isRequestingPickup"></p-button>
             </ng-template>
 
             <ng-template #end>
@@ -733,6 +733,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
     }
 
     private wsService = inject(WebSocketService);
+    private soundService = inject(SoundService);
+    private zone = inject(NgZone);
     private destroy$ = new Subject<void>();
     ngOnDestroy(): void {
         this.destroy$.next();
@@ -749,21 +751,15 @@ export class OrderListComponent implements OnInit, OnDestroy {
             .listen('orders')
             .pipe(takeUntil(this.destroy$))
             .subscribe((msg) => {
-                // 1. Използваме setTimeout, за да излезем от текущия цикъл на проверка
-                setTimeout(() => {
-                    // Проверяваме логиката - заключваме само ако прозорецът е отворен (според твоите изисквания)
+                this.zone.run(() => {
+                    if (msg.action === 'CREATED') {
+                        this.soundService.play('new-order');
+                    }
                     if (this.shipmentService.visible) {
                         this.listService.blockUI = true;
-                        // 2. Насилствено караме Angular да отрази промяната веднага
-                        this.cdr.detectChanges();
                     }
-
-                    // 3. Изчакваме 2 секунди и рефрешваме
-                    setTimeout(() => {
-                        this.reload();
-                        this.listService.blockUI = false;
-                        this.cdr.detectChanges();
-                    }, 2000);
+                    this.reload();
+                    this.listService.blockUI = false;
                 });
             });
 
@@ -790,6 +786,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         );
         this.listService.loadStatusStats();
     }
+
 
     protected http = inject(HttpClient);
 

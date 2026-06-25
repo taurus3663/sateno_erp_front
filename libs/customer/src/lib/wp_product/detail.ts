@@ -220,13 +220,17 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                                         <input pInputText [(ngModel)]="item.weight" class="w-full" [ngClass]="{ 'ng-invalid ng-dirty': isWeightInvalid }" />
                                     </div>
 
-                                    <div class="col-span-4">
-                                        <label class="block font-bold mb-2 ">{{ 'Buy_price' | translate }} </label>
-                                        <p-inputNumber [(ngModel)]="item.buyPrice" mode="currency" currency="EUR" class="w-full" styleClass="w-full"></p-inputNumber>
-                                    </div>
-                                    <div class="col-span-4">
-                                        <label class="block font-bold mb-2">{{ 'Transport_price' | translate }} </label>
-                                        <p-inputNumber [(ngModel)]="item.transportPrice" mode="currency" currency="EUR" class="w-full" styleClass="w-full"></p-inputNumber>
+                                    <div class="col-span-12">
+                                        <div class="flex gap-3 p-3 border-1 border-surface-200 border-round bg-surface-50 shadow-sm">
+                                            <div class="flex-1">
+                                                <label class="block text-xs text-gray-500 mb-1"><i class="pi pi-tag mr-1"></i>{{ 'Buy_price' | translate }}</label>
+                                                <p-inputNumber [(ngModel)]="item.buyPrice" mode="currency" currency="EUR" styleClass="w-full"></p-inputNumber>
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="block text-xs text-gray-500 mb-1"><i class="pi pi-truck mr-1"></i>{{ 'Transport_price' | translate }}</label>
+                                                <p-inputNumber [(ngModel)]="item.transportPrice" mode="currency" currency="EUR" styleClass="w-full"></p-inputNumber>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="col-span-12 mt-3">
