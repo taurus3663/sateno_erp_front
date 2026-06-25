@@ -233,42 +233,6 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                                         </div>
                                     </div>
 
-                                    <div class="col-span-12 mt-3">
-                                        <label class="block font-bold mb-2"> <i class="pi pi-palette mr-2 text-primary"></i>{{ 'Colors' | translate }} </label>
-                                        <p-multiSelect
-                                            [options]="this.availableColors"
-                                            appendTo="body"
-                                            optionLabel="label"
-                                            optionValue="name"
-                                            [filter]="true"
-                                            filterBy="label"
-                                            placeholder="{{ 'Select_Colors' | translate }}"
-                                            class="w-full"
-                                            styleClass="w-full"
-                                        >
-                                            <!-- Шаблон за това как изглеждат цветовете в списъка за избор -->
-                                            <ng-template pTemplate="item" let-color>
-                                                <div class="flex items-center gap-2">
-                                                    <span class="inline-block w-4 h-4 rounded-full border border-surface-300" [style.backgroundColor]="color.hex"></span>
-                                                    <span>{{ color.label }}</span>
-                                                </div>
-                                            </ng-template>
-
-                                            <!-- Шаблон за избраните чипове/значки в самото поле -->
-                                            <ng-template pTemplate="selectedItems" let-colors>
-                                                <div class="flex items-center gap-1 flex-wrap" *ngIf="colors && colors.length > 0">
-                                                    <div *ngFor="let col of colors | slice: 0 : 3" class="flex items-center gap-1 bg-surface-100 text-surface-800 px-2 py-0.5 rounded text-sm border border-surface-200">
-                                                        <span class="inline-block w-2 h-2 rounded-full" [style.backgroundColor]="getColorHex($any(col))"></span>
-                                                        <span>{{ getColorLabel($any(col)) }}</span>
-                                                    </div>
-                                                    <span *ngIf="colors.length > 3" class="text-xs font-bold text-gray-500 ml-1"> +{{ colors.length - 3 }} {{ 'more' | translate }} </span>
-                                                </div>
-                                                <span *ngIf="!colors || colors.length === 0">
-                                                    {{ 'Select_Colors' | translate }}
-                                                </span>
-                                            </ng-template>
-                                        </p-multiSelect>
-                                    </div>
 
                                     <div class="col-span-12 mt-3">
                                         <label class="block font-bold mb-2">{{ 'Brand' | translate }}</label>
@@ -1805,23 +1769,6 @@ export class WpCategoryDetailComponent {
     }
 
     // 1. Дефинираме наличните цветове (сложи го под activeTab например)
-    protected availableColors: any[] = [
-        { name: 'white', label: 'Бял', hex: '#ffffff' },
-        { name: 'black', label: 'Черен', hex: '#1a1a1a' },
-        { name: 'red', label: 'Червен', hex: '#ff0000' }
-    ];
-    // 2. Помощен метод за вземане на HEX кода при визуализация на избраното
-    getColorHex(colorName: string): string {
-        const color = this.availableColors.find((c) => c.name === colorName);
-        return color ? color.hex : '#ccc';
-    }
-
-    // 3. Помощен метод за вземане на етикета на български
-    getColorLabel(colorName: string): string {
-        const color = this.availableColors.find((c) => c.name === colorName);
-        return color ? color.label : colorName;
-    }
-
     // Добави тези променливи в класа на компонента
 
     playVideo(videoSrc: string) {
