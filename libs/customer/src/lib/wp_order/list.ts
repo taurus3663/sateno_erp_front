@@ -88,7 +88,7 @@ import { Select } from 'primeng/select';
                 <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
                 <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
                 <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
-                <p-button (onClick)="openEcontPickupDialog()" class="ml-2" severity="success" [label]="'Call_Econt_Courier' | translate" icon="pi pi-truck" outlined [loading]="isRequestingPickup"></p-button>
+                <p-button (onClick)="openEcontPickupDialog()" class="ml-2" severity="success" [style]="{ color: '#000000' }" [label]="'Call_Econt_Courier' | translate" icon="pi pi-truck" outlined [loading]="isRequestingPickup"></p-button>
             </ng-template>
 
             <ng-template #end>
