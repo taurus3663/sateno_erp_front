@@ -752,7 +752,9 @@ export class OrderListComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe((msg) => {
                 this.zone.run(() => {
-                    this.soundService.play('double-ding');
+                    if (msg.action === 'CREATED') {
+                        this.soundService.play('new-order');
+                    }
                     if (this.shipmentService.visible) {
                         this.listService.blockUI = true;
                     }
