@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, computed, inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OrderListService } from './list.service';
 import { OrderDetailService } from './detail.service';
@@ -734,6 +734,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
     private wsService = inject(WebSocketService);
     private soundService = inject(SoundService);
+    private zone = inject(NgZone);
     private destroy$ = new Subject<void>();
     ngOnDestroy(): void {
         this.destroy$.next();
@@ -750,14 +751,14 @@ export class OrderListComponent implements OnInit, OnDestroy {
             .listen('orders')
             .pipe(takeUntil(this.destroy$))
             .subscribe((msg) => {
-                this.soundService.play('double-ding');
-                if (this.shipmentService.visible) {
-                    this.listService.blockUI = true;
-                    this.cdr.detectChanges();
-                }
-                this.reload();
-                this.listService.blockUI = false;
-                this.cdr.detectChanges();
+                this.zone.run(() => {
+                    this.soundService.play('double-ding');
+                    if (this.shipmentService.visible) {
+                        this.listService.blockUI = true;
+                    }
+                    this.reload();
+                    this.listService.blockUI = false;
+                });
             });
 
         // При реконект зареждаме списъка за да наваксаме пропуснатите обновявания
