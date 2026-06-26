@@ -221,14 +221,25 @@ import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk
                                     </div>
 
                                     <div class="col-span-12">
-                                        <div class="flex gap-3 p-3 border-1 border-surface-200 border-round bg-surface-50 shadow-sm">
+                                        <div class="flex gap-3 p-3 border-1 border-round bg-surface-50 shadow-sm"
+                                             [ngClass]="priceError ? 'border-red-400 bg-red-50' : 'border-surface-200'">
                                             <div class="flex-1">
-                                                <label class="block text-xs text-gray-500 mb-1"><i class="pi pi-tag mr-1"></i>{{ 'Buy_price' | translate }}</label>
-                                                <p-inputNumber [(ngModel)]="item.buyPrice" mode="currency" currency="EUR" styleClass="w-full"></p-inputNumber>
+                                                <label class="block text-xs mb-1" [ngClass]="priceError && item.buyPrice == null ? 'text-red-500 font-bold' : 'text-gray-500'">
+                                                    <i class="pi pi-tag mr-1"></i>{{ 'Buy_price' | translate }}
+                                                    <i *ngIf="priceError && item.buyPrice == null" class="pi pi-exclamation-circle ml-1 text-red-500"></i>
+                                                </label>
+                                                <p-inputNumber [(ngModel)]="item.buyPrice" mode="currency" currency="EUR" styleClass="w-full"
+                                                    [inputStyleClass]="priceError && item.buyPrice == null ? 'border-red-400' : ''">
+                                                </p-inputNumber>
                                             </div>
                                             <div class="flex-1">
-                                                <label class="block text-xs text-gray-500 mb-1"><i class="pi pi-truck mr-1"></i>{{ 'Transport_price' | translate }}</label>
-                                                <p-inputNumber [(ngModel)]="item.transportPrice" mode="currency" currency="EUR" styleClass="w-full"></p-inputNumber>
+                                                <label class="block text-xs mb-1" [ngClass]="priceError && item.transportPrice == null ? 'text-red-500 font-bold' : 'text-gray-500'">
+                                                    <i class="pi pi-truck mr-1"></i>{{ 'Transport_price' | translate }}
+                                                    <i *ngIf="priceError && item.transportPrice == null" class="pi pi-exclamation-circle ml-1 text-red-500"></i>
+                                                </label>
+                                                <p-inputNumber [(ngModel)]="item.transportPrice" mode="currency" currency="EUR" styleClass="w-full"
+                                                    [inputStyleClass]="priceError && item.transportPrice == null ? 'border-red-400' : ''">
+                                                </p-inputNumber>
                                             </div>
                                         </div>
                                     </div>
@@ -713,6 +724,7 @@ export class WpCategoryDetailComponent {
     selectedSite: any = null;
     syncSite: any = null;
     allProducts: boolean = false;
+    priceError: boolean = false;
 
     activeTab: string | undefined | number = '0';
     // currentTranslation: IWpProductTranslation | null = null;
@@ -766,6 +778,7 @@ export class WpCategoryDetailComponent {
             this.selectedAttributeMap = {};
             this.euroRegularPrices = {};
             this.euroSalePrices = {};
+            this.priceError = false;
             const item = this.detailService.selectedItem();
             const languages = this.languageLService.items();
             const sites = this.siteLService.items();
@@ -1015,7 +1028,7 @@ export class WpCategoryDetailComponent {
         return this.detailService.translateProductContent(payload).pipe(
             tap({
                 next: (response: any[]) => {
-                    this.ms.add({ severity: 'success', summary: 'Преведен тип ' + type });
+                    this.ms.add({ severity: 'success', summary: this.tr.instant('Translated_type') + ' ' + type });
                     signalM.set(false);
 
                     const item = this.detailService.selectedItem();
@@ -1225,7 +1238,7 @@ export class WpCategoryDetailComponent {
             parentImg.hasVideo = false;
             parentImg.videoSrc = null;
 
-            this.ms.add({ severity: 'info', summary: 'Изтрито', detail: 'Видеото е премахнато от списъка.' });
+            this.ms.add({ severity: 'info', summary: this.tr.instant('Deleted'), detail: this.tr.instant('Video_removed') });
             this.cdr.detectChanges();
         }
     }
@@ -1277,7 +1290,7 @@ export class WpCategoryDetailComponent {
                         if (this.isDescriptionEdited) translationRequests.push(this.translateProductContent(bgTrans, this.isTranslatingInformation, 3));
                     }
                     if (translationRequests.length > 0) {
-                        this.ms.add({ severity: 'info', summary: 'AI', detail: 'Моля изчакайте преводите...' });
+                        this.ms.add({ severity: 'info', summary: 'AI', detail: this.tr.instant('Please_wait_translations') });
 
                         // forkJoin чака ВСИЧКИ Observable в масива да приключат
                         forkJoin(translationRequests).subscribe(() => {
@@ -1375,8 +1388,30 @@ export class WpCategoryDetailComponent {
         if (this.isNewProduct()) {
             this.runWizardLogic();
         } else {
-            this.triggerSave(); // При редакция записваме директно от всякакъв таб
+            if (!this.validatePrices()) return;
+            this.triggerSave();
         }
+    }
+
+    private validatePrices(): boolean {
+        const item = this.detailService.selectedItem();
+        if (!item) return false;
+        const hasBuyPrice = item.buyPrice != null;
+        const hasTransportPrice = item.transportPrice != null;
+        this.priceError = !hasBuyPrice || !hasTransportPrice;
+        if (this.priceError) {
+            const missing = [
+                ...(!hasBuyPrice ? [this.tr.instant('Buy_price')] : []),
+                ...(!hasTransportPrice ? [this.tr.instant('Transport_price')] : [])
+            ];
+            this.ms.add({
+                severity: 'warn',
+                summary: this.tr.instant('Warning'),
+                detail: `${this.tr.instant('Please_fill_fields')}: ${missing.join(', ')}!`
+            });
+            return false;
+        }
+        return true;
     }
 
     private runWizardLogic() {
@@ -1413,7 +1448,7 @@ export class WpCategoryDetailComponent {
         // СТЪПКА 3: АДОНИ
         if (this.activeTab === '3') {
             if (!item.addonConfigs || item.addonConfigs.length === 0) {
-                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Тъй като избрахте, че има адони, трябва да добавите поне един.' });
+                this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: this.tr.instant('Addon_required_error') });
                 return;
             }
             this.activeTab = '2';
@@ -1425,7 +1460,7 @@ export class WpCategoryDetailComponent {
             const item = this.detailService.selectedItem();
             const hasPrice = item?.siteConfig?.some((c: any) => c.regularPrice > 0);
             if (!hasPrice) {
-                this.ms.add({ severity: 'error', summary: 'Грешка', detail: 'Въведете валидна цена (по-голяма от 0) за поне един сайт.' });
+                this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: this.tr.instant('Valid_price_required') });
                 return;
             }
             this.activeTab = '1';
@@ -1480,6 +1515,8 @@ export class WpCategoryDetailComponent {
         const item = this.detailService.selectedItem();
         if (!item) return false;
 
+        if (!this.validatePrices()) return false;
+
         // Проверка за Бранд, Статус и Категории (задължителни в Начало)
         // const hasBrand = !!item.brand;
         const hasCategories = this.detailService.selectedNodesArray()?.length > 0;
@@ -1490,11 +1527,11 @@ export class WpCategoryDetailComponent {
         const isWeightMissing = !weight || weight.toString().trim() === ''; // Проверка за празно
         // Дефинираме списък с полетата и техните условия за валидност
         const fields = [
-            { valid: hasCategories, name: 'Категории' },
-            { valid: hasStatus, name: 'Статус' },
-            { valid: hasLimit, name: 'Лимит' },
-            { valid: !isWeightMissing && !this.isWeightInvalid, name: 'Тегло' },
-            { valid: img, name: 'Изображение' }
+            { valid: hasCategories, name: this.tr.instant('Categories') },
+            { valid: hasStatus, name: this.tr.instant('Status') },
+            { valid: hasLimit, name: this.tr.instant('Limit') },
+            { valid: !isWeightMissing && !this.isWeightInvalid, name: this.tr.instant('Weight') },
+            { valid: img, name: this.tr.instant('Image') }
         ];
 
         // Филтрираме само тези, които НЕ са валидни
@@ -1503,9 +1540,8 @@ export class WpCategoryDetailComponent {
         if (invalidFieldNames.length > 0) {
             this.ms.add({
                 severity: 'warn',
-                summary: 'Внимание',
-                // Използваме join, за да изброим имената със запетая
-                detail: `Моля, попълнете правилно следните полета: ${invalidFieldNames.join(', ')}!`
+                summary: this.tr.instant('Warning'),
+                detail: `${this.tr.instant('Please_fill_fields')}: ${invalidFieldNames.join(', ')}!`
             });
             return false;
         }
@@ -1513,12 +1549,12 @@ export class WpCategoryDetailComponent {
         const hasPrimary = item.images.some((img) => img.isPrimary);
 
         if (!hasCategories || !hasStatus || !hasLimit || !weight || item.images.length === 0) {
-            this.ms.add({ severity: 'warn', summary: 'Внимание', detail: 'Моля, попълнете Всички полета!' });
+            this.ms.add({ severity: 'warn', summary: this.tr.instant('Warning'), detail: this.tr.instant('Please_fill_all_fields') });
             return false;
         }
 
         if (!hasPrimary && item.images.length > 0) {
-            this.ms.add({ severity: 'warn', summary: 'Внимание', detail: 'Моля, изберете главна снимка (звезда)!' });
+            this.ms.add({ severity: 'warn', summary: this.tr.instant('Warning'), detail: this.tr.instant('Please_select_primary_image') });
             return false;
         }
 
@@ -1642,7 +1678,7 @@ export class WpCategoryDetailComponent {
                 this.cdr.detectChanges();
             },
             error: () => {
-                this.ms.add({ severity: 'error', summary: 'Error', detail: 'Currency conversion failed' });
+                this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: this.tr.instant('Currency_conversion_failed') });
                 this.isConverting.set(false);
             }
         });
@@ -1784,8 +1820,8 @@ export class WpCategoryDetailComponent {
 
         this.ms.add({
             severity: 'success',
-            summary: 'Успех',
-            detail: 'Видео файлът (.mp4) се сваля.'
+            summary: this.tr.instant('Success'),
+            detail: this.tr.instant('Video_downloading')
         });
     }
 

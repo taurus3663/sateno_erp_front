@@ -14,11 +14,13 @@ import { AdvertisementsDetailService } from './detail.service';
 import { MetaAdsListComponent } from '../meta_ads/list';
 import { MultiSelect } from 'primeng/multiselect';
 import { GoogleAdsListComponent } from '../google_ads/list';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-ads-dashboard',
     standalone: true,
-    imports: [CommonModule, FormsModule, CardModule, SelectButtonModule, ChartModule, ButtonDirective, InputText, TranslatePipe, DatePicker, MultiSelect, Button],
+    imports: [CommonModule, FormsModule, CardModule, SelectButtonModule, ChartModule, ButtonDirective, InputText, TranslatePipe, DatePicker, MultiSelect, Button, ToastModule],
     styles: [
         `
             .card-container {
@@ -54,12 +56,20 @@ import { GoogleAdsListComponent } from '../google_ads/list';
         `
     ],
     template: `
+        <p-toast position="top-right"></p-toast>
         <div class="card-container">
             <p-card>
                 <ng-template pTemplate="header">
                     <div class="flex justify-content-between align-items-center p-4">
                         <span class="text-xl font-bold">Meta Ads Performance</span>
-                        <!--                        <p-selectButton [options]="viewOptions" [(ngModel)]="selectedView" (onChange)="onViewChange($event)"></p-selectButton>-->
+                        <!-- <p-button
+                            icon="pi pi-refresh"
+                            [label]="'Resync_data' | translate"
+                            severity="contrast"
+                            size="small"
+                            [loading]="resyncing"
+                            (onClick)="resyncMeta()">
+                        </p-button> -->
                     </div>
                 </ng-template>
 
@@ -127,14 +137,21 @@ import { GoogleAdsListComponent } from '../google_ads/list';
                 <ng-template pTemplate="header">
                     <div class="flex justify-content-between align-items-center p-4">
                         <span class="text-xl font-bold">Google Ads Performance</span>
-                        <!--                        <p-selectButton [options]="viewOptions" [(ngModel)]="selectedView" (onChange)="onViewChange($event)"></p-selectButton>-->
+                        <!-- <p-button
+                            icon="pi pi-refresh"
+                            [label]="'Resync_data' | translate"
+                            severity="contrast"
+                            size="small"
+                            [loading]="resyncingGoogle"
+                            (onClick)="resyncGoogle()">
+                        </p-button> -->
                     </div>
                 </ng-template>
 
                 <!-- Филтри -->
                 <div class="filter-section p-4 bg-white border-1 surface-border border-round-lg mb-4">
                     <div class="">
-                        <!-- Meta Ads -->
+                        <!-- Google Ads -->
                         <div class="col-12 lg:col-6">
                             <label class="block font-semibold mb-2 text-sm text-700">{{ 'Select_google_ads' | translate }}</label>
                             <div class="p-inputgroup">
@@ -197,6 +214,10 @@ export class AdvertisementDetailComponent implements OnInit {
     private dialogService = inject(DialogService);
     private tr = inject(TranslateService);
     private detailService = inject(AdvertisementsDetailService);
+    private ms = inject(MessageService);
+
+    resyncing = false;
+    resyncingGoogle = false;
 
     metaDateFrom: Date | undefined = new Date();
     metaDateHasta: Date | undefined = new Date();
@@ -317,6 +338,40 @@ export class AdvertisementDetailComponent implements OnInit {
             console.log(metaAds);
             if (metaAds) {
                 this.selectedGoogleAds.set(metaAds);
+            }
+        });
+    }
+
+    protected resyncMeta() {
+        this.resyncing = true;
+        this.detailService.resyncMeta().subscribe({
+            next: () => {
+                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Meta resync завършен.' });
+                this.resyncing = false;
+                if (this.selectedMetaCampaigns?.length) {
+                    this.submitQ();
+                }
+            },
+            error: () => {
+                this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: 'Resync неуспешен.' });
+                this.resyncing = false;
+            }
+        });
+    }
+
+    protected resyncGoogle() {
+        this.resyncingGoogle = true;
+        this.detailService.resyncGoogle().subscribe({
+            next: () => {
+                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Google resync завършен.' });
+                this.resyncingGoogle = false;
+                if (this.selectedGoogleCampaigns?.length) {
+                    this.submitQGoogle();
+                }
+            },
+            error: () => {
+                this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: 'Google resync неуспешен.' });
+                this.resyncingGoogle = false;
             }
         });
     }
