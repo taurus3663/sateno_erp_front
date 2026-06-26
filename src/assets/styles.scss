@@ -17,21 +17,3 @@
 div.p-datatable-table-container {
     overflow: unset !important;
 }
-
-/* === Маркиране на избран период в календара (range selection) === */
-/* Запълваме цялата клетка, за да е непрекъснат диапазонът */
-.p-datepicker-day-cell {
-    padding: 0 !important;
-}
-/* Целият период (начало, край и междинните дни) — плътно синьо */
-.p-datepicker-day-selected,
-.p-datepicker-day-selected-range {
-    background: #2f54eb !important;
-    color: #ffffff !important;
-    border-radius: 0 !important;
-    width: 100% !important;
-    height: 2.5rem !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
