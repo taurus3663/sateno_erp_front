@@ -5,6 +5,10 @@ import { WpCategoryListComponent } from './wp_category/list';
 export const moduleActivator = true;
 registerRoute([
     {
+        path: 'financial_dashboard',
+        loadComponent: () => import('./financial_dashboard/dashboard').then(c => c.FinancialDashboardComponent)
+    },
+    {
         path: 'customer/list',
         loadComponent: () => import('./customer/list').then(c => c.CustomerListComponent)
     },
@@ -103,6 +107,16 @@ registerRoute([
     }
 ]);
     registerMenu([
+        {
+            label: '',
+            items: [
+                {
+                    label: 'menu.Financial_Dashboard',
+                    icon: PrimeIcons.CHART_LINE,
+                    routerLink: ['/financial_dashboard']
+                }
+            ]
+        },
         {
             label: '',
             items: [
