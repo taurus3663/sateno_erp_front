@@ -206,6 +206,12 @@ export class apiRoutes {
         value_delete: (id: number) => `${apiRoutes.wpAttributeBase}/value/${id}`,
     }
 
+    private static readonly financialDashboardBase = 'financial';
+    public readonly financialDashboard = {
+        get: `${apiRoutes.financialDashboardBase}/dashboard`,
+        period: `${apiRoutes.financialDashboardBase}/period`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();
