@@ -42,7 +42,10 @@ export type MetricType = 'int' | 'money' | 'ratio' | 'percent';
 /** Описание на един показател за генеричното изобразяване (лесно разширяемо). */
 export interface IMetricDef {
     key: keyof IFinancialMetrics;
-    label: string;          // i18n ключ
+    label: string;
     type: MetricType;
-    higherBetter: boolean;  // дали по-висока стойност е подобрение
-    k
+    higherBetter: boolean;
+    key4?: boolean;
+    icon?: string;
+    iconClass?: string;
+}
