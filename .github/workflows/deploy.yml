@@ -1,0 +1,162 @@
+# ============================================================================
+#  Sateno ERP — Frontend авто-деплой (LIVE / продукция)
+#  Trigger: push към клон `deploy`  →  качване на живо.
+#
+#  Фронтендът е статични файлове (Angular + Nx). НЕ пипа базата,
+#  затова тук няма pg_dump. За rollback пазим предишната dist папка (.old).
+#
+#  СПАЗВА: правило 6 (таг + предишна версия за rollback),
+#          правило 8 (атомарна замяна на папките),
+#          правило 7 (rollback при провал).
+#
+#  ВНИМАНИЕ: Това е ЧЕРНОВА. Качва се в GitHub едва след потвърждение (правило 10).
+# ============================================================================
+
+name: Deploy Frontend (LIVE)
+
+on:
+  push:
+    branches: [deploy]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-frontend-live
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # за push на таг
+
+env:
+  SERVER_DIR: /home/erp-f-sateno
+  PROJECT_NAME: sakai-ng   # име на проекта от package.json (nx build sakai-ng)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ---------------------------------------------------------------
+      # 1) Билд с Nx (production)
+      # ---------------------------------------------------------------
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build (Nx production)
+        run: npx nx build "${PROJECT_NAME}" --configuration=production
+
+      # ---------------------------------------------------------------
+      # 2) Намиране на dist папката (както в cl_update.sh)
+      # ---------------------------------------------------------------
+      - name: Locate dist dir
+        id: dist
+        run: |
+          if   [ -d "dist/apps/${PROJECT_NAME}/browser" ]; then D="dist/apps/${PROJECT_NAME}/browser"
+          elif [ -d "dist/${PROJECT_NAME}/browser" ];      then D="dist/${PROJECT_NAME}/browser"
+          elif [ -d "dist/apps/${PROJECT_NAME}" ];         then D="dist/apps/${PROJECT_NAME}"
+          else D="dist/${PROJECT_NAME}"; fi
+          test -d "$D" && test -n "$(ls -A "$D")" || { echo "::error::dist папката е празна/липсва: $D"; exit 1; }
+          echo ">>> dist: $D"
+          echo "dir=$D" >> $GITHUB_OUTPUT
+
+      # ---------------------------------------------------------------
+      # 3) SSH подготовка
+      # ---------------------------------------------------------------
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          if [ -n "${{ secrets.SERVER_KNOWN_HOSTS }}" ]; then
+            echo "${{ secrets.SERVER_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -p "${{ secrets.SERVER_PORT }}" -H "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          fi
+          chmod 644 ~/.ssh/known_hosts
+          echo "SSH=ssh -i $HOME/.ssh/id_deploy -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" >> $GITHUB_ENV
+          echo "TARGET=${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" >> $GITHUB_ENV
+          echo "SCP_PORT=${{ secrets.SERVER_PORT }}" >> $GITHUB_ENV
+
+      # ---------------------------------------------------------------
+      # 4) Качване в .new (старото още работи)
+      # ---------------------------------------------------------------
+      - name: Upload to .new
+        run: |
+          $SSH "rm -rf '${SERVER_DIR}.new' && mkdir -p '${SERVER_DIR}.new'"
+          scp -i ~/.ssh/id_deploy -P "$SCP_PORT" -r ${{ steps.dist.outputs.dir }}/* "$TARGET:${SERVER_DIR}.new/"
+          $SSH "test -n \"\$(ls -A '${SERVER_DIR}.new')\""
+
+      # ---------------------------------------------------------------
+      # 5) Атомарна замяна + запазване на старото за rollback (.old)
+      # ---------------------------------------------------------------
+      - name: Atomic swap (keep .old)
+        run: |
+          $SSH "bash -s" << 'REMOTE'
+            set -e
+            SERVER_DIR="/home/erp-f-sateno"
+            rm -rf "${SERVER_DIR}.old"
+            if [ -d "${SERVER_DIR}" ]; then mv "${SERVER_DIR}" "${SERVER_DIR}.old"; fi
+            mv "${SERVER_DIR}.new" "${SERVER_DIR}"
+            echo ">>> Замяна готова. Старата версия е в ${SERVER_DIR}.old (за rollback)."
+          REMOTE
+
+      # ---------------------------------------------------------------
+      # 6) Health check — index.html се отдава успешно
+      # ---------------------------------------------------------------
+      - name: Health check
+        id: health
+        run: |
+          set +e
+          OK=0
+          for i in $(seq 1 12); do
+            CODE=$($SSH "curl -s -o /dev/null -w '%{http_code}' --max-time 5 http://localhost/ || echo 000")
+            echo ">>> Опит $i: HTTP $CODE"
+            case "$CODE" in 2*|3*) OK=1; break;; esac
+            sleep 5
+          done
+          # Подсигуряване: index.html съществува на диска
+          $SSH "test -f '${SERVER_DIR}/index.html'" || OK=0
+          if [ "$OK" = "1" ]; then echo ">>> Health OK."; exit 0
+          else echo "::error::Health check провален."; exit 1; fi
+
+      # ---------------------------------------------------------------
+      # 7) Rollback при провал (връщаме .old)
+      # ---------------------------------------------------------------
+      - name: Rollback on failure
+        if: failure() && steps.health.outcome == 'failure'
+        run: |
+          echo "::warning::Health провален — връщам предишната dist папка."
+          $SSH "bash -s" << 'REMOTE'
+            set -e
+            SERVER_DIR="/home/erp-f-sateno"
+            if [ -d "${SERVER_DIR}.old" ]; then
+              rm -rf "${SERVER_DIR}.broken"
+              [ -d "${SERVER_DIR}" ] && mv "${SERVER_DIR}" "${SERVER_DIR}.broken"
+              mv "${SERVER_DIR}.old" "${SERVER_DIR}"
+              echo ">>> Rollback готов."
+            else
+              echo ">>> Няма ${SERVER_DIR}.old — нужна ръчна намеса."; exit 1
+            fi
+          REMOTE
+
+      # ---------------------------------------------------------------
+      # 8) Таг на версията (при успех)
+      # ---------------------------------------------------------------
+      - name: Tag released version
+        if: success()
+        run: |
+          TAG="deploy-$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::7}"
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git tag -a "$TAG" -m "Auto-deploy frontend $TAG"
+          git push origin "$TAG"
+          echo ">>> Тагнато: $TAG"
