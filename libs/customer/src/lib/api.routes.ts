@@ -212,6 +212,11 @@ export class apiRoutes {
         period: `${apiRoutes.financialDashboardBase}/period`,
     }
 
+    private static readonly productAnalysisBase = 'product_analysis';
+    public readonly productAnalysis = {
+        get: `${apiRoutes.productAnalysisBase}`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

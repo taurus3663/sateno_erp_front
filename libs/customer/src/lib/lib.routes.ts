@@ -104,6 +104,10 @@ registerRoute([
     {
         path: 'wp_attribute/list',
         loadComponent: () => import('./wp_attribute/list').then(c => c.WpAttributeListComponent)
+    },
+    {
+        path: 'product_analysis/list',
+        loadComponent: () => import('./product_analysis/list').then(c => c.ProductAnalysisListComponent)
     }
 ]);
     registerMenu([
@@ -131,6 +135,11 @@ registerRoute([
                     routerLink: ['/wp_product/list']
                 },
                 {
+                    label: 'menu.Product_Analysis',
+                    icon: PrimeIcons.CHART_BAR,
+                    routerLink: ['product_analysis/list']
+                },
+                {
                     label: 'menu.Product_Scheme',
                     icon: PrimeIcons.DISCORD,
                     routerLink: ['/scheme_wp_product/list']
@@ -145,7 +154,7 @@ registerRoute([
                     label: 'menu.Product_Ordering',
                     icon: PrimeIcons.SORT,
                     routerLink: ['product_order/list']
-                }
+                },
             ]
         },
         {
