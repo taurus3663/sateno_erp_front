@@ -411,20 +411,25 @@ import { SiteDetailService } from '../site/detail.service';
                                                 </div>
                                             </td>
 
-                                            <!--                                            <td class="p-3 text-right font-medium text-900">{{ line.totalPrice | number: '1.2-2' }} {{ item.currency }}</td>-->
                                             <td class="p-3 text-right">
-                                                <!--                                                <div class="flex align-items-center justify-content-end gap-2">-->
-                                                <p-inputNumber
-                                                    [(ngModel)]="line.totalPrice"
-                                                    (ngModelChange)="updateGrandTotal()"
-                                                    mode="decimal"
-                                                    [minFractionDigits]="2"
-                                                    [maxFractionDigits]="2"
-                                                    [inputSize]="5"
-                                                    inputStyleClass="w-5rem text-right p-inputtext-sm font-bold surface-100 border-round text-primary"
-                                                ></p-inputNumber>
-                                                <span class="text-900 font-medium">{{ item.currency }}</span>
-                                                <!--                                                </div>-->
+                                                <div class="flex flex-column align-items-end gap-1">
+                                                    <div class="flex align-items-center gap-1">
+                                                        <p-inputNumber
+                                                            [(ngModel)]="line.totalPrice"
+                                                            (ngModelChange)="updateGrandTotal()"
+                                                            mode="decimal"
+                                                            [minFractionDigits]="2"
+                                                            [maxFractionDigits]="2"
+                                                            [inputSize]="5"
+                                                            inputStyleClass="w-5rem text-right p-inputtext-sm font-bold surface-100 border-round text-primary"
+                                                        ></p-inputNumber>
+                                                        <span class="text-900 font-medium">{{ item.currency }}</span>
+                                                    </div>
+                                                    <div *ngIf="!line.totalPrice && line.effectiveTotalPrice" class="flex align-items-center gap-1" style="font-size: 11px; color: #7c3aed;">
+                                                        <i class="pi pi-credit-card" style="font-size: 11px;"></i>
+                                                        <span>реална: {{ line.effectiveTotalPrice | number: '1.2-2' }} {{ item.currency }}</span>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -862,7 +867,10 @@ export class OrderDetailComponent {
     });
 
     public getSubtotal(items: any[]): number {
-        return items.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+        return items.reduce((sum, item) => {
+            const eff = (item.totalPrice && item.totalPrice > 0) ? item.totalPrice : (item.effectiveTotalPrice || 0);
+            return sum + eff;
+        }, 0);
     }
 
     public mergeOrderIntoCurrent(sourceOrderId: any) {
@@ -941,7 +949,10 @@ export class OrderDetailComponent {
     readonly grandTotal = computed(() => {
         this.refreshTrigger(); // Важно: кара сигнала да се преизчисли
         const lines = this.detailService.selectedItem()?.orderLine || [];
-        const subtotal = lines.reduce((sum, line) => sum + (line.totalPrice || 0), 0);
+        const subtotal = lines.reduce((sum, line) => {
+            const eff = (line.totalPrice && line.totalPrice > 0) ? line.totalPrice : (line.effectiveTotalPrice || 0);
+            return sum + eff;
+        }, 0);
 
         let selectedItem = this.detailService.selectedItem();
         const shipping = selectedItem!.customShippingTotal;
