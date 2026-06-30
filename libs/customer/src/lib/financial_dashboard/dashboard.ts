@@ -136,6 +136,16 @@ import { IFinancialCard, IFinancialDashboard, IFinancialMetrics, IMetricDef } fr
                 .content-row { grid-template-columns: 1fr; }
                 .top-cards { grid-template-columns: 1fr; }
             }
+            @media (max-width: 768px) {
+                /* По-широко съдържание на телефона — минимум странично празно място */
+                :host { margin-left: -2rem; margin-right: -2rem; }
+                .fin-main { padding: 0 6px 8px; }
+                .kpi-card-inner { padding: 16px 12px 14px; }
+                .metric-cell { padding: 0 10px 14px 0; }
+                .metric-cell:nth-child(2) { padding-left: 12px; }
+                .card-metrics.cols3 .metric-cell:nth-child(3) { padding-left: 10px; }
+                .finance-table th, .finance-table td { padding-left: 10px; padding-right: 10px; }
+            }
         `
     ],
     template: `

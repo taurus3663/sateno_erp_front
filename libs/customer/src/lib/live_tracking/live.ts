@@ -94,9 +94,21 @@ import { LiveTrackingService } from './live.service';
                 .card.primary { grid-column: 1 / -1; }
             }
             @media (max-width: 760px) {
+                :host { margin-left: -2rem; margin-right: -2rem; }
                 .top { display: block; }
                 .actions { margin-top: 15px; }
-                .cards, .grid-mid { grid-template-columns: 1fr; }
+                .cards, .grid-mid { grid-template-columns: 1fr !important; }
+                .wrap { padding-left: 6px; padding-right: 6px; }
+                .panel { padding: 12px 6px; }
+                .cards .card { padding: 14px; }
+                .cards .card { height: auto; min-height: 0; }
+                .card.primary { flex-direction: column; align-items: stretch; gap: 14px; }
+                .card.primary .kpi-extra { border-left: 0; padding-left: 0; border-top: 1px solid var(--border); padding-top: 12px; gap: 20px; }
+                /* Таблиците да се скролват хоризонтално вместо да се смачкват */
+                .box { overflow-x: auto; }
+                .box .table { min-width: 540px; }
+                .box-head, .table th { position: static; }
+                .box-head { height: auto; min-height: 56px; flex-wrap: wrap; gap: 8px; padding: 10px 16px; }
             }
         `
     ],
