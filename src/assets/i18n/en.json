@@ -444,5 +444,40 @@
     "Ad_Statistics": "Ad Statistics",
     "ChatGPT": "ChatGPT",
     "Sync_From_WP": "Sync from WordPress"
+  },
+  "sync": {
+    "title": "Sync from WordPress",
+    "subtitle": "Pulls brands, categories and products (including images) from the selected site.",
+    "step": {
+      "brands": "Brands",
+      "categories": "Categories",
+      "products": "Products & Images",
+      "attributes": "Attributes",
+      "orders": "Orders"
+    },
+    "btn": {
+      "start": "Sync from WordPress"
+    },
+    "terminal": {
+      "empty": "Press the button to start the synchronization"
+    },
+    "dialog": {
+      "title": "Select site to sync",
+      "desc": "All products, brands, categories and attributes will be pulled from the selected WordPress site. Existing records will be updated without duplicates.",
+      "selectPlaceholder": "Select site...",
+      "importOrders": "Import orders as well",
+      "importOrdersHint": "Will pull all orders from the site (may take longer)",
+      "startBtn": "Start synchronization"
+    },
+    "status": {
+      "idle": "Ready",
+      "brands": "Syncing brands…",
+      "categories": "Syncing categories…",
+      "products": "Syncing products…",
+      "attributes": "Syncing attributes…",
+      "orders": "Importing orders…",
+      "done": "Completed",
+      "error": "Error"
+    }
   }
 }

@@ -9,6 +9,7 @@ import { Checkbox } from 'primeng/checkbox';
 import { PrimeTemplate } from 'primeng/api';
 import { WebSocketService } from 'xl-util';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ROUTES } from '../api.routes';
 import { ISite } from '../site/interfaces';
 import { ISyncStatus, SyncStep } from './interfaces';
@@ -16,7 +17,7 @@ import { ISyncStatus, SyncStep } from './interfaces';
 @Component({
     selector: 'full-sync-list',
     standalone: true,
-    imports: [CommonModule, FormsModule, Button, Select, Dialog, Checkbox, PrimeTemplate],
+    imports: [CommonModule, FormsModule, Button, Select, Dialog, Checkbox, PrimeTemplate, TranslatePipe],
     styles: [`
         :host { display: block; padding: 20px; }
         h1 { margin: 0 0 6px; font-size: 22px; font-weight: 900; color: #071832; }
@@ -71,8 +72,8 @@ import { ISyncStatus, SyncStep } from './interfaces';
         .terminal-empty { color: #334155; font-style: italic; }
     `],
     template: `
-        <h1>Синхронизация от WordPress</h1>
-        <p class="subtitle">Изтегля марки, категории и продукти (включително снимки) от избран сайт.</p>
+        <h1>{{ 'sync.title' | translate }}</h1>
+        <p class="subtitle">{{ 'sync.subtitle' | translate }}</p>
 
         <!-- Steps -->
         <div class="steps">
@@ -80,32 +81,32 @@ import { ISyncStatus, SyncStep } from './interfaces';
                 <div class="step-icon" [class.waiting]="isWaiting('BRANDS')" [class.running]="isActive('BRANDS')" [class.done]="isDone('BRANDS')" [class.error]="isError('BRANDS')">
                     {{ isActive('BRANDS') ? '⟳' : isDone('BRANDS') ? '✓' : isError('BRANDS') ? '✕' : '1' }}
                 </div>
-                <span class="step-label" [class.running]="isActive('BRANDS')" [class.done]="isDone('BRANDS')" [class.error]="isError('BRANDS')">Марки</span>
+                <span class="step-label" [class.running]="isActive('BRANDS')" [class.done]="isDone('BRANDS')" [class.error]="isError('BRANDS')">{{ 'sync.step.brands' | translate }}</span>
             </div>
             <div class="step" [class.done]="isDone('CATEGORIES')" [class.running]="isActive('CATEGORIES')">
                 <div class="step-icon" [class.waiting]="isWaiting('CATEGORIES')" [class.running]="isActive('CATEGORIES')" [class.done]="isDone('CATEGORIES')" [class.error]="isError('CATEGORIES')">
                     {{ isActive('CATEGORIES') ? '⟳' : isDone('CATEGORIES') ? '✓' : isError('CATEGORIES') ? '✕' : '2' }}
                 </div>
-                <span class="step-label" [class.running]="isActive('CATEGORIES')" [class.done]="isDone('CATEGORIES')" [class.error]="isError('CATEGORIES')">Категории</span>
+                <span class="step-label" [class.running]="isActive('CATEGORIES')" [class.done]="isDone('CATEGORIES')" [class.error]="isError('CATEGORIES')">{{ 'sync.step.categories' | translate }}</span>
             </div>
             <div class="step" [class.done]="isDone('PRODUCTS')" [class.running]="isActive('PRODUCTS')">
                 <div class="step-icon" [class.waiting]="isWaiting('PRODUCTS')" [class.running]="isActive('PRODUCTS')" [class.done]="isDone('PRODUCTS')" [class.error]="isError('PRODUCTS')">
                     {{ isActive('PRODUCTS') ? '⟳' : isDone('PRODUCTS') ? '✓' : isError('PRODUCTS') ? '✕' : '3' }}
                 </div>
-                <span class="step-label" [class.running]="isActive('PRODUCTS')" [class.done]="isDone('PRODUCTS')" [class.error]="isError('PRODUCTS')">Продукти & Снимки</span>
+                <span class="step-label" [class.running]="isActive('PRODUCTS')" [class.done]="isDone('PRODUCTS')" [class.error]="isError('PRODUCTS')">{{ 'sync.step.products' | translate }}</span>
             </div>
             <div class="step" [class.done]="isDone('ATTRIBUTES')" [class.running]="isActive('ATTRIBUTES')">
                 <div class="step-icon" [class.waiting]="isWaiting('ATTRIBUTES')" [class.running]="isActive('ATTRIBUTES')" [class.done]="isDone('ATTRIBUTES')" [class.error]="isError('ATTRIBUTES')">
                     {{ isActive('ATTRIBUTES') ? '⟳' : isDone('ATTRIBUTES') ? '✓' : isError('ATTRIBUTES') ? '✕' : '4' }}
                 </div>
-                <span class="step-label" [class.running]="isActive('ATTRIBUTES')" [class.done]="isDone('ATTRIBUTES')" [class.error]="isError('ATTRIBUTES')">Атрибути</span>
+                <span class="step-label" [class.running]="isActive('ATTRIBUTES')" [class.done]="isDone('ATTRIBUTES')" [class.error]="isError('ATTRIBUTES')">{{ 'sync.step.attributes' | translate }}</span>
             </div>
             @if (importOrders) {
                 <div class="step" [class.done]="isDone('ORDERS')" [class.running]="isActive('ORDERS')">
                     <div class="step-icon" [class.waiting]="isWaiting('ORDERS')" [class.running]="isActive('ORDERS')" [class.done]="isDone('ORDERS')" [class.error]="isError('ORDERS')">
                         {{ isActive('ORDERS') ? '⟳' : isDone('ORDERS') ? '✓' : isError('ORDERS') ? '✕' : '5' }}
                     </div>
-                    <span class="step-label" [class.running]="isActive('ORDERS')" [class.done]="isDone('ORDERS')" [class.error]="isError('ORDERS')">Поръчки</span>
+                    <span class="step-label" [class.running]="isActive('ORDERS')" [class.done]="isDone('ORDERS')" [class.error]="isError('ORDERS')">{{ 'sync.step.orders' | translate }}</span>
                 </div>
             }
         </div>
@@ -113,7 +114,7 @@ import { ISyncStatus, SyncStep } from './interfaces';
         <!-- Action row -->
         <div class="action-row">
             <p-button
-                label="Синхронизирай от WordPress"
+                [label]="'sync.btn.start' | translate"
                 icon="pi pi-cloud-download"
                 [disabled]="running()"
                 [loading]="running()"
@@ -134,7 +135,7 @@ import { ISyncStatus, SyncStep } from './interfaces';
                 <div class="dot green"></div>
             </div>
             @if (status().logs.length === 0) {
-                <div class="terminal-empty">// Натиснете бутона за да стартирате синхронизацията</div>
+                <div class="terminal-empty">// {{ 'sync.terminal.empty' | translate }}</div>
             }
             @for (line of status().logs; track $index) {
                 <div class="log-line" [class.success]="line.includes('✅') || line.includes('🎉')" [class.error]="line.includes('❌')" [class.info]="line.includes('⏳') || line.includes('ℹ️')" [class.start]="line.includes('🚀')">
@@ -147,27 +148,27 @@ import { ISyncStatus, SyncStep } from './interfaces';
         </div>
 
         <!-- Site picker dialog -->
-        <p-dialog header="Изберете сайт за синхронизация" [(visible)]="showSiteDialog" [modal]="true" [style]="{width:'460px'}" [closable]="true">
+        <p-dialog [header]="'sync.dialog.title' | translate" [(visible)]="showSiteDialog" [modal]="true" [style]="{width:'460px'}" [closable]="true">
             <div style="display:flex;flex-direction:column;gap:16px;padding:8px 0">
-                <p style="margin:0;color:#526582;font-size:14px">Всички продукти, марки, категории и атрибути ще се изтеглят от избрания WordPress сайт. Съществуващите записи ще се обновят без дублиране.</p>
+                <p style="margin:0;color:#526582;font-size:14px">{{ 'sync.dialog.desc' | translate }}</p>
                 <p-select
                     [options]="sites()"
                     [(ngModel)]="selectedSite"
                     optionLabel="name"
-                    placeholder="Изберете сайт..."
+                    [placeholder]="'sync.dialog.selectPlaceholder' | translate"
                     appendTo="body"
                     [style]="{width:'100%'}" />
                 <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
                     <p-checkbox [(ngModel)]="importOrders" [binary]="true" inputId="importOrders" />
                     <label for="importOrders" style="cursor:pointer;font-size:14px;font-weight:600;color:#071832;margin:0">
-                        Импортирай и поръчки
-                        <span style="display:block;font-size:12px;font-weight:400;color:#526582;margin-top:2px">Ще изтегли всички поръчки от сайта (може да отнеме повече време)</span>
+                        {{ 'sync.dialog.importOrders' | translate }}
+                        <span style="display:block;font-size:12px;font-weight:400;color:#526582;margin-top:2px">{{ 'sync.dialog.importOrdersHint' | translate }}</span>
                     </label>
                 </div>
             </div>
             <ng-template pTemplate="footer">
-                <p-button label="Откажи" severity="secondary" [text]="true" (onClick)="showSiteDialog = false" />
-                <p-button label="Стартирай синхронизация" icon="pi pi-play" [disabled]="!selectedSite" (onClick)="startSync()" />
+                <p-button [label]="'Cancel' | translate" severity="secondary" [text]="true" (onClick)="showSiteDialog = false" />
+                <p-button [label]="'sync.dialog.startBtn' | translate" icon="pi pi-play" [disabled]="!selectedSite" (onClick)="startSync()" />
             </ng-template>
         </p-dialog>
     `,
@@ -176,6 +177,7 @@ export class FullSyncListComponent implements OnInit, OnDestroy, AfterViewChecke
     private http = inject(HttpClient);
     private wsService = inject(WebSocketService);
     private zone = inject(NgZone);
+    private translate = inject(TranslateService);
     private destroy$ = new Subject<void>();
 
     @ViewChild('terminal') terminalEl?: ElementRef<HTMLElement>;
@@ -278,12 +280,12 @@ export class FullSyncListComponent implements OnInit, OnDestroy, AfterViewChecke
     }
 
     stepLabel(): string {
-        const labels: Record<SyncStep, string> = {
-            IDLE: 'Готов', BRANDS: 'Синхр. марки…', CATEGORIES: 'Синхр. категории…',
-            PRODUCTS: 'Синхр. продукти…', ATTRIBUTES: 'Синхр. атрибути…', ORDERS: 'Импорт поръчки…',
-            DONE: 'Завършено', ERROR: 'Грешка',
+        const keys: Record<SyncStep, string> = {
+            IDLE: 'sync.status.idle', BRANDS: 'sync.status.brands', CATEGORIES: 'sync.status.categories',
+            PRODUCTS: 'sync.status.products', ATTRIBUTES: 'sync.status.attributes', ORDERS: 'sync.status.orders',
+            DONE: 'sync.status.done', ERROR: 'sync.status.error',
         };
-        return labels[this.status().step] ?? '';
+        return this.translate.instant(keys[this.status().step] ?? '');
     }
 
     formatTime(s: number): string {
