@@ -41,6 +41,8 @@ export interface IOrder {
     site: ISite;
     status: string;
     totalPrice: number;
+    /** Реален приход: totalPrice > 0 ? totalPrice : price*qty+addons (карта-платени) */
+    effectiveTotalPrice: number;
     transactionId: string;
     createTime: string;
     updateTime: string;
@@ -109,6 +111,8 @@ export interface IOrderLineItem {
     quantity: number;
     sku: string;
     totalPrice: number;
+    /** totalPrice > 0 → totalPrice; иначе price*qty+addons (backend-изчислено) */
+    effectiveTotalPrice?: number;
     paoIdValue: IPaoIdValue[];
     image: IOrderLineItemImage;
     orderId: number;

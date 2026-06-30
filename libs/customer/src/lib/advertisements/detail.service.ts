@@ -32,4 +32,12 @@ export class AdvertisementsDetailService {
 
         return this.http.get(`/ads/google/campaign/adsrecords`, { params });
     }
+
+    public resyncMeta() {
+        return this.http.post(`/ads/meta/resync`, {}, { responseType: 'text' });
+    }
+
+    public resyncGoogle() {
+        return this.http.post(`/ads/google/resync`, {}, { responseType: 'text' });
+    }
 }

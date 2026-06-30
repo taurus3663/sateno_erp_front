@@ -212,6 +212,17 @@ export class apiRoutes {
         value_delete: (id: number) => `${apiRoutes.wpAttributeBase}/value/${id}`,
     }
 
+    private static readonly financialDashboardBase = 'financial';
+    public readonly financialDashboard = {
+        get: `${apiRoutes.financialDashboardBase}/dashboard`,
+        period: `${apiRoutes.financialDashboardBase}/period`,
+    }
+
+    private static readonly productAnalysisBase = 'product_analysis';
+    public readonly productAnalysis = {
+        get: `${apiRoutes.productAnalysisBase}`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

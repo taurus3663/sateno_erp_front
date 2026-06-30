@@ -282,6 +282,7 @@ import { ConfirmationService } from 'primeng/api';
                             </p-columnFilter>
                         </div>
                     </th>
+                    <th style="width: 7rem" class="text-center">{{ 'Prices' | translate }}</th>
                     <th style="width: 5rem"></th>
                 </tr>
             </ng-template>
@@ -364,6 +365,18 @@ import { ConfirmationService } from 'primeng/api';
                                 <p-tag [severity]="option.value === 0 ? 'info' : 'danger'" [value]="option.label | translate"></p-tag>
                             </ng-template>
                         </p-select>
+                    </td>
+                    <td class="text-center">
+                        <div class="flex flex-col gap-1 align-items-center">
+                            <div class="flex align-items-center gap-1" [pTooltip]="'Buy_price' | translate" tooltipPosition="left">
+                                <i class="pi text-sm" [ngClass]="item.buyPrice != null ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                                <span class="text-xs text-gray-400">{{ 'Buy_price' | translate }}</span>
+                            </div>
+                            <div class="flex align-items-center gap-1" [pTooltip]="'Transport_price' | translate" tooltipPosition="left">
+                                <i class="pi text-sm" [ngClass]="item.transportPrice != null ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                                <span class="text-xs text-gray-400">{{ 'Transport_price' | translate }}</span>
+                            </div>
+                        </div>
                     </td>
                     <td>
                         <div class="flex gap-2" *ngIf="config?.data?.mode !== 'lookup'">

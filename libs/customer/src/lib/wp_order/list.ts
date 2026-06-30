@@ -587,7 +587,11 @@ import { Select } from 'primeng/select';
                         <img *ngIf="paymentIcons[order.paymentMethod]" [src]="paymentIcons[order.paymentMethod]" [alt]="order.paymentMethod" style="width: 5rem; height: auto; object-fit: contain;" class="shadow-1 border-round-sm" />
                     </td>
                     <td>
-                        <p-tag severity="success" value="{{ order.totalPrice }} {{ order.currency }}" />
+                        <p-tag severity="success" value="{{ (order.effectiveTotalPrice ?? order.totalPrice) }} {{ order.currency }}" />
+                        <div *ngIf="order.effectiveTotalPrice && order.totalPrice === 0" class="flex align-items-center gap-1 mt-1" style="color: #7c3aed; font-size: 10px; font-weight: 700;">
+                            <i class="pi pi-credit-card" style="font-size: 11px;"></i>
+                            <span>Платено с карта</span>
+                        </div>
                         <div *ngIf="order.freeDelivery" class="flex align-items-center gap-1 mt-1" style="color: #16a34a; font-size: 11px; font-weight: 700; white-space: nowrap;">
                             <i class="pi pi-truck" style="font-size: 13px;"></i>
                             <span>{{ 'Free_Delivery' | translate }}</span>
@@ -1030,7 +1034,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         const items = this.listService.items();
         if (!items || items.length === 0) return 0;
 
-        return items.reduce((acc, order) => acc + (Number(order.totalPrice) || 0), 0);
+        return items.reduce((acc, order) => acc + (Number(order.effectiveTotalPrice ?? order.totalPrice) || 0), 0);
     });
 
     public itemsCount = computed(() => {

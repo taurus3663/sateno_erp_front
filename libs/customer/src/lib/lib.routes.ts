@@ -5,6 +5,10 @@ import { WpCategoryListComponent } from './wp_category/list';
 export const moduleActivator = true;
 registerRoute([
     {
+        path: 'financial_dashboard',
+        loadComponent: () => import('./financial_dashboard/dashboard').then(c => c.FinancialDashboardComponent)
+    },
+    {
         path: 'customer/list',
         loadComponent: () => import('./customer/list').then(c => c.CustomerListComponent)
     },
@@ -102,11 +106,25 @@ registerRoute([
         loadComponent: () => import('./wp_attribute/list').then(c => c.WpAttributeListComponent)
     },
     {
+        path: 'product_analysis/list',
+        loadComponent: () => import('./product_analysis/list').then(c => c.ProductAnalysisListComponent)
+    },
+    {
         path: 'ai_settings/chatgpt',
         loadComponent: () => import('./ai_settings/chatgpt').then(c => c.ChatGptSettingsComponent)
     }
 ]);
     registerMenu([
+        {
+            label: '',
+            items: [
+                {
+                    label: 'menu.Financial_Dashboard',
+                    icon: PrimeIcons.CHART_LINE,
+                    routerLink: ['/financial_dashboard']
+                }
+            ]
+        },
         {
             label: '',
             items: [
@@ -119,6 +137,11 @@ registerRoute([
                     label: 'menu.Products',
                     icon: PrimeIcons.PALETTE,
                     routerLink: ['/wp_product/list']
+                },
+                {
+                    label: 'menu.Product_Analysis',
+                    icon: PrimeIcons.CHART_BAR,
+                    routerLink: ['product_analysis/list']
                 },
                 {
                     label: 'menu.Product_Scheme',
@@ -135,7 +158,7 @@ registerRoute([
                     label: 'menu.Product_Ordering',
                     icon: PrimeIcons.SORT,
                     routerLink: ['product_order/list']
-                }
+                },
             ]
         },
         {
