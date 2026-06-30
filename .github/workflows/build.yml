@@ -1,70 +1,70 @@
 name: Build & Push Frontend
 
 on:
-  push:
-    branches: [main]
+    push:
+        branches: [main]
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ghcr.io/taurus3663/sateno-front
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ghcr.io/taurus3663/sateno-front
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    build-and-push:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-      - name: Get library SHAs
-        id: lib-shas
-        run: |
-          echo "xl_auth=$(git ls-remote https://github.com/taurus366/xl-auth.git HEAD | cut -f1)" >> $GITHUB_OUTPUT
-          echo "xl_util=$(git ls-remote https://github.com/taurus366/xl-util.git HEAD | cut -f1)" >> $GITHUB_OUTPUT
-          echo "xl_layout=$(git ls-remote https://github.com/taurus366/xl-layout.git HEAD | cut -f1)" >> $GITHUB_OUTPUT
+            - name: Get library SHAs
+              id: lib-shas
+              run: |
+                  echo "xl_auth=$(git ls-remote https://github.com/taurus366/xl-auth.git HEAD | cut -f1)" >> $GITHUB_OUTPUT
+                  echo "xl_util=$(git ls-remote https://github.com/taurus366/xl-util.git HEAD | cut -f1)" >> $GITHUB_OUTPUT
+                  echo "xl_layout=$(git ls-remote https://github.com/taurus366/xl-layout.git HEAD | cut -f1)" >> $GITHUB_OUTPUT
 
-      - name: Cache libraries
-        uses: actions/cache@v4
-        id: libs-cache
-        with:
-          path: |
-            libs/xl-auth
-            libs/xl-util
-            libs/xl-layout
-          key: libs-${{ steps.lib-shas.outputs.xl_auth }}-${{ steps.lib-shas.outputs.xl_util }}-${{ steps.lib-shas.outputs.xl_layout }}
+            - name: Cache libraries
+              uses: actions/cache@v4
+              id: libs-cache
+              with:
+                  path: |
+                      libs/xl-auth
+                      libs/xl-util
+                      libs/xl-layout
+                  key: libs-${{ steps.lib-shas.outputs.xl_auth }}-${{ steps.lib-shas.outputs.xl_util }}-${{ steps.lib-shas.outputs.xl_layout }}
 
-      - name: Clone xl-auth library
-        if: steps.libs-cache.outputs.cache-hit != 'true'
-        run: git clone --depth 1 https://github.com/taurus366/xl-auth.git libs/xl-auth
+            - name: Clone xl-auth library
+              if: steps.libs-cache.outputs.cache-hit != 'true'
+              run: git clone --depth 1 https://github.com/taurus366/xl-auth.git libs/xl-auth
 
-      - name: Clone xl-util library
-        if: steps.libs-cache.outputs.cache-hit != 'true'
-        run: git clone --depth 1 https://github.com/taurus366/xl-util.git libs/xl-util
+            - name: Clone xl-util library
+              if: steps.libs-cache.outputs.cache-hit != 'true'
+              run: git clone --depth 1 https://github.com/taurus366/xl-util.git libs/xl-util
 
-      - name: Clone xl-layout library
-        if: steps.libs-cache.outputs.cache-hit != 'true'
-        run: git clone --depth 1 https://github.com/taurus366/xl-layout.git libs/xl-layout
+            - name: Clone xl-layout library
+              if: steps.libs-cache.outputs.cache-hit != 'true'
+              run: git clone --depth 1 https://github.com/taurus366/xl-layout.git libs/xl-layout
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            - name: Build and push Docker image
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  push: true
+                  tags: |
+                      ${{ env.IMAGE_NAME }}:latest
+                      ${{ env.IMAGE_NAME }}:${{ github.sha }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
