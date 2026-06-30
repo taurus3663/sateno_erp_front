@@ -223,6 +223,12 @@ export class apiRoutes {
         get: `${apiRoutes.productAnalysisBase}`,
     }
 
+    private static readonly fullSyncBase = 'full_sync';
+    public readonly fullSync = {
+        start: `${apiRoutes.fullSyncBase}/start`,
+        status: `${apiRoutes.fullSyncBase}/status`,
+    }
+
 }
 
 export const ROUTES = new apiRoutes();

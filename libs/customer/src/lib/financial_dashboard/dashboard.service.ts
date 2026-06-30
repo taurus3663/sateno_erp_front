@@ -32,12 +32,19 @@ export class FinancialDashboardService implements OnDestroy {
     private pollTimer?: ReturnType<typeof setInterval>;
     private readonly POLL_MS = 60_000;
 
+    selectedSiteId = signal<number | null>(null);
+
+    private get siteParams(): Record<string, string> {
+        const id = this.selectedSiteId();
+        return id ? { siteIds: String(id) } : {};
+    }
+
     /** Еднократно зареждане на данните. */
     load(): void {
         this.loading.set(true);
         const path = `/${ROUTES.financialDashboard.get}`;
         this.http
-            .get<IFinancialDashboard>(path, { params: { timeZone: this.timeZone } })
+            .get<IFinancialDashboard>(path, { params: { timeZone: this.timeZone, ...this.siteParams } })
             .subscribe({
                 next: (d) => {
                     this.data.set(d);
@@ -56,7 +63,7 @@ export class FinancialDashboardService implements OnDestroy {
         this.customLoading.set(true);
         const path = `/${ROUTES.financialDashboard.period}`;
         this.http
-            .get<IFinancialCard>(path, { params: { from, to, timeZone: this.timeZone } })
+            .get<IFinancialCard>(path, { params: { from, to, timeZone: this.timeZone, ...this.siteParams } })
             .subscribe({
                 next: (c) => {
                     this.customCard.set(c);

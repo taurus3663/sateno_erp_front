@@ -1,9 +1,11 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { Button } from 'primeng/button';
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { DatePicker } from 'primeng/datepicker';
+import { Select } from 'primeng/select';
 import { PrimeTemplate } from 'primeng/api';
 import { PrimeNG } from 'primeng/config';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -12,6 +14,8 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { FinancialDashboardService } from './dashboard.service';
 import { IFinancialCard, IFinancialDashboard, IFinancialMetrics, IMetricDef } from './interfaces';
+import { ROUTES } from '../api.routes';
+import { ISite } from '../site/interfaces';
 
 /**
  * Финансов дашборд — основен финансов екран на ERP-то.
@@ -21,7 +25,7 @@ import { IFinancialCard, IFinancialDashboard, IFinancialMetrics, IMetricDef } fr
 @Component({
     selector: 'financial-dashboard',
     standalone: true,
-    imports: [CommonModule, FormsModule, Button, ProgressSpinner, DatePicker, PrimeTemplate, TranslatePipe],
+    imports: [CommonModule, FormsModule, Button, ProgressSpinner, DatePicker, Select, PrimeTemplate, TranslatePipe],
     styles: [
         `
             :host {
@@ -127,6 +131,9 @@ import { IFinancialCard, IFinancialDashboard, IFinancialMetrics, IMetricDef } fr
             .overview-sub { margin-top: 4px; color: #36506f; font-size: 11px; }
             .ov-spark { width: 116px; height: 46px; }
 
+            .dash-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+            .dash-title { font-size: 22px; font-weight: 900; color: #071832; margin: 0; flex: 1 1 auto; }
+            .site-select-wrap { min-width: 220px; }
             .center-pad { display: flex; justify-content: center; padding: 2rem; }
             :host ::ng-deep .detail-date .p-datepicker-input,
             :host ::ng-deep .detail-date .p-inputtext { min-width: 15rem; font-weight: 700; }
@@ -140,6 +147,21 @@ import { IFinancialCard, IFinancialDashboard, IFinancialMetrics, IMetricDef } fr
     ],
     template: `
         <div class="fin-main">
+            <!-- ХЕДЪР — заглавие + филтър по сайт -->
+            <div class="dash-header">
+                <span class="dash-title">Финансов дашборд</span>
+                <div class="site-select-wrap">
+                    <p-select
+                        [options]="sites()"
+                        [(ngModel)]="selectedSite"
+                        optionLabel="name"
+                        [showClear]="true"
+                        placeholder="Всички сайтове"
+                        (onChange)="onSiteChange($event.value)"
+                        [style]="{ width: '100%' }" />
+                </div>
+            </div>
+
             @if (!service.data() && service.loading()) {
                 <div class="center-pad"><p-progress-spinner strokeWidth="4" [style]="{ width: '48px', height: '48px' }"></p-progress-spinner></div>
             }
@@ -397,6 +419,10 @@ export class FinancialDashboardComponent implements OnInit, OnDestroy {
         return this.defByKey[key];
     }
 
+    private http = inject(HttpClient);
+    sites = signal<ISite[]>([]);
+    selectedSite: ISite | null = null;
+
     private get currency(): string {
         return this.service.data()?.currency ?? 'EUR';
     }
@@ -404,8 +430,16 @@ export class FinancialDashboardComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.applyCalendarLocale(this.translate.currentLang);
         this.langSub = this.translate.onLangChange.subscribe((e) => this.applyCalendarLocale(e.lang));
+        this.http.get<{ content: ISite[] }>(`/${ROUTES.site.list}?size=100`).subscribe({
+            next: (p) => this.sites.set(p.content),
+        });
         this.service.startLive();
         this.applyCustom();
+    }
+
+    onSiteChange(site: ISite | null): void {
+        this.service.selectedSiteId.set(site?.id ?? null);
+        this.refreshAll();
     }
 
     ngOnDestroy(): void {

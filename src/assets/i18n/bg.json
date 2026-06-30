@@ -402,7 +402,8 @@
     "Sent": "Изпратени",
     "Received": "Получени",
     "Ad_Statistics": "Рекламна статистика",
-    "ChatGPT": "ChatGPT"
+    "ChatGPT": "ChatGPT",
+      "Sync_From_WP": "Синхронизация от WordPress"
   },
   "fin": {
     "today": "Днес",
@@ -445,6 +446,7 @@
     "cpis": "CPIS - Разход за реклама на артикул",
     "margin": "GM - Марж",
     "Ad_Statistics": "Рекламна статистика",
-    "ChatGPT": "ChatGPT"
+    "ChatGPT": "ChatGPT",
+    "Sync_From_WP": "Синхронизация от WordPress"
   }
 }

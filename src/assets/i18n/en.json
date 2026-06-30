@@ -442,6 +442,7 @@
     "cpis": "Ad cost / item",
     "margin": "Margin",
     "Ad_Statistics": "Ad Statistics",
-    "ChatGPT": "ChatGPT"
+    "ChatGPT": "ChatGPT",
+    "Sync_From_WP": "Sync from WordPress"
   }
 }

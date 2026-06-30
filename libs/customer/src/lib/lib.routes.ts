@@ -110,6 +110,10 @@ registerRoute([
         loadComponent: () => import('./product_analysis/list').then(c => c.ProductAnalysisListComponent)
     },
     {
+        path: 'full_sync',
+        loadComponent: () => import('./full_sync/list').then(c => c.FullSyncListComponent)
+    },
+    {
         path: 'ai_settings/chatgpt',
         loadComponent: () => import('./ai_settings/chatgpt').then(c => c.ChatGptSettingsComponent)
     }
@@ -218,6 +222,11 @@ registerRoute([
                             label: 'menu.ChatGPT',
                             icon: PrimeIcons.SPARKLES,
                             routerLink: ['/ai_settings/chatgpt']
+                        },
+                        {
+                            label: 'menu.Sync_From_WP',
+                            icon: PrimeIcons.CLOUD_DOWNLOAD,
+                            routerLink: ['/full_sync']
                         }
                     ]
                 }
