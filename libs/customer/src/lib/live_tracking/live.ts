@@ -328,6 +328,7 @@ export class LiveTrackingComponent implements OnInit, OnDestroy {
     visitorsToday = computed(() => this.snap()?.visitorsToday ?? 0);
     ordersToday = computed(() => this.snap()?.ordersToday ?? 0);
     conversion = computed(() => { const v = this.visitorsToday(); return v > 0 ? (this.ordersToday() / v) * 100 : 0; });
+    carts = computed(() => this.snap()?.carts ?? []);
     checkouts = computed(() => this.snap()?.checkouts ?? []);
     abandoned = computed(() => this.snap()?.abandonedToday ?? []);
     activity = computed(() => this.snap()?.activity ?? []);
