@@ -9,6 +9,10 @@ registerRoute([
         loadComponent: () => import('./financial_dashboard/dashboard').then(c => c.FinancialDashboardComponent)
     },
     {
+        path: 'live_tracking',
+        loadComponent: () => import('./live_tracking/live').then(c => c.LiveTrackingComponent)
+    },
+    {
         path: 'customer/list',
         loadComponent: () => import('./customer/list').then(c => c.CustomerListComponent)
     },
@@ -117,7 +121,18 @@ registerRoute([
                 {
                     label: 'menu.Financial_Dashboard',
                     icon: PrimeIcons.CHART_LINE,
-                    routerLink: ['/financial_dashboard']
+                    items: [
+                        {
+                            label: 'menu.Financial_Dashboard_Detail',
+                            icon: PrimeIcons.CHART_LINE,
+                            routerLink: ['/financial_dashboard']
+                        },
+                        {
+                            label: 'menu.Live_Tracking',
+                            icon: PrimeIcons.BOLT,
+                            routerLink: ['/live_tracking']
+                        }
+                    ]
                 }
             ]
         },

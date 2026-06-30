@@ -373,6 +373,8 @@
   "Select_google_ads": "Select google ads",
   "menu": {
     "Financial_Dashboard": "Dashboard",
+    "Financial_Dashboard_Detail": "Financial dashboard",
+    "Live_Tracking": "Live - sateno.bg",
     "Orders": "Orders",
     "Products": "Products",
     "Product_Scheme": "Product Scheme",
