@@ -61,7 +61,7 @@ import { IOrder } from '../wp_order/interfaces';
             .metric-title { font-size: 17px; color: #344967; font-weight: 800; margin-top: 8px; }
             .metric-value { font-size: 34px; font-weight: 850; margin-top: 6px; }
             .metric-note { font-size: 15px; color: var(--muted); margin-top: 2px; }
-            .grid-mid { display: grid; grid-template-columns: 1.05fr 1.05fr 0.95fr; gap: 22px; margin-bottom: 22px; align-items: start; }
+            .grid-mid { display: grid; grid-template-columns: 0.95fr 0.95fr 1.3fr; gap: 22px; margin-bottom: 22px; align-items: start; }
             .box { background: white; border: 1px solid var(--border); border-radius: 10px; overflow-x: hidden; overflow-y: auto; max-height: 420px; }
             .box-head { height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid #e5eef7; position: sticky; top: 0; z-index: 2; background: #fff; }
             .box-title { font-size: 18px; font-weight: 850; display: flex; gap: 10px; align-items: center; }
@@ -252,8 +252,12 @@ import { IOrder } from '../wp_order/interfaces';
                                 <td>{{ money(a.value, a.currency) }}</td>
                                 <td>{{ a.leftAt }}</td>
                                 <td>
-                                    <button class="btn" style="font-size:12px;padding:0 10px;height:30px;color:#246bfe;border-color:#d0e2ff;white-space:nowrap"
-                                            (click)="completeAbandonedOrder(a)">▶ Приключи поръчка</button>
+                                    <div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;min-width:120px">
+                                        <button class="btn" style="font-size:12px;padding:0 10px;height:30px;color:#246bfe;border-color:#d0e2ff;white-space:nowrap;justify-content:center"
+                                                (click)="completeAbandonedOrder(a)">▶ Приключи</button>
+                                        <button class="btn" style="font-size:12px;padding:0 10px;height:30px;color:#8a97a8;border-color:#e0e6ee;white-space:nowrap;justify-content:center"
+                                                (click)="dismissAbandoned(a)">Отказ</button>
+                                    </div>
                                 </td>
                             </tr>
                             <tr *ngIf="abandoned().length === 0"><td colspan="5" class="muted">Няма напуснати каси днес</td></tr>
@@ -351,7 +355,9 @@ export class LiveTrackingComponent implements OnInit, OnDestroy {
     conversion = computed(() => { const v = this.visitorsToday(); return v > 0 ? (this.ordersToday() / v) * 100 : 0; });
     carts = computed(() => this.snap()?.carts ?? []);
     checkouts = computed(() => this.snap()?.checkouts ?? []);
-    abandoned = computed(() => this.snap()?.abandonedToday ?? []);
+    // id-та на напуснати каси, скрити локално от списъка (само от изгледа, не от базата)
+    private dismissedIds = signal<Set<number>>(new Set<number>());
+    abandoned = computed(() => (this.snap()?.abandonedToday ?? []).filter(a => !this.dismissedIds().has(a.id)));
     activity = computed(() => this.snap()?.activity ?? []);
     topProducts = this.live.topProducts;
 
@@ -384,6 +390,13 @@ export class LiveTrackingComponent implements OnInit, OnDestroy {
             orderLine: []
         } as unknown as IOrder);
         this.orderDetailService.isVisible.set(true);
+    }
+
+    /** Отказ: маха количката само от текущия списък (не от базата). */
+    dismissAbandoned(a: LiveAbandonedView): void {
+        const s = new Set(this.dismissedIds());
+        s.add(a.id);
+        this.dismissedIds.set(s);
     }
 
     counter(n: number): number[] {
