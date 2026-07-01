@@ -254,7 +254,6 @@ import { SiteDetailService } from '../site/detail.service';
                                     [disabled]="!item.id || isReadOnly"
                                 >
                                 </p-button>
-
                             </div>
 
                             <div class="flex flex-column align-items-center gap-2" *ngIf="item.wayBillShipmentNumber">
@@ -323,8 +322,8 @@ import { SiteDetailService } from '../site/detail.service';
                             <div *ngIf="!item.id" class="flex align-items-center gap-2 mt-2 p-2 bg-orange-50 border-round border-1 border-orange-200 text-orange-700 w-fit">
                                 <i class="pi pi-exclamation-triangle font-bold"></i>
                                 <span class="text-xs font-semibold">
-            {{ 'You_must_first_save_the_order_so_you_can_generate_a_waybill' | translate }}
-        </span>
+                                    {{ 'You_must_first_save_the_order_so_you_can_generate_a_waybill' | translate }}
+                                </span>
                             </div>
                         </div>
 
@@ -412,7 +411,7 @@ import { SiteDetailService } from '../site/detail.service';
                                             </td>
 
                                             <td class="p-3 text-right">
-                                                <div class="flex flex-column align-items-end gap-1">
+                                                <div class="flex flex-column justify-end gap-1">
                                                     <div class="flex align-items-center gap-1">
                                                         <p-inputNumber
                                                             [(ngModel)]="line.totalPrice"
@@ -472,22 +471,14 @@ import { SiteDetailService } from '../site/detail.service';
                             </div>
 
                             <div class="flex align-items-center gap-2 mt-2">
-                                <!-- Бутонът се деактивира, ако !item.id -->
-                                <p-button
-                                    (onClick)="this.openProductSelector()"
-                                    [label]="'Add_Product' | translate"
-                                    icon="pi pi-plus"
-                                    severity="success"
-                                    [text]="true"
-                                    size="small"
-                                    [disabled]="!item.id"
-                                > </p-button>
+                                <!-- Бутонът се деактивира само за нова поръчка без prefill режим -->
+                                <p-button (onClick)="this.openProductSelector()" [label]="'Add_Product' | translate" icon="pi pi-plus" severity="success" [text]="true" size="small" [disabled]="!item.id && !detailService.prefillMode()"> </p-button>
 
-                                <!-- Текстът се показва САМО ако поръчката няма ID (нова поръчка) -->
-                                <span *ngIf="!item.id" class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-1 border-round border-1 border-orange-200">
-        <i class="pi pi-exclamation-triangle mr-1"></i>
+                                <!-- Предупреждението се показва само за обикновена нова поръчка (без prefill) -->
+                                <span *ngIf="!item.id && !detailService.prefillMode()" class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-1 border-round border-1 border-orange-200">
+                                    <i class="pi pi-exclamation-triangle mr-1"></i>
                                     {{ 'You_must_first_save_the_order_to_add_products.' | translate }}
-    </span>
+                                </span>
                             </div>
                             <div class="col-span-12 mt-5" *ngIf="groupedOtherOrders().length">
                                 <h5 class="text-orange-600 font-bold mb-4 flex align-items-center gap-2 border-bottom-1 pb-2">
@@ -598,7 +589,7 @@ import { SiteDetailService } from '../site/detail.service';
             <ng-template #footer>
                 <span *ngIf="detailService.selectedItem()?.ordersToMerge?.length" class="mr-3 text-green-600 font-bold"> <i class="pi pi-info-circle"></i> Ще бъдат обединени {{ detailService.selectedItem()?.ordersToMerge?.length }} поръчки </span>
                 <p-button [label]="'Cancel' | translate" severity="secondary" [text]="true" (onClick)="detailService.closeDetail()" />
-                <p-button [label]="'Save' | translate" icon="pi pi-check" [loading]="detailService.isSaving()"  (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
+                <p-button [label]="'Save' | translate" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
             </ng-template>
         </p-dialog>
     `
@@ -645,35 +636,39 @@ export class OrderDetailComponent {
 
         this.isManualShipping = false;
 
-        effect(() => {
-            const item = this.detailService.selectedItem();
-            if (item && this.detailService.isVisible()) {
-                // Когато поръчката се зареди и диалогът е видим,
-                // запазваме статуса й САМО ако originalStatus още не е сетнат
-                if (!this.originalStatus) {
-                    this.originalStatus = item.status;
+        effect(
+            () => {
+                const item = this.detailService.selectedItem();
+                if (item && this.detailService.isVisible()) {
+                    // Когато поръчката се зареди и диалогът е видим,
+                    // запазваме статуса й САМО ако originalStatus още не е сетнат
+                    if (!this.originalStatus) {
+                        this.originalStatus = item.status;
+                    }
+                } else if (!this.detailService.isVisible()) {
+                    // Когато затворим диалога, чистим оригиналния статус
+                    this.originalStatus = null;
                 }
-            }
-            else if (!this.detailService.isVisible()) {
-                // Когато затворим диалога, чистим оригиналния статус
-                this.originalStatus = null;
-            }
-        }, { allowSignalWrites: true });
+            },
+            { allowSignalWrites: true }
+        );
 
         effect(
             () => {
                 const item = this.detailService.selectedItem();
-                if(!item) return;
+                if (!item) return;
 
-                if(!item.id) {
+                if (!item.id) {
                     item.status = OrderStatus.PROCESSING;
-                    this.siteService.getDefaultSite().subscribe(value => {
-                        if(value){
-                            this.selectedSiteName.set(value.url);
-                            this.detailService.selectedItem()!.site = value;
-                        }
-                    });
-
+                    // Skip default site when we'll load a specific site via pendingSiteId
+                    if (!this.detailService.pendingSiteId()) {
+                        this.siteService.getDefaultSite().subscribe((value) => {
+                            if (value) {
+                                this.selectedSiteName.set(value.url);
+                                this.detailService.selectedItem()!.site = value;
+                            }
+                        });
+                    }
                 }
 
                 if (!item.billing) {
@@ -703,6 +698,20 @@ export class OrderDetailComponent {
         );
 
         effect(
+            () => {
+                const skuItems = this.detailService.pendingSkuItems();
+                const siteId = this.detailService.pendingSiteId();
+                const visible = this.detailService.isVisible();
+                if (!skuItems?.length || siteId === null || !visible) return;
+                // Clear immediately to prevent re-run
+                this.detailService.pendingSkuItems.set(null);
+                this.detailService.pendingSiteId.set(null);
+                this.loadAndAddProductsBySkus(siteId, skuItems);
+            },
+            { allowSignalWrites: true }
+        );
+
+        effect(
             async () => {
                 // Регистрираме зависимост към тригера
                 this.refreshTrigger();
@@ -710,7 +719,7 @@ export class OrderDetailComponent {
                 const item = this.detailService.selectedItem();
                 if (item && item.orderLine && item.orderLine.length > 0) {
                     await this.runShippingCalculation(item);
-                    if (!this.isManualShipping) {
+                    if (!this.isManualShipping && item.id) {
                         await this.runCustomShippingCalculation(item);
                     }
                 }
@@ -797,7 +806,7 @@ export class OrderDetailComponent {
         [OrderStatus.APPROVED]: '#3a9d00',
         [OrderStatus.JOINT]: '#e6ef61',
         [OrderStatus.FAILED]: '#ff0000',
-        [OrderStatus.REFUSED_AFTER_REVIEW]: '#8b0000',
+        [OrderStatus.REFUSED_AFTER_REVIEW]: '#8b0000'
     };
 
     public getStatusColor(status: string): string {
@@ -824,9 +833,7 @@ export class OrderDetailComponent {
         // === ТУК НАЛАГАМЕ ОГРАНИЧЕНИЕТО ЗА ОТКАЗАНА ПОРЪЧКА ===
         if (item.status === 'cancelled') {
             // Ако е отказана, връщаме само нея самата И опцията за Обработка (processing)
-            return allOptions.filter(opt =>
-                opt.value === 'processing' || opt.value === 'cancelled'
-            );
+            return allOptions.filter((opt) => opt.value === 'processing' || opt.value === 'cancelled');
         }
 
         // Във всички останали случаи връщаме пълния списък
@@ -868,7 +875,7 @@ export class OrderDetailComponent {
 
     public getSubtotal(items: any[]): number {
         return items.reduce((sum, item) => {
-            const eff = (item.totalPrice && item.totalPrice > 0) ? item.totalPrice : (item.effectiveTotalPrice || 0);
+            const eff = item.totalPrice && item.totalPrice > 0 ? item.totalPrice : item.effectiveTotalPrice || 0;
             return sum + eff;
         }, 0);
     }
@@ -950,7 +957,7 @@ export class OrderDetailComponent {
         this.refreshTrigger(); // Важно: кара сигнала да се преизчисли
         const lines = this.detailService.selectedItem()?.orderLine || [];
         const subtotal = lines.reduce((sum, line) => {
-            const eff = (line.totalPrice && line.totalPrice > 0) ? line.totalPrice : (line.effectiveTotalPrice || 0);
+            const eff = line.totalPrice && line.totalPrice > 0 ? line.totalPrice : line.effectiveTotalPrice || 0;
             return sum + eff;
         }, 0);
 
@@ -960,17 +967,49 @@ export class OrderDetailComponent {
         return subtotal + shipping;
     });
 
-    private addProductToOrder(product: any, selectedAddon?: any) {
+    private async loadAndAddProductsBySkus(siteId: number, items: { sku: string; qty: number; cartPrice?: number }[]): Promise<void> {
+        const site = await this.detailService.getSiteById(siteId);
+        const currentItem = this.detailService.selectedItem();
+        if (!currentItem || !site) return;
+        currentItem.site = site;
+        if (site.currency) {
+            const rawCurrency: any = site.currency;
+            currentItem.currency = typeof rawCurrency === 'string' ? rawCurrency : (rawCurrency?.code ?? rawCurrency?.symbol ?? '');
+        }
+        this.selectedSiteName.set(site.url || (site as any).name || '');
+        for (const skuItem of items) {
+            const minProduct = await this.detailService.getProductBySku(skuItem.sku, siteId);
+            if (!minProduct) continue;
+            const fullProduct = await this.detailService.getProduct(minProduct);
+            if (!fullProduct) continue;
+
+            // Автоматично намиране на адон по ценова разлика (cartPrice - basePrice ≈ priceModifier)
+            let autoAddon: any = undefined;
+            if (skuItem.cartPrice != null && fullProduct.addonConfigs?.length) {
+                const siteConf = fullProduct.siteConfig?.find((c: any) => c.site?.id === siteId);
+                if (siteConf) {
+                    const base = siteConf.price > 0 ? siteConf.price : siteConf.regularPrice;
+                    const diff = Math.round((skuItem.cartPrice - base) * 100) / 100;
+                    if (diff > 0.001) {
+                        autoAddon = fullProduct.addonConfigs.find((a: any) => Math.abs(parseFloat(a.priceModifier) - diff) < 0.02);
+                    }
+                }
+            }
+
+            this.addProductToOrder(fullProduct, autoAddon, skuItem.qty);
+        }
+        this.cdr.detectChanges();
+    }
+
+    private addProductToOrder(product: any, selectedAddon?: any, qty: number = 1) {
         const item = this.detailService.selectedItem();
         if (!item) return;
 
-        //  this.selectedSiteName.set(site.url);
         const siteId = this.detailService.selectedItem()!.site.id;
         let bPrice = product.siteConfig.find((c: { site: { id: number } }) => c.site.id === siteId);
 
-        // 1. Първо вземаме базовата цена от конфигурацията на сайта
-        // let basePrice = parseFloat(product.siteConfig?.[0]?.price || 0);
-        let basePrice = parseFloat(bPrice.regularPrice > 0? bPrice.regularPrice: bPrice.price);
+        // price = текуща цена от ERP (намалена при промоция); regularPrice = оригинална
+        let basePrice = parseFloat(bPrice.price > 0 ? bPrice.price : bPrice.regularPrice);
         let finalPrice = basePrice;
         let paoValues: any[] = [];
 
@@ -1019,12 +1058,12 @@ export class OrderDetailComponent {
         const newLine: IOrderLineItem = {
             productName: product.name || product.productName || product.names || dd.name,
             sku: product.sku,
-            quantity: 1,
-            price: finalPrice, // Вече включва адона
-            totalPrice: finalPrice, // Цена за 1 бройка
+            quantity: qty,
+            price: finalPrice,
+            totalPrice: +(finalPrice * qty).toFixed(2),
             weight: product.weight || '0.5',
             image: {
-                src: foundPath? (this.baseUrl + foundPath): '',
+                src: foundPath ? this.baseUrl + foundPath : '',
                 id: 0
             },
             orderId: item.wpOrderId,
@@ -1130,7 +1169,6 @@ export class OrderDetailComponent {
         const checkClosed = setInterval(() => {
             // Проверяваме променливата visible в ShipmentService
             if (!this.shipmentService.visible) {
-
                 // 3. Щом видим, че visible е станало false (прозорецът е затворен)
                 clearInterval(checkClosed); // Спираме таймера
 
@@ -1138,12 +1176,11 @@ export class OrderDetailComponent {
                 this.refresh(); // Викаме твоя метод за презареждане
             }
         }, 500); // 500ms е идеален интервал - не товари процесора и реагира бързо
-
     }
 
     private confirmationService = inject(ConfirmationService);
 
-   async onCancelShipment(event: Event, order: IOrder) {
+    async onCancelShipment(event: Event, order: IOrder) {
         this.confirmationService.confirm({
             target: event.target as EventTarget,
             message: `${this.tr.instant('Сигурни ли сте, че искате да анулирате товарителница №')} ${order.wayBillShipmentNumber}?`,
@@ -1214,7 +1251,6 @@ export class OrderDetailComponent {
         if (s.includes('връщане') || s.includes('returning')) return '#F59E0B';
         return '#3B82F6';
     }
-
 
     // В OrderDetailComponent
     refresh() {

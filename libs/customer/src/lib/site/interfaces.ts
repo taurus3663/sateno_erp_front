@@ -7,7 +7,7 @@ export interface ISite {
     url: string;
     consumerKey: string;
     consumerSecret: string;
-    currency: string;
+    currency: string | { id: number; name: string; symbol: string; code: string; decimalPlaces: number };
     language: string;
     active: boolean;
     orderCreateApiKey: string;

@@ -1,8 +1,9 @@
-import { effect, Injectable } from '@angular/core';
+import { effect, Injectable, signal } from '@angular/core';
 import { BaseDetailCrud } from 'xl-util';
 import { IOrder } from './interfaces';
 import { ROUTES } from '../api.routes';
 import { IWpProduct } from '../wp_product/interfaces';
+import { ISite } from '../site/interfaces';
 import { lastValueFrom } from 'rxjs';
 
 
@@ -11,6 +12,19 @@ export class OrderDetailService extends BaseDetailCrud<IOrder> {
     override saveRoute: string = ROUTES.wp_order.save;
     override getRoute: string = ROUTES.wp_order.get;
     override deleteRoute: string = ROUTES.wp_order.delete;
+
+    /** При отваряне от напусната каса — разрешава добавяне на продукти преди запис. */
+    prefillMode = signal(false);
+    /** SKU-та, количества и цени (от количката) за зареждане при отваряне от напусната каса. */
+    pendingSkuItems = signal<{ sku: string; qty: number; cartPrice?: number }[] | null>(null);
+    pendingSiteId = signal<number | null>(null);
+
+    override closeDetail() {
+        this.prefillMode.set(false);
+        this.pendingSkuItems.set(null);
+        this.pendingSiteId.set(null);
+        super.closeDetail();
+    }
 
     constructor() {
         super();
@@ -34,6 +48,17 @@ export class OrderDetailService extends BaseDetailCrud<IOrder> {
 
     public async getProduct(product: any): Promise<IWpProduct | null> {
         return await lastValueFrom(this.http.get<IWpProduct>(`${ROUTES.wp_product.get}/${product.id}`));
+    }
+
+    public async getSiteById(id: number): Promise<ISite | null> {
+        return lastValueFrom(this.http.get<ISite>(`${ROUTES.site.get}/${id}`)).catch(() => null);
+    }
+
+    public async getProductBySku(sku: string, siteId: number): Promise<any | null> {
+        const resp = await lastValueFrom(
+            this.http.get<any>(`${ROUTES.wp_product.list}`, { params: { name_sku: sku, size: '1', siteId: siteId.toString() } })
+        ).catch(() => null);
+        return resp?.content?.[0] ?? (Array.isArray(resp) ? resp[0] : null) ?? null;
     }
 
     public async calculateCustomShippingField(order:IOrder): Promise<number> {

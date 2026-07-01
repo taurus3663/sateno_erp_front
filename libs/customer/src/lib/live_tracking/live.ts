@@ -1,7 +1,10 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LiveTrackingService } from './live.service';
+import { LiveTrackingService, LiveAbandonedView } from './live.service';
+import { OrderDetailService } from '../wp_order/detail.service';
+import { OrderDetailComponent } from '../wp_order/detail';
+import { IOrder } from '../wp_order/interfaces';
 
 /**
  * Live проследяване — табло в реално време за активността на сайта.
@@ -11,7 +14,7 @@ import { LiveTrackingService } from './live.service';
 @Component({
     selector: 'live-tracking',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, OrderDetailComponent],
     styles: [
         `
             :host {
@@ -242,14 +245,18 @@ import { LiveTrackingService } from './live.service';
                             <div class="box-title"><span style="color:#ff9d28">&#128722;</span> Напуснати каси <span class="muted">(днес)</span></div>
                         </div>
                         <table class="table">
-                            <tr><th>Име</th><th>Контакти</th><th>Стойност</th><th>Напуснал</th></tr>
+                            <tr><th>Име</th><th>Контакти</th><th>Стойност</th><th>Напуснал</th><th></th></tr>
                             <tr *ngFor="let a of abandoned()">
                                 <td>{{ a.name || '—' }}</td>
                                 <td>{{ a.email }}<br>{{ a.phone }}</td>
                                 <td>{{ money(a.value, a.currency) }}</td>
                                 <td>{{ a.leftAt }}</td>
+                                <td>
+                                    <button class="btn" style="font-size:12px;padding:0 10px;height:30px;color:#246bfe;border-color:#d0e2ff;white-space:nowrap"
+                                            (click)="completeAbandonedOrder(a)">▶ Приключи поръчка</button>
+                                </td>
                             </tr>
-                            <tr *ngIf="abandoned().length === 0"><td colspan="4" class="muted">Няма напуснати каси днес</td></tr>
+                            <tr *ngIf="abandoned().length === 0"><td colspan="5" class="muted">Няма напуснати каси днес</td></tr>
                         </table>
                     </div>
                 </div>
@@ -324,10 +331,12 @@ import { LiveTrackingService } from './live.service';
                 </div>
             </section>
         </div>
+        <site-detail></site-detail>
     `
 })
 export class LiveTrackingComponent implements OnInit, OnDestroy {
     private live = inject(LiveTrackingService);
+    private orderDetailService = inject(OrderDetailService);
 
     period = 'today';
     now = signal<string>(new Date().toLocaleString('bg-BG'));
@@ -354,6 +363,27 @@ export class LiveTrackingComponent implements OnInit, OnDestroy {
 
     onPeriodChange(p: string): void {
         this.live.loadProducts(p);
+    }
+
+    completeAbandonedOrder(a: LiveAbandonedView): void {
+        const parts = (a.name || '').trim().split(' ');
+        this.orderDetailService.prefillMode.set(true);
+        this.orderDetailService.pendingSiteId.set(a.siteId);
+        this.orderDetailService.pendingSkuItems.set(
+            (a.items || []).map(it => ({ sku: it.sku, qty: it.qty, cartPrice: it.price || undefined }))
+        );
+        this.orderDetailService.selectedItem.set({
+            billing: {
+                first_name: parts[0] || '',
+                last_name: parts.slice(1).join(' '),
+                phone: a.phone || '',
+                email: a.email || '',
+                address_1: '', address_2: '', city: '',
+                company: '', country: '', postcode: '', state: ''
+            },
+            orderLine: []
+        } as unknown as IOrder);
+        this.orderDetailService.isVisible.set(true);
     }
 
     counter(n: number): number[] {

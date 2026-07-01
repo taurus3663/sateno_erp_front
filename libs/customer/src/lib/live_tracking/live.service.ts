@@ -21,13 +21,24 @@ export interface LiveCheckoutView {
     lastActivity: string;
     images?: string[];
 }
+export interface LiveAbandonedItem {
+    productId: number;
+    sku: string;
+    name: string;
+    image: string | null;
+    qty: number;
+    price: number;
+}
 export interface LiveAbandonedView {
+    id: number;
+    siteId: number;
     name: string;
     email: string;
     phone: string;
     value: number;
     currency: string;
     leftAt: string;
+    items: LiveAbandonedItem[];
 }
 export interface LiveActivityView {
     type: string;

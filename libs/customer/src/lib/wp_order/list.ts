@@ -85,10 +85,12 @@ import { Select } from 'primeng/select';
     template: `
         <p-toolbar class="mb-6">
             <ng-template *ngIf="config?.data?.mode !== 'lookup'" #start>
-                <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" class="mr-2" (onClick)="detailService.openCreateDialog()"></p-button>
-                <p-button severity="warn" [label]="'Delete' | translate" icon="pi pi-trash" outlined [disabled]="!selectedItem" />
-                <p-button (onClick)="this.openSyncDialog()" [pTooltip]="'Prefered_to_use_when_db_is_empty' | translate" class="ml-5" severity="info" [label]="'Synchronize' | translate" icon="pi pi-sync" outlined></p-button>
-                <p-button (onClick)="openEcontPickupDialog()" class="ml-2" severity="success" [style]="{ color: '#000000' }" [label]="'Call_Econt_Courier' | translate" icon="pi pi-truck" outlined [loading]="isRequestingPickup"></p-button>
+                <div class="flex flex-wrap align-items-center gap-2">
+                    <p-button [label]="'New' | translate" icon="pi pi-plus" severity="primary" (onClick)="detailService.openCreateDialog()"></p-button>
+                    <p-button severity="warn" icon="pi pi-trash" outlined [disabled]="!selectedItem" [pTooltip]="'Delete' | translate" tooltipPosition="bottom" />
+                    <p-button (onClick)="this.openSyncDialog()" [pTooltip]="('Synchronize' | translate) + ' — ' + ('Prefered_to_use_when_db_is_empty' | translate)" tooltipPosition="bottom" severity="info" icon="pi pi-sync" outlined></p-button>
+                    <p-button (onClick)="openEcontPickupDialog()" [pTooltip]="'Call_Econt_Courier' | translate" tooltipPosition="bottom" severity="success" [style]="{ color: '#000000' }" icon="pi pi-truck" outlined [loading]="isRequestingPickup"></p-button>
+                </div>
             </ng-template>
 
             <ng-template #end>
