@@ -329,7 +329,7 @@ import { LiveTrackingService } from './live.service';
 export class LiveTrackingComponent implements OnInit, OnDestroy {
     private live = inject(LiveTrackingService);
 
-    period = '7d';
+    period = 'today';
     now = signal<string>(new Date().toLocaleString('bg-BG'));
     private clockTimer?: ReturnType<typeof setInterval>;
 
