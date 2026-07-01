@@ -143,6 +143,14 @@ export class LiveTrackingService implements OnDestroy {
             });
     }
 
+    /**
+     * „Отказ" — трайно скрива напусната каса в базата (soft-dismiss).
+     * Данните ОСТАВАТ; записът само не се връща повече в таблото.
+     */
+    dismissAbandoned(id: number) {
+        return this.http.post<void>(`/live/abandoned/${id}/dismiss`, {});
+    }
+
     stop(): void {
         this.wsSub?.unsubscribe();
         if (this.pollTimer) clearInterval(this.pollTimer);

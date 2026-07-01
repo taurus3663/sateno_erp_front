@@ -392,11 +392,23 @@ export class LiveTrackingComponent implements OnInit, OnDestroy {
         this.orderDetailService.isVisible.set(true);
     }
 
-    /** Отказ: маха количката само от текущия списък (не от базата). */
+    /**
+     * Отказ: маха касата от таблото и я скрива ТРАЙНО в базата (soft-dismiss),
+     * така че да не се връща след опресняване. Данните в базата ОСТАВАТ.
+     */
     dismissAbandoned(a: LiveAbandonedView): void {
+        // моментален feedback — махаме я веднага от изгледа
         const s = new Set(this.dismissedIds());
         s.add(a.id);
         this.dismissedIds.set(s);
+        // трайно в базата; при грешка връщаме записа, за да не изглежда скрит без да е
+        this.live.dismissAbandoned(a.id).subscribe({
+            error: () => {
+                const s2 = new Set(this.dismissedIds());
+                s2.delete(a.id);
+                this.dismissedIds.set(s2);
+            }
+        });
     }
 
     counter(n: number): number[] {
