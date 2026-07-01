@@ -13,8 +13,16 @@ registerRoute([
         loadComponent: () => import('./live_tracking/live').then(c => c.LiveTrackingComponent)
     },
     {
+        path: 'ai_sales',
+        loadComponent: () => import('./ai_sales/ai-sales').then(c => c.AiSalesComponent)
+    },
+    {
         path: 'customer/list',
         loadComponent: () => import('./customer/list').then(c => c.CustomerListComponent)
+    },
+    {
+        path: 'customer/behavior',
+        loadComponent: () => import('./customer_behavior/customer-behavior').then(c => c.CustomerBehaviorComponent)
     },
     {
         path: 'currency/list',
@@ -131,6 +139,11 @@ registerRoute([
                             label: 'menu.Live_Tracking',
                             icon: PrimeIcons.BOLT,
                             routerLink: ['/live_tracking']
+                        },
+                        {
+                            label: 'menu.AI_Sales',
+                            icon: PrimeIcons.STAR,
+                            routerLink: ['/ai_sales']
                         }
                     ]
                 }
@@ -183,6 +196,11 @@ registerRoute([
                             label: 'menu.Customers',
                             icon: PrimeIcons.USERS,
                             routerLink: ['/customer/list']
+                        },
+                        {
+                            label: 'menu.Customer_Behavior',
+                            icon: PrimeIcons.CHART_PIE,
+                            routerLink: ['/customer/behavior']
                         }
                     ]
                 }
