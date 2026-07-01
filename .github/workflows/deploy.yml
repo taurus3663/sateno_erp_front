@@ -40,6 +40,20 @@ jobs:
           fetch-depth: 0
 
       # ---------------------------------------------------------------
+      # 0) Частни вътрешни библиотеки (както в build.yml на main).
+      #    Те са в .gitignore (libs/xl-*) и живеят в отделни публични repo-та,
+      #    затова чистото CI трябва да ги клонира преди билда.
+      # ---------------------------------------------------------------
+      - name: Clone xl-auth library
+        run: git clone --depth 1 https://github.com/taurus366/xl-auth.git libs/xl-auth
+
+      - name: Clone xl-util library
+        run: git clone --depth 1 https://github.com/taurus366/xl-util.git libs/xl-util
+
+      - name: Clone xl-layout library
+        run: git clone --depth 1 https://github.com/taurus366/xl-layout.git libs/xl-layout
+
+      # ---------------------------------------------------------------
       # 1) Билд с Nx (production)
       # ---------------------------------------------------------------
       - name: Set up Node.js
