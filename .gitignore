@@ -11,6 +11,8 @@ libs/xl-*
 /node_modules
 npm-debug.log
 yarn-error.log
+app.log
+app-error.log
 
 # IDEs and editors
 .idea/
