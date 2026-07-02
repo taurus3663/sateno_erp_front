@@ -41,7 +41,6 @@ import { IOrder } from '../wp_order/interfaces';
             .panel { background: rgba(255, 255, 255, 0.92); border: 1px solid var(--border); border-radius: 14px; padding: 24px; box-shadow: var(--shadow); }
             .top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 18px; flex-wrap: wrap; }
             .title { display: flex; gap: 16px; align-items: center; }
-            .signal { font-size: 42px; color: var(--purple); line-height: 1; }
             .title h1 { font-size: 26px; margin: 0 0 8px; font-weight: 800; }
             .live { display: inline-flex; gap: 8px; align-items: center; color: #05a357; font-weight: 700; font-size: 14px; margin-left: 10px; }
             .live.off { color: #b04a4a; }
@@ -149,9 +148,8 @@ import { IOrder } from '../wp_order/interfaces';
             <section class="panel">
                 <div class="top">
                     <div class="title">
-                        <div class="signal">&#9089;</div>
                         <div>
-                            <h1>Live проследяване
+                            <h1>Live sateno.bg
                                 <span class="live" [class.off]="!connected()" *ngIf="mode() === 'live'">
                                     <span class="dot" [class.off]="!connected()"></span>{{ connected() ? 'На живо' : 'Изчаква връзка' }}
                                 </span>
