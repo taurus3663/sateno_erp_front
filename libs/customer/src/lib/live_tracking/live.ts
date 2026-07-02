@@ -81,6 +81,9 @@ import { IOrder } from '../wp_order/interfaces';
             .row.viewed { grid-template-columns: 2.1fr 0.9fr; }
             .box { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
             .box-scroll { overflow-x: auto; overflow-y: auto; max-height: 460px; }
+            /* По-компактен скрол за двата списъка (количка без каса / каса без данни) + залепен хедър. */
+            .box-scroll.list { max-height: 320px; }
+            .box-scroll.list .table th { position: sticky; top: 0; z-index: 1; }
             .box-head { min-height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; border-bottom: 1px solid #e5eef7; background: #fff; gap: 8px; flex-wrap: wrap; }
             .box-title { font-size: 18px; font-weight: 850; display: flex; gap: 10px; align-items: center; }
             .box-sub { font-size: 13px; color: var(--muted); font-weight: 700; }
@@ -325,7 +328,7 @@ import { IOrder } from '../wp_order/interfaces';
                             <div class="box-title"><span style="color:#2f80ff">&#128722;</span> Продукти в количка (без каса)</div>
                             <div class="box-sub">{{ cartsNoCheckout().length }}</div>
                         </div>
-                        <div class="box-scroll">
+                        <div class="box-scroll list">
                             <table class="table">
                                 <tr><th class="col-num">#</th><th>Стойност</th><th>Продукти</th><th>Устройство</th><th class="nowrap">Кога</th></tr>
                                 <tr *ngFor="let b of cartsNoCheckout()">
@@ -351,7 +354,7 @@ import { IOrder } from '../wp_order/interfaces';
                             <div class="box-title"><span style="color:#8a4cff">&#9635;</span> Каси без въведени данни</div>
                             <div class="box-sub">{{ checkoutsNoData().length }}</div>
                         </div>
-                        <div class="box-scroll">
+                        <div class="box-scroll list">
                             <table class="table">
                                 <tr><th class="col-num">#</th><th>Стойност</th><th>Продукти</th><th>Устройство</th><th class="nowrap">Кога</th></tr>
                                 <tr *ngFor="let b of checkoutsNoData()">
