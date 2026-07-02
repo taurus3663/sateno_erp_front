@@ -350,7 +350,7 @@ import { SiteDetailService } from '../site/detail.service';
                                                 <div class="flex align-items-start gap-3">
                                                     <div class="flex-shrink-0">
                                                         <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                                                            <p-image [src]="line.image.src" [alt]="line.productName" [preview]="true" class="w-full h-full object-cover cursor-zoom-in" />
+                                                            <p-image [src]="imgSrc(line)" [alt]="line.productName" [preview]="true" class="w-full h-full object-cover cursor-zoom-in" />
                                                             <i *ngIf="!line?.image?.src" class="pi pi-image text-400 text-2xl"></i>
                                                         </div>
                                                     </div>
@@ -518,8 +518,8 @@ import { SiteDetailService } from '../site/detail.service';
                                                         <div class="flex align-items-start gap-3">
                                                             <div class="flex-shrink-0">
                                                                 <div class="border-round overflow-hidden border-1 surface-border shadow-1 bg-gray-50 flex align-items-center justify-content-center" style="width: 90px; height: auto;">
-                                                                    <a *ngIf="line.image?.src" [href]="line.image.src" target="_blank">
-                                                                        <img [src]="line.image.src" class="w-full h-full object-cover" />
+                                                                    <a *ngIf="line.image?.src" [href]="imgSrc(line)" target="_blank">
+                                                                        <img [src]="imgSrc(line)" class="w-full h-full object-cover" />
                                                                     </a>
                                                                     <i *ngIf="!line.image?.src" class="pi pi-image text-400 text-2xl"></i>
                                                                 </div>
@@ -606,6 +606,17 @@ export class OrderDetailComponent {
 
     private authConfig = inject(XL_AUTH_CONFIG);
     protected readonly baseUrl = this.authConfig.apiUrl;
+
+    /**
+     * Адрес на снимката на ред от поръчката. Локалните пътища (/media/...) — снимки, хоствани от
+     * ERP-то (текущата снимка на продукта) — се долепят до ERP адреса. Пълните URL-и (стари
+     * уловени WooCommerce адреси) се ползват както са.
+     */
+    protected imgSrc(line: any): string {
+        const s = line?.image?.src;
+        if (!s) return '';
+        return s.startsWith('/') ? this.baseUrl + s : s;
+    }
     // 1. ДОБАВЯМЕ САМО ТОВА: Малък тригер за сигналите
     private refreshTrigger = signal(0);
     protected realSippingPrice = signal(0);
