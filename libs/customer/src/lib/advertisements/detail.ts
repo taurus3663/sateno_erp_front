@@ -62,14 +62,24 @@ import { MessageService } from 'primeng/api';
                 <ng-template pTemplate="header">
                     <div class="flex justify-content-between align-items-center p-4">
                         <span class="text-xl font-bold">Meta Ads Performance</span>
-                        <!-- <p-button
-                            icon="pi pi-refresh"
-                            [label]="'Resync_data' | translate"
-                            severity="contrast"
-                            size="small"
-                            [loading]="resyncing"
-                            (onClick)="resyncMeta()">
-                        </p-button> -->
+                        <div class="flex gap-2">
+                            <p-button
+                                icon="pi pi-refresh"
+                                label="Пресинхронизирай 7 дни"
+                                severity="contrast"
+                                size="small"
+                                [loading]="resyncing"
+                                (onClick)="resyncMeta()">
+                            </p-button>
+                            <p-button
+                                icon="pi pi-history"
+                                label="Историческа 1г"
+                                severity="secondary"
+                                size="small"
+                                [loading]="backfilling"
+                                (onClick)="backfillMeta()">
+                            </p-button>
+                        </div>
                     </div>
                 </ng-template>
 
@@ -137,14 +147,24 @@ import { MessageService } from 'primeng/api';
                 <ng-template pTemplate="header">
                     <div class="flex justify-content-between align-items-center p-4">
                         <span class="text-xl font-bold">Google Ads Performance</span>
-                        <!-- <p-button
-                            icon="pi pi-refresh"
-                            [label]="'Resync_data' | translate"
-                            severity="contrast"
-                            size="small"
-                            [loading]="resyncingGoogle"
-                            (onClick)="resyncGoogle()">
-                        </p-button> -->
+                        <div class="flex gap-2">
+                            <p-button
+                                icon="pi pi-refresh"
+                                label="Пресинхронизирай 7 дни"
+                                severity="contrast"
+                                size="small"
+                                [loading]="resyncingGoogle"
+                                (onClick)="resyncGoogle()">
+                            </p-button>
+                            <p-button
+                                icon="pi pi-history"
+                                label="Историческа 1г"
+                                severity="secondary"
+                                size="small"
+                                [loading]="backfillingGoogle"
+                                (onClick)="backfillGoogle()">
+                            </p-button>
+                        </div>
                     </div>
                 </ng-template>
 
@@ -218,6 +238,8 @@ export class AdvertisementDetailComponent implements OnInit {
 
     resyncing = false;
     resyncingGoogle = false;
+    backfilling = false;
+    backfillingGoogle = false;
 
     metaDateFrom: Date | undefined = new Date();
     metaDateHasta: Date | undefined = new Date();
@@ -346,11 +368,8 @@ export class AdvertisementDetailComponent implements OnInit {
         this.resyncing = true;
         this.detailService.resyncMeta().subscribe({
             next: () => {
-                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Meta resync завършен.' });
+                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Meta пресинхронизация (7 дни) стартирана — тече във фонов режим.' });
                 this.resyncing = false;
-                if (this.selectedMetaCampaigns?.length) {
-                    this.submitQ();
-                }
             },
             error: () => {
                 this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: 'Resync неуспешен.' });
@@ -363,15 +382,40 @@ export class AdvertisementDetailComponent implements OnInit {
         this.resyncingGoogle = true;
         this.detailService.resyncGoogle().subscribe({
             next: () => {
-                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Google resync завършен.' });
+                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Google пресинхронизация (7 дни) стартирана — тече във фонов режим.' });
                 this.resyncingGoogle = false;
-                if (this.selectedGoogleCampaigns?.length) {
-                    this.submitQGoogle();
-                }
             },
             error: () => {
                 this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: 'Google resync неуспешен.' });
                 this.resyncingGoogle = false;
+            }
+        });
+    }
+
+    protected backfillMeta() {
+        this.backfilling = true;
+        this.detailService.backfillMeta().subscribe({
+            next: () => {
+                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Meta историческа синхронизация (1 година) стартирана — тече във фонов режим, отнема няколко минути.' });
+                this.backfilling = false;
+            },
+            error: () => {
+                this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: 'Meta историческа синхронизация неуспешна.' });
+                this.backfilling = false;
+            }
+        });
+    }
+
+    protected backfillGoogle() {
+        this.backfillingGoogle = true;
+        this.detailService.backfillGoogle().subscribe({
+            next: () => {
+                this.ms.add({ severity: 'success', summary: this.tr.instant('Success'), detail: 'Google историческа синхронизация (1 година) стартирана — тече във фонов режим, отнема няколко минути.' });
+                this.backfillingGoogle = false;
+            },
+            error: () => {
+                this.ms.add({ severity: 'error', summary: this.tr.instant('Error'), detail: 'Google историческа синхронизация неуспешна.' });
+                this.backfillingGoogle = false;
             }
         });
     }

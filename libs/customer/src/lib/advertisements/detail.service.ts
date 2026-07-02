@@ -40,4 +40,12 @@ export class AdvertisementsDetailService {
     public resyncGoogle() {
         return this.http.post(`/ads/google/resync`, {}, { responseType: 'text' });
     }
+
+    public backfillMeta() {
+        return this.http.post(`/ads/meta/backfill`, {}, { responseType: 'text' });
+    }
+
+    public backfillGoogle() {
+        return this.http.post(`/ads/google/backfill`, {}, { responseType: 'text' });
+    }
 }
