@@ -609,7 +609,7 @@ import { Select } from 'primeng/select';
                             </div>
 
                             <p-button icon="pi pi-pencil" [rounded]="true" [text]="true" severity="secondary" (onClick)="detailService.openEditDialog(item)"></p-button>
-                            <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" (onClick)="onDelete(item.id)"></p-button>
+                            <p-button *ngIf="!item.wayBillShipmentNumber" icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" [pTooltip]="'Delete' | translate" (onClick)="onDelete(item.id)"></p-button>
                         </div>
                     </td>
                 </tr>
