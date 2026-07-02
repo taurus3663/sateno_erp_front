@@ -111,7 +111,10 @@ export class LiveTrackingService implements OnDestroy {
     private pollTimer?: ReturnType<typeof setInterval>;
     private listsTimer?: ReturnType<typeof setInterval>;
     private readonly POLL_MS = 10_000;
-    private readonly LISTS_MS = 30_000;
+    private readonly LISTS_MS = 20_000;
+    // Троттъл за живото опресняване на двата списъка при WebSocket събитие.
+    private lastListsRefresh = 0;
+    private readonly LISTS_REFRESH_MS = 6_000;
     // В „история" не опресняваме списъците с днешни данни (пазим избрания период).
     private historyMode = false;
 
@@ -130,6 +133,7 @@ export class LiveTrackingService implements OnDestroy {
         this.wsSub = this.ws.listen('live').subscribe((snap: LiveSnapshot) => {
             if (snap) this.snapshot.set(snap);
             this.refreshProductsThrottled();
+            this.refreshListsThrottled(); // при живо събитие (вкл. напускане) опресни и двата списъка
         });
 
         // Резерв: ако WebSocket не работи, дърпаме снапшота периодично
@@ -142,8 +146,16 @@ export class LiveTrackingService implements OnDestroy {
     /** Зарежда двата списъка за ДНЕС (без период → бекендът връща днешните). */
     loadTodayLists(): void {
         this.historyMode = false;
+        this.lastListsRefresh = Date.now();
         this.fetchBaskets('/live/carts-no-checkout', undefined, undefined, this.cartsNoCheckout);
         this.fetchBaskets('/live/checkouts-no-data', undefined, undefined, this.checkoutsNoData);
+    }
+
+    /** Живо опресняване на двата списъка при WebSocket събитие — троттълнато, тихо, само в „живия" режим. */
+    private refreshListsThrottled(): void {
+        if (this.historyMode) return;
+        if (Date.now() - this.lastListsRefresh < this.LISTS_REFRESH_MS) return;
+        this.loadTodayLists();
     }
 
     /** Зарежда двата списъка + напуснати каси за избран минал период (историческият изглед). */
