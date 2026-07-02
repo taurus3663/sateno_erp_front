@@ -31,6 +31,7 @@ import { ConfirmationService, PrimeTemplate } from 'primeng/api';
 import { CourierType } from '../courier/interfaces';
 import { Popover } from 'primeng/popover';
 import { Timeline } from 'primeng/timeline';
+import { ConfirmPopup } from 'primeng/confirmpopup';
 import { ShipmentService } from './shipment.service';
 import { ISite } from '../site/interfaces';
 import { SiteDetailService } from '../site/detail.service';
@@ -38,7 +39,7 @@ import { SiteDetailService } from '../site/detail.service';
 @Component({
     selector: 'site-detail',
     standalone: true,
-    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea, ButtonDirective, InputNumber, Image, Popover, Timeline, PrimeTemplate],
+    imports: [Dialog, Button, FormsModule, CommonModule, TranslatePipe, Tooltip, Avatar, Select, Tag, InputText, Textarea, ButtonDirective, InputNumber, Image, Popover, Timeline, PrimeTemplate, ConfirmPopup],
     template: `
         <p-dialog [visible]="detailService.isVisible()" (visibleChange)="detailService.closeDetail()" [modal]="true" [style]="{ width: '100%', height: '100vh' }">
             <!--                        [header]="detailService.selectedItem()?.id ? 'Редакция на потребител #' + detailService.selectedItem()?.id : 'Нов потребител'"
@@ -53,139 +54,122 @@ import { SiteDetailService } from '../site/detail.service';
             </ng-template>
 
             <ng-template #content>
-                <div class="p-2" *ngIf="detailService.selectedItem() as item">
-                    <div class="grid grid-cols-12 gap-6">
-                        <!--                        LEFT-->
-                        <div class="col-span-12 md:col-span-12 pl-4 border-left-1 surface-border">
-                            <h5 class="text-900 font-bold mb-4 flex align-items-center gap-2">
-                                <!--                                <i class="pi pi-user text-primary"></i>-->
-                                {{ 'Customer_Details' | translate }} | {{ 'New_order' | translate }}
-                            </h5>
-
-                            <div class="grid grid-cols-1 gap-3">
-                                <div class="p-3 border-round surface-100 flex align-items-center gap-3">
-                                    <p-avatar icon="pi pi-user" size="large" shape="circle" class="bg-primary-reverse text-primary"></p-avatar>
-                                    <div class="grid grid-cols-2 gap-2 w-full">
-                                        <div class="flex flex-column">
-                                            <span class="text-secondary text-xs font-bold uppercase">{{ 'first_name' | translate }}</span>
-                                            <input pInputText [(ngModel)]="item.billing.first_name" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-bold" />
-                                        </div>
-                                        <div class="flex flex-column">
-                                            <span class="text-secondary text-xs font-bold uppercase">{{ 'last_name' | translate }}</span>
-                                            <input pInputText [(ngModel)]="item.billing.last_name" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-bold" />
-                                        </div>
-                                    </div>
+                <div class="oe-root" *ngIf="detailService.selectedItem() as item">
+                    <div class="oe-grid">
+                        <div class="oe-col-12">
+                        <div class="oe-quad">
+                        <!-- КЛИЕНТ -->
+                        <section class="oe-card oe-col-6">
+                            <div class="oe-card-head">
+                                <div class="oe-card-title"><span class="oe-ico"><i class="pi pi-user"></i></span> {{ 'Customer_Details' | translate }}</div>
+                            </div>
+                            <div class="oe-fields-2">
+                                <div class="oe-field">
+                                    <label>{{ 'first_name' | translate }}</label>
+                                    <div class="oe-control"><input type="text" [(ngModel)]="item.billing.first_name" [disabled]="isReadOnly" /></div>
                                 </div>
-
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="p-3 border-round surface-100 flex flex-column gap-1">
-                                        <span class="text-secondary text-xs font-bold uppercase">{{ 'Phone' | translate }}</span>
-                                        <div class="p-inputgroup">
-                                            <span class="p-inputgroup-addon"><i class="pi pi-phone"></i></span>
-                                            <input pInputText [(ngModel)]="item.billing.phone" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-bold text-blue-600" />
-                                        </div>
-                                    </div>
-                                    <div class="p-3 border-round surface-100 flex flex-column gap-1">
-                                        <span class="text-secondary text-xs font-bold uppercase">{{ 'Email' | translate }}</span>
-                                        <div class="p-inputgroup">
-                                            <span class="p-inputgroup-addon"><i class="pi pi-envelope"></i></span>
-                                            <input pInputText [(ngModel)]="item.billing.email" [disabled]="isReadOnly" class="w-full p-inputtext-sm font-medium" />
-                                        </div>
-                                    </div>
+                                <div class="oe-field">
+                                    <label>{{ 'last_name' | translate }}</label>
+                                    <div class="oe-control"><input type="text" [(ngModel)]="item.billing.last_name" [disabled]="isReadOnly" /></div>
                                 </div>
-
-                                <div class="p-3 border-round flex flex-column gap-2" [ngClass]="item.savedCourierBilling ? 'bg-blue-50 border-left-3 border-blue-500 shadow-1' : 'bg-orange-50 border-left-3 border-orange-500'">
-                                    <ng-container *ngIf="item.savedCourierBilling; else originalAddress">
-                                        <div class="flex align-items-center justify-content-between mb-1">
-                                            <div class="flex align-items-center gap-2">
-                                                <i class="pi pi-check-circle text-blue-600 font-bold"></i>
-                                                <span class="text-blue-700 font-bold uppercase text-xs">{{ 'Changed_Address' | translate }}</span>
-                                            </div>
-                                            <p-tag [value]="item.savedCourierBilling.courierType" severity="info" [rounded]="true"></p-tag>
-                                        </div>
-
-                                        <div class="text-900 line-height-3 font-bold bg-white-alpha-50 p-2 border-round">
-                                            <div *ngIf="item.savedCourierBilling.courierShipmentType !== 'ADDRESS'" class="flex flex-column">
-                                                <span class="text-primary text-sm"> <i class="pi pi-building mr-1"></i> {{ $any(item.savedCourierBilling.office)?.name }} </span>
-                                                <small class="text-secondary font-normal italic">
-                                                    {{ $any(item.savedCourierBilling.office)?.address }}
-                                                </small>
-                                            </div>
-
-                                            <div *ngIf="item.savedCourierBilling.courierShipmentType === 'ADDRESS'"><i class="pi pi-home mr-1 text-blue-600"></i> {{ item.savedCourierBilling.street }}</div>
-
-                                            <div class="text-xs mt-1 border-top-1 surface-border pt-1 font-medium text-700">
-                                                <i class="pi pi-map mr-1"></i>
-                                                {{ $any(item.savedCourierBilling.city)?.name }}, {{ $any(item.savedCourierBilling.city)?.postCode }}
-                                            </div>
-                                        </div>
-
-                                        <div class="flex gap-3 mt-1 px-1">
-                                            <p-tag severity="secondary" [value]="item.savedCourierBilling.weight + ' кг'" icon="pi pi-box"></p-tag>
-                                            <p-tag severity="secondary" [value]="item.savedCourierBilling.packCount + ' бр.'" icon="pi pi-clone"></p-tag>
-                                            <!--                                            <i *ngIf="item.savedCourierBilling.fiscalReceipt" class="pi pi-print text-green-600" pTooltip="Fiscal Receipt Requested"></i>-->
-                                        </div>
-                                    </ng-container>
-
-                                    <ng-template #originalAddress>
-                                        <div class="flex align-items-center gap-2">
-                                            <i class="pi pi-map-marker text-orange-600 font-bold"></i>
-                                            <span class="text-orange-700 font-bold">{{ 'Shipping_Address' | translate }}</span>
-                                        </div>
-                                        <div class="text-900 line-height-3 font-medium bg-white-alpha-50 p-2 border-round">
-                                            {{ item?.billing?.address_1 }}
-                                        </div>
-                                    </ng-template>
+                                <div class="oe-field">
+                                    <label>{{ 'Phone' | translate }}</label>
+                                    <div class="oe-control oe-has-pre"><span class="oe-pre"><i class="pi pi-phone"></i></span><input type="tel" [(ngModel)]="item.billing.phone" [disabled]="isReadOnly" /></div>
                                 </div>
+                                <div class="oe-field">
+                                    <label>{{ 'Email' | translate }}</label>
+                                    <div class="oe-control oe-has-pre"><span class="oe-pre"><i class="pi pi-envelope"></i></span><input type="email" [(ngModel)]="item.billing.email" [disabled]="isReadOnly" /></div>
+                                </div>
+                            </div>
+                        </section>
 
-                                <div class="flex gap-2">
-                                    <div class="surface-100 p-2 px-3 border-round text-sm">
-                                        <span class="text-secondary mr-2">{{ 'City' | translate }}:</span>
-                                        <span class="font-bold">{{ item?.billing?.city }}</span>
-                                    </div>
-                                    <div class="surface-100 p-2 px-3 border-round text-sm">
-                                        <span class="text-secondary mr-2">{{ 'Postcode' | translate }}:</span>
-                                        <span class="font-bold">{{ item?.billing?.postcode }}</span>
+                        <!-- ДОСТАВКА (адрес) -->
+                        <section class="oe-card oe-col-6">
+                            <div class="oe-card-head">
+                                <div class="oe-card-title"><span class="oe-ico"><i class="pi pi-map-marker"></i></span> {{ 'Shipping_Address' | translate }}</div>
+                            </div>
+                            <div class="oe-address-box" *ngIf="item.savedCourierBilling; else origAddr2">
+                                <img [src]="listService.courierLogos[item.savedCourierBilling.courierType]" [alt]="item.savedCourierBilling.courierType" style="height: 30px; width: auto; max-width: 76px; object-fit: contain; flex: none;" />
+                                <div style="flex: 1; min-width: 0;">
+                                    <div class="oe-addr-main" *ngIf="item.savedCourierBilling.courierShipmentType !== 'ADDRESS'">{{ $any(item.savedCourierBilling.office)?.name }} — {{ $any(item.savedCourierBilling.office)?.address }}</div>
+                                    <div class="oe-addr-main" *ngIf="item.savedCourierBilling.courierShipmentType === 'ADDRESS'">{{ item.savedCourierBilling.street }}</div>
+                                    <div class="oe-addr-sub">
+                                        <span class="oe-tag oe-green">{{ item.savedCourierBilling.courierShipmentType }}</span>
+                                        <span class="oe-tag">{{ item.savedCourierBilling.weight }} кг · {{ item.savedCourierBilling.packCount }} бр.</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                            <ng-template #origAddr2>
+                                <div class="oe-address-box">
+                                    <div class="oe-courier"><i class="pi pi-map-marker"></i></div>
+                                    <div><div class="oe-addr-main">{{ item?.billing?.address_1 }}</div></div>
+                                </div>
+                            </ng-template>
+                            <div class="oe-fields-2">
+                                <div class="oe-field">
+                                    <label>{{ 'City' | translate }}</label>
+                                    <div class="oe-control"><input type="text" [value]="item?.billing?.city" disabled /></div>
+                                </div>
+                                <div class="oe-field">
+                                    <label>{{ 'Postcode' | translate }}</label>
+                                    <div class="oe-control"><input type="text" [value]="item?.billing?.postcode" disabled /></div>
+                                </div>
+                            </div>
+                        </section>
 
-                        <div class="flex flex-column col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
-                            <label class="text-secondary text-xs font-bold uppercase mb-2">{{ 'Payment_method' | translate }}</label>
-                            <p-select [options]="paymentMethods" [disabled]="isReadOnly" [(ngModel)]="item.paymentMethod" optionLabel="label" optionValue="value" class="w-full mt-1" placeholder="{{ 'Payment_method' | translate }}" appendTo="body">
-                                <ng-template #selectedItem let-selectedOption>
-                                    <div class="flex align-items-center gap-2" *ngIf="selectedOption">
-                                        <i class="pi pi-credit-card text-primary"></i>
-                                        <span class="font-bold">{{ selectedOption.label | translate }}</span>
+                        <!-- ПОРЪЧКА (обединена: статус / метод / сайт + коментар) -->
+                        <section class="oe-card oe-col-6">
+                            <div class="oe-card-head">
+                                <div class="oe-card-title"><span class="oe-ico"><i class="pi pi-receipt"></i></span> {{ 'Order' | translate }}</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 18px; flex: 1; align-items: stretch;">
+                                <div class="oe-order-left" style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div class="oe-field">
+                                        <p-select [options]="orderStatus()" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full custom-status-select" appendTo="body">
+                                            <ng-template #selectedItem let-selectedOption>
+                                                <div class="flex align-items-center" *ngIf="selectedOption">
+                                                    <p-tag [value]="selectedOption.label" [rounded]="true" [style]="{ background: getStatusColor(selectedOption.value), color: '#ffffff' }"> </p-tag>
+                                                </div>
+                                            </ng-template>
+                                            <ng-template #item let-option>
+                                                <div class="flex align-items-center">
+                                                    <p-tag [value]="option.label" [rounded]="true" [style]="{ background: getStatusColor(option.value), color: '#ffffff' }"> </p-tag>
+                                                </div>
+                                            </ng-template>
+                                        </p-select>
                                     </div>
-                                </ng-template>
-
-                                <ng-template #item let-option>
-                                    <div class="flex align-items-center gap-2">
-                                        <i class="pi pi-credit-card text-400"></i>
-                                        <span>{{ option.label | translate }}</span>
+                                    <div class="oe-field">
+                                        <p-select [options]="paymentMethods" [disabled]="isReadOnly" [(ngModel)]="item.paymentMethod" optionLabel="label" optionValue="value" class="w-full" placeholder="{{ 'Payment_method' | translate }}" appendTo="body">
+                                            <ng-template #selectedItem let-selectedOption>
+                                                <div class="flex align-items-center gap-2" *ngIf="selectedOption">
+                                                    <i class="pi pi-credit-card text-primary"></i>
+                                                    <span class="font-bold">{{ selectedOption.label | translate }}</span>
+                                                </div>
+                                            </ng-template>
+                                            <ng-template #item let-option>
+                                                <div class="flex align-items-center gap-2">
+                                                    <i class="pi pi-credit-card text-400"></i>
+                                                    <span>{{ option.label | translate }}</span>
+                                                </div>
+                                            </ng-template>
+                                        </p-select>
                                     </div>
-                                </ng-template>
-                            </p-select>
-                        </div>
-
-                        <div class="col-span-12 md:col-span-6 pl-4 border-left-1 surface-border">
-                            <label class="block font-bold mb-2">{{ 'Status' | translate }} ({{ 'Order' | translate }})</label>
-                            <p-select [options]="orderStatus()" [(ngModel)]="item.status" optionLabel="label" optionValue="value" class="w-full mt-1 custom-status-select" appendTo="body">
-                                <ng-template #selectedItem let-selectedOption>
-                                    <div class="flex align-items-center" *ngIf="selectedOption">
-                                        <p-tag [value]="selectedOption.label" [rounded]="true" [style]="{ background: getStatusColor(selectedOption.value), color: '#ffffff' }"> </p-tag>
+                                    <div class="oe-field">
+                                        <div class="oe-site-chip" *ngIf="selectedSiteName()">
+                                            <span class="oe-dot">S</span><b>{{ selectedSiteName() }}</b>
+                                            <span style="margin-left: auto; cursor: pointer; color: var(--oe-text3);" (click)="selectedSiteName.set('')"><i class="pi pi-times"></i></span>
+                                        </div>
+                                        <div *ngIf="!selectedSiteName()" class="flex align-items-center gap-2">
+                                            <p-button icon="pi pi-search" [label]="'Site' | translate" [text]="true" size="small" (onClick)="openSiteDialog()"></p-button>
+                                        </div>
                                     </div>
-                                </ng-template>
-
-                                <ng-template #item let-option>
-                                    <div class="flex align-items-center">
-                                        <p-tag [value]="option.label" [rounded]="true" [style]="{ background: getStatusColor(option.value), color: '#ffffff' }"> </p-tag>
-                                    </div>
-                                </ng-template>
-                            </p-select>
-                        </div>
+                                </div>
+                                <div class="oe-field" style="display: flex; flex-direction: column;">
+                                    <label>{{ 'Order_Comments' | translate }}</label>
+                                    <textarea [(ngModel)]="item.comment" [placeholder]="'Comment' | translate" style="flex: 1; min-height: 0; resize: none;"></textarea>
+                                </div>
+                            </div>
+                        </section>
 
                         <!--                        <div class="col-span-12 md:col-span-4 pl-4 border-left-1 surface-border">-->
                         <!--                            <span class="text-secondary text-xs font-bold uppercase">{{ 'Last_Updated' | translate }}</span>-->
@@ -213,111 +197,94 @@ import { SiteDetailService } from '../site/detail.service';
                         <!--                            </div>-->
                         <!--                        </div>-->
 
-                        <div class="col-span-12 mt-4">
-                            <span class="text-secondary text-xs font-bold uppercase block mb-2"> <i class="pi pi-comment mr-1"></i> {{ 'Order_Comments' | translate }} </span>
-                            <textarea
-                                rows="3"
-                                pTextarea
-                                [(ngModel)]="item.comment"
-                                [placeholder]="'Comment' | translate"
-                                class="w-full p-3 border-round border-1 surface-border surface-50 font-medium text-900 focus:border-primary"
-                                style="resize: none;"
-                            >
-                            </textarea>
-                        </div>
 
-                        <div class="mb-4">
-                            <div class="flex align-items-center gap-2" *ngIf="selectedSiteName()">
-                                <h5 class="text-900 font-bold border-bottom-1 pb-2 flex-grow-1">
-                                    {{ 'Site' | translate }}:
-                                    <p-tag [value]="selectedSiteName()" severity="info" class="ml-2"></p-tag>
-                                </h5>
-                                <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger" (onClick)="selectedSiteName.set('')" pTooltip="Clear selection"></p-button>
+                        <div class="oe-col-6 oe-card">
+                            <div class="oe-card-head">
+                                <div class="oe-card-title"><span class="oe-ico"><i class="pi pi-truck"></i></span> Товарителница</div>
                             </div>
-
-                            <div *ngIf="!selectedSiteName()" class="flex align-items-center gap-2 border-bottom-1 pb-2">
-                                <h5 class="text-900 font-bold m-0">{{ 'Site' | translate }}</h5>
-                                <p-button icon="pi pi-search" [text]="true" size="small" (onClick)="openSiteDialog()"> </p-button>
-                            </div>
-                        </div>
-
-                        <div class="mb-4 flex align-items-center gap-4 p-3  border-round border-1 surface-border">
-                            <div class="flex flex-column align-items-center gap-2">
-                                <p-button
-                                    icon="pi pi-truck"
-                                    severity="info"
-                                    [rounded]="true"
-                                    (onClick)="openShipmentDialog(item)"
-                                    [pTooltip]="'Generate_Waybill' | translate"
-                                    styleClass="p-button-raised p-button-lg shadow-3"
-                                    [style]="{ width: '4.5rem', height: '4.5rem', 'font-size': '1.5rem' }"
-                                    [disabled]="!item.id || isReadOnly"
-                                >
-                                </p-button>
-                            </div>
-
-                            <div class="flex flex-column align-items-center gap-2" *ngIf="item.wayBillShipmentNumber">
-                                <div class="relative">
-                                    <p-button
-                                        icon="pi pi-truck"
-                                        severity="danger"
-                                        [rounded]="true"
-                                        (onClick)="onCancelShipment($event, item)"
-                                        [pTooltip]="'Cancel_Waybill' | translate"
-                                        styleClass="p-button-raised shadow-3"
-                                        [style]="{ width: '4.5rem', height: '4.5rem', 'font-size': '1.5rem' }"
-                                        [disabled]="isReadOnly"
-                                    >
-                                    </p-button>
-                                </div>
-                            </div>
-
-                            <div *ngIf="item.wayBillShipmentNumber" class="flex align-items-center gap-3 border-left-1 surface-border pl-4">
-                                <div class="flex flex-column align-items-center gap-2">
-                                    <p-button icon="pi pi-file-pdf" severity="secondary" [rounded]="true" [pTooltip]="'Принтирай A6'" (onClick)="handlePrint(item, undefined, 'A6', item.parcelIds)" styleClass="p-button-outlined"> </p-button>
-                                    <span class="text-xs font-bold uppercase">A6</span>
-                                </div>
-
-                                <div class="flex flex-column align-items-center gap-2">
-                                    <p-button icon="pi pi-map" severity="secondary" [rounded]="true" [pTooltip]="'Track' | translate" (onClick)="handleTrack(item)" styleClass="p-button-outlined"> </p-button>
-                                    <span class="text-xs font-bold uppercase">{{ 'Track' | translate }}</span>
-                                </div>
-
-                                <div class="flex flex-column align-items-center gap-2" *ngIf="item.courierHistory?.length">
-                                    <p-button icon="pi pi-history" severity="info" [rounded]="true" [pTooltip]="'History' | translate" (onClick)="opHistoryDetail.toggle($event)" styleClass="p-button-outlined"> </p-button>
-                                    <span class="text-xs font-bold uppercase">{{ 'History' | translate }}</span>
-                                </div>
-
-                                <p-popover #opHistoryDetail>
-                                    <div class="p-3" style="min-width: 300px">
-                                        <div class="flex align-items-center gap-2 border-bottom-1 surface-border pb-2 mb-3">
-                                            <i class="pi pi-truck text-primary"></i>
-                                            <span class="font-bold text-900">Хронология на доставката</span>
-                                        </div>
-
-                                        <p-timeline [value]="item.courierHistory" layout="vertical" styleClass="history-timeline">
-                                            <ng-template pTemplate="marker" let-event>
-                                                <span
-                                                    class="border-circle flex align-items-center justify-content-center shadow-1"
-                                                    [style.background-color]="getTimelineColor(event.statusDescription)"
-                                                    style="width: 12px; height: 12px; border: 2px solid white;"
-                                                >
-                                                </span>
-                                            </ng-template>
-
-                                            <ng-template pTemplate="content" let-event>
-                                                <div class="flex flex-column mb-3">
-                                                    <span class="text-sm font-bold text-900 line-height-1">{{ event.statusDescription }}</span>
-                                                    <small class="text-500 mt-1">
-                                                        <i class="pi pi-calendar-plus mr-1" style="font-size: 0.7rem"></i>
-                                                        {{ event.eventTime | date: 'dd.MM.yyyy HH:mm' }}
-                                                    </small>
-                                                </div>
-                                            </ng-template>
-                                        </p-timeline>
+                            <div class="flex-wrap" style="flex: 1; display: flex; align-items: center; justify-content: space-evenly; width: 100%; padding: 6px 0;">
+                                <div style="display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: center;">
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--oe-text2); line-height: 1.2; max-width: 100px; margin: 0 auto;">Генерирай Товарителница</span>
+                                    <div style="display: flex; justify-content: center;">
+                                        <p-button
+                                            icon="pi pi-plus"
+                                            severity="info"
+                                            [rounded]="false"
+                                            (onClick)="openShipmentDialog(item)"
+                                            [pTooltip]="'Generate_Waybill' | translate"
+                                            [style]="{ width: '52px', height: '52px', 'border-radius': '12px' }"
+                                            [disabled]="!item.id || isReadOnly"
+                                        >
+                                        </p-button>
                                     </div>
-                                </p-popover>
+                                </div>
+
+                                <div *ngIf="item.wayBillShipmentNumber" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: center;">
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--oe-text2); line-height: 1.2; max-width: 100px; margin: 0 auto;">Анулирай Товарителница</span>
+                                    <div style="display: flex; justify-content: center;">
+                                        <p-button
+                                            icon="pi pi-ban"
+                                            severity="danger"
+                                            [rounded]="false"
+                                            (onClick)="onCancelShipment($event, item)"
+                                            [pTooltip]="'Cancel_Waybill' | translate"
+                                            [style]="{ width: '52px', height: '52px', 'border-radius': '12px' }"
+                                        >
+                                        </p-button>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="item.wayBillShipmentNumber" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: center;">
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--oe-text2); line-height: 1.2; max-width: 100px; margin: 0 auto;">Принтирай Товарителница</span>
+                                    <div style="display: flex; justify-content: center;">
+                                        <p-button icon="pi pi-print" severity="secondary" [rounded]="false" [outlined]="true" [pTooltip]="'Принтирай A6'" (onClick)="handlePrint(item, undefined, 'A6', item.parcelIds)" [style]="{ width: '52px', height: '52px', 'border-radius': '12px' }"> </p-button>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="item.wayBillShipmentNumber" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: center;">
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--oe-text2); line-height: 1.2; max-width: 100px; margin: 0 auto;">Проследяване на пратката</span>
+                                    <div style="display: flex; justify-content: center;">
+                                        <p-button icon="pi pi-map-marker" severity="secondary" [rounded]="false" [outlined]="true" [pTooltip]="'Track' | translate" (onClick)="handleTrack(item)" [style]="{ width: '52px', height: '52px', 'border-radius': '12px' }"> </p-button>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="item.wayBillShipmentNumber && item.courierHistory?.length" style="display: flex; flex-direction: column; align-items: stretch; gap: 8px; text-align: center;">
+                                    <span style="font-size: 12px; font-weight: 600; color: var(--oe-text2); line-height: 1.2; max-width: 100px; margin: 0 auto;">История на пратката</span>
+                                    <div style="display: flex; justify-content: center;">
+                                        <p-button icon="pi pi-clock" severity="info" [rounded]="false" [outlined]="true" [pTooltip]="'History' | translate" (onClick)="opHistoryDetail.toggle($event)" [style]="{ width: '52px', height: '52px', 'border-radius': '12px' }"> </p-button>
+                                    </div>
+                                </div>
                             </div>
+
+                            <p-popover #opHistoryDetail>
+                                <div class="p-3" style="min-width: 300px">
+                                    <div class="flex align-items-center gap-2 border-bottom-1 surface-border pb-2 mb-3">
+                                        <i class="pi pi-truck text-primary"></i>
+                                        <span class="font-bold text-900">Хронология на доставката</span>
+                                    </div>
+
+                                    <p-timeline [value]="item.courierHistory" layout="vertical" styleClass="history-timeline">
+                                        <ng-template pTemplate="marker" let-event>
+                                            <span
+                                                class="border-circle flex align-items-center justify-content-center shadow-1"
+                                                [style.background-color]="getTimelineColor(event.statusDescription)"
+                                                style="width: 12px; height: 12px; border: 2px solid white;"
+                                            >
+                                            </span>
+                                        </ng-template>
+
+                                        <ng-template pTemplate="content" let-event>
+                                            <div class="flex flex-column mb-3">
+                                                <span class="text-sm font-bold text-900 line-height-1">{{ event.statusDescription }}</span>
+                                                <small class="text-500 mt-1">
+                                                    <i class="pi pi-calendar-plus mr-1" style="font-size: 0.7rem"></i>
+                                                    {{ event.eventTime | date: 'dd.MM.yyyy HH:mm' }}
+                                                </small>
+                                            </div>
+                                        </ng-template>
+                                    </p-timeline>
+                                </div>
+                            </p-popover>
 
                             <div *ngIf="!item.id" class="flex align-items-center gap-2 mt-2 p-2 bg-orange-50 border-round border-1 border-orange-200 text-orange-700 w-fit">
                                 <i class="pi pi-exclamation-triangle font-bold"></i>
@@ -326,9 +293,21 @@ import { SiteDetailService } from '../site/detail.service';
                                 </span>
                             </div>
                         </div>
+                        </div>
+                        </div>
 
-                        <div class="col-span-12 mt-4">
-                            <h5 class="text-900 font-bold mb-3 border-bottom-1 pb-2">{{ 'Order_Items' | translate }}</h5>
+                        <!-- ТИКЧЕ (временно тук — ще се премести където каже Асан) -->
+                        <div class="oe-col-12">
+                            <div class="oe-checkbox-card" style="margin-top: 0;">
+                                <input type="checkbox" id="freeDelivery" [disabled]="isReadOnly" [(ngModel)]="item.freeDelivery" style="width: 22px; height: 22px; cursor: pointer; flex: none;" />
+                                <label for="freeDelivery" style="font-weight: 600; cursor: pointer;"><i class="pi pi-truck mr-1"></i> Безплатна пратка — без наложен платеж, доставка за сметка на магазина</label>
+                            </div>
+                        </div>
+
+                        <div class="oe-col-12 oe-card">
+                            <div class="oe-card-head">
+                                <div class="oe-card-title"><span class="oe-ico"><i class="pi pi-box"></i></span> {{ 'Order_Items' | translate }}</div>
+                            </div>
 
                             <div class="border-round border-1 surface-border overflow-hidden">
                                 <table class="w-full text-left border-collapse">
@@ -592,7 +571,343 @@ import { SiteDetailService } from '../site/detail.service';
                 <p-button [label]="'Save' | translate" icon="pi pi-check" [loading]="detailService.isSaving()" (onClick)="detailService.saveItem(detailService.selectedItem()!)" />
             </ng-template>
         </p-dialog>
-    `
+
+        <p-confirmpopup key="wbCancel"></p-confirmpopup>
+    `,
+    styles: [
+        `
+            .oe-root {
+                --oe-bg: #f2f5f8;
+                --oe-card: #fff;
+                --oe-border: #e3e8ee;
+                --oe-border-strong: #cfd7e0;
+                --oe-text: #17212e;
+                --oe-text2: #5b6878;
+                --oe-text3: #8a95a3;
+                --oe-primary: #12a150;
+                --oe-primary-dark: #0e8442;
+                --oe-primary-soft: #e8f8ef;
+                --oe-warn-soft: #fff4e5;
+                --oe-warn: #b45309;
+                --oe-danger: #dc2626;
+                --oe-danger-soft: #fdeaea;
+                --oe-blue: #2563eb;
+                --oe-blue-soft: #e9f0fe;
+                --oe-radius: 14px;
+                --oe-radius-s: 10px;
+                --oe-shadow: 0 1px 2px rgba(23, 33, 46, 0.05), 0 4px 16px rgba(23, 33, 46, 0.05);
+                background: var(--oe-bg);
+                color: var(--oe-text);
+                font-size: 14px;
+                margin: -1.25rem;
+                padding: 24px 28px 40px;
+            }
+            .oe-grid {
+                display: grid;
+                grid-template-columns: repeat(12, 1fr);
+                gap: 20px;
+            }
+            .oe-col-6 {
+                grid-column: span 6;
+            }
+            .oe-col-12 {
+                grid-column: span 12;
+            }
+            .oe-card {
+                background: var(--oe-card);
+                border: 1px solid var(--oe-border);
+                border-radius: var(--oe-radius);
+                box-shadow: var(--oe-shadow);
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+            }
+            .oe-card-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 20px;
+            }
+            .oe-card-title {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                font-size: 15px;
+                font-weight: 700;
+            }
+            .oe-card-title .oe-ico {
+                width: 34px;
+                height: 34px;
+                border-radius: 9px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 15px;
+                background: var(--oe-primary-soft);
+                color: var(--oe-primary);
+            }
+            .oe-fields-2 {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            .oe-fields-3 {
+                display: grid;
+                grid-template-columns: 2fr 1fr 1fr;
+                gap: 16px;
+            }
+            .oe-field label {
+                display: block;
+                font-size: 12.5px;
+                font-weight: 600;
+                color: var(--oe-text2);
+                margin-bottom: 7px;
+                letter-spacing: 0.2px;
+            }
+            .oe-control {
+                position: relative;
+            }
+            .oe-control .oe-pre {
+                position: absolute;
+                left: 14px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--oe-text3);
+                font-size: 14px;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .oe-control input,
+            .oe-control select,
+            .oe-card textarea {
+                width: 100%;
+                height: 46px;
+                border: 1px solid var(--oe-border-strong);
+                border-radius: var(--oe-radius-s);
+                padding: 0 14px;
+                font-family: inherit;
+                font-size: 14.5px;
+                font-weight: 500;
+                color: var(--oe-text);
+                background: var(--oe-card);
+                outline: none;
+            }
+            .oe-control.oe-has-pre input,
+            .oe-control.oe-has-pre select {
+                padding-left: 40px;
+            }
+            .oe-control input:focus,
+            .oe-control select:focus,
+            .oe-card textarea:focus {
+                border-color: var(--oe-primary);
+                box-shadow: 0 0 0 3px rgba(18, 161, 80, 0.18);
+            }
+            .oe-card textarea {
+                height: auto;
+                min-height: 104px;
+                padding: 12px 14px;
+                resize: vertical;
+                line-height: 1.5;
+            }
+            .oe-address-box {
+                border: 1px solid var(--oe-border);
+                border-radius: var(--oe-radius-s);
+                background: var(--oe-primary-soft);
+                border-left: 4px solid var(--oe-primary);
+                padding: 14px 16px;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                margin-bottom: 16px;
+            }
+            .oe-address-box .oe-courier {
+                width: 44px;
+                height: 44px;
+                border-radius: 9px;
+                flex: none;
+                background: var(--oe-danger-soft);
+                color: var(--oe-danger);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 800;
+                font-size: 11px;
+            }
+            .oe-address-box .oe-addr-main {
+                font-weight: 600;
+                font-size: 14px;
+                line-height: 1.4;
+            }
+            .oe-address-box .oe-addr-sub {
+                display: flex;
+                gap: 8px;
+                margin-top: 6px;
+                flex-wrap: wrap;
+            }
+            .oe-tag {
+                font-size: 11.5px;
+                font-weight: 600;
+                padding: 3px 9px;
+                border-radius: 6px;
+                background: var(--oe-bg);
+                color: var(--oe-text2);
+                border: 1px solid var(--oe-border);
+            }
+            .oe-tag.oe-green {
+                background: var(--oe-primary-soft);
+                color: var(--oe-primary-dark);
+                border-color: transparent;
+            }
+            .oe-site-chip {
+                height: 46px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border: 1px solid var(--oe-border-strong);
+                border-radius: var(--oe-radius-s);
+                padding: 0 14px;
+            }
+            .oe-site-chip .oe-dot {
+                width: 22px;
+                height: 22px;
+                border-radius: 6px;
+                background: var(--oe-primary);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 11px;
+                font-weight: 800;
+            }
+            .oe-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .oe-table th {
+                text-align: left;
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--oe-text3);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 0 16px 12px;
+                border-bottom: 1px solid var(--oe-border);
+            }
+            .oe-table th.oe-r,
+            .oe-table td.oe-r {
+                text-align: right;
+            }
+            .oe-table th.oe-c,
+            .oe-table td.oe-c {
+                text-align: center;
+            }
+            .oe-table td {
+                padding: 16px;
+                border-bottom: 1px solid var(--oe-border);
+                vertical-align: middle;
+            }
+            .oe-price-base {
+                display: inline-flex;
+                padding: 5px 11px;
+                border-radius: 7px;
+                font-weight: 700;
+                font-size: 13.5px;
+                background: var(--oe-primary-soft);
+                color: var(--oe-primary-dark);
+            }
+            .oe-price-base.oe-zero {
+                background: var(--oe-warn-soft);
+                color: var(--oe-warn);
+            }
+            .oe-summary {
+                width: 380px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-left: auto;
+            }
+            .oe-sum-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 14px;
+            }
+            .oe-sum-row .oe-k {
+                color: var(--oe-text2);
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 9px;
+            }
+            .oe-sum-total {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 4px;
+                padding: 16px 18px;
+                border-radius: var(--oe-radius-s);
+                background: var(--oe-primary-soft);
+            }
+            .oe-sum-total .oe-k {
+                font-size: 15px;
+                font-weight: 700;
+            }
+            .oe-sum-total .oe-v {
+                font-size: 24px;
+                font-weight: 800;
+                color: var(--oe-primary-dark);
+                letter-spacing: -0.4px;
+            }
+            .oe-checkbox-card {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 14px 16px;
+                border: 1px solid var(--oe-border);
+                border-radius: var(--oe-radius-s);
+                background: var(--oe-primary-soft);
+                margin-top: 16px;
+            }
+            .oe-quad {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                grid-auto-rows: 1fr;
+            }
+            .oe-quad > .oe-card {
+                grid-column: auto;
+            }
+            @media (max-width: 1100px) {
+                .oe-quad {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .oe-order-left .oe-field {
+                width: 100%;
+            }
+            .oe-order-left .oe-site-chip {
+                width: 100%;
+                height: 46px;
+            }
+            ::ng-deep .oe-order-left .p-select {
+                width: 100%;
+                height: 46px;
+                display: flex;
+                align-items: center;
+            }
+            @media (max-width: 1100px) {
+                .oe-col-6 {
+                    grid-column: span 12;
+                }
+                .oe-fields-3 {
+                    grid-template-columns: 1fr 1fr;
+                }
+                .oe-summary {
+                    width: 100%;
+                }
+            }
+        `
+    ]
 })
 export class OrderDetailComponent {
     activeTab: any = 0;
@@ -1193,6 +1508,7 @@ export class OrderDetailComponent {
 
     async onCancelShipment(event: Event, order: IOrder) {
         this.confirmationService.confirm({
+            key: 'wbCancel',
             target: event.target as EventTarget,
             message: `${this.tr.instant('Сигурни ли сте, че искате да анулирате товарителница №')} ${order.wayBillShipmentNumber}?`,
             header: this.tr.instant('Внимание'),
